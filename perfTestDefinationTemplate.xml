@@ -1,0 +1,16 @@
+<testDefination>
+    <!--Test Name, This can be any name of your choosing-->
+    <testName></testName>
+    <!--Http method assciated with this request-->
+    <httpMethod></httpMethod>
+    <!--BaseURi of the request, excluding host and port. Path parameters if any should be placed here-->
+    <baseUri></baseUri>
+    <!--REquest body, This can be Json or xml data. XML payload should be wrapped in cdata tags-->
+    <payload></payload>
+    <!--This informs the mock back end of the response type to return. E.g success, failure. Values are taken from those defined in the backend mock code.-->
+    <scenario></scenario>
+    <!--Xtrac session token.As we are using a mock backend, this can be any string the conforms to a valid Xtrac session token. This is added as a request header-->
+    <xtracToken></xtracToken>
+    <!--Indicated to the test, what is the expected http response code. This value is asserted during the test.-->
+    <responseStatusCode></responseStatusCode>
+</testDefination>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <apiName>Xtrac API</apiName>
+
+    <!--Taget API under test-->
+    <targetHost>localhost</targetHost>
+    <targetPort>8282</targetPort>
+
+    <!--Allowed vairance as a percentage over base values-->
+    <allowablePeakMemoryVariance>15</allowablePeakMemoryVariance>
+    <allowableServiceResponseTimeVariance>15</allowableServiceResponseTimeVariance>
+
+    <!--THe number of time each test case is executed-->
+    <numIterations>1000</numIterations>
+
+    <!--Location of directory where test cases reside-->
+    <testDefinationsDir>./testDefinations</testDefinationsDir>
+
+    <!--Output locations for generated files-->
+    <baseStatsOutputDir>./envStats</baseStatsOutputDir>
+    <reportOutputDir>./report</reportOutputDir>
+</config>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+    <HEAD>
+        <TITLE>Xtrac API Automated Performance Test Report</TITLE>
+
+
+        <script src="http://c3js.org/js/jquery-1.11.0.min-910066fb.js" type="text/javascript"></script>
+        <script src="http://c3js.org/js/d3-3.5.0.min-3b564392.js" type="text/javascript"></script>
+        <script src="http://c3js.org/js/c3.min-12912fb6.js" type="text/javascript"></script>
+        <!--<script src="http://c3js.org/js/foundation.min-1dfe8110.js" type="text/javascript"></script>-->
+        <!--<script src="http://c3js.org/js/highlight.pack-4af5004d.js" type="text/javascript"></script>-->
+        <!--<script src="http://c3js.org/js/vendor/modernizr-2.6.1.min-68fdcc99.js" type="text/javascript"></script>-->
+
+        <link href="http://c3js.org/css/normalize-e465cb86.css" media="screen" rel="stylesheet" type="text/css" />
+        <link href="http://c3js.org/css/foundation.min-978d4ce8.css" media="screen" rel="stylesheet" type="text/css" />
+        <link href="http://c3js.org/css/c3-b03125fa.css" media="screen" rel="stylesheet" type="text/css" />
+        <link href="http://c3js.org/css/style-99fb8989.css" media="screen" rel="stylesheet" type="text/css" />
+        <!--<link href="http://c3js.org/css/samples/chart_spline-da39a3ee.css" media="screen" rel="stylesheet" type="text/css" />-->
+        <!--<link href="http://c3js.org/css/tomorrow-d7cf0921.css" media="screen" rel="stylesheet" type="text/css" />-->
+
+        <STYLE type="text/css">
+            BODY {
+                background: white;
+                color: black
+            }
+
+            .topBar{
+                padding-top: -10px;
+                background-color: LightSlateGray;
+                border-style: groove;
+            }
+
+            h1.padding {
+                padding-left: 80px;
+                font: 30px arial, sans-serif;
+                color: white;
+                text-shadow: 1px 1px LightGray;
+            }
+
+            h3.padding {
+                padding-left: 80px;
+                color: white;
+                text-shadow: 1px 1px LightGray;
+            }
+            h6.padding {
+                padding-left: 80px;
+                color: white;
+                text-shadow: 1px 1px LightGray;
+            }
+
+            .divHeading{
+                background-color: LightBlue;
+                border-style: none;
+            }
+
+            .tablePadding {
+                padding-left: 80px;
+            }
+
+            #memoryContainer {
+                height:400px;
+            }
+
+        </STYLE>
+        <script>
+            var isMemoryAnalysisHidden = false;
+            function hideMemoryAnalysis(){
+                if(isMemoryAnalysisHidden){
+                    document.getElementById("memoryContainer").style.display = "inline";
+                    isMemoryAnalysisHidden = false;
+                }else{
+                    document.getElementById("memoryContainer").style.display = "none";
+                    isMemoryAnalysisHidden = true;
+                }
+
+            }
+
+            var isServiceAnalysisHidden = false;
+            function hideServiceAnalysis(){
+                if(isServiceAnalysisHidden){
+                    document.getElementById("serviceContainer").style.display = "inline";
+                    isServiceAnalysisHidden = false;
+                }else{
+                    document.getElementById("serviceContainer").style.display = "none";
+                    isServiceAnalysisHidden = true;
+                }
+
+            }
+
+        </script>
+
+    </HEAD>
+
+    <body>
+
+        <div class="topBar">
+            <h1 class="padding">Xtrac API :: Automated Performance Test Report :: (###testDate###)</h1>
+        </div>
+        <div class="divHeading" onclick="hideMemoryAnalysis()">
+            <table class="divHeading" border="0" width="90%">
+                <tr>
+                    <td width="50%"><h3 class="padding">Memory Analysis</h3></td>
+                    <td width="25%"><h6 class="padding">Allowed Variance : ###allowedMemoryVariance###%</h6></td>
+                    <td width="25%"><h6 class="padding">###memoryPassFail###</h6></td>
+                </tr>
+            </table>
+        </div>
+        <div id="memoryContainer">
+            <div class="tablePadding">
+                <table class="padding" width="90%">
+                    <tr>
+                        <td  width="160"><B>Base Peak Memory:</B></td>
+                        <td>###basePeakMemory###MB</td>
+                        <td width="150"><b>Test Peak Memory:</b></td>
+                        <td>###testPeakMemory###MB</td>
+                        <td width="110"><b>% Variance:</b></td>
+                        <td ###errorStyle###>###memoryVariance###%</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class='container'>
+                <div class='chart'>
+                    <div id='LineChart'></div>
+                </div>
+            </div>
+            <script>
+                var LineChartJS = c3.generate({
+                data: {
+                    columns: [
+                       ###baseMemoryArray###,
+                       ###testMemoryArray###
+                    ]
+                },
+                zoom: {
+                    enabled: true
+                },
+                 subchart: {
+                    show: true
+                },
+                axis: {
+                    y: {
+                        label: 'Memory (KB)'
+                    },
+                },
+                grid: {
+                     x: {
+                        lines: [
+                                    ###testPartitions###
+                                ]
+                         }
+                    }
+            });
+             $("#LineChart").append(LineChartJS.element);
+            </script>
+        </div>
+
+        <div class="divHeading" onclick="hideServiceAnalysis()">
+            <table class="divHeading" border="0" width="90%">
+                <tr>
+                    <td width="50%"><h3 class="padding">Service Response Time Analysis</h3></td>
+                    <td width="25%"><h6 class="padding">Allowed Variance : ###allowedServiceRespTimeVariance###%</h6></td>
+                    <td width="25%"><h6 class="padding">###servicePassFail###</h6></td>
+                </tr>
+            </table>
+        </div>
+        <div id="serviceContainer">
+        <div class="tablePadding">
+            <table width="90%">
+                <tr style="background:LightGray">
+                    <td width="30%"><b>TestName</b></td>
+                    <td width="20%"><b>BaseTime (Milli)</b></td>
+                    <td width="20%"><b>TestTime (Milli)</b></td>
+                    <td width="20%"><b>%variance</b></td>
+                </tr>
+                ###serviceRespTimesTable###
+            </table>
+        </div>
+        <div class='container'>
+            <div class='chart'>
+                <div id='barChart'></div>
+            </div>
+        </div>
+        <script>
+           var barChartJS = c3.generate({
+                data: {
+                    columns: [
+                        ###servcieResponseTimesBase###,
+                        ###servcieResponseTimesTest###
+                    ],
+                    type: 'bar'
+                },
+                zoom: {
+                    enabled: true
+                },
+                bar: {
+                    width: {
+                        ratio: 0.5
+                    }
+                },
+                axis: {
+                y: {
+                    label: 'Avg Resp Time (MilliSeconds)'
+                },
+                    x: {
+                        type: 'category',
+                        categories: ###servcieNames###
+                    }
+                }
+            });
+            $("#barChart").append(barChartJS.element);
+        </script>
+        </div>
+        <br><br><br><br><br><br><br><br>
+    </body>
+</html>
