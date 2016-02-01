@@ -7,7 +7,7 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
+	//log "github.com/Sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -39,12 +39,14 @@ func init() {
 	if configFilePath != "" {
 		fileContent, fileErr := ioutil.ReadFile(configFilePath)
 		if fileErr != nil {
-			log.Info("No config file found. ")
+			//log.Info("No config file found. ")
+			fmt.Println("No config file found. ")
 			os.Exit(1)
 		} else {
 			xmlError := xml.Unmarshal(fileContent, &configurationSettings)
 			if xmlError != nil {
-				log.Info("Failed to parse config file ", configFilePath, ". Error:", xmlError)
+				//log.Info("Failed to parse config file ", configFilePath, ". Error:", xmlError)
+				fmt.Println("Failed to parse config file ", configFilePath, ". Error:", xmlError)
 				os.Exit(1)
 			}
 		}
@@ -54,7 +56,8 @@ func init() {
 	//Get Hostname for this machine.
 	host, err := os.Hostname()
 	if err != nil {
-		log.Error("Failed to resolve host name. Error:", err)
+		//log.Error("Failed to resolve host name. Error:", err)
+		fmt.Println("Failed to resolve host name. Error:", err)
 		os.Exit(1)
 	}
 	configurationSettings.ExecutionHost = host
@@ -79,7 +82,8 @@ func main() {
 }
 
 func runInTrainingMode(perfStatsForTest *perfTestUtils.PerfStats, host string) {
-	log.Info("Running Perf test in Training mode for host ", host)
+	//log.Info("Running Perf test in Training mode for host ", host)
+	fmt.Println("Running Perf test in Training mode for host ", host)
 
 	//Check to see if this server already has a base perf file defined.
 	//If so, only values not previously populated will be set.
@@ -95,12 +99,14 @@ func runInTrainingMode(perfStatsForTest *perfTestUtils.PerfStats, host string) {
 	//Convert base perf stat to Json and write out to file
 	basePerfstatsJson, err := json.Marshal(basePerfstats)
 	if err != nil {
-		log.Error("Failed to marshal to Json. Error:", err)
+		//log.Error("Failed to marshal to Json. Error:", err)
+		fmt.Println("Failed to marshal to Json. Error:", err)
 		os.Exit(1)
 	}
 	file, err := os.Create("./envStats/" + host + "-perfBaseStats")
 	if err != nil {
-		log.Error("Failed to create output file. Error:", err)
+		//log.Error("Failed to create output file. Error:", err)
+		fmt.Println("Failed to create output file. Error:", err)
 		os.Exit(1)
 	}
 	defer file.Close()
@@ -108,11 +114,13 @@ func runInTrainingMode(perfStatsForTest *perfTestUtils.PerfStats, host string) {
 }
 
 func runInTestingMode(perfStatsForTest *perfTestUtils.PerfStats, host string) {
-	log.Info("Running Perf test in Testing mode for host ", host)
+	//log.Info("Running Perf test in Testing mode for host ", host)
+	fmt.Println("Running Perf test in Testing mode for host ", host)
 	//read in perf base stats
 	basePerfstats, err := perfTestUtils.ReadBasePerfFile(host)
 	if err != nil {
-		log.Error("Failed to read env stats for " + host + ". Error:" + err.Error() + ". Run go test -gbs to generate base performance statistics for this server.")
+		//log.Error("Failed to read env stats for " + host + ". Error:" + err.Error() + ". Run go test -gbs to generate base performance statistics for this server.")
+		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ". Run go test -gbs to generate base performance statistics for this server.")
 		os.Exit(1)
 	}
 
@@ -176,7 +184,8 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
 				memoryStatsUrl := "http://" + configurationSettings.TargetHost + ":" + configurationSettings.TargetPort + "/debug/vars"
 				resp, err := http.Get(memoryStatsUrl)
 				if err != nil {
-					log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl)
+					//log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl)
+					fmt.Println("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl)
 					quit <- true
 				} else {
 					body, _ := ioutil.ReadAll(resp.Body)
@@ -186,7 +195,8 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
 					m := new(perfTestUtils.Entry)
 					unmarshalErr := json.Unmarshal(body, m)
 					if unmarshalErr != nil {
-						log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics. ", unmarshalErr)
+						//log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics. ", unmarshalErr)
+						fmt.Println("Memory analysis unavailable. Failed to unmarshal memory statistics. ", unmarshalErr)
 						quit <- true
 					} else {
 						if m.Memstats.Alloc > *peakMemoryAllocation {
@@ -210,17 +220,20 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
 	//Read test case files from test defination directory
 	d, err := os.Open(configurationSettings.TestDefinationsDir)
 	if err != nil {
-		log.Error("Failed to open test definations directory. Error:", err)
+		//log.Error("Failed to open test definations directory. Error:", err)
+		fmt.Println("Failed to open test definations directory. Error:", err)
 		os.Exit(1)
 	}
 	defer d.Close()
 	fi, err := d.Readdir(-1)
 	if err != nil {
-		log.Error("Failed to read files in test definations directory. Error:", err)
+		//log.Error("Failed to read files in test definations directory. Error:", err)
+		fmt.Println("Failed to read files in test definations directory. Error:", err)
 		os.Exit(1)
 	}
 	if len(fi) == 0 {
-		log.Error("No test case files found in specified directory ", configurationSettings.TestDefinationsDir)
+		//log.Error("No test case files found in specified directory ", configurationSettings.TestDefinationsDir)
+		fmt.Println("No test case files found in specified directory ", configurationSettings.TestDefinationsDir)
 		os.Exit(1)
 	}
 
@@ -229,14 +242,16 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
 	for _, fi := range fi {
 		bs, err := ioutil.ReadFile(configurationSettings.TestDefinationsDir + "/" + fi.Name())
 		if err != nil {
-			log.Error("Failed to read test file. Filename: ", fi.Name(), err)
+			//log.Error("Failed to read test file. Filename: ", fi.Name(), err)
+			fmt.Println("Failed to read test file. Filename: ", fi.Name(), err)
 			continue
 		}
 
 		testDefination := new(perfTestUtils.TestDefination)
 		xml.Unmarshal(bs, &testDefination)
 
-		log.Info("Running Test case [Name:", testDefination.TestName, ", File name:", fi.Name(), "]")
+		//log.Info("Running Test case [Name:", testDefination.TestName, ", File name:", fi.Name(), "]")
+		fmt.Println("Running Test case [Name:", testDefination.TestName, ", File name:", fi.Name(), "]")
 		currentServiceName = testDefination.TestName
 		perfStatsForTest.ServiceResponseTimes[testDefination.TestName] = executeServiceTest(testDefination)
 		time.Sleep(time.Millisecond * 200)
@@ -268,12 +283,14 @@ func executeServiceTest(testDefination *perfTestUtils.TestDefination) int64 {
 			}
 		} else {
 			if testDefination.HttpMethod != "POST" {
-				log.Fatal("Multipart request has to be 'POST' method.")
+				//log.Fatal("Multipart request has to be 'POST' method.")
+				fmt.Println("Multipart request has to be 'POST' method.")
 			} else {
 				body := new(bytes.Buffer)
 				writer := multipart.NewWriter(body)
 				for _, field := range testDefination.MultipartPayload {
-					log.Debugf("field: %s\n", field)
+					//log.Debugf("field: %s\n", field)
+					fmt.Println(fmt.Sprintf("field: %s\n", field))
 					if field.FileName == "" {
 						writer.WriteField(field.FieldName, field.FieldValue)
 					} else {
@@ -296,7 +313,8 @@ func executeServiceTest(testDefination *perfTestUtils.TestDefination) int64 {
 		req.Header.Set("xtracToken", testDefination.XtracToken)
 		startTime := time.Now()
 		if resp, err := (&http.Client{}).Do(req); err != nil {
-			log.Error("Error by firing request: ", req, "Error:", err)
+			//log.Error("Error by firing request: ", req, "Error:", err)
+			fmt.Println("Error by firing request: ", req, "Error:", err)
 		} else {
 
 			timeTaken := time.Since(startTime)
@@ -476,19 +494,22 @@ func generateReport(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfT
 func validateTestDefinitionAmount(baselineAmount int) {
 	d, err := os.Open(configurationSettings.TestDefinationsDir)
 	if err != nil {
-		log.Error("Failed to open test definations directory. Error:", err)
+		//log.Error("Failed to open test definations directory. Error:", err)
+		fmt.Println("Failed to open test definations directory. Error:", err)
 		os.Exit(1)
 	}
 	defer d.Close()
 	fi, err := d.Readdir(-1)
 	if err != nil {
-		log.Error("Failed to read files in test definations directory. Error:", err)
+		//log.Error("Failed to read files in test definations directory. Error:", err)
+		fmt.Println("Failed to read files in test definations directory. Error:", err)
 		os.Exit(1)
 	}
 	definitionAmount := len(fi)
 
 	if definitionAmount != baselineAmount {
-		log.Errorf("Amount of test definition: %d does not equal to baseline amount: %d.", definitionAmount, baselineAmount)
+		//log.Errorf("Amount of test definition: %d does not equal to baseline amount: %d.", definitionAmount, baselineAmount)
+		fmt.Println("Amount of test definition: %d does not equal to baseline amount: %d.", definitionAmount, baselineAmount)
 		os.Exit(1)
 	}
 }

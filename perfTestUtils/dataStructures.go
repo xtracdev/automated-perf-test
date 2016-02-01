@@ -3,7 +3,7 @@ package perfTestUtils
 import (
 	"encoding/xml"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
+	//log "github.com/Sirupsen/logrus"
 	"os"
 	"runtime"
 	"strings"
@@ -45,42 +45,52 @@ func (c Config) PrintAndValidateConfig() {
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "resetPeakMemory", c.ResetPeakMemory, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "ExecutionHost", c.ExecutionHost, "\n"))...)
 	configOutput = append(configOutput, []byte("\n=================================================\n")...)
-	log.Info(string(configOutput))
+	//log.Info(string(configOutput))
+	fmt.Println(string(configOutput))
 
 	if strings.TrimSpace(c.APIName) == "" {
-		log.Error("CONFIG ERROR: apiName must be set in config file")
+		//log.Error("CONFIG ERROR: apiName must be set in config file")
+		fmt.Println("CONFIG ERROR: apiName must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.TargetHost) == "" {
-		log.Error("CONFIG ERROR: targetHost must be set in config file")
+		//log.Error("CONFIG ERROR: targetHost must be set in config file")
+		fmt.Println("CONFIG ERROR: targetHost must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.TargetPort) == "" {
-		log.Error("CONFIG ERROR: targetPort must be set in config file")
+		//log.Error("CONFIG ERROR: targetPort must be set in config file")
+		fmt.Println("CONFIG ERROR: targetPort must be set in config file")
 		isConfigValid = false
 	}
 	if c.NumIterations < 1 {
-		log.Error("CONFIG ERROR: numIterations must be set in config file and must be greater than 1")
+		//log.Error("CONFIG ERROR: numIterations must be set in config file and must be greater than 1")
+		fmt.Println("CONFIG ERROR: numIterations must be set in config file and must be greater than 1")
 		isConfigValid = false
 	}
 	if c.AllowablePeakMemoryVariance <= 0.0 {
-		log.Error("CONFIG ERROR: allowablePeakMemoryVariance must be set in config file and must be greater than 0.0")
+		//log.Error("CONFIG ERROR: allowablePeakMemoryVariance must be set in config file and must be greater than 0.0")
+		fmt.Println("CONFIG ERROR: allowablePeakMemoryVariance must be set in config file and must be greater than 0.0")
 		isConfigValid = false
 	}
 	if c.AllowableServiceResponseTimeVariance <= 0.0 {
-		log.Error("CONFIG ERROR: allowableServiceResponseTimeVariance must be set in config file and must be greater than 0.0")
+		//log.Error("CONFIG ERROR: allowableServiceResponseTimeVariance must be set in config file and must be greater than 0.0")
+		fmt.Println("CONFIG ERROR: allowableServiceResponseTimeVariance must be set in config file and must be greater than 0.0")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.TestDefinationsDir) == "" {
-		log.Error("CONFIG ERROR: testDefinationsDir must be set in config file")
+		//log.Error("CONFIG ERROR: testDefinationsDir must be set in config file")
+		fmt.Println("CONFIG ERROR: testDefinationsDir must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.BaseStatsOutputDir) == "" {
-		log.Error("CONFIG ERROR: baseStatsOutputDir must be set in config file")
+		//log.Error("CONFIG ERROR: baseStatsOutputDir must be set in config file")
+		fmt.Println("CONFIG ERROR: baseStatsOutputDir must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.ReportOutputDir) == "" {
-		log.Error("CONFIG ERROR: reportOutputDir must be set in config file")
+		//log.Error("CONFIG ERROR: reportOutputDir must be set in config file")
+		fmt.Println("CONFIG ERROR: reportOutputDir must be set in config file")
 		isConfigValid = false
 	}
 	if !isConfigValid {

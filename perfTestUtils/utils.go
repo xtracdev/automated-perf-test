@@ -3,7 +3,7 @@ package perfTestUtils
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
+	//log "github.com/Sirupsen/logrus"
 	"io/ioutil"
 	"sort"
 )
@@ -96,7 +96,8 @@ func ValidateResponseBody(body []byte, testName string) bool {
 	if len(body) > 0 {
 		isResponseBodyValid = true
 	} else {
-		log.Error(fmt.Sprintf("Incorrect Content lenght (%d) returned for service %s", len(body), testName))
+		//log.Error(fmt.Sprintf("Incorrect Content lenght (%d) returned for service %s", len(body), testName))
+		fmt.Println(fmt.Sprintf("Incorrect Content lenght (%d) returned for service %s", len(body), testName))
 	}
 	return isResponseBodyValid
 }
@@ -107,7 +108,8 @@ func ValidateResponseStatusCode(responseStatusCode int, expectedStatusCode int, 
 	if responseStatusCode == expectedStatusCode {
 		isResponseStatusCodeValid = true
 	} else {
-		log.Error(fmt.Sprintf("Incorrect status code of %d retruned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode))
+		//log.Error(fmt.Sprintf("Incorrect status code of %d retruned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode))
+		fmt.Println(fmt.Sprintf("Incorrect status code of %d retruned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode))
 	}
 	return isResponseStatusCodeValid
 }
@@ -118,7 +120,8 @@ func ValidateServiceResponseTime(responseTime int64, testName string) bool {
 	if responseTime > 0 {
 		isResponseTimeValid = true
 	} else {
-		log.Error(fmt.Sprintf("Time taken to complete request %s was 0 nanoseconds", testName))
+		//log.Error(fmt.Sprintf("Time taken to complete request %s was 0 nanoseconds", testName))
+		fmt.Println(fmt.Sprintf("Time taken to complete request %s was 0 nanoseconds", testName))
 	}
 	return isResponseTimeValid
 }
@@ -132,7 +135,8 @@ func ValidatePeakMemoryVariance(allowablePeakMemoryVariance float64, peakMemoryV
 	if allowablePeakMemoryVariance < peakMemoryVariancePercentage {
 		isPeakMemoryVarianceValid = true
 	} else {
-		log.Error(fmt.Sprintf("Peak Memory Variance value of %f%% exceeded. Max allowable variance is %f%%", peakMemoryVariancePercentage, allowablePeakMemoryVariance))
+		//log.Error(fmt.Sprintf("Peak Memory Variance value of %f%% exceeded. Max allowable variance is %f%%", peakMemoryVariancePercentage, allowablePeakMemoryVariance))
+		fmt.Println(fmt.Sprintf("Peak Memory Variance value of %f%% exceeded. Max allowable variance is %f%%", peakMemoryVariancePercentage, allowablePeakMemoryVariance))
 	}
 	return isPeakMemoryVarianceValid
 }
@@ -143,7 +147,8 @@ func ValidateTestCaseCount(baseTestCaseCount int, testTestCaseCount int) bool {
 	if baseTestCaseCount == testTestCaseCount {
 		isTestCaseCountValid = true
 	} else {
-		log.Error(fmt.Sprintf("Number of service tests in base is differnet to the number of services for this test run."))
+		//log.Error(fmt.Sprintf("Number of service tests in base is differnet to the number of services for this test run."))
+		fmt.Println(fmt.Sprintf("Number of service tests in base is differnet to the number of services for this test run."))
 	}
 	return isTestCaseCountValid
 }
@@ -154,7 +159,8 @@ func ValidateAverageServiceResponeTimeVariance(allowableServiceResponseTimeVaria
 	if allowableServiceResponseTimeVariance < serviceResponseTimeVariancePercentage {
 		isAverageServiceResponeTimeVarianceValid = true
 	} else {
-		log.Error(fmt.Sprintf("%s Response Time Variance value of %f%% exceeded. Max allowable variance is %f%%", serviceName, serviceResponseTimeVariancePercentage, allowableServiceResponseTimeVariance))
+		//log.Error(fmt.Sprintf("%s Response Time Variance value of %f%% exceeded. Max allowable variance is %f%%", serviceName, serviceResponseTimeVariancePercentage, allowableServiceResponseTimeVariance))
+		fmt.Println(fmt.Sprintf("%s Response Time Variance value of %f%% exceeded. Max allowable variance is %f%%", serviceName, serviceResponseTimeVariancePercentage, allowableServiceResponseTimeVariance))
 	}
 	return isAverageServiceResponeTimeVarianceValid
 }
