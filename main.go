@@ -40,7 +40,7 @@ func init() {
 		fileContent, fileErr := ioutil.ReadFile(configFilePath)
 		if fileErr != nil {
 			//log.Info("No config file found. ")
-			fmt.Println("No config file found. ")
+			fmt.Println("No config file found at path: ", configFilePath)
 			os.Exit(1)
 		} else {
 			xmlError := xml.Unmarshal(fileContent, &configurationSettings)
