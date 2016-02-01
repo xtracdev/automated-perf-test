@@ -9,14 +9,14 @@ import (
 )
 
 //This function reads a base perf file for this host and converts it to a base perf struct
-func ReadBasePerfFile(host string) (*BasePerfStats, error) {
+func ReadBasePerfFile(host string, baseStatsOutputDir string) (*BasePerfStats, error) {
 	basePerfstats := &BasePerfStats{
 		BaseServiceResponseTimes: make(map[string]int64),
 		MemoryAudit:              make([]uint64, 0),
 	}
 	var errorFound error
 
-	fileContent, fileErr := ioutil.ReadFile("./envStats/" + host + "-perfBaseStats")
+	fileContent, fileErr := ioutil.ReadFile(baseStatsOutputDir + "/" + host + "-perfBaseStats")
 	if fileErr != nil {
 		errorFound = fileErr
 	} else {

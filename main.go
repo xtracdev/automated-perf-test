@@ -88,7 +88,7 @@ func runInTrainingMode(perfStatsForTest *perfTestUtils.PerfStats, host string) {
 	//Check to see if this server already has a base perf file defined.
 	//If so, only values not previously populated will be set.
 	//if not, a default base perf struct is created with nil values for all fields
-	basePerfstats, _ := perfTestUtils.ReadBasePerfFile(host)
+	basePerfstats, _ := perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
 
 	//Run the test
 	runTests(perfStatsForTest)
@@ -103,7 +103,7 @@ func runInTrainingMode(perfStatsForTest *perfTestUtils.PerfStats, host string) {
 		fmt.Println("Failed to marshal to Json. Error:", err)
 		os.Exit(1)
 	}
-	file, err := os.Create("./envStats/" + host + "-perfBaseStats")
+	file, err := os.Create(configurationSettings.BaseStatsOutputDir + "/" + host + "-perfBaseStats")
 	if err != nil {
 		//log.Error("Failed to create output file. Error:", err)
 		fmt.Println("Failed to create output file. Error:", err)
@@ -117,7 +117,7 @@ func runInTestingMode(perfStatsForTest *perfTestUtils.PerfStats, host string) {
 	//log.Info("Running Perf test in Testing mode for host ", host)
 	fmt.Println("Running Perf test in Testing mode for host ", host)
 	//read in perf base stats
-	basePerfstats, err := perfTestUtils.ReadBasePerfFile(host)
+	basePerfstats, err := perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
 	if err != nil {
 		//log.Error("Failed to read env stats for " + host + ". Error:" + err.Error() + ". Run go test -gbs to generate base performance statistics for this server.")
 		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ". Run go test -gbs to generate base performance statistics for this server.")
