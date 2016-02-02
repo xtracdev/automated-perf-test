@@ -385,7 +385,7 @@ func runAssertions(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTe
 
 func generateReport(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTestUtils.PerfStats) {
 
-	fileContent, fileErr := ioutil.ReadFile(configurationSettings.ReportOutputDir + "/template.html")
+	fileContent, fileErr := ioutil.ReadFile("./report/template.html")
 	if fileErr != nil {
 		fmt.Println(fileErr)
 	}
@@ -483,7 +483,7 @@ func generateReport(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfT
 	}
 
 	//Write out the file
-	file, err := os.Create("configurationSettings.ReportOutputDir" + "/PerformanceReport.html")
+	file, err := os.Create(configurationSettings.ReportOutputDir + "/PerformanceReport.html")
 	if err != nil {
 		defer file.Close()
 	}
