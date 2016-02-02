@@ -16,7 +16,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"xtrac/api/common/test/backendServerMock"
 )
 
 var configurationSettings *perfTestUtils.Config
@@ -304,7 +303,7 @@ func executeServiceTest(testDefination *perfTestUtils.TestDefination) int64 {
 			}
 		}
 
-		req.Header.Add(backendServerMock.SCENARIO_HEADER_KEY, testDefination.Scenario)
+		req.Header.Add("scenario", testDefination.Scenario)
 
 		//add headers
 		for _, v := range testDefination.Headers {
