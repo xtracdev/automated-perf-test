@@ -184,7 +184,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
 				resp, err := http.Get(memoryStatsUrl)
 				if err != nil {
 					//log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl)
-					fmt.Println("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl)
+					fmt.Println("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error:", err)
 					quit <- true
 				} else {
 					body, _ := ioutil.ReadAll(resp.Body)
