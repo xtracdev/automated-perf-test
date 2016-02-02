@@ -76,7 +76,19 @@ func main() {
 	if configurationSettings.GBS {
 		runInTrainingMode(perfStatsForTest, configurationSettings.ExecutionHost)
 	} else {
-		runInTestingMode(perfStatsForTest, configurationSettings.ExecutionHost)
+		readyForTest, basePerfStats := isReadyForTest(configurationSettings.ExecutionHost)
+		if readyForTest {
+			runInTestingMode(perfStatsForTest, basePerfStats, configurationSettings.ExecutionHost)
+		} else {
+			runInTrainingMode(perfStatsForTest, configurationSettings.ExecutionHost)
+			readyForTest, basePerfStats = isReadyForTest(configurationSettings.ExecutionHost)
+			if readyForTest {
+				runInTestingMode(perfStatsForTest, basePerfStats, configurationSettings.ExecutionHost)
+			} else {
+				fmt.Println("System is not ready for testing. Check logs for more details.")
+				os.Exit(1)
+			}
+		}
 	}
 }
 
@@ -112,22 +124,29 @@ func runInTrainingMode(perfStatsForTest *perfTestUtils.PerfStats, host string) {
 	file.Write(basePerfstatsJson)
 }
 
-func runInTestingMode(perfStatsForTest *perfTestUtils.PerfStats, host string) {
-	//log.Info("Running Perf test in Testing mode for host ", host)
+func runInTestingMode(perfStatsForTest *perfTestUtils.PerfStats, basePerfstats *perfTestUtils.BasePerfStats, host string) {
 	fmt.Println("Running Perf test in Testing mode for host ", host)
-	//read in perf base stats
-	basePerfstats, err := perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
-	if err != nil {
-		//log.Error("Failed to read env stats for " + host + ". Error:" + err.Error() + ". Run go test -gbs to generate base performance statistics for this server.")
-		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ". Run go test -gbs to generate base performance statistics for this server.")
-		os.Exit(1)
-	}
-
-	validateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes))
 	runTests(perfStatsForTest)
 	runAssertions(basePerfstats, perfStatsForTest)
 	generateReport(basePerfstats, perfStatsForTest)
+}
 
+func isReadyForTest(host string) (bool, *perfTestUtils.BasePerfStats) {
+
+	//1) read in perf base stats
+	basePerfstats, err := perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
+	if err != nil {
+		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ". System not ready for testing. Will attempt to run in training mode .....")
+		return false, nil
+	}
+
+	//2) Verify the number of base test cases is equal to the number of service test cases.
+	correctNumberOfTests := validateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes))
+	if !correctNumberOfTests {
+		return false, nil
+	}
+
+	return true, basePerfstats
 }
 
 func populateBasePerfStats(perfStatsForTest *perfTestUtils.PerfStats, basePerfstats *perfTestUtils.BasePerfStats) {
@@ -143,7 +162,7 @@ func populateBasePerfStats(perfStatsForTest *perfTestUtils.PerfStats, basePerfst
 			modified = true
 		}
 	}
-	if basePerfstats.MemoryAudit == nil || len(basePerfstats.MemoryAudit) == 0 {
+	if basePerfstats.MemoryAudit == nil || len(basePerfstats.MemoryAudit) == 0 || configurationSettings.ResetPeakMemory {
 		basePerfstats.MemoryAudit = perfStatsForTest.MemoryAudit
 		modified = true
 	}
@@ -188,7 +207,6 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
 					fmt.Println("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error:", err)
 					quit <- true
 				} else {
-					fmt.Println("Memory analysis available.")
 
 					body, _ := ioutil.ReadAll(resp.Body)
 
@@ -493,7 +511,8 @@ func generateReport(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfT
 	file.Write([]byte(stringContents))
 }
 
-func validateTestDefinitionAmount(baselineAmount int) {
+func validateTestDefinitionAmount(baselineAmount int) bool {
+
 	d, err := os.Open(configurationSettings.TestDefinationsDir)
 	if err != nil {
 		//log.Error("Failed to open test definations directory. Error:", err)
@@ -507,11 +526,13 @@ func validateTestDefinitionAmount(baselineAmount int) {
 		fmt.Println("Failed to read files in test definations directory. Error:", err)
 		os.Exit(1)
 	}
+
 	definitionAmount := len(fi)
 
 	if definitionAmount != baselineAmount {
 		//log.Errorf("Amount of test definition: %d does not equal to baseline amount: %d.", definitionAmount, baselineAmount)
-		fmt.Println("Amount of test definition: %d does not equal to baseline amount: %d.", definitionAmount, baselineAmount)
-		os.Exit(1)
+		fmt.Println(fmt.Sprintf("Amount of test definition: %d does not equal to baseline amount: %d.", definitionAmount, baselineAmount))
+		return false
 	}
+	return true
 }
