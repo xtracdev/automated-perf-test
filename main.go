@@ -13,12 +13,17 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
 var configurationSettings *perfTestUtils.Config
+
+const (
+	TRAINING_MODE = 1
+	TESTING_MODE  = 2
+)
 
 func init() {
 
@@ -49,6 +54,7 @@ func init() {
 				os.Exit(1)
 			}
 		}
+
 	}
 
 	//Get Hostname for this machine.
@@ -69,18 +75,27 @@ func main() {
 	//Validate config()
 	configurationSettings.PrintAndValidateConfig()
 
-	//initilize Performance statistics struct for this test run
-	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64)}
-
+	//Determine testing mode.
 	if configurationSettings.GBS {
-		runInTrainingMode(perfStatsForTest, configurationSettings.ExecutionHost)
+		runInTrainingMode(configurationSettings.ExecutionHost)
 	} else {
-		runInTestingMode(perfStatsForTest, configurationSettings.ExecutionHost)
+		readyForTest, basePerfStats := isReadyForTest(configurationSettings.ExecutionHost)
+		if readyForTest {
+			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost)
+		} else {
+			runInTrainingMode(configurationSettings.ExecutionHost)
+			readyForTest, basePerfStats = isReadyForTest(configurationSettings.ExecutionHost)
+			if readyForTest {
+				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost)
+			} else {
+				fmt.Println("System is not ready for testing. Check logs for more details.")
+				os.Exit(1)
+			}
+		}
 	}
 }
 
-func runInTrainingMode(perfStatsForTest *perfTestUtils.PerfStats, host string) {
-	//log.Info("Running Perf test in Training mode for host ", host)
+func runInTrainingMode(host string) {
 	fmt.Println("Running Perf test in Training mode for host ", host)
 
 	//Check to see if this server already has a base perf file defined.
@@ -88,78 +103,62 @@ func runInTrainingMode(perfStatsForTest *perfTestUtils.PerfStats, host string) {
 	//if not, a default base perf struct is created with nil values for all fields
 	basePerfstats, _ := perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
 
+	//initilize Performance statistics struct for this test run
+	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64)}
+
 	//Run the test
-	runTests(perfStatsForTest)
+	runTests(perfStatsForTest, TRAINING_MODE)
+	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings)
 
-	//Set base performance based on this test run
-	populateBasePerfStats(perfStatsForTest, basePerfstats)
-
-	//Convert base perf stat to Json and write out to file
-	basePerfstatsJson, err := json.Marshal(basePerfstats)
-	if err != nil {
-		//log.Error("Failed to marshal to Json. Error:", err)
-		fmt.Println("Failed to marshal to Json. Error:", err)
-		os.Exit(1)
-	}
-	file, err := os.Create(configurationSettings.BaseStatsOutputDir + "/" + host + "-perfBaseStats")
-	if err != nil {
-		//log.Error("Failed to create output file. Error:", err)
-		fmt.Println("Failed to create output file. Error:", err)
-		os.Exit(1)
-	}
-	defer file.Close()
-	file.Write(basePerfstatsJson)
+	fmt.Println("Training mode completed successfully")
 }
 
-func runInTestingMode(perfStatsForTest *perfTestUtils.PerfStats, host string) {
-	//log.Info("Running Perf test in Testing mode for host ", host)
+func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string) {
 	fmt.Println("Running Perf test in Testing mode for host ", host)
-	//read in perf base stats
+
+	//initilize Performance statistics struct for this test run
+	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64)}
+
+	runTests(perfStatsForTest, TESTING_MODE)
+	assertionFailures := runAssertions(basePerfstats, perfStatsForTest)
+	perfTestUtils.GenerateReport(basePerfstats, perfStatsForTest, configurationSettings)
+
+	fmt.Println("=================== TEST RESULTS ===================")
+	if len(assertionFailures) > 0 {
+		fmt.Println("Failures : ", len(assertionFailures))
+		//Print assertion failures
+		for _, failure := range assertionFailures {
+			fmt.Println(failure)
+		}
+		os.Exit(1)
+	} else {
+		fmt.Println("Testing mode completed successfully")
+	}
+	fmt.Println("=====================================================")
+}
+
+func isReadyForTest(host string) (bool, *perfTestUtils.BasePerfStats) {
+
+	//1) read in perf base stats
 	basePerfstats, err := perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
 	if err != nil {
-		//log.Error("Failed to read env stats for " + host + ". Error:" + err.Error() + ". Run go test -gbs to generate base performance statistics for this server.")
-		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ". Run go test -gbs to generate base performance statistics for this server.")
-		os.Exit(1)
+		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ". System not ready for testing. Will attempt to run in training mode .....")
+		return false, nil
 	}
 
-	validateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes))
-	runTests(perfStatsForTest)
-	runAssertions(basePerfstats, perfStatsForTest)
-	generateReport(basePerfstats, perfStatsForTest)
-
-}
-
-func populateBasePerfStats(perfStatsForTest *perfTestUtils.PerfStats, basePerfstats *perfTestUtils.BasePerfStats) {
-	modified := false
-	if basePerfstats.BasePeakMemory == 0 || configurationSettings.ResetPeakMemory {
-		basePerfstats.BasePeakMemory = perfStatsForTest.PeakMemory
-		modified = true
-	}
-	for serviceName, responseTime := range perfStatsForTest.ServiceResponseTimes {
-		serviceBaseResponseTime := basePerfstats.BaseServiceResponseTimes[serviceName]
-		if serviceBaseResponseTime == 0 {
-			basePerfstats.BaseServiceResponseTimes[serviceName] = responseTime
-			modified = true
-		}
-	}
-	if basePerfstats.MemoryAudit == nil || len(basePerfstats.MemoryAudit) == 0 {
-		basePerfstats.MemoryAudit = perfStatsForTest.MemoryAudit
-		modified = true
-	}
-	currentTime := time.Now().Format(time.RFC850)
-	if basePerfstats.GenerationDate == "" {
-		basePerfstats.GenerationDate = currentTime
+	//2) Verify the number of base test cases is equal to the number of service test cases.
+	correctNumberOfTests := perfTestUtils.ValidateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes), configurationSettings)
+	if !correctNumberOfTests {
+		return false, nil
 	}
 
-	if modified {
-		basePerfstats.ModifiedDate = currentTime
-	}
+	return true, basePerfstats
 }
 
 //This function does two thing,
 //1 Start a go routine to preiodically grab the memory foot print and set the peak memory value
 //2 Run all test using mock servers and gather performance stats
-func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
+func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 
 	var peakMemoryAllocation = new(uint64)
 	var lastServiceName = "StartUp"
@@ -187,7 +186,6 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
 					fmt.Println("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error:", err)
 					quit <- true
 				} else {
-					fmt.Println("Memory analysis available.")
 
 					body, _ := ioutil.ReadAll(resp.Body)
 
@@ -221,22 +219,26 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
 	//Read test case files from test definition directory
 	d, err := os.Open(configurationSettings.TestDefinitionsDir)
 	if err != nil {
-		//log.Error("Failed to open test definations directory. Error:", err)
+		//log.Error("Failed to open test definitions directory. Error:", err)
 		fmt.Println("Failed to open test definitions directory. Error:", err)
 		os.Exit(1)
 	}
 	defer d.Close()
 	fi, err := d.Readdir(-1)
 	if err != nil {
-		//log.Error("Failed to read files in test definations directory. Error:", err)
+		//log.Error("Failed to read files in test definitions directory. Error:", err)
 		fmt.Println("Failed to read files in test definitions directory. Error:", err)
 		os.Exit(1)
 	}
 	if len(fi) == 0 {
-		//log.Error("No test case files found in specified directory ", configurationSettings.TestDefinationsDir)
+		//log.Error("No test case files found in specified directory ", configurationSettings.TestDefinitionsDir)
 		fmt.Println("No test case files found in specified directory ", configurationSettings.TestDefinitionsDir)
 		os.Exit(1)
 	}
+
+	//Determine load per concurrent user
+	loadPerUser := int(configurationSettings.NumIterations / configurationSettings.ConcurrentUsers)
+	remainder := configurationSettings.NumIterations % configurationSettings.ConcurrentUsers
 
 	//Add a 1 second delay before running test case to allow the graph get some initial memory data before test cases are executed.
 	time.Sleep(time.Second * 1)
@@ -251,10 +253,19 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
 		testDefinition := new(perfTestUtils.TestDefinition)
 		xml.Unmarshal(bs, &testDefinition)
 
-		//log.Info("Running Test case [Name:", testDefination.TestName, ", File name:", fi.Name(), "]")
+		//log.Info("Running Test case [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
 		fmt.Println("Running Test case [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
 		currentServiceName = testDefinition.TestName
-		perfStatsForTest.ServiceResponseTimes[testDefinition.TestName] = executeServiceTest(testDefinition)
+		averageResponseTime := executeServiceTest(testDefinition, loadPerUser, remainder)
+		if averageResponseTime > 0 {
+			perfStatsForTest.ServiceResponseTimes[testDefinition.TestName] = averageResponseTime
+		} else {
+			if mode == TRAINING_MODE {
+				//Fail fast on training mode if any requests fail. If training fails we cannot guarantee the results.
+				fmt.Println("Training mode failed due to invalid response on service [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
+				os.Exit(1)
+			}
+		}
 		time.Sleep(time.Millisecond * 200)
 	}
 
@@ -266,13 +277,41 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
 
 //Single execution function for all service test.
 //Runs multiple invocations of the test based on num iterations parameter
-func executeServiceTest(testDefinition *perfTestUtils.TestDefinition) int64 {
+func executeServiceTest(testDefinition *perfTestUtils.TestDefinition, loadPerUser int, remainder int) int64 {
 
 	averageResponseTime := int64(0)
-	loopExecutedToCompletion := true
-	responseTimes := make(perfTestUtils.RspTimes, configurationSettings.NumIterations)
+
+	//responseTimes := make(perfTestUtils.RspTimes, configurationSettings.NumIterations)
+	responseTimes := make([]int64, 0)
+
+	subsetOfResponseTimesChan := make(chan perfTestUtils.RspTimes, 1)
+
 	//Execute the test in a loop
-	for i := 0; i < configurationSettings.NumIterations; i++ {
+
+	var wg sync.WaitGroup
+	wg.Add(configurationSettings.ConcurrentUsers)
+	for i := 0; i < configurationSettings.ConcurrentUsers; i++ {
+		go buildAndSendUserRequests(subsetOfResponseTimesChan, loadPerUser, testDefinition)
+		go aggregateResponseTimes(&responseTimes, subsetOfResponseTimesChan, &wg)
+	}
+	if remainder > 0 {
+		go buildAndSendUserRequests(subsetOfResponseTimesChan, remainder, testDefinition)
+		go aggregateResponseTimes(&responseTimes, subsetOfResponseTimesChan, &wg)
+	}
+
+	wg.Wait()
+
+	if len(responseTimes) == configurationSettings.NumIterations {
+		averageResponseTime = perfTestUtils.CalcAverageResponseTime(responseTimes, configurationSettings.NumIterations)
+	}
+	return averageResponseTime
+}
+
+func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTimes, loadPerUser int, testDefinition *perfTestUtils.TestDefinition) {
+	responseTimes := make(perfTestUtils.RspTimes, loadPerUser)
+	loopExecutedToCompletion := true
+
+	for i := 0; i < loadPerUser; i++ {
 
 		var req *http.Request
 
@@ -290,8 +329,6 @@ func executeServiceTest(testDefinition *perfTestUtils.TestDefinition) int64 {
 				body := new(bytes.Buffer)
 				writer := multipart.NewWriter(body)
 				for _, field := range testDefinition.MultipartPayload {
-					//log.Debugf("field: %s\n", field)
-					fmt.Println(fmt.Sprintf("field: %s\n", field))
 					if field.FileName == "" {
 						writer.WriteField(field.FieldName, field.FieldValue)
 					} else {
@@ -337,180 +374,44 @@ func executeServiceTest(testDefinition *perfTestUtils.TestDefinition) int64 {
 	}
 
 	if loopExecutedToCompletion {
-		averageResponseTime = perfTestUtils.CalcAverageResponseTime(responseTimes, configurationSettings.NumIterations)
+		subsetOfResponseTimesChan <- responseTimes
+	} else {
+		subsetOfResponseTimesChan <- nil
 	}
-	return averageResponseTime
+}
+
+func aggregateResponseTimes(responseTimes *[]int64, subsetOfResponseTimesChan chan perfTestUtils.RspTimes, wg *sync.WaitGroup) {
+	subsetOfResponseTimes := <-subsetOfResponseTimesChan
+	if subsetOfResponseTimes != nil {
+		*responseTimes = append(*responseTimes, subsetOfResponseTimes...)
+	}
+	wg.Done()
 }
 
 //This function runs the assertions to ensure memory and service have not deviated past the allowed variance
-func runAssertions(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTestUtils.PerfStats) {
+func runAssertions(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTestUtils.PerfStats) []string {
 
-	fmt.Println("\n===================================== Test Run statistics ====================================================================")
-	fmt.Println("Memory")
+	assertionFailures := make([]string, 0)
 
 	//Asserts Peak memory growth has not exceeded the allowable variance
 	peakMemoryVariancePercentage := perfTestUtils.CalcPeakMemoryVariancePercentage(basePerfstats.BasePeakMemory, perfStats.PeakMemory)
 	varianceOk := perfTestUtils.ValidatePeakMemoryVariance(configurationSettings.AllowablePeakMemoryVariance, peakMemoryVariancePercentage)
-	fmt.Printf("%4s %-30s %10d %5s %4.2f %5s", "\t", "Base Memory", basePerfstats.BasePeakMemory, "B   (", (float32(basePerfstats.BasePeakMemory)/float32(1024))/float32(1024), "MB)\n")
-	fmt.Printf("%4s %-30s %10d %5s %4.2f %5s", "\t", "Peak Memory", perfStats.PeakMemory, "B   (", (float32(perfStats.PeakMemory)/float32(1024))/float32(1024), "MB)\n")
 	if !varianceOk {
-		fmt.Printf("\x1b[31;1m")
-	}
-	fmt.Printf("%4s %-30s %9.2f %1s", "\t", "Peak Memory Variance", peakMemoryVariancePercentage, "%\n")
-	fmt.Printf("\x1b[0m")
-	fmt.Println("")
-
-	//Assert Each service response time has not exceeded the allowable variance
-	serviceCountsok := perfTestUtils.ValidateTestCaseCount(len(basePerfstats.BaseServiceResponseTimes), len(perfStats.ServiceResponseTimes))
-	if serviceCountsok {
-		fmt.Println("Services Resposne Times")
-		fmt.Printf("\t ------------------------------------------------------------------------------------------------------------\n")
-		fmt.Printf("%4s | %-40s | %20s | %20s | %15s | %1s", "\t", "TestName", "BaseTime (Milli)", "TestTime (Milli)", "%variance", "\n")
-		fmt.Printf("\t ------------------------------------------------------------------------------------------------------------\n")
-		for serviceName, baseResponseTime := range basePerfstats.BaseServiceResponseTimes {
-			averageServiceResponseTime := perfStats.ServiceResponseTimes[serviceName]
-			//assert.True(t, averageServiceResponseTime > 0, "Average Time taken to complete request %s was 0 nanoseconds", serviceName)
-
-			responseTimeVariancePercentage := perfTestUtils.CalcAverageResponseVariancePercentage(averageServiceResponseTime, baseResponseTime)
-			varianceOk := perfTestUtils.ValidateAverageServiceResponeTimeVariance(configurationSettings.AllowableServiceResponseTimeVariance, responseTimeVariancePercentage, serviceName)
-			if !varianceOk {
-				fmt.Printf("\x1b[31;1m")
-			}
-			fmt.Printf("%4s | %-40s | %20.2f | %20.2f | %15.2f | %1s", "\t", serviceName, float32(float32(baseResponseTime)/float32(1000000)), float32(float32(averageServiceResponseTime)/float32(1000000)), responseTimeVariancePercentage, " \n")
-			fmt.Printf("\x1b[0m")
-		}
-		fmt.Printf("\t ------------------------------------------------------------------------------------------------------------\n")
-	}
-	fmt.Println("===============================================================================================================================")
-
-}
-
-func generateReport(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTestUtils.PerfStats) {
-
-	fileContent, fileErr := ioutil.ReadFile("./report/template.html")
-	if fileErr != nil {
-		fmt.Println(fileErr)
-	}
-	stringContents := string(fileContent)
-
-	//Add Test date to report
-	stringContents = strings.Replace(stringContents, "###testDate###", time.Now().Format(time.RFC850), 1)
-
-	//Add Allowed Variace values
-	stringContents = strings.Replace(stringContents, "###testDate###", time.Now().Format(time.RFC850), 1)
-	stringContents = strings.Replace(stringContents, "###allowedMemoryVariance###", fmt.Sprintf("%4.2f", configurationSettings.AllowablePeakMemoryVariance), 1)
-	stringContents = strings.Replace(stringContents, "###allowedServiceRespTimeVariance###", fmt.Sprintf("%4.2f", configurationSettings.AllowableServiceResponseTimeVariance), 1)
-
-	//Add memory stats
-	peakMemoryVariancePercentage := float64(perfTestUtils.CalcPeakMemoryVariancePercentage(basePerfstats.BasePeakMemory, perfStats.PeakMemory))
-	stringContents = strings.Replace(stringContents, "###basePeakMemory###", strconv.FormatFloat(float64((float32(basePerfstats.BasePeakMemory)/float32(1024))/float32(1024)), 'f', 3, 64), 1)
-	stringContents = strings.Replace(stringContents, "###testPeakMemory###", strconv.FormatFloat(float64((float32(perfStats.PeakMemory)/float32(1024))/float32(1024)), 'f', 3, 64), 1)
-	stringContents = strings.Replace(stringContents, "###memoryVariance###", strconv.FormatFloat(peakMemoryVariancePercentage, 'f', 3, 64), 1)
-
-	//Set memory Error style if variance is above allowed variance
-	if float64(configurationSettings.AllowablePeakMemoryVariance) < peakMemoryVariancePercentage {
-		stringContents = strings.Replace(stringContents, "###errorStyle###", "style=\"color:red\"", 1)
-		stringContents = strings.Replace(stringContents, "###memoryPassFail###", "<font color=\"red\">FAIL</font>", 1)
-	} else {
-		stringContents = strings.Replace(stringContents, "###memoryPassFail###", "<font color=\"green\">PASS</font>", 1)
+		assertionFailures = append(assertionFailures, fmt.Sprintf("Memory Failure: Peak variance exceeded by %3.2f %1s", peakMemoryVariancePercentage, "%"))
 	}
 
-	//Add data to  build memory chart
-	baseMemoryAudit := []byte("['Base',")
-	for _, memValue := range basePerfstats.MemoryAudit {
-		baseMemoryAudit = append(baseMemoryAudit, []byte(strconv.FormatFloat(float64((float32(memValue)/float32(1024))), 'f', 3, 64))...)
-		baseMemoryAudit = append(baseMemoryAudit, []byte(",")...)
-	}
-	baseMemoryAudit = append(baseMemoryAudit, []byte("]")...)
-
-	testMemoryAudit := []byte("['Test',")
-	for _, memValue := range perfStats.MemoryAudit {
-		testMemoryAudit = append(testMemoryAudit, []byte(strconv.FormatFloat(float64((float32(memValue)/float32(1024))), 'f', 3, 64))...)
-		testMemoryAudit = append(testMemoryAudit, []byte(",")...)
-	}
-	testMemoryAudit = append(testMemoryAudit, []byte("]")...)
-
-	stringContents = strings.Replace(stringContents, "###baseMemoryArray###", string(baseMemoryAudit), 1)
-	stringContents = strings.Replace(stringContents, "###testMemoryArray###", string(testMemoryAudit), 1)
-
-	//Define partitions on chart.
-	testpatritions := []byte("")
-	for _, testPartition := range perfStats.TestPartitions {
-		testpatritions = append(testpatritions, []byte("{value: "+fmt.Sprint(testPartition.Count)+" , text: '"+testPartition.TestName+"'},")...)
-	}
-	stringContents = strings.Replace(stringContents, "###testPartitions###", string(testpatritions), 1)
-
-	servicesPass := true
-	//Build service response time chart
-	serviceResponseTimesBase := []byte("['Base',")
-	serviceResponseTimesTest := []byte("['Test',")
-	serviceNames := []byte("['")
-	serviceResponseTimesTable := []byte("")
 	for serviceName, baseResponseTime := range basePerfstats.BaseServiceResponseTimes {
 		averageServiceResponseTime := perfStats.ServiceResponseTimes[serviceName]
-		responseTimeVariancePercentage := perfTestUtils.CalcAverageResponseVariancePercentage(averageServiceResponseTime, baseResponseTime)
-		baseTimeMillis := float64(float32(baseResponseTime) / float32(1000000))
-		testTimeMillis := float64(float32(averageServiceResponseTime) / float32(1000000))
-
-		serviceResponseTimesBase = append(serviceResponseTimesBase, []byte(strconv.FormatFloat(baseTimeMillis, 'f', 3, 64))...)
-		serviceResponseTimesBase = append(serviceResponseTimesBase, []byte(",")...)
-
-		serviceResponseTimesTest = append(serviceResponseTimesTest, []byte(strconv.FormatFloat(testTimeMillis, 'f', 3, 64))...)
-		serviceResponseTimesTest = append(serviceResponseTimesTest, []byte(",")...)
-
-		serviceNames = append(serviceNames, []byte(serviceName+" ("+fmt.Sprintf("%3.2f", responseTimeVariancePercentage)+" %)")...)
-		serviceNames = append(serviceNames, []byte("','")...)
-
-		varianceError := ""
-		if configurationSettings.AllowableServiceResponseTimeVariance < responseTimeVariancePercentage {
-			varianceError = "style=\"color:red\""
-			servicesPass = false
+		if averageServiceResponseTime == 0 {
+			assertionFailures = append(assertionFailures, fmt.Sprintf("Service Failure: Service test %-60s did not execute correctly. See logs for more details.", serviceName))
 		}
-		serviceResponseTimesTable = append(serviceResponseTimesTable, []byte("<tr height=10px><td>"+serviceName+"</td><td>"+fmt.Sprintf("%4.3f", baseTimeMillis)+"</td><td>"+fmt.Sprintf("%4.3f", testTimeMillis)+"</td><td "+varianceError+">"+fmt.Sprintf("%4.2f", responseTimeVariancePercentage)+"</td></tr>\n")...)
+
+		responseTimeVariancePercentage := perfTestUtils.CalcAverageResponseVariancePercentage(averageServiceResponseTime, baseResponseTime)
+		varianceOk := perfTestUtils.ValidateAverageServiceResponeTimeVariance(configurationSettings.AllowableServiceResponseTimeVariance, responseTimeVariancePercentage, serviceName)
+		if !varianceOk {
+			assertionFailures = append(assertionFailures, fmt.Sprintf("Service Failure: Service test %-60s response time variance exceeded by %3.2f %1s", serviceName, responseTimeVariancePercentage, "%"))
+		}
 
 	}
-	serviceResponseTimesBase = append(serviceResponseTimesBase, []byte("]")...)
-	serviceResponseTimesTest = append(serviceResponseTimesTest, []byte("]")...)
-	serviceNames = append(serviceNames, []byte("']")...)
-
-	stringContents = strings.Replace(stringContents, "###servcieResponseTimesBase###", string(serviceResponseTimesBase), 1)
-	stringContents = strings.Replace(stringContents, "###servcieResponseTimesTest###", string(serviceResponseTimesTest), 1)
-	stringContents = strings.Replace(stringContents, "###servcieNames###", string(serviceNames), 1)
-	stringContents = strings.Replace(stringContents, "###serviceRespTimesTable###", string(serviceResponseTimesTable), 1)
-
-	if servicesPass {
-		stringContents = strings.Replace(stringContents, "###servicePassFail###", "<font color=\"green\">PASS</font>", 1)
-	} else {
-		stringContents = strings.Replace(stringContents, "###servicePassFail###", "<font color=\"red\">FAIL</font>", 1)
-	}
-
-	//Write out the file
-	file, err := os.Create(configurationSettings.ReportOutputDir + "/PerformanceReport.html")
-	if err != nil {
-		defer file.Close()
-	}
-	file.Write([]byte(stringContents))
-}
-
-func validateTestDefinitionAmount(baselineAmount int) {
-	d, err := os.Open(configurationSettings.TestDefinitionsDir)
-	if err != nil {
-		//log.Error("Failed to open test definations directory. Error:", err)
-		fmt.Println("Failed to open test definitions directory. Error:", err)
-		os.Exit(1)
-	}
-	defer d.Close()
-	fi, err := d.Readdir(-1)
-	if err != nil {
-		//log.Error("Failed to read files in test definations directory. Error:", err)
-		fmt.Println("Failed to read files in test definitions directory. Error:", err)
-		os.Exit(1)
-	}
-	definitionAmount := len(fi)
-
-	if definitionAmount != baselineAmount {
-		//log.Errorf("Amount of test definition: %d does not equal to baseline amount: %d.", definitionAmount, baselineAmount)
-		fmt.Println("Amount of test definition: %d does not equal to baseline amount: %d.", definitionAmount, baselineAmount)
-		os.Exit(1)
-	}
+	return assertionFailures
 }

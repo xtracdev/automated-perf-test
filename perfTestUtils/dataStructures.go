@@ -19,6 +19,7 @@ type Config struct {
 	TestDefinitionsDir                   string  `xml:"testDefinitionsDir"`
 	BaseStatsOutputDir                   string  `xml:"baseStatsOutputDir"`
 	ReportOutputDir                      string  `xml:"reportOutputDir"`
+	ConcurrentUsers                      int     `xml:"concurrentUsers"`
 
 	//These value can only be set by command line arguments as they control each training and test run.
 	GBS             bool
@@ -36,6 +37,7 @@ func (c Config) PrintAndValidateConfig() {
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "targetHost", c.TargetHost, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "targetPort", c.TargetPort, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "numIterations", c.NumIterations, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "concurrentUsers", c.ConcurrentUsers, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90.2f %2s", "allowablePeakMemoryVariance", c.AllowablePeakMemoryVariance, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90.2f %2s", "allowableServiceResponseTimeVariance", c.AllowableServiceResponseTimeVariance, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testDefinitionsDir", c.TestDefinitionsDir, "\n"))...)
@@ -68,6 +70,11 @@ func (c Config) PrintAndValidateConfig() {
 		fmt.Println("CONFIG ERROR: numIterations must be set in config file and must be greater than 1")
 		isConfigValid = false
 	}
+	if c.ConcurrentUsers < 1 {
+		//log.Error("CONFIG ERROR: numIterations must be set in config file and must be greater than 1")
+		fmt.Println("CONFIG ERROR: concurrentUsers must be set in config file and must be greater than 1")
+		isConfigValid = false
+	}
 	if c.AllowablePeakMemoryVariance <= 0.0 {
 		//log.Error("CONFIG ERROR: allowablePeakMemoryVariance must be set in config file and must be greater than 0.0")
 		fmt.Println("CONFIG ERROR: allowablePeakMemoryVariance must be set in config file and must be greater than 0.0")
@@ -79,7 +86,7 @@ func (c Config) PrintAndValidateConfig() {
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.TestDefinitionsDir) == "" {
-		//log.Error("CONFIG ERROR: testDefinationsDir must be set in config file")
+		//log.Error("CONFIG ERROR: testDefinitionsDir must be set in config file")
 		fmt.Println("CONFIG ERROR: testDefinitionsDir must be set in config file")
 		isConfigValid = false
 	}
