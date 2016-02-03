@@ -16,7 +16,7 @@ type Config struct {
 	NumIterations                        int     `xml:"numIterations"`
 	AllowablePeakMemoryVariance          float64 `xml:"allowablePeakMemoryVariance"`
 	AllowableServiceResponseTimeVariance float64 `xml:"allowableServiceResponseTimeVariance"`
-	TestDefinationsDir                   string  `xml:"testDefinationsDir"`
+	TestDefinitionsDir                   string  `xml:"testDefinitionsDir"`
 	BaseStatsOutputDir                   string  `xml:"baseStatsOutputDir"`
 	ReportOutputDir                      string  `xml:"reportOutputDir"`
 
@@ -38,7 +38,7 @@ func (c Config) PrintAndValidateConfig() {
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "numIterations", c.NumIterations, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90.2f %2s", "allowablePeakMemoryVariance", c.AllowablePeakMemoryVariance, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90.2f %2s", "allowableServiceResponseTimeVariance", c.AllowableServiceResponseTimeVariance, "\n"))...)
-	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testDefinationsDir", c.TestDefinationsDir, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testDefinitionsDir", c.TestDefinitionsDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "baseStatsOutputDir", c.BaseStatsOutputDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "reportOutputDir", c.ReportOutputDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "gbs", c.GBS, "\n"))...)
@@ -78,9 +78,9 @@ func (c Config) PrintAndValidateConfig() {
 		fmt.Println("CONFIG ERROR: allowableServiceResponseTimeVariance must be set in config file and must be greater than 0.0")
 		isConfigValid = false
 	}
-	if strings.TrimSpace(c.TestDefinationsDir) == "" {
+	if strings.TrimSpace(c.TestDefinitionsDir) == "" {
 		//log.Error("CONFIG ERROR: testDefinationsDir must be set in config file")
-		fmt.Println("CONFIG ERROR: testDefinationsDir must be set in config file")
+		fmt.Println("CONFIG ERROR: testDefinitionsDir must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.BaseStatsOutputDir) == "" {
@@ -104,8 +104,8 @@ type Header struct {
 }
 
 //This struct defines the base performance statistics
-type TestDefination struct {
-	XMLName            xml.Name             `xml:"testDefination"`
+type TestDefinition struct {
+	XMLName            xml.Name             `xml:"testDefinition"`
 	TestName           string               `xml:"testName"`
 	HttpMethod         string               `xml:"httpMethod"`
 	BaseUri            string               `xml:"baseUri"`

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"automated-perf-test/perfTestUtils"
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"flag"
 	"fmt"
 	//log "github.com/Sirupsen/logrus"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -49,7 +49,6 @@ func init() {
 				os.Exit(1)
 			}
 		}
-
 	}
 
 	//Get Hostname for this machine.
@@ -219,43 +218,43 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
 		}
 	}()
 
-	//Read test case files from test defination directory
-	d, err := os.Open(configurationSettings.TestDefinationsDir)
+	//Read test case files from test definition directory
+	d, err := os.Open(configurationSettings.TestDefinitionsDir)
 	if err != nil {
 		//log.Error("Failed to open test definations directory. Error:", err)
-		fmt.Println("Failed to open test definations directory. Error:", err)
+		fmt.Println("Failed to open test definitions directory. Error:", err)
 		os.Exit(1)
 	}
 	defer d.Close()
 	fi, err := d.Readdir(-1)
 	if err != nil {
 		//log.Error("Failed to read files in test definations directory. Error:", err)
-		fmt.Println("Failed to read files in test definations directory. Error:", err)
+		fmt.Println("Failed to read files in test definitions directory. Error:", err)
 		os.Exit(1)
 	}
 	if len(fi) == 0 {
 		//log.Error("No test case files found in specified directory ", configurationSettings.TestDefinationsDir)
-		fmt.Println("No test case files found in specified directory ", configurationSettings.TestDefinationsDir)
+		fmt.Println("No test case files found in specified directory ", configurationSettings.TestDefinitionsDir)
 		os.Exit(1)
 	}
 
 	//Add a 1 second delay before running test case to allow the graph get some initial memory data before test cases are executed.
 	time.Sleep(time.Second * 1)
 	for _, fi := range fi {
-		bs, err := ioutil.ReadFile(configurationSettings.TestDefinationsDir + "/" + fi.Name())
+		bs, err := ioutil.ReadFile(configurationSettings.TestDefinitionsDir + "/" + fi.Name())
 		if err != nil {
 			//log.Error("Failed to read test file. Filename: ", fi.Name(), err)
 			fmt.Println("Failed to read test file. Filename: ", fi.Name(), err)
 			continue
 		}
 
-		testDefination := new(perfTestUtils.TestDefination)
-		xml.Unmarshal(bs, &testDefination)
+		testDefinition := new(perfTestUtils.TestDefinition)
+		xml.Unmarshal(bs, &testDefinition)
 
 		//log.Info("Running Test case [Name:", testDefination.TestName, ", File name:", fi.Name(), "]")
-		fmt.Println("Running Test case [Name:", testDefination.TestName, ", File name:", fi.Name(), "]")
-		currentServiceName = testDefination.TestName
-		perfStatsForTest.ServiceResponseTimes[testDefination.TestName] = executeServiceTest(testDefination)
+		fmt.Println("Running Test case [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
+		currentServiceName = testDefinition.TestName
+		perfStatsForTest.ServiceResponseTimes[testDefinition.TestName] = executeServiceTest(testDefinition)
 		time.Sleep(time.Millisecond * 200)
 	}
 
@@ -267,7 +266,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats) {
 
 //Single execution function for all service test.
 //Runs multiple invocations of the test based on num iterations parameter
-func executeServiceTest(testDefination *perfTestUtils.TestDefination) int64 {
+func executeServiceTest(testDefinition *perfTestUtils.TestDefinition) int64 {
 
 	averageResponseTime := int64(0)
 	loopExecutedToCompletion := true
@@ -277,20 +276,20 @@ func executeServiceTest(testDefination *perfTestUtils.TestDefination) int64 {
 
 		var req *http.Request
 
-		if !testDefination.Multipart {
-			if testDefination.Payload != "" {
-				req, _ = http.NewRequest(testDefination.HttpMethod, "http://"+configurationSettings.TargetHost+":"+configurationSettings.TargetPort+testDefination.BaseUri, strings.NewReader(testDefination.Payload))
+		if !testDefinition.Multipart {
+			if testDefinition.Payload != "" {
+				req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+configurationSettings.TargetHost+":"+configurationSettings.TargetPort+testDefinition.BaseUri, strings.NewReader(testDefinition.Payload))
 			} else {
-				req, _ = http.NewRequest(testDefination.HttpMethod, "http://"+configurationSettings.TargetHost+":"+configurationSettings.TargetPort+testDefination.BaseUri, nil)
+				req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+configurationSettings.TargetHost+":"+configurationSettings.TargetPort+testDefinition.BaseUri, nil)
 			}
 		} else {
-			if testDefination.HttpMethod != "POST" {
+			if testDefinition.HttpMethod != "POST" {
 				//log.Fatal("Multipart request has to be 'POST' method.")
 				fmt.Println("Multipart request has to be 'POST' method.")
 			} else {
 				body := new(bytes.Buffer)
 				writer := multipart.NewWriter(body)
-				for _, field := range testDefination.MultipartPayload {
+				for _, field := range testDefinition.MultipartPayload {
 					//log.Debugf("field: %s\n", field)
 					fmt.Println(fmt.Sprintf("field: %s\n", field))
 					if field.FileName == "" {
@@ -301,18 +300,18 @@ func executeServiceTest(testDefination *perfTestUtils.TestDefination) int64 {
 					}
 				}
 				writer.Close()
-				req, _ = http.NewRequest(testDefination.HttpMethod, "http://"+configurationSettings.TargetHost+":"+configurationSettings.TargetPort+testDefination.BaseUri, body)
+				req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+configurationSettings.TargetHost+":"+configurationSettings.TargetPort+testDefinition.BaseUri, body)
 				req.Header.Set("Content-Type", writer.FormDataContentType())
 			}
 		}
 
-		req.Header.Add("scenario", testDefination.Scenario)
+		req.Header.Add("scenario", testDefinition.Scenario)
 
 		//add headers
-		for _, v := range testDefination.Headers {
+		for _, v := range testDefinition.Headers {
 			req.Header.Add(v.Key, v.Value)
 		}
-		req.Header.Set("xtracToken", testDefination.XtracToken)
+		req.Header.Set("xtracToken", testDefinition.XtracToken)
 		startTime := time.Now()
 		if resp, err := (&http.Client{}).Do(req); err != nil {
 			//log.Error("Error by firing request: ", req, "Error:", err)
@@ -324,9 +323,9 @@ func executeServiceTest(testDefination *perfTestUtils.TestDefination) int64 {
 			body, _ := ioutil.ReadAll(resp.Body)
 
 			//Validate service response
-			contentLengthOk := perfTestUtils.ValidateResponseBody(body, testDefination.TestName)
-			responseCodeOk := perfTestUtils.ValidateResponseStatusCode(resp.StatusCode, testDefination.ResponseStatusCode, testDefination.TestName)
-			responseTimeOK := perfTestUtils.ValidateServiceResponseTime(timeTaken.Nanoseconds(), testDefination.TestName)
+			contentLengthOk := perfTestUtils.ValidateResponseBody(body, testDefinition.TestName)
+			responseCodeOk := perfTestUtils.ValidateResponseStatusCode(resp.StatusCode, testDefinition.ResponseStatusCode, testDefinition.TestName)
+			responseTimeOK := perfTestUtils.ValidateServiceResponseTime(timeTaken.Nanoseconds(), testDefinition.TestName)
 
 			if contentLengthOk && responseCodeOk && responseTimeOK {
 				responseTimes[i] = timeTaken.Nanoseconds()
@@ -494,17 +493,17 @@ func generateReport(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfT
 }
 
 func validateTestDefinitionAmount(baselineAmount int) {
-	d, err := os.Open(configurationSettings.TestDefinationsDir)
+	d, err := os.Open(configurationSettings.TestDefinitionsDir)
 	if err != nil {
 		//log.Error("Failed to open test definations directory. Error:", err)
-		fmt.Println("Failed to open test definations directory. Error:", err)
+		fmt.Println("Failed to open test definitions directory. Error:", err)
 		os.Exit(1)
 	}
 	defer d.Close()
 	fi, err := d.Readdir(-1)
 	if err != nil {
 		//log.Error("Failed to read files in test definations directory. Error:", err)
-		fmt.Println("Failed to read files in test definations directory. Error:", err)
+		fmt.Println("Failed to read files in test definitions directory. Error:", err)
 		os.Exit(1)
 	}
 	definitionAmount := len(fi)

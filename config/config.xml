@@ -14,7 +14,7 @@
     <numIterations>1000</numIterations>
 
     <!--Location of directory where test cases reside-->
-    <testDefinationsDir>./testDefinations</testDefinationsDir>
+    <testDefinitionsDir>./testDefinitions</testDefinitionsDir>
 
     <!--Output locations for generated files-->
     <baseStatsOutputDir>./envStats</baseStatsOutputDir>

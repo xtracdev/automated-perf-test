@@ -1,4 +1,4 @@
-<testDefination>
+<testDefinition>
     <!--Test Name, This can be any name of your choosing-->
     <testName></testName>
     <!--Http method assciated with this request-->
@@ -13,4 +13,4 @@
     <xtracToken></xtracToken>
     <!--Indicated to the test, what is the expected http response code. This value is asserted during the test.-->
     <responseStatusCode></responseStatusCode>
-</testDefination>
+</testDefinition>
