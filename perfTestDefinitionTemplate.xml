@@ -8,9 +8,15 @@
     <!--REquest body, This can be Json or xml data. XML payload should be wrapped in cdata tags-->
     <payload></payload>
     <!--This informs the mock back end of the response type to return. E.g success, failure. Values are taken from those defined in the backend mock code.-->
-    <scenario></scenario>
+    <!--<scenario></scenario>-->
     <!--Xtrac session token.As we are using a mock backend, this can be any string the conforms to a valid Xtrac session token. This is added as a request header-->
-    <xtracToken></xtracToken>
+    <!--<xtracToken></xtracToken>-->
     <!--Indicated to the test, what is the expected http response code. This value is asserted during the test.-->
     <responseStatusCode></responseStatusCode>
+    <!--request headers-->
+    <!-- keys will be converted in the canonical format of the MIME header key. For example, the canonical key for "accept-encoding" is "Accept-Encoding". -->
+    <headers>
+        <header key=""></header>
+        <header key=""></header>
+    </headers>
 </testDefinition>

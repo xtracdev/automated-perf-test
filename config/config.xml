@@ -2,7 +2,7 @@
 <config>
     <apiName>Xtrac API</apiName>
 
-    <!--Taget API under test-->
+    <!--Target API under test-->
     <targetHost>localhost</targetHost>
     <targetPort>8282</targetPort>
 
@@ -19,4 +19,7 @@
     <!--Output locations for generated files-->
     <baseStatsOutputDir>./envStats</baseStatsOutputDir>
     <reportOutputDir>./report</reportOutputDir>
+
+    <!-- Concurrent users per service test -->
+    <concurrentUsers>1</concurrentUsers>
 </config>

@@ -342,13 +342,10 @@ func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTi
 			}
 		}
 
-		req.Header.Add("scenario", testDefinition.Scenario)
-
 		//add headers
 		for _, v := range testDefinition.Headers {
 			req.Header.Add(v.Key, v.Value)
 		}
-		req.Header.Set("xtracToken", testDefinition.XtracToken)
 		startTime := time.Now()
 		if resp, err := (&http.Client{}).Do(req); err != nil {
 			//log.Error("Error by firing request: ", req, "Error:", err)
