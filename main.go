@@ -29,12 +29,14 @@ func init() {
 
 	//Command line ags
 	var gbs bool
-	var resetPeakMemory bool
+	var reBaseMemory bool
+	var reBaseAll bool
 	var configFilePath string
 
 	//Process command line arugments.
 	flag.BoolVar(&gbs, "gbs", false, "Genertate Base Performance Staticists for this server")
-	flag.BoolVar(&resetPeakMemory, "resetPeakMemory", false, "Generate new base peak memory for this server")
+	flag.BoolVar(&reBaseMemory, "reBaseMemory", false, "Generate new base peak memory for this server")
+	flag.BoolVar(&reBaseAll, "reBaseAll", false, "Generate new base for memory and service resposne times for this server")
 	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
 	flag.Parse()
 
@@ -66,7 +68,8 @@ func init() {
 	}
 	configurationSettings.ExecutionHost = host
 	configurationSettings.GBS = gbs
-	configurationSettings.ResetPeakMemory = resetPeakMemory
+	configurationSettings.ReBaseMemory = reBaseMemory
+	configurationSettings.ReBaseAll = reBaseAll
 }
 
 //Main Test Method
@@ -77,13 +80,21 @@ func main() {
 
 	//Determine testing mode.
 	if configurationSettings.GBS {
-		runInTrainingMode(configurationSettings.ExecutionHost)
+		readyForTest, _ := isReadyForTest(configurationSettings.ExecutionHost)
+		if !readyForTest {
+			runInTrainingMode(configurationSettings.ExecutionHost, false)
+		} else {
+			fmt.Println("System is ready for testing. Training is not required....")
+		}
+	} else if configurationSettings.ReBaseAll {
+		runInTrainingMode(configurationSettings.ExecutionHost, true)
 	} else {
 		readyForTest, basePerfStats := isReadyForTest(configurationSettings.ExecutionHost)
 		if readyForTest {
 			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost)
 		} else {
-			runInTrainingMode(configurationSettings.ExecutionHost)
+			fmt.Println("System is not ready for testing. Attempting to run training mode....")
+			runInTrainingMode(configurationSettings.ExecutionHost, false)
 			readyForTest, basePerfStats = isReadyForTest(configurationSettings.ExecutionHost)
 			if readyForTest {
 				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost)
@@ -95,13 +106,23 @@ func main() {
 	}
 }
 
-func runInTrainingMode(host string) {
+func runInTrainingMode(host string, reBaseAll bool) {
 	fmt.Println("Running Perf test in Training mode for host ", host)
 
-	//Check to see if this server already has a base perf file defined.
-	//If so, only values not previously populated will be set.
-	//if not, a default base perf struct is created with nil values for all fields
-	basePerfstats, _ := perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
+	var basePerfstats *perfTestUtils.BasePerfStats
+	if reBaseAll {
+		fmt.Println("Performing full rebase of perf stats for host ", host)
+
+		basePerfstats = &perfTestUtils.BasePerfStats{
+			BaseServiceResponseTimes: make(map[string]int64),
+			MemoryAudit:              make([]uint64, 0),
+		}
+	} else {
+		//Check to see if this server already has a base perf file defined.
+		//If so, only values not previously populated will be set.
+		//if not, a default base perf struct is created with nil values for all fields
+		basePerfstats, _ = perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
+	}
 
 	//initilize Performance statistics struct for this test run
 	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64)}
@@ -142,17 +163,51 @@ func isReadyForTest(host string) (bool, *perfTestUtils.BasePerfStats) {
 	//1) read in perf base stats
 	basePerfstats, err := perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
 	if err != nil {
-		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ". System not ready for testing. Will attempt to run in training mode .....")
+		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ".")
 		return false, nil
 	}
 
-	//2) Verify the number of base test cases is equal to the number of service test cases.
+	//2) validate content  of base stats file
+	isBasePerfStatsValid := validateBasePerfStat(basePerfstats)
+	if !isBasePerfStatsValid {
+		fmt.Println("Base Perf stats are not fully populated for  " + host + ".")
+		return false, nil
+	}
+	//3) Verify the number of base test cases is equal to the number of service test cases.
 	correctNumberOfTests := perfTestUtils.ValidateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes), configurationSettings)
 	if !correctNumberOfTests {
 		return false, nil
 	}
 
 	return true, basePerfstats
+}
+
+func validateBasePerfStat(basePerfstats *perfTestUtils.BasePerfStats) bool {
+	isBasePerfStatsValid := true
+
+	if basePerfstats.BasePeakMemory <= 0 {
+		isBasePerfStatsValid = false
+	}
+	if basePerfstats.GenerationDate == "" {
+		isBasePerfStatsValid = false
+	}
+	if basePerfstats.ModifiedDate == "" {
+		isBasePerfStatsValid = false
+	}
+	if len(basePerfstats.MemoryAudit) <= 0 {
+		isBasePerfStatsValid = false
+	}
+	if basePerfstats.BaseServiceResponseTimes != nil {
+		for _, baseResponseTime := range basePerfstats.BaseServiceResponseTimes {
+			if baseResponseTime <= 0 {
+				isBasePerfStatsValid = false
+				break
+			}
+		}
+	} else {
+		isBasePerfStatsValid = false
+	}
+	return isBasePerfStatsValid
 }
 
 //This function does two thing,

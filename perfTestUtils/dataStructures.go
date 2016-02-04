@@ -22,8 +22,9 @@ type Config struct {
 	ConcurrentUsers                      int     `xml:"concurrentUsers"`
 
 	//These value can only be set by command line arguments as they control each training and test run.
-	GBS             bool
-	ResetPeakMemory bool
+	GBS          bool
+	ReBaseMemory bool
+	ReBaseAll    bool
 
 	//This value is determined by the environment/machine on which the test is being run.
 	ExecutionHost string
@@ -44,7 +45,8 @@ func (c Config) PrintAndValidateConfig() {
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "baseStatsOutputDir", c.BaseStatsOutputDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "reportOutputDir", c.ReportOutputDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "gbs", c.GBS, "\n"))...)
-	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "resetPeakMemory", c.ResetPeakMemory, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "reBaseMemory", c.ReBaseMemory, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "reBaseAll", c.ReBaseAll, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "ExecutionHost", c.ExecutionHost, "\n"))...)
 	configOutput = append(configOutput, []byte("\n=================================================\n")...)
 	//log.Info(string(configOutput))
