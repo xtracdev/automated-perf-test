@@ -77,12 +77,18 @@ func main() {
 
 	//Determine testing mode.
 	if configurationSettings.GBS {
-		runInTrainingMode(configurationSettings.ExecutionHost)
+		readyForTest, _ := isReadyForTest(configurationSettings.ExecutionHost)
+		if !readyForTest {
+			runInTrainingMode(configurationSettings.ExecutionHost)
+		} else {
+			fmt.Println("System is ready for testing. Training is not required....")
+		}
 	} else {
 		readyForTest, basePerfStats := isReadyForTest(configurationSettings.ExecutionHost)
 		if readyForTest {
 			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost)
 		} else {
+			fmt.Println("System is not ready for testing. Attempting to run training mode....")
 			runInTrainingMode(configurationSettings.ExecutionHost)
 			readyForTest, basePerfStats = isReadyForTest(configurationSettings.ExecutionHost)
 			if readyForTest {
@@ -142,17 +148,51 @@ func isReadyForTest(host string) (bool, *perfTestUtils.BasePerfStats) {
 	//1) read in perf base stats
 	basePerfstats, err := perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
 	if err != nil {
-		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ". System not ready for testing. Will attempt to run in training mode .....")
+		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ".")
 		return false, nil
 	}
 
-	//2) Verify the number of base test cases is equal to the number of service test cases.
+	//2) validate content  of base stats file
+	isBasePerfStatsValid := validateBasePerfStat(basePerfstats)
+	if !isBasePerfStatsValid {
+		fmt.Println("Base Perf stats are not fully populated for  " + host + ".")
+		return false, nil
+	}
+	//3) Verify the number of base test cases is equal to the number of service test cases.
 	correctNumberOfTests := perfTestUtils.ValidateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes), configurationSettings)
 	if !correctNumberOfTests {
 		return false, nil
 	}
 
 	return true, basePerfstats
+}
+
+func validateBasePerfStat(basePerfstats *perfTestUtils.BasePerfStats) bool {
+	isBasePerfStatsValid := true
+
+	if basePerfstats.BasePeakMemory <= 0 {
+		isBasePerfStatsValid = false
+	}
+	if basePerfstats.GenerationDate == "" {
+		isBasePerfStatsValid = false
+	}
+	if basePerfstats.ModifiedDate == "" {
+		isBasePerfStatsValid = false
+	}
+	if len(basePerfstats.MemoryAudit) <= 0 {
+		isBasePerfStatsValid = false
+	}
+	if basePerfstats.BaseServiceResponseTimes != nil {
+		for _, baseResponseTime := range basePerfstats.BaseServiceResponseTimes {
+			if baseResponseTime <= 0 {
+				isBasePerfStatsValid = false
+				break
+			}
+		}
+	} else {
+		isBasePerfStatsValid = false
+	}
+	return isBasePerfStatsValid
 }
 
 //This function does two thing,
