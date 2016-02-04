@@ -29,12 +29,14 @@ func init() {
 
 	//Command line ags
 	var gbs bool
-	var resetPeakMemory bool
+	var reBaseMemory bool
+	var reBaseAll bool
 	var configFilePath string
 
 	//Process command line arugments.
 	flag.BoolVar(&gbs, "gbs", false, "Genertate Base Performance Staticists for this server")
-	flag.BoolVar(&resetPeakMemory, "resetPeakMemory", false, "Generate new base peak memory for this server")
+	flag.BoolVar(&reBaseMemory, "reBaseMemory", false, "Generate new base peak memory for this server")
+	flag.BoolVar(&reBaseAll, "reBaseAll", false, "Generate new base for memory and service resposne times for this server")
 	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
 	flag.Parse()
 
@@ -66,7 +68,8 @@ func init() {
 	}
 	configurationSettings.ExecutionHost = host
 	configurationSettings.GBS = gbs
-	configurationSettings.ResetPeakMemory = resetPeakMemory
+	configurationSettings.ReBaseMemory = reBaseMemory
+	configurationSettings.ReBaseAll = reBaseAll
 }
 
 //Main Test Method
@@ -79,17 +82,19 @@ func main() {
 	if configurationSettings.GBS {
 		readyForTest, _ := isReadyForTest(configurationSettings.ExecutionHost)
 		if !readyForTest {
-			runInTrainingMode(configurationSettings.ExecutionHost)
+			runInTrainingMode(configurationSettings.ExecutionHost, false)
 		} else {
 			fmt.Println("System is ready for testing. Training is not required....")
 		}
+	} else if configurationSettings.ReBaseAll {
+		runInTrainingMode(configurationSettings.ExecutionHost, true)
 	} else {
 		readyForTest, basePerfStats := isReadyForTest(configurationSettings.ExecutionHost)
 		if readyForTest {
 			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost)
 		} else {
 			fmt.Println("System is not ready for testing. Attempting to run training mode....")
-			runInTrainingMode(configurationSettings.ExecutionHost)
+			runInTrainingMode(configurationSettings.ExecutionHost, false)
 			readyForTest, basePerfStats = isReadyForTest(configurationSettings.ExecutionHost)
 			if readyForTest {
 				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost)
@@ -101,13 +106,23 @@ func main() {
 	}
 }
 
-func runInTrainingMode(host string) {
+func runInTrainingMode(host string, reBaseAll bool) {
 	fmt.Println("Running Perf test in Training mode for host ", host)
 
-	//Check to see if this server already has a base perf file defined.
-	//If so, only values not previously populated will be set.
-	//if not, a default base perf struct is created with nil values for all fields
-	basePerfstats, _ := perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
+	var basePerfstats *perfTestUtils.BasePerfStats
+	if reBaseAll {
+		fmt.Println("Performing full rebase of perf stats for host ", host)
+
+		basePerfstats = &perfTestUtils.BasePerfStats{
+			BaseServiceResponseTimes: make(map[string]int64),
+			MemoryAudit:              make([]uint64, 0),
+		}
+	} else {
+		//Check to see if this server already has a base perf file defined.
+		//If so, only values not previously populated will be set.
+		//if not, a default base perf struct is created with nil values for all fields
+		basePerfstats, _ = perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
+	}
 
 	//initilize Performance statistics struct for this test run
 	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64)}
