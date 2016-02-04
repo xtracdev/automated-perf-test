@@ -202,15 +202,15 @@ func (a RspTimes) Less(i, j int) bool { return a[i] < a[j] }
 //==============================================
 //Generate base environment stats file functions
 //==============================================
-func populateBasePerfStats(perfStatsForTest *PerfStats, basePerfstats *BasePerfStats, resetPeakMemory bool) {
+func populateBasePerfStats(perfStatsForTest *PerfStats, basePerfstats *BasePerfStats, reBaseMemory bool) {
 	modified := false
 
 	//Setting memory data
-	if basePerfstats.BasePeakMemory == 0 || resetPeakMemory {
+	if basePerfstats.BasePeakMemory == 0 || reBaseMemory {
 		basePerfstats.BasePeakMemory = perfStatsForTest.PeakMemory
 		modified = true
 	}
-	if basePerfstats.MemoryAudit == nil || len(basePerfstats.MemoryAudit) == 0 || resetPeakMemory {
+	if basePerfstats.MemoryAudit == nil || len(basePerfstats.MemoryAudit) == 0 || reBaseMemory {
 		basePerfstats.MemoryAudit = perfStatsForTest.MemoryAudit
 		modified = true
 	}
@@ -237,7 +237,7 @@ func populateBasePerfStats(perfStatsForTest *PerfStats, basePerfstats *BasePerfS
 func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *BasePerfStats, configurationSettings *Config) {
 
 	//Set base performance based on training test run
-	populateBasePerfStats(perfStatsForTest, basePerfstats, configurationSettings.ResetPeakMemory)
+	populateBasePerfStats(perfStatsForTest, basePerfstats, configurationSettings.ReBaseMemory)
 
 	//Convert base perf stat to Json and write out to file
 	basePerfstatsJson, err := json.Marshal(basePerfstats)
