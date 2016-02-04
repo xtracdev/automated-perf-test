@@ -79,15 +79,17 @@ func main() {
 	configurationSettings.PrintAndValidateConfig()
 
 	//Determine testing mode.
-	if configurationSettings.GBS {
-		readyForTest, _ := isReadyForTest(configurationSettings.ExecutionHost)
-		if !readyForTest {
-			runInTrainingMode(configurationSettings.ExecutionHost, false)
+	if configurationSettings.GBS || configurationSettings.ReBaseAll {
+		if configurationSettings.ReBaseAll {
+			runInTrainingMode(configurationSettings.ExecutionHost, true)
 		} else {
-			fmt.Println("System is ready for testing. Training is not required....")
+			readyForTest, _ := isReadyForTest(configurationSettings.ExecutionHost)
+			if !readyForTest {
+				runInTrainingMode(configurationSettings.ExecutionHost, false)
+			} else {
+				fmt.Println("System is ready for testing. Training is not required....")
+			}
 		}
-	} else if configurationSettings.ReBaseAll {
-		runInTrainingMode(configurationSettings.ExecutionHost, true)
 	} else {
 		readyForTest, basePerfStats := isReadyForTest(configurationSettings.ExecutionHost)
 		if readyForTest {
