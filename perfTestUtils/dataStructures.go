@@ -121,9 +121,7 @@ type TestDefinition struct {
 	Multipart          bool                 `xml:"multipart"`
 	Payload            string               `xml:"payload"`
 	MultipartPayload   []multipartFormField `xml:"multipartPayload>multipartFormField"`
-	Scenario           string               `xml:"scenario"`
 	ResponseStatusCode int                  `xml:"responseStatusCode"`
-	XtracToken         string               `xml:"xtracToken"`
 	Headers            []Header             `xml:"headers>header"`
 }
 
