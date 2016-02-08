@@ -15,6 +15,7 @@ Featrues include:
 
 
 ### Usage 
+#### Configuration file
 To use the framework, users should provide a configuration file which define the setting specific to the API under test. A sample configuration file can be in the config directory.
 The configuration file parameters are described in the table below. 
 
@@ -31,3 +32,12 @@ The configuration file parameters are described in the table below.
 | baseStatsOutputDir                   | This is the directory location of the output file for the base performance statistics json file.                                                                   |
 | reportOutputDir                      | This is the directory location of the output report file (HTML)                                                                                                    |
 
+#### Command line arguments
+In addition the configuration parameters, command line arguments can the passed in to control specifics of each individual test run. The command line arguments are described in the table below. 
+
+| Argument        | Description                                                                                                   |
+|-----------------|---------------------------------------------------------------------------------------------------------------|
+| -configFilePath | The location of a configuration file which describes the test behavior for the API under test                 |
+| -gbs            | Generate Base Statistics. Indicates to the framework that this test run should be considered a training run   |
+| -reBaseMemory   | Run a training run which will overwrite the memory statistics only of previous training on the execution host |
+| -reBaseAll      | Run a training run which will overwrite the all statistics of previous training on the execution host         |
