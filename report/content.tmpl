@@ -1,0 +1,136 @@
+{{define "content"}}
+  <div class="topBar">
+            <h1 class="padding">{{.Config.APIName}} :: Automated Performance Test Report :: ({{.PerfStats.GetTestTime}})</h1>
+        </div>
+        <div class="divHeading">
+         <table class="divHeading" border="0" width="90%">
+        <tr>
+                        <td width="50%"><h6 class="padding">Host under test: {{.Config.TargetHost}}:{{.Config.TargetPort}}</h6></td>
+                                        <td width="25%"><h6 class="padding">Services under test: {{len .PerfStats.ServiceResponseTimes}}</h6></td>
+                                        <td width="25%"><h6 class="padding"></h6></td>
+                    </tr>
+                    </table>
+                    </div>
+        <div class="divHeading" onclick="hideMemoryAnalysis()">
+            <table class="divHeading" border="0" width="90%">
+                <tr>
+                    <td width="50%"><h3 class="padding">Memory Analysis</h3></td>
+                    <td width="25%"><h6 class="padding">Allowed Variance : {{.Config.AllowablePeakMemoryVariance | printf "%4.2f"}}%</h6></td>
+                    <td width="25%"><h6 class="padding">{{if .IsMemoryPass }}<font color="green">PASS</font>{{else}}<font color="red">FAIL</font>{{end}}</h6></td>
+                </tr>
+            </table>
+        </div>
+        <div id="memoryContainer">
+            <div class="tablePadding">
+                <table class="padding" width="90%">
+                    <tr>
+                        <td  width="160"><B>Base Peak Memory:</B></td>
+                        <td>{{.BasePerfStats.BasePeakMemory | memToMB | formatMem}}MB</td>
+                        <td width="150"><b>Test Peak Memory:</b></td>
+                        <td>{{.PerfStats.PeakMemory | memToMB | formatMem}}MB</td>
+                        <td width="110"><b>% Variance:</b></td>
+                        <td {{if not .IsMemoryPass}}style="color:red"{{end}}>{{.PeakMemoryVariancePercentage | formatMem}}%</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class='container'>
+                <div class='chart'>
+                    <div id='LineChart'></div>
+                </div>
+            </div>
+            <script>
+                var LineChartJS = c3.generate({
+                data: {
+                    columns: [
+                       {{jsonMem "Base" .BasePerfStats.MemoryAudit}},
+                       {{jsonMem "Test" .PerfStats.MemoryAudit}}
+                    ]
+                },
+                zoom: {
+                    enabled: true
+                },
+                 subchart: {
+                    show: true
+                },
+                axis: {
+                    y: {
+                        label: 'Memory (KB)'
+                    },
+                },
+                grid: {
+                     x: {
+                        lines: [
+                                    {{.JsonTestPartitions}}
+                                ]
+                         }
+                    }
+            });
+             $("#LineChart").append(LineChartJS.element);
+            </script>
+        </div>
+
+        <div class="divHeading" onclick="hideServiceAnalysis()">
+            <table class="divHeading" border="0" width="90%">
+                <tr>
+                    <td width="50%"><h3 class="padding">Service Response Time Analysis</h3></td>
+                    <td width="25%"><h6 class="padding">Allowed Variance : {{.Config.AllowableServiceResponseTimeVariance | printf "%4.2f"}}%</h6></td>
+                    <td width="25%"><h6 class="padding"><font color="{{if .IsTimePass}}green">PASS{{else}}red">FAIL{{end}}</font></h6></td>
+                </tr>
+            </table>
+        </div>
+        <div id="serviceContainer">
+        <div class="tablePadding">
+            <table width="90%">
+                <tr style="background:LightGray">
+                    <td width="30%"><b>TestName</b></td>
+                    <td width="20%"><b>BaseTime (Milli)</b></td>
+                    <td width="20%"><b>TestTime (Milli)</b></td>
+                    <td width="20%"><b>%variance</b></td>
+                </tr>
+                {{range $key, $value := .BasePerfStats.BaseServiceResponseTimes}}
+                    {{$avg := index $.PerfStats.ServiceResponseTimes $key }}
+                    {{if eq $avg 0}}
+                    <tr height=10px><td>{{$key}}</td><td>{{div $value 10e6 | formatMem}}</td><td>FAILED</td><td style="color:red">FAILED</td></tr>
+                    {{else}}
+                    <tr height=10px><td>{{$key}}</td><td>{{div $value 10e6 | formatMem}}</td><td>{{div $avg 10e6 | formatMem}}</td><td {{if $.IsServiceTimePass $key}}{{else}}style="color:red"{{end}}>{{avgVar $avg $value | printf "%4.2f"}}%</td></tr>
+                    {{end}}
+                {{end}}
+            </table>
+        </div>
+        <div class='container'>
+            <div class='chart'>
+                <div id='barChart'></div>
+            </div>
+        </div>
+        <script>
+           var barChartJS = c3.generate({
+                data: {
+                    columns: [
+                        {{.JsonTimeArray}}
+                    ],
+                    type: 'bar'
+                },
+                zoom: {
+                    enabled: true
+                },
+                bar: {
+                    width: {
+                        ratio: 0.5
+                    }
+                },
+                axis: {
+                y: {
+                    label: 'Avg Resp Time (MilliSeconds)'
+                },
+                    x: {
+                        type: 'category',
+                        categories: {{.JsonTimeServiceNames}}
+                    }
+                }
+            });
+            $("#barChart").append(barChartJS.element);
+        </script>
+        </div>
+        <br><br><br><br><br><br><br><br>
+{{end}}

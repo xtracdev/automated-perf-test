@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 )
 
 type Config struct {
@@ -147,6 +148,11 @@ type PerfStats struct {
 	ServiceResponseTimes map[string]int64
 	MemoryAudit          []uint64
 	TestPartitions       []TestPartition
+	TestDate             time.Time
+}
+
+func (ps *PerfStats) GetTestTime() string {
+	return ps.TestDate.Format(time.RFC850)
 }
 
 type TestPartition struct {

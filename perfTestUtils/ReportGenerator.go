@@ -2,12 +2,116 @@ package perfTestUtils
 
 import (
 	"fmt"
+	"html/template"
+	"io"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 )
+
+type perfStatsModel struct {
+	BasePerfStats        *BasePerfStats
+	PerfStats            *PerfStats
+	Config               *Config
+	JsonTimeServiceNames template.JS
+}
+
+func (p *perfStatsModel) IsMemoryPass() bool {
+	return p.PeakMemoryVariancePercentage() < float64(p.Config.AllowablePeakMemoryVariance)
+}
+
+func (p *perfStatsModel) IsServiceTimePass(s string) bool {
+	if p.PerfStats.ServiceResponseTimes[s] == 0 {
+		return false
+	}
+	if p.Config.AllowableServiceResponseTimeVariance < CalcAverageResponseVariancePercentage(p.PerfStats.ServiceResponseTimes[s], p.BasePerfStats.BaseServiceResponseTimes[s]) {
+		return false
+	}
+	return true
+}
+
+func (p *perfStatsModel) IsTimePass() bool {
+	for k, _ := range p.BasePerfStats.BaseServiceResponseTimes {
+		if !p.IsServiceTimePass(k) {
+			return false
+		}
+	}
+	return true
+}
+
+func (p *perfStatsModel) PeakMemoryVariancePercentage() float64 {
+	return float64(CalcPeakMemoryVariancePercentage(p.BasePerfStats.BasePeakMemory, p.PerfStats.PeakMemory))
+}
+
+func MemoryMB(pm uint64) float64 {
+	return float64((float32(pm) / float32(1024)) / float32(1024))
+}
+
+func MemoryKB(pm uint64) float64 {
+	return float64((float32(pm) / float32(1024)))
+}
+
+func FormatMemory(m float64) string {
+	return strconv.FormatFloat(m, 'f', 3, 64)
+}
+
+func Div(num int64, den int64) float64 {
+	return float64(float32(num) / float32(den))
+}
+
+func JsonMemoryArray(name string, array []uint64) template.JS {
+	jsonMemoryAudit := []byte("['" + name + "',")
+	for _, memValue := range array {
+		jsonMemoryAudit = append(jsonMemoryAudit, []byte(strconv.FormatFloat(float64((float32(memValue)/float32(1024))), 'f', 3, 64))...)
+		jsonMemoryAudit = append(jsonMemoryAudit, []byte(",")...)
+	}
+	jsonMemoryAudit = append(jsonMemoryAudit, []byte("]")...)
+	return template.JS(jsonMemoryAudit)
+}
+
+func (p *perfStatsModel) JsonTestPartitions() template.JS {
+	testpatritions := []byte("")
+	for _, testPartition := range p.PerfStats.TestPartitions {
+		testpatritions = append(testpatritions, []byte("{value: "+fmt.Sprint(testPartition.Count)+" , text: '"+testPartition.TestName+"'},")...)
+	}
+	return template.JS(testpatritions)
+}
+
+func (p *perfStatsModel) JsonTimeArray() template.JS {
+	serviceResponseTimesBase := []byte("['Base',")
+	serviceResponseTimesTest := []byte("['Test',")
+	serviceNames := []byte("['")
+	for i := 1; i < len(p.PerfStats.TestPartitions); i++ {
+		tp := p.PerfStats.TestPartitions[i]
+		averageServiceResponseTime := p.PerfStats.ServiceResponseTimes[tp.TestName]
+
+		baseTimeMillis := float64(float32(p.BasePerfStats.BaseServiceResponseTimes[tp.TestName]) / float32(1000000))
+		serviceResponseTimesBase = append(serviceResponseTimesBase, []byte(strconv.FormatFloat(baseTimeMillis, 'f', 3, 64))...)
+		serviceResponseTimesBase = append(serviceResponseTimesBase, []byte(",")...)
+
+		testTimeMillis := float64(float32(averageServiceResponseTime) / float32(1000000))
+
+		serviceResponseTimesTest = append(serviceResponseTimesTest, []byte(strconv.FormatFloat(testTimeMillis, 'f', 3, 64))...)
+		serviceResponseTimesTest = append(serviceResponseTimesTest, []byte(",")...)
+
+		if averageServiceResponseTime != 0 {
+			responseTimeVariancePercentage := CalcAverageResponseVariancePercentage(averageServiceResponseTime, p.BasePerfStats.BaseServiceResponseTimes[tp.TestName])
+			serviceNames = append(serviceNames, []byte(tp.TestName+" ("+fmt.Sprintf("%3.2f", responseTimeVariancePercentage)+" %)")...)
+		} else {
+			serviceNames = append(serviceNames, []byte(tp.TestName+" ("+fmt.Sprintf("%3.2f", 0.0)+" %)")...)
+		}
+		serviceNames = append(serviceNames, []byte("','")...)
+	}
+	serviceResponseTimesBase = append(serviceResponseTimesBase, []byte("],")...)
+	serviceResponseTimesTest = append(serviceResponseTimesTest, []byte("]")...)
+	serviceNames = append(serviceNames, []byte("']")...)
+	p.JsonTimeServiceNames = template.JS(serviceNames)
+
+	serviceResponseTimesBase = append(serviceResponseTimesBase, serviceResponseTimesTest...)
+	return template.JS(serviceResponseTimesBase)
+}
 
 func GenerateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, configurationSettings *Config) {
 
@@ -130,4 +234,36 @@ func GenerateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, configur
 		defer file.Close()
 	}
 	file.Write([]byte(stringContents))
+}
+
+func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, configurationSettings *Config) {
+	file, err := os.Create(configurationSettings.ReportOutputDir + "/PerformanceTemplateReport.html")
+	if err != nil {
+		defer file.Close()
+	}
+	generateTemplate(basePerfstats, perfStats, configurationSettings, file, ".report")
+}
+
+func generateTemplate(bstats *BasePerfStats, pstats *PerfStats, configurationSettings *Config, wr io.Writer, templDir string) error {
+	ps := &perfStatsModel{BasePerfStats: bstats, PerfStats: pstats, Config: configurationSettings}
+	s1 := template.New("main")
+	fmt.Printf("template: %v\n", s1)
+	s1 = s1.Funcs(template.FuncMap{"memToMB": MemoryMB, "memToKb": MemoryKB, "formatMem": FormatMemory, "jsonMem": JsonMemoryArray, "div": Div, "avgVar": CalcAverageResponseVariancePercentage})
+	s1, err := s1.ParseFiles(templDir+"/header.tmpl", templDir+"/content.tmpl", templDir+"/footer.tmpl")
+	if err != nil {
+		return fmt.Errorf("Error loading template files: %v", err)
+	}
+	err = s1.ExecuteTemplate(wr, "header", ps)
+	if err != nil {
+		return fmt.Errorf("Error executing template: %v", err)
+	}
+	err = s1.ExecuteTemplate(wr, "content", ps)
+	if err != nil {
+		return fmt.Errorf("Error executing template: %v", err)
+	}
+	err = s1.ExecuteTemplate(wr, "footer", nil)
+	if err != nil {
+		return fmt.Errorf("Error executing template: %v", err)
+	}
+	return nil
 }
