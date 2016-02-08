@@ -31,6 +31,23 @@ type Config struct {
 	ExecutionHost string
 }
 
+func (c *Config) SetDefaults() {
+	c.APIName = "Default_API_NAME"
+	c.TargetHost = "localhost"
+	c.TargetPort = "8080"
+	c.NumIterations = 1000
+	c.AllowablePeakMemoryVariance = 15
+	c.AllowableServiceResponseTimeVariance = 15
+	c.TestDefinitionsDir = "./testDefinitions"
+	c.BaseStatsOutputDir = "./envStats"
+	c.ReportOutputDir = "./"
+	c.ConcurrentUsers = 1
+
+	c.GBS = false
+	c.ReBaseMemory = false
+	c.ReBaseAll = false
+}
+
 func (c Config) PrintAndValidateConfig() {
 	isConfigValid := true
 	configOutput := []byte("")
