@@ -29,6 +29,9 @@ type Config struct {
 
 	//This value is determined by the environment/machine on which the test is being run.
 	ExecutionHost string
+
+	//template file
+	ReportTemplateFile string `xml:"reportTemplateFile,omitempty"`
 }
 
 func (c *Config) SetDefaults() {
