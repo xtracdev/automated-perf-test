@@ -241,7 +241,7 @@ func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, 
 	if err != nil {
 		defer file.Close()
 	}
-	generateTemplate(basePerfstats, perfStats, configurationSettings, file, ".report")
+	generateTemplate(basePerfstats, perfStats, configurationSettings, file, "./report")
 }
 
 func generateTemplate(bstats *BasePerfStats, pstats *PerfStats, configurationSettings *Config, wr io.Writer, templDir string) error {

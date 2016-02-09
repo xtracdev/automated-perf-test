@@ -25,8 +25,6 @@ const (
 	TESTING_MODE  = 2
 )
 
-type report
-
 func init() {
 
 	//Command line ags
@@ -95,13 +93,13 @@ func main() {
 	} else {
 		readyForTest, basePerfStats := isReadyForTest(configurationSettings.ExecutionHost)
 		if readyForTest {
-			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateReport)
+			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport)
 		} else {
 			fmt.Println("System is not ready for testing. Attempting to run training mode....")
 			runInTrainingMode(configurationSettings.ExecutionHost, false)
 			readyForTest, basePerfStats = isReadyForTest(configurationSettings.ExecutionHost)
 			if readyForTest {
-				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateReport)
+				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport)
 			} else {
 				fmt.Println("System is not ready for testing. Check logs for more details.")
 				os.Exit(1)

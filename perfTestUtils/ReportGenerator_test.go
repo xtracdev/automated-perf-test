@@ -50,7 +50,10 @@ func TestGenerateTemplate(t *testing.T) {
 	psrt["service 2"] = 2e5
 	ps.ServiceResponseTimes = psrt
 
-	err := generateTemplate(bs, ps, c, os.Stdout, `/Users/a580853/go/src/github.com/xtracdev/automated-perf-test/report`)
+	gopath := os.Getenv("GOPATH")
+	t.Logf("$GOPATH = %v\n", gopath)
+
+	err := generateTemplate(bs, ps, c, os.Stdout, gopath+`/src/github.com/xtracdev/automated-perf-test/report`)
 	if err != nil {
 		t.Errorf("Expected to be nil: %v", err)
 	}
