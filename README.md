@@ -1,7 +1,7 @@
 ## Automated performance test framework
 
-Automated performance test framework allows API developers to test the performance of their APIs os part of a CI / CD pipeline. The frame work is intended to be run after code is committed and validates that performance has not 
-degraded since the last commit. It analisizes the memory footprint of the service response times of the API service and reports on success and failure scenarios. 
+Automated performance test framework allows API developers to test the performance of their APIs as part of a CI / CD pipeline. The framework is intended to be run after code is committed and validates that performance has not 
+degraded since the last commit. It analyzes the memory footprint and service response times of the API services and reports on success and failure scenarios. 
 
 Featrues include:
 * **Training mode** This mode executes all defined test cases and outputs the results to a json file. This json file represents the base memory profile of the API in relation to the target environment.
