@@ -22,4 +22,7 @@
 
     <!-- Concurrent users per service test -->
     <concurrentUsers>1</concurrentUsers>
+
+    <!-- optional template file location
+    <reportTemplateFile/>-->
 </config>

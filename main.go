@@ -96,13 +96,13 @@ func main() {
 	} else {
 		readyForTest, basePerfStats := isReadyForTest(configurationSettings.ExecutionHost)
 		if readyForTest {
-			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost)
+			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport)
 		} else {
 			fmt.Println("System is not ready for testing. Attempting to run training mode....")
 			runInTrainingMode(configurationSettings.ExecutionHost, false)
 			readyForTest, basePerfStats = isReadyForTest(configurationSettings.ExecutionHost)
 			if readyForTest {
-				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost)
+				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport)
 			} else {
 				fmt.Println("System is not ready for testing. Check logs for more details.")
 				os.Exit(1)
@@ -139,15 +139,16 @@ func runInTrainingMode(host string, reBaseAll bool) {
 	fmt.Println("Training mode completed successfully")
 }
 
-func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string) {
+func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config)) {
 	fmt.Println("Running Perf test in Testing mode for host ", host)
 
 	//initilize Performance statistics struct for this test run
 	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64)}
+	perfStatsForTest.TestDate = time.Now()
 
 	runTests(perfStatsForTest, TESTING_MODE)
 	assertionFailures := runAssertions(basePerfstats, perfStatsForTest)
-	perfTestUtils.GenerateReport(basePerfstats, perfStatsForTest, configurationSettings)
+	frg(basePerfstats, perfStatsForTest, configurationSettings)
 
 	fmt.Println("=================== TEST RESULTS ===================")
 	if len(assertionFailures) > 0 {
