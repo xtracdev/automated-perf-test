@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 )
 
 type Config struct {
@@ -28,6 +29,9 @@ type Config struct {
 
 	//This value is determined by the environment/machine on which the test is being run.
 	ExecutionHost string
+
+	//template file
+	ReportTemplateFile string `xml:"reportTemplateFile,omitempty"`
 }
 
 func (c *Config) SetDefaults() {
@@ -164,6 +168,11 @@ type PerfStats struct {
 	ServiceResponseTimes map[string]int64
 	MemoryAudit          []uint64
 	TestPartitions       []TestPartition
+	TestDate             time.Time
+}
+
+func (ps *PerfStats) GetTestTime() string {
+	return ps.TestDate.Format(time.RFC850)
 }
 
 type TestPartition struct {
