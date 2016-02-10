@@ -56,7 +56,9 @@ func init() {
 				os.Exit(1)
 			}
 		}
-
+	} else {
+		fmt.Println("No config file specified. Using default values.")
+		configurationSettings.SetDefaults()
 	}
 
 	//Get Hostname for this machine.
@@ -70,6 +72,7 @@ func init() {
 	configurationSettings.GBS = gbs
 	configurationSettings.ReBaseMemory = reBaseMemory
 	configurationSettings.ReBaseAll = reBaseAll
+
 }
 
 //Main Test Method
@@ -299,7 +302,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 
 	//Add a 1 second delay before running test case to allow the graph get some initial memory data before test cases are executed.
 	time.Sleep(time.Second * 1)
-	for _, fi := range fi {
+	for index, fi := range fi {
 		bs, err := ioutil.ReadFile(configurationSettings.TestDefinitionsDir + "/" + fi.Name())
 		if err != nil {
 			//log.Error("Failed to read test file. Filename: ", fi.Name(), err)
@@ -311,7 +314,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 		xml.Unmarshal(bs, &testDefinition)
 
 		//log.Info("Running Test case [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
-		fmt.Println("Running Test case [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
+		fmt.Println("Running Test case ", index, " [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
 		currentServiceName = testDefinition.TestName
 		averageResponseTime := executeServiceTest(testDefinition, loadPerUser, remainder)
 		if averageResponseTime > 0 {
@@ -352,6 +355,7 @@ func executeServiceTest(testDefinition *perfTestUtils.TestDefinition, loadPerUse
 		go aggregateResponseTimes(&responseTimes, subsetOfResponseTimesChan, &wg)
 	}
 	if remainder > 0 {
+		wg.Add(1)
 		go buildAndSendUserRequests(subsetOfResponseTimesChan, remainder, testDefinition)
 		go aggregateResponseTimes(&responseTimes, subsetOfResponseTimesChan, &wg)
 	}
@@ -412,6 +416,7 @@ func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTi
 			timeTaken := time.Since(startTime)
 
 			body, _ := ioutil.ReadAll(resp.Body)
+			defer resp.Body.Close()
 
 			//Validate service response
 			contentLengthOk := perfTestUtils.ValidateResponseBody(body, testDefinition.TestName)
