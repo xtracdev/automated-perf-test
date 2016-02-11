@@ -45,8 +45,7 @@ func (m *mockedFile) Read(p []byte) (n int, err error) {
 	if m.r == nil {
 		m.r = strings.NewReader(string(m.Content))
 	}
-	n, err = m.r.Read(p)
-	return
+	return m.r.Read(p)
 }
 
 func TestReadBasePerfFile(t *testing.T) {
