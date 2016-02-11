@@ -4,10 +4,22 @@ import (
 	"encoding/xml"
 	"fmt"
 	//log "github.com/Sirupsen/logrus"
-	"os"
 	"runtime"
 	"strings"
 	"time"
+)
+
+const (
+	defaultAPIName                              = "Default_API_NAME"
+	defaultTargetHost                           = "localhost"
+	defaultTargetPort                           = "8080"
+	defaultNumIterations                        = 1000
+	defaultAllowablePeakMemoryVariance          = float64(15)
+	defaultAllowableServiceResponseTimeVariance = float64(15)
+	defaultTestDefinitionsDir                   = "./testDefinitions"
+	defaultBaseStatsOutputDir                   = "./envStats"
+	defaultReportOutputDir                      = "./"
+	defaultConcurrentUsers                      = 1
 )
 
 type Config struct {
@@ -35,23 +47,19 @@ type Config struct {
 }
 
 func (c *Config) SetDefaults() {
-	c.APIName = "Default_API_NAME"
-	c.TargetHost = "localhost"
-	c.TargetPort = "8080"
-	c.NumIterations = 1000
-	c.AllowablePeakMemoryVariance = 15
-	c.AllowableServiceResponseTimeVariance = 15
-	c.TestDefinitionsDir = "./testDefinitions"
-	c.BaseStatsOutputDir = "./envStats"
-	c.ReportOutputDir = "./"
-	c.ConcurrentUsers = 1
-
-	c.GBS = false
-	c.ReBaseMemory = false
-	c.ReBaseAll = false
+	c.APIName = defaultAPIName
+	c.TargetHost = defaultTargetHost
+	c.TargetPort = defaultTargetPort
+	c.NumIterations = defaultNumIterations
+	c.AllowablePeakMemoryVariance = defaultAllowablePeakMemoryVariance
+	c.AllowableServiceResponseTimeVariance = defaultAllowableServiceResponseTimeVariance
+	c.TestDefinitionsDir = defaultTestDefinitionsDir
+	c.BaseStatsOutputDir = defaultBaseStatsOutputDir
+	c.ReportOutputDir = defaultReportOutputDir
+	c.ConcurrentUsers = defaultConcurrentUsers
 }
 
-func (c Config) PrintAndValidateConfig() {
+func (c Config) PrintAndValidateConfig(exit func(code int)) {
 	isConfigValid := true
 	configOutput := []byte("")
 	configOutput = append(configOutput, []byte("\n============== Configuration Settings =========\n")...)
@@ -74,57 +82,47 @@ func (c Config) PrintAndValidateConfig() {
 	fmt.Println(string(configOutput))
 
 	if strings.TrimSpace(c.APIName) == "" {
-		//log.Error("CONFIG ERROR: apiName must be set in config file")
 		fmt.Println("CONFIG ERROR: apiName must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.TargetHost) == "" {
-		//log.Error("CONFIG ERROR: targetHost must be set in config file")
 		fmt.Println("CONFIG ERROR: targetHost must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.TargetPort) == "" {
-		//log.Error("CONFIG ERROR: targetPort must be set in config file")
 		fmt.Println("CONFIG ERROR: targetPort must be set in config file")
 		isConfigValid = false
 	}
 	if c.NumIterations < 1 {
-		//log.Error("CONFIG ERROR: numIterations must be set in config file and must be greater than 1")
 		fmt.Println("CONFIG ERROR: numIterations must be set in config file and must be greater than 1")
 		isConfigValid = false
 	}
 	if c.ConcurrentUsers < 1 {
-		//log.Error("CONFIG ERROR: numIterations must be set in config file and must be greater than 1")
 		fmt.Println("CONFIG ERROR: concurrentUsers must be set in config file and must be greater than 1")
 		isConfigValid = false
 	}
 	if c.AllowablePeakMemoryVariance <= 0.0 {
-		//log.Error("CONFIG ERROR: allowablePeakMemoryVariance must be set in config file and must be greater than 0.0")
 		fmt.Println("CONFIG ERROR: allowablePeakMemoryVariance must be set in config file and must be greater than 0.0")
 		isConfigValid = false
 	}
 	if c.AllowableServiceResponseTimeVariance <= 0.0 {
-		//log.Error("CONFIG ERROR: allowableServiceResponseTimeVariance must be set in config file and must be greater than 0.0")
 		fmt.Println("CONFIG ERROR: allowableServiceResponseTimeVariance must be set in config file and must be greater than 0.0")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.TestDefinitionsDir) == "" {
-		//log.Error("CONFIG ERROR: testDefinitionsDir must be set in config file")
 		fmt.Println("CONFIG ERROR: testDefinitionsDir must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.BaseStatsOutputDir) == "" {
-		//log.Error("CONFIG ERROR: baseStatsOutputDir must be set in config file")
 		fmt.Println("CONFIG ERROR: baseStatsOutputDir must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.ReportOutputDir) == "" {
-		//log.Error("CONFIG ERROR: reportOutputDir must be set in config file")
 		fmt.Println("CONFIG ERROR: reportOutputDir must be set in config file")
 		isConfigValid = false
 	}
 	if !isConfigValid {
-		os.Exit(1)
+		exit(1)
 	}
 }
 

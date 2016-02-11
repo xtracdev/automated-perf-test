@@ -6,7 +6,7 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
-	//log "github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"io"
 	"io/ioutil"
@@ -25,8 +25,13 @@ const (
 	TESTING_MODE  = 2
 )
 
+var osFileSystem = perfTestUtils.OsFS{}
+
 func init() {
 
+}
+
+func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int)) {
 	//Command line ags
 	var gbs bool
 	var reBaseMemory bool
@@ -38,22 +43,30 @@ func init() {
 	flag.BoolVar(&reBaseMemory, "reBaseMemory", false, "Generate new base peak memory for this server")
 	flag.BoolVar(&reBaseAll, "reBaseAll", false, "Generate new base for memory and service resposne times for this server")
 	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
-	flag.Parse()
+	flag.CommandLine.Parse(args)
 
 	//Read and paser config file if present.
 	configurationSettings = new(perfTestUtils.Config)
 	if configFilePath != "" {
-		fileContent, fileErr := ioutil.ReadFile(configFilePath)
+		cf, err := fs.Open(configFilePath)
+		if err != nil {
+			fmt.Println("No config file found at path: ", configFilePath)
+			exit(1)
+		}
+		if cf != nil {
+			defer cf.Close()
+		}
+		fileContent, fileErr := ioutil.ReadAll(cf)
 		if fileErr != nil {
 			//log.Info("No config file found. ")
-			fmt.Println("No config file found at path: ", configFilePath)
-			os.Exit(1)
+			fmt.Println("No readable config file found at path: ", configFilePath)
+			exit(1)
 		} else {
 			xmlError := xml.Unmarshal(fileContent, &configurationSettings)
 			if xmlError != nil {
 				//log.Info("Failed to parse config file ", configFilePath, ". Error:", xmlError)
 				fmt.Println("Failed to parse config file ", configFilePath, ". Error:", xmlError)
-				os.Exit(1)
+				exit(1)
 			}
 		}
 
@@ -64,7 +77,7 @@ func init() {
 	if err != nil {
 		//log.Error("Failed to resolve host name. Error:", err)
 		fmt.Println("Failed to resolve host name. Error:", err)
-		os.Exit(1)
+		exit(1)
 	}
 	configurationSettings.ExecutionHost = host
 	configurationSettings.GBS = gbs
@@ -74,9 +87,10 @@ func init() {
 
 //Main Test Method
 func main() {
-
+	log.Debugf("[START]")
+	initConfig(os.Args[1:], osFileSystem, os.Exit)
 	//Validate config()
-	configurationSettings.PrintAndValidateConfig()
+	configurationSettings.PrintAndValidateConfig(os.Exit)
 
 	//Determine testing mode.
 	if configurationSettings.GBS || configurationSettings.ReBaseAll {
@@ -123,7 +137,8 @@ func runInTrainingMode(host string, reBaseAll bool) {
 		//Check to see if this server already has a base perf file defined.
 		//If so, only values not previously populated will be set.
 		//if not, a default base perf struct is created with nil values for all fields
-		basePerfstats, _ = perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
+		f, _ := os.Open(configurationSettings.BaseStatsOutputDir + "/" + host + "-perfBaseStats")
+		basePerfstats, _ = perfTestUtils.ReadBasePerfFile(f)
 	}
 
 	//initilize Performance statistics struct for this test run
@@ -131,12 +146,12 @@ func runInTrainingMode(host string, reBaseAll bool) {
 
 	//Run the test
 	runTests(perfStatsForTest, TRAINING_MODE)
-	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings)
+	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem)
 
 	fmt.Println("Training mode completed successfully")
 }
 
-func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config)) {
+func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem)) {
 	fmt.Println("Running Perf test in Testing mode for host ", host)
 
 	//initilize Performance statistics struct for this test run
@@ -145,7 +160,7 @@ func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, f
 
 	runTests(perfStatsForTest, TESTING_MODE)
 	assertionFailures := runAssertions(basePerfstats, perfStatsForTest)
-	frg(basePerfstats, perfStatsForTest, configurationSettings)
+	frg(basePerfstats, perfStatsForTest, configurationSettings, osFileSystem)
 
 	fmt.Println("=================== TEST RESULTS ===================")
 	if len(assertionFailures) > 0 {
@@ -164,7 +179,12 @@ func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, f
 func isReadyForTest(host string) (bool, *perfTestUtils.BasePerfStats) {
 
 	//1) read in perf base stats
-	basePerfstats, err := perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
+	f, err := os.Open(configurationSettings.BaseStatsOutputDir + "/" + host + "-perfBaseStats")
+	if err != nil {
+		fmt.Printf("Failed to open env stats for %v. Error: %v.", host, err)
+		return false, nil
+	}
+	basePerfstats, err := perfTestUtils.ReadBasePerfFile(f)
 	if err != nil {
 		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ".")
 		return false, nil
@@ -177,7 +197,7 @@ func isReadyForTest(host string) (bool, *perfTestUtils.BasePerfStats) {
 		return false, nil
 	}
 	//3) Verify the number of base test cases is equal to the number of service test cases.
-	correctNumberOfTests := perfTestUtils.ValidateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes), configurationSettings)
+	correctNumberOfTests := perfTestUtils.ValidateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes), configurationSettings, osFileSystem)
 	if !correctNumberOfTests {
 		return false, nil
 	}

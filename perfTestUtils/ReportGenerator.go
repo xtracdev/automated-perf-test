@@ -47,10 +47,6 @@ func MemoryMB(pm uint64) float64 {
 	return float64((float32(pm) / float32(1024)) / float32(1024))
 }
 
-func MemoryKB(pm uint64) float64 {
-	return float64((float32(pm) / float32(1024)))
-}
-
 func FormatMemory(m float64) string {
 	return strconv.FormatFloat(m, 'f', 3, 64)
 }
@@ -111,10 +107,16 @@ func (p *perfStatsModel) JsonTimeArray() template.JS {
 	return template.JS(serviceResponseTimesBase)
 }
 
-func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, configurationSettings *Config) {
-	file, err := os.Create(configurationSettings.ReportOutputDir + "/PerformanceTemplateReport.html")
+func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, configurationSettings *Config, fs FileSystem) {
+	file, err := fs.Create(configurationSettings.ReportOutputDir + "/PerformanceTemplateReport.html")
 	if err != nil {
+		fmt.Printf("Error creating report file: %v\n", err)
+	}
+	if file != nil {
 		defer file.Close()
+	} else {
+		fmt.Printf("No file was created, falling back to stdout: %v\n", err)
+		file = os.Stdout
 	}
 	tf := configurationSettings.ReportTemplateFile
 	generateTemplate(basePerfstats, perfStats, configurationSettings, file, tf)
@@ -124,7 +126,7 @@ func generateTemplate(bstats *BasePerfStats, pstats *PerfStats, configurationSet
 	ps := &perfStatsModel{BasePerfStats: bstats, PerfStats: pstats, Config: configurationSettings}
 	s1 := template.New("main")
 	var err error
-	s1 = s1.Funcs(template.FuncMap{"memToMB": MemoryMB, "memToKb": MemoryKB, "formatMem": FormatMemory, "jsonMem": JsonMemoryArray, "div": Div, "avgVar": CalcAverageResponseVariancePercentage})
+	s1 = s1.Funcs(template.FuncMap{"memToMB": MemoryMB, "formatMem": FormatMemory, "jsonMem": JsonMemoryArray, "div": Div, "avgVar": CalcAverageResponseVariancePercentage})
 	if templFile != "" {
 		s1, err = s1.ParseFiles(templFile)
 		if err != nil {
