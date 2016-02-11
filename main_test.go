@@ -15,7 +15,7 @@ import (
 const (
 	configFile = `<?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <apiName>Xtrac API</apiName>
+    <apiName>Test API</apiName>
 
     <!--Target API under test-->
     <targetHost>localhost</targetHost>
