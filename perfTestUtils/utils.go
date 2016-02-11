@@ -119,7 +119,6 @@ func CalcAverageResponseTime(responseTimes RspTimes, numIterations int) int64 {
 	for _, val := range responseTimes {
 		totalOfAllresponseTimes = totalOfAllresponseTimes + val
 	}
-	fmt.Printf("totalOfAllresponseTimes = %v\n", totalOfAllresponseTimes)
 	averageResponseTime = int64(float64(totalOfAllresponseTimes) / float64(numIterations-numberToRemove))
 
 	return averageResponseTime
