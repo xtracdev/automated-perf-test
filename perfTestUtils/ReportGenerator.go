@@ -108,7 +108,7 @@ func (p *perfStatsModel) JsonTimeArray() template.JS {
 }
 
 func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, configurationSettings *Config, fs FileSystem) {
-	file, err := fs.Create(configurationSettings.ReportOutputDir + "/PerformanceTemplateReport.html")
+	file, err := fs.Create(configurationSettings.ReportOutputDir + "/PerformanceReport.html")
 	if err != nil {
 		fmt.Printf("Error creating report file: %v\n", err)
 	}
