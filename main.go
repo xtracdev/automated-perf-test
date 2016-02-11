@@ -27,10 +27,6 @@ const (
 
 var osFileSystem = perfTestUtils.OsFS{}
 
-func init() {
-
-}
-
 func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int)) {
 	//Command line ags
 	var gbs bool

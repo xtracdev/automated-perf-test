@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -121,5 +122,61 @@ func TestInitConfigFile(t *testing.T) {
 	assert.False(t, configurationSettings.ReBaseAll)
 	assert.True(t, configurationSettings.GBS)
 	assert.Equal(t, "./testDefinitions", configurationSettings.TestDefinitionsDir)
+}
 
+func TestValidateBasePerfStat(t *testing.T) {
+	bs := &perfTestUtils.BasePerfStats{}
+	assert.False(t, validateBasePerfStat(bs))
+
+	bs.BaseServiceResponseTimes = map[string]int64{"service 1": 123, "service 2": -1}
+	assert.False(t, validateBasePerfStat(bs))
+
+	bs.BaseServiceResponseTimes = map[string]int64{"service 1": 123, "service 2": 321}
+	bs.BasePeakMemory = 12
+	bs.GenerationDate = "aaa"
+	bs.ModifiedDate = "bbb"
+	bs.MemoryAudit = []uint64{1, 2, 3}
+	assert.True(t, validateBasePerfStat(bs))
+}
+
+func TestAggregateResponseTimes(t *testing.T) {
+	var wg sync.WaitGroup
+
+	srtChan := make(chan perfTestUtils.RspTimes)
+	testChan := make(chan perfTestUtils.RspTimes)
+	times := &[]int64{1, 2, 3, 4}
+	go func() {
+		for i := 0; i < 5; i++ {
+			fmt.Printf("start goroutine\n")
+			wg.Add(1)
+			go func() {
+				srtChan <- []int64{10, 20}
+			}()
+			go aggregateResponseTimes(times, srtChan, &wg)
+		}
+		wg.Wait()
+		testChan <- *times
+	}()
+
+	go func() {
+		toTest := <-testChan
+		assert.Equal(t, 14, len(toTest))
+	}()
+}
+
+func TestRunAssertions(t *testing.T) {
+	bs := &perfTestUtils.BasePerfStats{
+		BasePeakMemory:           100,
+		BaseServiceResponseTimes: map[string]int64{"s1": 10, "s2": 20, "s3": 30},
+	}
+
+	ps := &perfTestUtils.PerfStats{
+		PeakMemory:           150,
+		ServiceResponseTimes: map[string]int64{"s1": 100, "s2": 20},
+	}
+	configurationSettings = new(perfTestUtils.Config)
+	configurationSettings.SetDefaults()
+	toTest := runAssertions(bs, ps)
+	t.Logf("%v\n", toTest)
+	assert.Equal(t, 3, len(toTest))
 }
