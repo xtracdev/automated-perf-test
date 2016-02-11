@@ -147,7 +147,6 @@ func TestAggregateResponseTimes(t *testing.T) {
 	times := &[]int64{1, 2, 3, 4}
 	go func() {
 		for i := 0; i < 5; i++ {
-			fmt.Printf("start goroutine\n")
 			wg.Add(1)
 			go func() {
 				srtChan <- []int64{10, 20}
