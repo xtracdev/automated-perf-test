@@ -18,15 +18,18 @@ var mockedFs FileSystem = mockFs{}
 
 type mockFs struct{}
 
-func (mockFs) Open(name string) (File, error) { return mockedFile{}, nil }
+func (mockFs) Open(name string) (File, error) { return &mockedFile{}, nil }
 func (mockFs) Create(name string) (File, error) {
 	if strings.Contains(name, "FAIL") {
 		return nil, fmt.Errorf("requested mock FAIL!")
 	}
-	return mockedFile{}, nil
+	return &mockedFile{}, nil
 }
 
-type mockedFile struct{}
+type mockedFile struct {
+	Content []byte
+	r       *strings.Reader
+}
 
 func (mockedFile) Readdir(n int) (fi []os.FileInfo, err error) {
 	if n == -1 {
@@ -38,6 +41,13 @@ func (mockedFile) Readdir(n int) (fi []os.FileInfo, err error) {
 func (mockedFile) Close() error { return nil }
 
 func (mockedFile) Write(p []byte) (n int, err error) { return io.WriteString(os.Stdout, string(p)) }
+func (m *mockedFile) Read(p []byte) (n int, err error) {
+	if m.r == nil {
+		m.r = strings.NewReader(string(m.Content))
+	}
+	n, err = m.r.Read(p)
+	return
+}
 
 func TestReadBasePerfFile(t *testing.T) {
 	bs := &BasePerfStats{
