@@ -20,6 +20,7 @@ import (
 )
 
 var configurationSettings *perfTestUtils.Config
+var checkTestReadyness bool
 
 const (
 	TRAINING_MODE = 1
@@ -38,6 +39,7 @@ func init() {
 	flag.BoolVar(&gbs, "gbs", false, "Genertate Base Performance Staticists for this server")
 	flag.BoolVar(&reBaseMemory, "reBaseMemory", false, "Generate new base peak memory for this server")
 	flag.BoolVar(&reBaseAll, "reBaseAll", false, "Generate new base for memory and service resposne times for this server")
+	flag.BoolVar(&checkTestReadyness, "checkTestReadyness", false, "Simple check to see if system requires training.")
 	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
 	flag.Parse()
 
@@ -78,6 +80,17 @@ func init() {
 
 //Main Test Method
 func main() {
+
+	if checkTestReadyness {
+		readyForTest, _ := isReadyForTest(configurationSettings.ExecutionHost)
+		if !readyForTest {
+			fmt.Println("System is not ready for testing.")
+			os.Exit(1)
+		} else {
+			fmt.Println("System is ready for testing.")
+			os.Exit(0)
+		}
+	}
 
 	//Validate config()
 	configurationSettings.PrintAndValidateConfig()
