@@ -13,6 +13,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -113,6 +114,7 @@ func main() {
 
 func runInTrainingMode(host string, reBaseAll bool) {
 	fmt.Println("Running Perf test in Training mode for host ", host)
+	testStratTime := time.Now().UnixNano()
 
 	var basePerfstats *perfTestUtils.BasePerfStats
 	if reBaseAll {
@@ -136,11 +138,13 @@ func runInTrainingMode(host string, reBaseAll bool) {
 	runTests(perfStatsForTest, TRAINING_MODE)
 	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings)
 
-	fmt.Println("Training mode completed successfully")
+	testRunTime := time.Now().UnixNano() - testStratTime
+	fmt.Println("Training mode completed successfully. ", getExecutionTimeDisplay(testRunTime))
 }
 
 func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config)) {
 	fmt.Println("Running Perf test in Testing mode for host ", host)
+	testStratTime := time.Now().UnixNano()
 
 	//initilize Performance statistics struct for this test run
 	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64)}
@@ -157,11 +161,34 @@ func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, f
 		for _, failure := range assertionFailures {
 			fmt.Println(failure)
 		}
-		os.Exit(1)
 	} else {
 		fmt.Println("Testing mode completed successfully")
 	}
+
+	testRunTime := time.Now().UnixNano() - testStratTime
+	fmt.Println(getExecutionTimeDisplay(testRunTime))
 	fmt.Println("=====================================================")
+
+	if len(assertionFailures) > 0 {
+		os.Exit(1)
+	}
+}
+
+func getExecutionTimeDisplay(executionTime int64) string {
+	timeInMilliSeconds := executionTime / 1000000
+	seconds := (timeInMilliSeconds / 1000)
+	secondsDisplay := seconds % 60
+	minutes := seconds / 60
+	minutesDisplay := minutes % 60
+
+	displayStatement := []byte("Execution Time: ")
+	displayStatement = append(displayStatement, []byte(strconv.FormatInt(minutesDisplay, 10))...)
+	displayStatement = append(displayStatement, []byte(":")...)
+	if secondsDisplay <= 9 {
+		displayStatement = append(displayStatement, []byte("0")...)
+	}
+	displayStatement = append(displayStatement, []byte(strconv.FormatInt(secondsDisplay, 10))...)
+	return string(displayStatement)
 }
 
 func isReadyForTest(host string) (bool, *perfTestUtils.BasePerfStats) {
