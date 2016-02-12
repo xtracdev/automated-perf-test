@@ -222,13 +222,13 @@ func validateBasePerfStat(basePerfstats *perfTestUtils.BasePerfStats) bool {
 func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 
 	var peakMemoryAllocation = new(uint64)
-	var lastServiceName = "StartUp"
-	var currentServiceName = "StartUp"
+	//var lastServiceName = "StartUp"
+	//var currentServiceName = "StartUp"
 
 	memoryAudit := make([]uint64, 0)
 	testPartitions := make([]perfTestUtils.TestPartition, 0)
 	counter := 0
-	testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: currentServiceName})
+	testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: "StartUp"})
 
 	//Start go routine to grab memory in use
 	//Peak memory is stored in peakMemoryAlocation variable.
@@ -263,12 +263,6 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 							*peakMemoryAllocation = m.Memstats.Alloc
 						}
 						memoryAudit = append(memoryAudit, m.Memstats.Alloc)
-
-						if lastServiceName != currentServiceName {
-							testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: currentServiceName})
-							lastServiceName = currentServiceName
-						}
-
 						counter++
 						time.Sleep(time.Millisecond * 200)
 					}
@@ -316,7 +310,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 
 		//log.Info("Running Test case [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
 		fmt.Println("Running Test case ", index, " [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
-		currentServiceName = testDefinition.TestName
+		testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: testDefinition.TestName})
 		averageResponseTime := executeServiceTest(testDefinition, loadPerUser, remainder)
 		if averageResponseTime > 0 {
 			perfStatsForTest.ServiceResponseTimes[testDefinition.TestName] = averageResponseTime
@@ -327,7 +321,6 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 				os.Exit(1)
 			}
 		}
-		time.Sleep(time.Millisecond * 200)
 	}
 
 	time.Sleep(time.Second * 1)
@@ -412,6 +405,8 @@ func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTi
 		if resp, err := (&http.Client{}).Do(req); err != nil {
 			//log.Error("Error by firing request: ", req, "Error:", err)
 			fmt.Println("Error by firing request: ", req, "Error:", err)
+			loopExecutedToCompletion = false
+			break
 		} else {
 
 			timeTaken := time.Since(startTime)
