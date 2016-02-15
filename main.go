@@ -14,12 +14,14 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
 
 var configurationSettings *perfTestUtils.Config
+var checkTestReadyness bool
 
 const (
 	TRAINING_MODE = 1
@@ -41,6 +43,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	flag.BoolVar(&gbs, "gbs", false, "Genertate Base Performance Staticists for this server")
 	flag.BoolVar(&reBaseMemory, "reBaseMemory", false, "Generate new base peak memory for this server")
 	flag.BoolVar(&reBaseAll, "reBaseAll", false, "Generate new base for memory and service resposne times for this server")
+	flag.BoolVar(&checkTestReadyness, "checkTestReadyness", false, "Simple check to see if system requires training.")
 	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
 	flag.StringVar(&configFileFormat, "configFileFormat", "xml", "The format of the configuration file {xlm, toml}")
 	flag.StringVar(&testFileFormat, "testFileFormat", "xml", "The format of the test definition file {xlm, toml}")
@@ -101,6 +104,18 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 func main() {
 	log.Debugf("[START]")
 	initConfig(os.Args[1:], osFileSystem, os.Exit)
+
+	if checkTestReadyness {
+		readyForTest, _ := isReadyForTest(configurationSettings.ExecutionHost)
+		if !readyForTest {
+			fmt.Println("System is not ready for testing.")
+			os.Exit(1)
+		} else {
+			fmt.Println("System is ready for testing.")
+			os.Exit(0)
+		}
+	}
+
 	//Validate config()
 	configurationSettings.PrintAndValidateConfig(os.Exit)
 
@@ -136,6 +151,7 @@ func main() {
 
 func runInTrainingMode(host string, reBaseAll bool) {
 	fmt.Println("Running Perf test in Training mode for host ", host)
+	testStratTime := time.Now().UnixNano()
 
 	var basePerfstats *perfTestUtils.BasePerfStats
 	if reBaseAll {
@@ -160,11 +176,13 @@ func runInTrainingMode(host string, reBaseAll bool) {
 	runTests(perfStatsForTest, TRAINING_MODE)
 	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem)
 
-	fmt.Println("Training mode completed successfully")
+	testRunTime := time.Now().UnixNano() - testStratTime
+	fmt.Println("Training mode completed successfully. ", getExecutionTimeDisplay(testRunTime))
 }
 
 func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem)) {
 	fmt.Println("Running Perf test in Testing mode for host ", host)
+	testStratTime := time.Now().UnixNano()
 
 	//initilize Performance statistics struct for this test run
 	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64)}
@@ -181,11 +199,34 @@ func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, f
 		for _, failure := range assertionFailures {
 			fmt.Println(failure)
 		}
-		os.Exit(1)
 	} else {
 		fmt.Println("Testing mode completed successfully")
 	}
+
+	testRunTime := time.Now().UnixNano() - testStratTime
+	fmt.Println(getExecutionTimeDisplay(testRunTime))
 	fmt.Println("=====================================================")
+
+	if len(assertionFailures) > 0 {
+		os.Exit(1)
+	}
+}
+
+func getExecutionTimeDisplay(executionTime int64) string {
+	timeInMilliSeconds := executionTime / 1000000
+	seconds := (timeInMilliSeconds / 1000)
+	secondsDisplay := seconds % 60
+	minutes := seconds / 60
+	minutesDisplay := minutes % 60
+
+	displayStatement := []byte("Execution Time: ")
+	displayStatement = append(displayStatement, []byte(strconv.FormatInt(minutesDisplay, 10))...)
+	displayStatement = append(displayStatement, []byte(":")...)
+	if secondsDisplay <= 9 {
+		displayStatement = append(displayStatement, []byte("0")...)
+	}
+	displayStatement = append(displayStatement, []byte(strconv.FormatInt(secondsDisplay, 10))...)
+	return string(displayStatement)
 }
 
 func isReadyForTest(host string) (bool, *perfTestUtils.BasePerfStats) {
@@ -251,13 +292,13 @@ func validateBasePerfStat(basePerfstats *perfTestUtils.BasePerfStats) bool {
 func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 
 	var peakMemoryAllocation = new(uint64)
-	var lastServiceName = "StartUp"
-	var currentServiceName = "StartUp"
+	//var lastServiceName = "StartUp"
+	//var currentServiceName = "StartUp"
 
 	memoryAudit := make([]uint64, 0)
 	testPartitions := make([]perfTestUtils.TestPartition, 0)
 	counter := 0
-	testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: currentServiceName})
+	testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: "StartUp"})
 
 	//Start go routine to grab memory in use
 	//Peak memory is stored in peakMemoryAlocation variable.
@@ -292,12 +333,6 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 							*peakMemoryAllocation = m.Memstats.Alloc
 						}
 						memoryAudit = append(memoryAudit, m.Memstats.Alloc)
-
-						if lastServiceName != currentServiceName {
-							testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: currentServiceName})
-							lastServiceName = currentServiceName
-						}
-
 						counter++
 						time.Sleep(time.Millisecond * 200)
 					}
@@ -368,7 +403,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 
 		//log.Info("Running Test case [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
 		fmt.Println("Running Test case ", index, " [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
-		currentServiceName = testDefinition.TestName
+		testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: testDefinition.TestName})
 		averageResponseTime := executeServiceTest(testDefinition, loadPerUser, remainder)
 		if averageResponseTime > 0 {
 			perfStatsForTest.ServiceResponseTimes[testDefinition.TestName] = averageResponseTime
@@ -379,7 +414,6 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 				os.Exit(1)
 			}
 		}
-		time.Sleep(time.Millisecond * 200)
 	}
 
 	time.Sleep(time.Second * 1)
@@ -467,6 +501,8 @@ func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTi
 		if resp, err := (&http.Client{}).Do(req); err != nil {
 			//log.Error("Error by firing request: ", req, "Error:", err)
 			fmt.Println("Error by firing request: ", req, "Error:", err)
+			loopExecutedToCompletion = false
+			break
 		} else {
 
 			timeTaken := time.Since(startTime)
