@@ -108,11 +108,9 @@ func CalcAverageResponseTime(responseTimes RspTimes, numIterations int) int64 {
 
 	averageResponseTime := int64(0)
 
-	//Remove the highest 5% to take out anomolies
+	//Remove the highest =10% to take out anomolies
 	sort.Sort(responseTimes)
-	numberToRemove := int(float32(numIterations) * float32(0.05))
-	fmt.Printf("resp times length: %v\n", len(responseTimes))
-	fmt.Printf("To remove: %v\n", numberToRemove)
+	numberToRemove := int(float32(numIterations) * float32(0.1))
 	responseTimes = responseTimes[0 : len(responseTimes)-numberToRemove]
 
 	totalOfAllresponseTimes := int64(0)

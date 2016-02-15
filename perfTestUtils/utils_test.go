@@ -120,7 +120,7 @@ func TestCalcAverageResponseTime(t *testing.T) {
 		times = append(times, i*1000)
 	}
 	avg := CalcAverageResponseTime(times, 100)
-	assert.Equal(t, int64(201157), avg)
+	assert.Equal(t, int64(201611), avg)
 }
 
 func TestCalcAverageResponseVariancePercentage(t *testing.T) {
