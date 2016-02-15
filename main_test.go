@@ -41,6 +41,32 @@ const (
     <!-- optional template file location
     <reportTemplateFile/>-->
 </config>`
+
+	tomlConfigFile = `apiName = "Test API"
+
+#Target API under test
+targetHost = "localhost"
+targetPort = "8282"
+
+#Allowed vairance as a percentage over base values
+allowablePeakMemoryVariance = 15.0
+allowableServiceResponseTimeVariance = 15.0
+
+#The number of time each test case is executed
+numIterations = 1000
+
+#Location of directory where test cases reside
+testDefinitionsDir = "./testDefinitions"
+
+#Output locations for generated files
+baseStatsOutputDir = "./envStats"
+reportOutputDir = "./report"
+
+#Concurrent users per service test
+concurrentUsers = 1
+
+#optional template file location
+#reportTemplateFile = .`
 )
 
 var mockedFs perfTestUtils.FileSystem = mockFs{}
@@ -51,7 +77,13 @@ func (mockFs) Open(name string) (perfTestUtils.File, error) {
 	if strings.Contains(name, "FAIL") {
 		return &mockedFile{Content: []byte("requested mock FAIL!")}, nil
 	}
-	return &mockedFile{Content: []byte(configFile)}, nil
+	switch name {
+	case "toml":
+		return &mockedFile{Content: []byte(tomlConfigFile)}, nil
+	default:
+		return &mockedFile{Content: []byte(configFile)}, nil
+	}
+
 }
 func (mockFs) Create(name string) (perfTestUtils.File, error) {
 	if strings.Contains(name, "FAIL") {
@@ -111,6 +143,25 @@ func TestInitConfigFile(t *testing.T) {
 	exit := func(i int) { willCallOsExit = true }
 
 	args := []string{"-gbs", "-reBaseMemory=true", "-configFilePath=test"}
+
+	initConfig(args, mockedFs, exit)
+	assert.NotNil(t, configurationSettings)
+	assert.False(t, willCallOsExit)
+	assert.Equal(t, "localhost", configurationSettings.TargetHost)
+	assert.Equal(t, "8282", configurationSettings.TargetPort)
+	assert.True(t, configurationSettings.ReBaseMemory)
+	assert.False(t, configurationSettings.ReBaseAll)
+	assert.True(t, configurationSettings.GBS)
+	assert.Equal(t, "./testDefinitions", configurationSettings.TestDefinitionsDir)
+}
+
+func TestInitConfigFileToml(t *testing.T) {
+	configurationSettings = &perfTestUtils.Config{}
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	willCallOsExit := false
+	exit := func(i int) { willCallOsExit = true }
+
+	args := []string{"-gbs", "-reBaseMemory=true", "-configFilePath=toml", "-configFileFormat=toml"}
 
 	initConfig(args, mockedFs, exit)
 	assert.NotNil(t, configurationSettings)
