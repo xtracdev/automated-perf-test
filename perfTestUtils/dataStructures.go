@@ -21,6 +21,7 @@ type Config struct {
 	BaseStatsOutputDir                   string  `xml:"baseStatsOutputDir"`
 	ReportOutputDir                      string  `xml:"reportOutputDir"`
 	ConcurrentUsers                      int     `xml:"concurrentUsers"`
+	TestSuite                            string  `xml:"testSuite"`
 
 	//These value can only be set by command line arguments as they control each training and test run.
 	GBS          bool
@@ -45,6 +46,7 @@ func (c *Config) SetDefaults() {
 	c.BaseStatsOutputDir = "./envStats"
 	c.ReportOutputDir = "./"
 	c.ConcurrentUsers = 1
+	c.TestSuite = ""
 
 	c.GBS = false
 	c.ReBaseMemory = false
@@ -63,6 +65,7 @@ func (c Config) PrintAndValidateConfig() {
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90.2f %2s", "allowablePeakMemoryVariance", c.AllowablePeakMemoryVariance, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90.2f %2s", "allowableServiceResponseTimeVariance", c.AllowableServiceResponseTimeVariance, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testDefinitionsDir", c.TestDefinitionsDir, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testSuite", c.TestSuite, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "baseStatsOutputDir", c.BaseStatsOutputDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "reportOutputDir", c.ReportOutputDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "gbs", c.GBS, "\n"))...)
@@ -133,7 +136,7 @@ type Header struct {
 	Key   string `xml:"key,attr"`
 }
 
-//This struct defines the base performance statistics
+//This struct defines test defination
 type TestDefinition struct {
 	XMLName            xml.Name             `xml:"testDefinition"`
 	TestName           string               `xml:"testName"`
@@ -144,6 +147,14 @@ type TestDefinition struct {
 	MultipartPayload   []multipartFormField `xml:"multipartPayload>multipartFormField"`
 	ResponseStatusCode int                  `xml:"responseStatusCode"`
 	Headers            []Header             `xml:"headers>header"`
+	ResponseProperties []string             `xml:"responseProperties>value"`
+}
+
+//This struct defines a load test scenario
+type TestSuite struct {
+	XMLName   xml.Name         `xml:"testSuite"`
+	Name      string           `xml:"name"`
+	TestCases []TestDefinition `xml:"testCases>testCase"`
 }
 
 type multipartFormField struct {

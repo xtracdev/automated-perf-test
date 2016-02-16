@@ -7,12 +7,14 @@ import (
 	"flag"
 	"fmt"
 	//log "github.com/Sirupsen/logrus"
+	"github.com/xtracdev/automated-perf-test/UI"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -21,6 +23,7 @@ import (
 
 var configurationSettings *perfTestUtils.Config
 var checkTestReadyness bool
+var globals map[string]string
 
 const (
 	TRAINING_MODE = 1
@@ -40,7 +43,6 @@ func init() {
 	flag.BoolVar(&reBaseMemory, "reBaseMemory", false, "Generate new base peak memory for this server")
 	flag.BoolVar(&reBaseAll, "reBaseAll", false, "Generate new base for memory and service resposne times for this server")
 	flag.BoolVar(&checkTestReadyness, "checkTestReadyness", false, "Simple check to see if system requires training.")
-	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
 	flag.Parse()
 
 	//Read and paser config file if present.
@@ -75,6 +77,9 @@ func init() {
 	configurationSettings.GBS = gbs
 	configurationSettings.ReBaseMemory = reBaseMemory
 	configurationSettings.ReBaseAll = reBaseAll
+
+	//Initilize globals map
+	globals = make(map[string]string)
 
 }
 
@@ -319,16 +324,42 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 		os.Exit(1)
 	}
 	defer d.Close()
-	fi, err := d.Readdir(-1)
-	if err != nil {
-		//log.Error("Failed to read files in test definitions directory. Error:", err)
-		fmt.Println("Failed to read files in test definitions directory. Error:", err)
-		os.Exit(1)
-	}
-	if len(fi) == 0 {
-		//log.Error("No test case files found in specified directory ", configurationSettings.TestDefinitionsDir)
-		fmt.Println("No test case files found in specified directory ", configurationSettings.TestDefinitionsDir)
-		os.Exit(1)
+
+	testSuite := new(perfTestUtils.TestSuite)
+	if configurationSettings.TestSuite == "" {
+		//If no test suite has been defined, treat and test case files as the suite
+		fi, err := d.Readdir(-1)
+		if err != nil {
+			//log.Error("Failed to read files in test definitions directory. Error:", err)
+			fmt.Println("Failed to read files in test definitions directory. Error:", err)
+			os.Exit(1)
+		}
+		if len(fi) == 0 {
+			//log.Error("No test case files found in specified directory ", configurationSettings.TestDefinitionsDir)
+			fmt.Println("No test case files found in specified directory ", configurationSettings.TestDefinitionsDir)
+			os.Exit(1)
+		}
+		testSuite.Name = "Default"
+		for _, fi := range fi {
+			bs, err := ioutil.ReadFile(configurationSettings.TestDefinitionsDir + "/" + fi.Name())
+			if err != nil {
+				//log.Error("Failed to read test file. Filename: ", fi.Name(), err)
+				fmt.Println("Failed to read test file. Filename: ", fi.Name(), err)
+				continue
+			}
+
+			testDefinition := new(perfTestUtils.TestDefinition)
+			xml.Unmarshal(bs, &testDefinition)
+			testSuite.TestCases = append(testSuite.TestCases, testDefinition)
+		}
+	} else {
+		//If a test suite has been defined, load in all tests associated with the test suite.
+		bs, err := ioutil.ReadFile(configurationSettings.TestDefinitionsDir + "/" + configurationSettings.TestSuite)
+		if err != nil {
+			//log.Error("Failed to read test file. Filename: ", fi.Name(), err)
+			fmt.Println("Failed to read test file. Filename: ", configurationSettings.TestSuite, err)
+		}
+		xml.Unmarshal(bs, &testSuite)
 	}
 
 	//Determine load per concurrent user
@@ -337,16 +368,8 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 
 	//Add a 1 second delay before running test case to allow the graph get some initial memory data before test cases are executed.
 	time.Sleep(time.Second * 1)
-	for index, fi := range fi {
-		bs, err := ioutil.ReadFile(configurationSettings.TestDefinitionsDir + "/" + fi.Name())
-		if err != nil {
-			//log.Error("Failed to read test file. Filename: ", fi.Name(), err)
-			fmt.Println("Failed to read test file. Filename: ", fi.Name(), err)
-			continue
-		}
 
-		testDefinition := new(perfTestUtils.TestDefinition)
-		xml.Unmarshal(bs, &testDefinition)
+	for index, testDefinition := range testSuite.TestCases {
 
 		//log.Info("Running Test case [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
 		fmt.Println("Running Test case ", index, " [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
@@ -412,7 +435,9 @@ func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTi
 
 		if !testDefinition.Multipart {
 			if testDefinition.Payload != "" {
-				req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+configurationSettings.TargetHost+":"+configurationSettings.TargetPort+testDefinition.BaseUri, strings.NewReader(testDefinition.Payload))
+				paylaod := testDefinition.Payload
+				newPayload := substituteRequestValues(&paylaod)
+				req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+configurationSettings.TargetHost+":"+configurationSettings.TargetPort+testDefinition.BaseUri, strings.NewReader(newPayload))
 			} else {
 				req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+configurationSettings.TargetHost+":"+configurationSettings.TargetPort+testDefinition.BaseUri, nil)
 			}
@@ -461,6 +486,7 @@ func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTi
 
 			if contentLengthOk && responseCodeOk && responseTimeOK {
 				responseTimes[i] = timeTaken.Nanoseconds()
+				extracResponseValues(testDefinition.TestName, body, testDefinition.ResponseProperties)
 			} else {
 				loopExecutedToCompletion = false
 				break
@@ -472,6 +498,39 @@ func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTi
 		subsetOfResponseTimesChan <- responseTimes
 	} else {
 		subsetOfResponseTimesChan <- nil
+	}
+}
+
+func substituteRequestValues(requestBody *string) string {
+
+	requestPayloadCopy := *requestBody
+
+	r := regexp.MustCompile("{{(.+)?}}")
+	res := r.FindAllString(*requestBody, -1)
+
+	if len(res) > 0 {
+		for _, property := range res {
+			//remove placeholder syntax
+			cleanedPropertyName := strings.TrimPrefix(property, "{{")
+			cleanedPropertyName = strings.TrimSuffix(cleanedPropertyName, "}}")
+			//lookup value in the globals map
+			value := globals[cleanedPropertyName]
+			if value != "" {
+				requestPayloadCopy = strings.Replace(requestPayloadCopy, property, value, 1)
+			}
+		}
+
+	}
+	return requestPayloadCopy
+}
+
+func extracResponseValues(testCaseName string, body []byte, resposneProperties []string) {
+	for _, name := range resposneProperties {
+		if globals[testCaseName+"."+name] == "" {
+			r := regexp.MustCompile("<(.+)?:" + name + ">(.+)?</(.+)?:" + name + ">")
+			res := r.FindStringSubmatch(string(body))
+			globals[testCaseName+"."+name] = res[2]
+		}
 	}
 }
 
