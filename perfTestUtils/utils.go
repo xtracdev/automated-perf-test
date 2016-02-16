@@ -4,28 +4,51 @@ import (
 	"encoding/json"
 	"fmt"
 	//log "github.com/Sirupsen/logrus"
+	"io"
 	"io/ioutil"
 	"os"
 	"sort"
 	"time"
 )
 
+//FileSystem is an interface to access os filesystem or mock it
+type FileSystem interface {
+	Open(name string) (File, error)
+	Create(name string) (File, error)
+}
+
+//File is an interface to access os.File or mock it
+type File interface {
+	Readdir(n int) (fi []os.FileInfo, err error)
+	io.WriteCloser
+	Read(p []byte) (n int, err error)
+}
+
+// OsFS implements fileSystem using the local disk.
+type OsFS struct{}
+
+//Open calls os function
+func (OsFS) Open(name string) (File, error) { return os.Open(name) }
+
+//Create calls os function
+func (OsFS) Create(name string) (File, error) { return os.Create(name) }
+
 //=============================
 //Testing run utility functions
 //=============================
-//This function reads a base perf file for this host and converts it to a base perf struct
-func ReadBasePerfFile(host string, baseStatsOutputDir string) (*BasePerfStats, error) {
+//This function reads a base perf and converts it to a base perf struct
+func ReadBasePerfFile(r io.Reader) (*BasePerfStats, error) {
 	basePerfstats := &BasePerfStats{
 		BaseServiceResponseTimes: make(map[string]int64),
 		MemoryAudit:              make([]uint64, 0),
 	}
 	var errorFound error
 
-	fileContent, fileErr := ioutil.ReadFile(baseStatsOutputDir + "/" + host + "-perfBaseStats")
-	if fileErr != nil {
-		errorFound = fileErr
+	content, err := ioutil.ReadAll(r)
+	if err != nil {
+		errorFound = err
 	} else {
-		jsonError := json.Unmarshal(fileContent, basePerfstats)
+		jsonError := json.Unmarshal(content, basePerfstats)
 		if jsonError != nil {
 			errorFound = jsonError
 		}
@@ -33,18 +56,16 @@ func ReadBasePerfFile(host string, baseStatsOutputDir string) (*BasePerfStats, e
 	return basePerfstats, errorFound
 }
 
-func ValidateTestDefinitionAmount(baselineAmount int, configurationSettings *Config) bool {
+func ValidateTestDefinitionAmount(baselineAmount int, configurationSettings *Config, fs FileSystem) bool {
 
-	d, err := os.Open(configurationSettings.TestDefinitionsDir)
+	d, err := fs.Open(configurationSettings.TestDefinitionsDir)
 	if err != nil {
-		//log.Error("Failed to open test definitions directory. Error:", err)
 		fmt.Println("Failed to open test definitions directory. Error:", err)
 		os.Exit(1)
 	}
 	defer d.Close()
 	fi, err := d.Readdir(-1)
 	if err != nil {
-		//log.Error("Failed to read files in test definitions directory. Error:", err)
 		fmt.Println("Failed to read files in test definitions directory. Error:", err)
 		os.Exit(1)
 	}
@@ -54,8 +75,7 @@ func ValidateTestDefinitionAmount(baselineAmount int, configurationSettings *Con
 	fmt.Println("Number of defined test cases:", definitionAmount)
 	fmt.Println("Number of base line test cases:", baselineAmount)
 	if definitionAmount != baselineAmount {
-		//log.Errorf("Amount of test definition: %d does not equal to baseline amount: %d.", definitionAmount, baselineAmount)
-		fmt.Println(fmt.Sprintf("Amount of test definition: %d does not equal to baseline amount: %d.", definitionAmount, baselineAmount))
+		fmt.Printf("Amount of test definition: %d does not equal to baseline amount: %d.\n", definitionAmount, baselineAmount)
 		return false
 	}
 	return true
@@ -97,7 +117,6 @@ func CalcAverageResponseTime(responseTimes RspTimes, numIterations int) int64 {
 	for _, val := range responseTimes {
 		totalOfAllresponseTimes = totalOfAllresponseTimes + val
 	}
-
 	averageResponseTime = int64(float64(totalOfAllresponseTimes) / float64(numIterations-numberToRemove))
 
 	return averageResponseTime
@@ -108,7 +127,7 @@ func CalcAverageResponseVariancePercentage(averageResponseTime int64, baseRespon
 	responseTimeVariancePercentage := float64(0)
 
 	if baseResponseTime < averageResponseTime {
-		delta := averageResponseTime - baseResponseTime
+		delta := uint64(averageResponseTime) - uint64(baseResponseTime)
 		temp := float64(float64(delta) / float64(baseResponseTime))
 		responseTimeVariancePercentage = temp * 100
 	} else {
@@ -129,8 +148,7 @@ func ValidateResponseBody(body []byte, testName string) bool {
 	if len(body) > 0 {
 		isResponseBodyValid = true
 	} else {
-		//log.Error(fmt.Sprintf("Incorrect Content lenght (%d) returned for service %s", len(body), testName))
-		fmt.Println(fmt.Sprintf("Incorrect Content lenght (%d) returned for service %s", len(body), testName))
+		fmt.Printf("Incorrect Content lenght (%d) returned for service %s", len(body), testName)
 	}
 	return isResponseBodyValid
 }
@@ -141,8 +159,7 @@ func ValidateResponseStatusCode(responseStatusCode int, expectedStatusCode int, 
 	if responseStatusCode == expectedStatusCode {
 		isResponseStatusCodeValid = true
 	} else {
-		//log.Error(fmt.Sprintf("Incorrect status code of %d retruned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode))
-		fmt.Println(fmt.Sprintf("Incorrect status code of %d retruned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode))
+		fmt.Printf("Incorrect status code of %d retruned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode)
 	}
 	return isResponseStatusCodeValid
 }
@@ -153,8 +170,7 @@ func ValidateServiceResponseTime(responseTime int64, testName string) bool {
 	if responseTime > 0 {
 		isResponseTimeValid = true
 	} else {
-		//log.Error(fmt.Sprintf("Time taken to complete request %s was 0 nanoseconds", testName))
-		fmt.Println(fmt.Sprintf("Time taken to complete request %s was 0 nanoseconds", testName))
+		fmt.Printf("Time taken to complete request %s was 0 nanoseconds", testName)
 	}
 	return isResponseTimeValid
 }
@@ -171,20 +187,18 @@ func ValidatePeakMemoryVariance(allowablePeakMemoryVariance float64, peakMemoryV
 	}
 }
 
-func ValidateTestCaseCount(baseTestCaseCount int, testTestCaseCount int) bool {
+/*func ValidateTestCaseCount(baseTestCaseCount int, testTestCaseCount int) bool {
 
 	isTestCaseCountValid := false
 	if baseTestCaseCount == testTestCaseCount {
 		isTestCaseCountValid = true
 	} else {
-		//log.Error(fmt.Sprintf("Number of service tests in base is differnet to the number of services for this test run."))
-		fmt.Println(fmt.Sprintf("Number of service tests in base is differnet to the number of services for this test run."))
+		fmt.Printf("Number of service tests in base is differnet to the number of services for this test run.")
 	}
 	return isTestCaseCountValid
-}
+}*/
 
 func ValidateAverageServiceResponeTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64, serviceName string) bool {
-
 	if allowableServiceResponseTimeVariance >= serviceResponseTimeVariancePercentage {
 		return true
 	} else {
@@ -234,7 +248,7 @@ func populateBasePerfStats(perfStatsForTest *PerfStats, basePerfstats *BasePerfS
 	}
 }
 
-func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *BasePerfStats, configurationSettings *Config) {
+func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *BasePerfStats, configurationSettings *Config, exit func(code int), fs FileSystem) {
 
 	//Set base performance based on training test run
 	populateBasePerfStats(perfStatsForTest, basePerfstats, configurationSettings.ReBaseMemory)
@@ -242,16 +256,16 @@ func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *B
 	//Convert base perf stat to Json and write out to file
 	basePerfstatsJson, err := json.Marshal(basePerfstats)
 	if err != nil {
-		//log.Error("Failed to marshal to Json. Error:", err)
 		fmt.Println("Failed to marshal to Json. Error:", err)
-		os.Exit(1)
+		exit(1)
 	}
-	file, err := os.Create(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-perfBaseStats")
+	file, err := fs.Create(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-perfBaseStats")
 	if err != nil {
-		//log.Error("Failed to create output file. Error:", err)
 		fmt.Println("Failed to create output file. Error:", err)
-		os.Exit(1)
+		exit(1)
 	}
-	defer file.Close()
-	file.Write(basePerfstatsJson)
+	if file != nil {
+		defer file.Close()
+		file.Write(basePerfstatsJson)
+	}
 }
