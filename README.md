@@ -7,7 +7,7 @@ Featrues include:
 * **Training mode** This mode executes all defined test cases and outputs the results to a json file. This json file represents the base memory profile of the API in relation to the target environment.
 * **Testing mode** This mode executes all defined test cases and compares the results with the pre-generated base profile.
 * **Peak memory analysis.** If the peak memory usage during testing mode exceeds an allowed threshold (configurable) the test will fail.
-* **Servcie response time analysis** If the response time of any service test case exceeds an allowed threshold (configurable) the test will fail.
+* **Service response time analysis** If the response time of any service test case exceeds an allowed threshold (configurable) the test will fail.
 * **Simulated concurrent users** The system can be configured to allow multiple concurrent hitting the API at once, dividing teh test load across these users.
 * **Report generation** In both successful and failed test runs, a report will be generated indicating the test finding and trageting ares where performance issue have been found.
 * **Easily defined test cases** To define a new test case, all that is required is a request definition which describes the service request.
@@ -35,9 +35,12 @@ The configuration file parameters are described in the table below.
 #### Command line arguments
 In addition the configuration parameters, command line arguments can the passed in to control specifics of each individual test run. The command line arguments are described in the table below. 
 
-| Argument        | Description                                                                                                   |
-|-----------------|---------------------------------------------------------------------------------------------------------------|
-| -configFilePath | The location of a configuration file which describes the test behavior for the API under test                 |
-| -gbs            | Generate Base Statistics. Indicates to the framework that this test run should be considered a training run   |
-| -reBaseMemory   | Run a training run which will overwrite the memory statistics only of previous training on the execution host |
-| -reBaseAll      | Run a training run which will overwrite the all statistics of previous training on the execution host         |
+| Argument          | Description                                                                                                   |
+|-------------------|---------------------------------------------------------------------------------------------------------------|
+| -configFilePath   | The location of a configuration file which describes the test behavior for the API under test                 |
+| -configFileFormat | The format of the configuration file, the supported formats are XML and TOML (default XML)                    |
+| -gbs              | Generate Base Statistics. Indicates to the framework that this test run should be considered a training run   |
+| -reBaseMemory     | Run a training run which will overwrite the memory statistics only of previous training on the execution host |
+| -reBaseAll        | Run a training run which will overwrite the all statistics of previous training on the execution host         |
+| -reBaseAll        | Run a training run which will overwrite the all statistics of previous training on the execution host         |
+| -testFileFormat   | The format of the test definition files, the supported formats are XML and TOML (default XML)                 |

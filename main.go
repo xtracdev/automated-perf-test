@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
+	"github.com/BurntSushi/toml"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"io"
@@ -35,6 +36,8 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	var reBaseMemory bool
 	var reBaseAll bool
 	var configFilePath string
+	var configFileFormat string
+	var testFileFormat string
 
 	//Process command line arugments.
 	flag.BoolVar(&gbs, "gbs", false, "Genertate Base Performance Staticists for this server")
@@ -42,6 +45,8 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	flag.BoolVar(&reBaseAll, "reBaseAll", false, "Generate new base for memory and service resposne times for this server")
 	flag.BoolVar(&checkTestReadyness, "checkTestReadyness", false, "Simple check to see if system requires training.")
 	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
+	flag.StringVar(&configFileFormat, "configFileFormat", "xml", "The format of the configuration file {xlm, toml}")
+	flag.StringVar(&testFileFormat, "testFileFormat", "xml", "The format of the test definition file {xlm, toml}")
 	flag.CommandLine.Parse(args)
 
 	//Read and paser config file if present.
@@ -57,13 +62,19 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 		}
 		fileContent, fileErr := ioutil.ReadAll(cf)
 		if fileErr != nil {
-			//log.Info("No config file found. ")
 			fmt.Println("No readable config file found at path: ", configFilePath)
 			exit(1)
-		} else {
+		}
+		switch configFileFormat {
+		case "toml":
+			err := toml.Unmarshal(fileContent, &configurationSettings)
+			if err != nil {
+				fmt.Println("Failed to parse config file ", configFilePath, ". Error:", err)
+				exit(1)
+			}
+		default:
 			xmlError := xml.Unmarshal(fileContent, &configurationSettings)
 			if xmlError != nil {
-				//log.Info("Failed to parse config file ", configFilePath, ". Error:", xmlError)
 				fmt.Println("Failed to parse config file ", configFilePath, ". Error:", xmlError)
 				exit(1)
 			}
@@ -84,6 +95,8 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	configurationSettings.GBS = gbs
 	configurationSettings.ReBaseMemory = reBaseMemory
 	configurationSettings.ReBaseAll = reBaseAll
+	configurationSettings.ConfigFileFormat = configFileFormat
+	configurationSettings.TestFileFormat = testFileFormat
 
 }
 
@@ -361,9 +374,32 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 			fmt.Println("Failed to read test file. Filename: ", fi.Name(), err)
 			continue
 		}
-
-		testDefinition := new(perfTestUtils.TestDefinition)
-		xml.Unmarshal(bs, &testDefinition)
+		testDefinition := &perfTestUtils.TomlTestDefinition{}
+		switch configurationSettings.TestFileFormat {
+		case "toml":
+			err := toml.Unmarshal(bs, testDefinition)
+			if err != nil {
+				fmt.Printf("Error occurred loading test definition file: %v\n", err)
+				os.Exit(1)
+			}
+		default:
+			td := perfTestUtils.TestDefinition{}
+			err := xml.Unmarshal(bs, &td)
+			if err != nil {
+				fmt.Printf("Error occurred loading test definition file: %v\n", err)
+				os.Exit(1)
+			}
+			testDefinition = &perfTestUtils.TomlTestDefinition{
+				TestName:           td.TestName,
+				HttpMethod:         td.HttpMethod,
+				BaseUri:            td.BaseUri,
+				Multipart:          td.Multipart,
+				Payload:            td.Payload,
+				MultipartPayload:   td.MultipartPayload,
+				ResponseStatusCode: td.ResponseStatusCode,
+				Headers:            tomlHeaders(td.Headers),
+			}
+		}
 
 		//log.Info("Running Test case [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
 		fmt.Println("Running Test case ", index, " [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
@@ -388,7 +424,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 
 //Single execution function for all service test.
 //Runs multiple invocations of the test based on num iterations parameter
-func executeServiceTest(testDefinition *perfTestUtils.TestDefinition, loadPerUser int, remainder int) int64 {
+func executeServiceTest(testDefinition *perfTestUtils.TomlTestDefinition, loadPerUser int, remainder int) int64 {
 
 	averageResponseTime := int64(0)
 
@@ -419,7 +455,7 @@ func executeServiceTest(testDefinition *perfTestUtils.TestDefinition, loadPerUse
 	return averageResponseTime
 }
 
-func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTimes, loadPerUser int, testDefinition *perfTestUtils.TestDefinition) {
+func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTimes, loadPerUser int, testDefinition *perfTestUtils.TomlTestDefinition) {
 	responseTimes := make(perfTestUtils.RspTimes, loadPerUser)
 	loopExecutedToCompletion := true
 
@@ -455,9 +491,12 @@ func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTi
 		}
 
 		//add headers
-		for _, v := range testDefinition.Headers {
-			req.Header.Add(v.Key, v.Value)
+		for k, v := range testDefinition.Headers {
+			for _, hv := range v {
+				req.Header.Add(k, hv)
+			}
 		}
+
 		startTime := time.Now()
 		if resp, err := (&http.Client{}).Do(req); err != nil {
 			//log.Error("Error by firing request: ", req, "Error:", err)
@@ -526,4 +565,12 @@ func runAssertions(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTe
 
 	}
 	return assertionFailures
+}
+
+func tomlHeaders(headers []perfTestUtils.Header) http.Header {
+	h := make(http.Header)
+	for _, v := range headers {
+		h.Add(v.Key, v.Value)
+	}
+	return h
 }
