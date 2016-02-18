@@ -3,6 +3,8 @@ package perfTestUtils
 import (
 	"fmt"
 	//log "github.com/Sirupsen/logrus"
+	"encoding/xml"
+	"net/http"
 	"runtime"
 	"strings"
 	"time"
@@ -45,6 +47,8 @@ type Config struct {
 
 	//template file
 	ReportTemplateFile string `xml:"reportTemplateFile,omitempty"`
+	ConfigFileFormat   string
+	TestFileFormat     string
 }
 
 func (c *Config) SetDefaults() {
