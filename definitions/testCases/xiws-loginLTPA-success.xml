@@ -1,0 +1,25 @@
+<testDefinition>
+    <testName>XiwsLoginLTPASuccess</testName>
+    <httpMethod>POST</httpMethod>
+    <baseUri>/xiws/webservices/LoginLTPA</baseUri>
+    <payload>
+        <![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:log="http://webservices.xtrac.com/loginltpa" xmlns:elem="http://webservices.xtrac.com/elements">
+            <soapenv:Header/>
+            <soapenv:Body>
+                <log:loginltpaRequest>
+                    <log:loginLTPA>
+                        <elem:operatorName>XAPI-01</elem:operatorName>
+                        <elem:password>exteaw0rkb5nch</elem:password>
+                    </log:loginLTPA>
+                </log:loginltpaRequest>
+            </soapenv:Body>
+        </soapenv:Envelope>]]>
+    </payload>
+    <responseStatusCode>200</responseStatusCode>
+    <headers>
+        <header key="scenario">ltpa-success1</header>
+    </headers>
+    <responseProperties>
+        <value>sessionToken</value>
+    </responseProperties>
+</testDefinition>

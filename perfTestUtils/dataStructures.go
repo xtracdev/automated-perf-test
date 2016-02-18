@@ -1,13 +1,24 @@
 package perfTestUtils
 
 import (
-	"encoding/xml"
 	"fmt"
 	//log "github.com/Sirupsen/logrus"
-	"os"
 	"runtime"
 	"strings"
 	"time"
+)
+
+const (
+	defaultAPIName                              = "Default_API_NAME"
+	defaultTargetHost                           = "localhost"
+	defaultTargetPort                           = "8080"
+	defaultNumIterations                        = 1000
+	defaultAllowablePeakMemoryVariance          = float64(15)
+	defaultAllowableServiceResponseTimeVariance = float64(15)
+	defaultTestDefinitionsDir                   = "./testDefinitions"
+	defaultBaseStatsOutputDir                   = "./envStats"
+	defaultReportOutputDir                      = "./"
+	defaultConcurrentUsers                      = 1
 )
 
 type Config struct {
@@ -17,7 +28,8 @@ type Config struct {
 	NumIterations                        int     `xml:"numIterations"`
 	AllowablePeakMemoryVariance          float64 `xml:"allowablePeakMemoryVariance"`
 	AllowableServiceResponseTimeVariance float64 `xml:"allowableServiceResponseTimeVariance"`
-	TestDefinitionsDir                   string  `xml:"testDefinitionsDir"`
+	TestCaseDir                          string  `xml:"testCaseDir"`
+	TestSuiteDir                         string  `xml:"testSuiteDir"`
 	BaseStatsOutputDir                   string  `xml:"baseStatsOutputDir"`
 	ReportOutputDir                      string  `xml:"reportOutputDir"`
 	ConcurrentUsers                      int     `xml:"concurrentUsers"`
@@ -42,7 +54,8 @@ func (c *Config) SetDefaults() {
 	c.NumIterations = 1000
 	c.AllowablePeakMemoryVariance = 15
 	c.AllowableServiceResponseTimeVariance = 15
-	c.TestDefinitionsDir = "./testDefinitions"
+	c.TestCaseDir = "./definitions/testCases"
+	c.TestCaseDir = "./definitions/testSuites"
 	c.BaseStatsOutputDir = "./envStats"
 	c.ReportOutputDir = "./"
 	c.ConcurrentUsers = 1
@@ -53,7 +66,7 @@ func (c *Config) SetDefaults() {
 	c.ReBaseAll = false
 }
 
-func (c Config) PrintAndValidateConfig() {
+func (c Config) PrintAndValidateConfig(exit func(code int)) {
 	isConfigValid := true
 	configOutput := []byte("")
 	configOutput = append(configOutput, []byte("\n============== Configuration Settings =========\n")...)
@@ -64,7 +77,8 @@ func (c Config) PrintAndValidateConfig() {
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "concurrentUsers", c.ConcurrentUsers, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90.2f %2s", "allowablePeakMemoryVariance", c.AllowablePeakMemoryVariance, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90.2f %2s", "allowableServiceResponseTimeVariance", c.AllowableServiceResponseTimeVariance, "\n"))...)
-	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testDefinitionsDir", c.TestDefinitionsDir, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testCaseDir", c.TestCaseDir, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testSuiteDir", c.TestSuiteDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testSuite", c.TestSuite, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "baseStatsOutputDir", c.BaseStatsOutputDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "reportOutputDir", c.ReportOutputDir, "\n"))...)
@@ -77,91 +91,48 @@ func (c Config) PrintAndValidateConfig() {
 	fmt.Println(string(configOutput))
 
 	if strings.TrimSpace(c.APIName) == "" {
-		//log.Error("CONFIG ERROR: apiName must be set in config file")
 		fmt.Println("CONFIG ERROR: apiName must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.TargetHost) == "" {
-		//log.Error("CONFIG ERROR: targetHost must be set in config file")
 		fmt.Println("CONFIG ERROR: targetHost must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.TargetPort) == "" {
-		//log.Error("CONFIG ERROR: targetPort must be set in config file")
 		fmt.Println("CONFIG ERROR: targetPort must be set in config file")
 		isConfigValid = false
 	}
 	if c.NumIterations < 1 {
-		//log.Error("CONFIG ERROR: numIterations must be set in config file and must be greater than 1")
 		fmt.Println("CONFIG ERROR: numIterations must be set in config file and must be greater than 1")
 		isConfigValid = false
 	}
 	if c.ConcurrentUsers < 1 {
-		//log.Error("CONFIG ERROR: numIterations must be set in config file and must be greater than 1")
 		fmt.Println("CONFIG ERROR: concurrentUsers must be set in config file and must be greater than 1")
 		isConfigValid = false
 	}
 	if c.AllowablePeakMemoryVariance <= 0.0 {
-		//log.Error("CONFIG ERROR: allowablePeakMemoryVariance must be set in config file and must be greater than 0.0")
 		fmt.Println("CONFIG ERROR: allowablePeakMemoryVariance must be set in config file and must be greater than 0.0")
 		isConfigValid = false
 	}
 	if c.AllowableServiceResponseTimeVariance <= 0.0 {
-		//log.Error("CONFIG ERROR: allowableServiceResponseTimeVariance must be set in config file and must be greater than 0.0")
 		fmt.Println("CONFIG ERROR: allowableServiceResponseTimeVariance must be set in config file and must be greater than 0.0")
 		isConfigValid = false
 	}
-	if strings.TrimSpace(c.TestDefinitionsDir) == "" {
-		//log.Error("CONFIG ERROR: testDefinitionsDir must be set in config file")
-		fmt.Println("CONFIG ERROR: testDefinitionsDir must be set in config file")
+	if strings.TrimSpace(c.TestCaseDir) == "" {
+		fmt.Println("CONFIG ERROR: testCaseDir must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.BaseStatsOutputDir) == "" {
-		//log.Error("CONFIG ERROR: baseStatsOutputDir must be set in config file")
 		fmt.Println("CONFIG ERROR: baseStatsOutputDir must be set in config file")
 		isConfigValid = false
 	}
 	if strings.TrimSpace(c.ReportOutputDir) == "" {
-		//log.Error("CONFIG ERROR: reportOutputDir must be set in config file")
 		fmt.Println("CONFIG ERROR: reportOutputDir must be set in config file")
 		isConfigValid = false
 	}
 	if !isConfigValid {
-		os.Exit(1)
+		exit(1)
 	}
-}
-
-type Header struct {
-	Value string `xml:",chardata"`
-	Key   string `xml:"key,attr"`
-}
-
-//This struct defines test defination
-type TestDefinition struct {
-	XMLName            xml.Name             `xml:"testDefinition"`
-	TestName           string               `xml:"testName"`
-	HttpMethod         string               `xml:"httpMethod"`
-	BaseUri            string               `xml:"baseUri"`
-	Multipart          bool                 `xml:"multipart"`
-	Payload            string               `xml:"payload"`
-	MultipartPayload   []multipartFormField `xml:"multipartPayload>multipartFormField"`
-	ResponseStatusCode int                  `xml:"responseStatusCode"`
-	Headers            []Header             `xml:"headers>header"`
-	ResponseProperties []string             `xml:"responseProperties>value"`
-}
-
-//This struct defines a load test scenario
-type TestSuite struct {
-	XMLName   xml.Name         `xml:"testSuite"`
-	Name      string           `xml:"name"`
-	TestCases []TestDefinition `xml:"testCases>testCase"`
-}
-
-type multipartFormField struct {
-	FieldName   string `xml:"fieldName"`
-	FieldValue  string `xml:"fieldValue"`
-	FileName    string `xml:"fileName"`
-	FileContent []byte `xml:"fileContent"`
 }
 
 //This struct defines the base performance statistics

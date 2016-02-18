@@ -1,37 +1,31 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"flag"
 	"fmt"
-	//log "github.com/Sirupsen/logrus"
-	"github.com/xtracdev/automated-perf-test/UI"
+	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
-	"io"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"io/ioutil"
-	"mime/multipart"
 	"net/http"
 	"os"
-	"regexp"
 	"strconv"
-	"strings"
-	"sync"
 	"time"
 )
 
 var configurationSettings *perfTestUtils.Config
 var checkTestReadyness bool
-var globals map[string]string
 
 const (
 	TRAINING_MODE = 1
 	TESTING_MODE  = 2
 )
 
-func init() {
+var osFileSystem = perfTestUtils.OsFS{}
 
+func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int)) {
 	//Command line ags
 	var gbs bool
 	var reBaseMemory bool
@@ -43,22 +37,30 @@ func init() {
 	flag.BoolVar(&reBaseMemory, "reBaseMemory", false, "Generate new base peak memory for this server")
 	flag.BoolVar(&reBaseAll, "reBaseAll", false, "Generate new base for memory and service resposne times for this server")
 	flag.BoolVar(&checkTestReadyness, "checkTestReadyness", false, "Simple check to see if system requires training.")
-	flag.Parse()
+	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
+	flag.CommandLine.Parse(args)
 
 	//Read and paser config file if present.
 	configurationSettings = new(perfTestUtils.Config)
 	if configFilePath != "" {
-		fileContent, fileErr := ioutil.ReadFile(configFilePath)
+		cf, err := fs.Open(configFilePath)
+		if err != nil {
+			log.Fatal("No config file found at path: ", configFilePath)
+			exit(1)
+		}
+		if cf != nil {
+			defer cf.Close()
+		}
+		fileContent, fileErr := ioutil.ReadAll(cf)
 		if fileErr != nil {
-			//log.Info("No config file found. ")
-			fmt.Println("No config file found at path: ", configFilePath)
-			os.Exit(1)
+			fmt.Println("No readable config file found at path: ", configFilePath)
+			exit(1)
 		} else {
 			xmlError := xml.Unmarshal(fileContent, &configurationSettings)
 			if xmlError != nil {
 				//log.Info("Failed to parse config file ", configFilePath, ". Error:", xmlError)
 				fmt.Println("Failed to parse config file ", configFilePath, ". Error:", xmlError)
-				os.Exit(1)
+				exit(1)
 			}
 		}
 	} else {
@@ -71,20 +73,20 @@ func init() {
 	if err != nil {
 		//log.Error("Failed to resolve host name. Error:", err)
 		fmt.Println("Failed to resolve host name. Error:", err)
-		os.Exit(1)
+		exit(1)
 	}
 	configurationSettings.ExecutionHost = host
 	configurationSettings.GBS = gbs
 	configurationSettings.ReBaseMemory = reBaseMemory
 	configurationSettings.ReBaseAll = reBaseAll
 
-	//Initilize globals map
-	globals = make(map[string]string)
-
 }
 
 //Main Test Method
 func main() {
+	fmt.Println(log.GetLevel())
+	log.Debugf("[START]")
+	initConfig(os.Args[1:], osFileSystem, os.Exit)
 
 	if checkTestReadyness {
 		readyForTest, _ := isReadyForTest(configurationSettings.ExecutionHost)
@@ -98,7 +100,7 @@ func main() {
 	}
 
 	//Validate config()
-	configurationSettings.PrintAndValidateConfig()
+	configurationSettings.PrintAndValidateConfig(os.Exit)
 
 	//Determine testing mode.
 	if configurationSettings.GBS || configurationSettings.ReBaseAll {
@@ -146,7 +148,8 @@ func runInTrainingMode(host string, reBaseAll bool) {
 		//Check to see if this server already has a base perf file defined.
 		//If so, only values not previously populated will be set.
 		//if not, a default base perf struct is created with nil values for all fields
-		basePerfstats, _ = perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
+		f, _ := os.Open(configurationSettings.BaseStatsOutputDir + "/" + host + "-perfBaseStats")
+		basePerfstats, _ = perfTestUtils.ReadBasePerfFile(f)
 	}
 
 	//initilize Performance statistics struct for this test run
@@ -154,13 +157,13 @@ func runInTrainingMode(host string, reBaseAll bool) {
 
 	//Run the test
 	runTests(perfStatsForTest, TRAINING_MODE)
-	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings)
+	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem)
 
 	testRunTime := time.Now().UnixNano() - testStratTime
 	fmt.Println("Training mode completed successfully. ", getExecutionTimeDisplay(testRunTime))
 }
 
-func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config)) {
+func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem)) {
 	fmt.Println("Running Perf test in Testing mode for host ", host)
 	testStratTime := time.Now().UnixNano()
 
@@ -170,7 +173,7 @@ func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, f
 
 	runTests(perfStatsForTest, TESTING_MODE)
 	assertionFailures := runAssertions(basePerfstats, perfStatsForTest)
-	frg(basePerfstats, perfStatsForTest, configurationSettings)
+	frg(basePerfstats, perfStatsForTest, configurationSettings, osFileSystem)
 
 	fmt.Println("=================== TEST RESULTS ===================")
 	if len(assertionFailures) > 0 {
@@ -212,7 +215,12 @@ func getExecutionTimeDisplay(executionTime int64) string {
 func isReadyForTest(host string) (bool, *perfTestUtils.BasePerfStats) {
 
 	//1) read in perf base stats
-	basePerfstats, err := perfTestUtils.ReadBasePerfFile(host, configurationSettings.BaseStatsOutputDir)
+	f, err := os.Open(configurationSettings.BaseStatsOutputDir + "/" + host + "-perfBaseStats")
+	if err != nil {
+		fmt.Printf("Failed to open env stats for %v. Error: %v.", host, err)
+		return false, nil
+	}
+	basePerfstats, err := perfTestUtils.ReadBasePerfFile(f)
 	if err != nil {
 		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ".")
 		return false, nil
@@ -225,7 +233,7 @@ func isReadyForTest(host string) (bool, *perfTestUtils.BasePerfStats) {
 		return false, nil
 	}
 	//3) Verify the number of base test cases is equal to the number of service test cases.
-	correctNumberOfTests := perfTestUtils.ValidateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes), configurationSettings)
+	correctNumberOfTests := perfTestUtils.ValidateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes), configurationSettings, osFileSystem)
 	if !correctNumberOfTests {
 		return false, nil
 	}
@@ -265,11 +273,8 @@ func validateBasePerfStat(basePerfstats *perfTestUtils.BasePerfStats) bool {
 //1 Start a go routine to preiodically grab the memory foot print and set the peak memory value
 //2 Run all test using mock servers and gather performance stats
 func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
-
+	//Initilize Memory analysis
 	var peakMemoryAllocation = new(uint64)
-	//var lastServiceName = "StartUp"
-	//var currentServiceName = "StartUp"
-
 	memoryAudit := make([]uint64, 0)
 	testPartitions := make([]perfTestUtils.TestPartition, 0)
 	counter := 0
@@ -316,230 +321,61 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 		}
 	}()
 
-	//Read test case files from test definition directory
-	d, err := os.Open(configurationSettings.TestDefinitionsDir)
-	if err != nil {
-		//log.Error("Failed to open test definitions directory. Error:", err)
-		fmt.Println("Failed to open test definitions directory. Error:", err)
-		os.Exit(1)
-	}
-	defer d.Close()
-
-	testSuite := new(perfTestUtils.TestSuite)
-	if configurationSettings.TestSuite == "" {
-		//If no test suite has been defined, treat and test case files as the suite
-		fi, err := d.Readdir(-1)
-		if err != nil {
-			//log.Error("Failed to read files in test definitions directory. Error:", err)
-			fmt.Println("Failed to read files in test definitions directory. Error:", err)
-			os.Exit(1)
-		}
-		if len(fi) == 0 {
-			//log.Error("No test case files found in specified directory ", configurationSettings.TestDefinitionsDir)
-			fmt.Println("No test case files found in specified directory ", configurationSettings.TestDefinitionsDir)
-			os.Exit(1)
-		}
-		testSuite.Name = "Default"
-		for _, fi := range fi {
-			bs, err := ioutil.ReadFile(configurationSettings.TestDefinitionsDir + "/" + fi.Name())
-			if err != nil {
-				//log.Error("Failed to read test file. Filename: ", fi.Name(), err)
-				fmt.Println("Failed to read test file. Filename: ", fi.Name(), err)
-				continue
-			}
-
-			testDefinition := new(perfTestUtils.TestDefinition)
-			xml.Unmarshal(bs, &testDefinition)
-			testSuite.TestCases = append(testSuite.TestCases, testDefinition)
-		}
-	} else {
-		//If a test suite has been defined, load in all tests associated with the test suite.
-		bs, err := ioutil.ReadFile(configurationSettings.TestDefinitionsDir + "/" + configurationSettings.TestSuite)
-		if err != nil {
-			//log.Error("Failed to read test file. Filename: ", fi.Name(), err)
-			fmt.Println("Failed to read test file. Filename: ", configurationSettings.TestSuite, err)
-		}
-		xml.Unmarshal(bs, &testSuite)
-	}
-
-	//Determine load per concurrent user
-	loadPerUser := int(configurationSettings.NumIterations / configurationSettings.ConcurrentUsers)
-	remainder := configurationSettings.NumIterations % configurationSettings.ConcurrentUsers
-
 	//Add a 1 second delay before running test case to allow the graph get some initial memory data before test cases are executed.
 	time.Sleep(time.Second * 1)
 
-	for index, testDefinition := range testSuite.TestCases {
+	//Generate a test suite based on configuration settings
+	testSuite := new(testStrategies.TestSuite)
+	testSuite.BuildTestSuite(configurationSettings)
 
-		//log.Info("Running Test case [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
-		fmt.Println("Running Test case ", index, " [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
-		testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: testDefinition.TestName})
-		averageResponseTime := executeServiceTest(testDefinition, loadPerUser, remainder)
-		if averageResponseTime > 0 {
-			perfStatsForTest.ServiceResponseTimes[testDefinition.TestName] = averageResponseTime
-		} else {
-			if mode == TRAINING_MODE {
-				//Fail fast on training mode if any requests fail. If training fails we cannot guarantee the results.
-				fmt.Println("Training mode failed due to invalid response on service [Name:", testDefinition.TestName, ", File name:", fi.Name(), "]")
-				os.Exit(1)
+	//Check the test strategy
+	if testSuite.TestStrategy == testStrategies.SERVICE_BASED_TESTING {
+
+		fmt.Println("Running Service Based Testing Strategy")
+
+		//Determine load per concurrent user
+		loadPerUser := int(configurationSettings.NumIterations / configurationSettings.ConcurrentUsers)
+		remainder := configurationSettings.NumIterations % configurationSettings.ConcurrentUsers
+
+		for index, testDefinition := range testSuite.TestCases {
+			fmt.Println("Running Test case ", index, " [Name:", testDefinition.TestName, "]")
+			testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: testDefinition.TestName})
+			averageResponseTime := testStrategies.ExecuteServiceTest(testDefinition, loadPerUser, remainder, configurationSettings)
+			if averageResponseTime > 0 {
+				perfStatsForTest.ServiceResponseTimes[testDefinition.TestName] = averageResponseTime
+			} else {
+				if mode == TRAINING_MODE {
+					//Fail fast on training mode if any requests fail. If training fails we cannot guarantee the results.
+					fmt.Println("Training mode failed due to invalid response on service [Name:", testDefinition.TestName, "]")
+					os.Exit(1)
+				}
+			}
+		}
+	} else if testSuite.TestStrategy == testStrategies.SUITE_BASED_TESTING {
+
+		fmt.Println("Running Suite Based Testing Strategy")
+		allServicesResponseTimesMap := testStrategies.ExecuteTestSuiteWrapper(testSuite, configurationSettings)
+
+		for serviceName, serviceResponseTimes := range allServicesResponseTimesMap {
+			if len(serviceResponseTimes) == (configurationSettings.NumIterations * configurationSettings.ConcurrentUsers) {
+				averageResponseTime := perfTestUtils.CalcAverageResponseTime(serviceResponseTimes, configurationSettings.NumIterations)
+				if averageResponseTime > 0 {
+					perfStatsForTest.ServiceResponseTimes[serviceName] = averageResponseTime
+				} else {
+					if mode == TRAINING_MODE {
+						//Fail fast on training mode if any requests fail. If training fails we cannot guarantee the results.
+						fmt.Println("Training mode failed due to invalid response on service [Name:", serviceName, "]")
+						os.Exit(1)
+					}
+				}
 			}
 		}
 	}
-
 	time.Sleep(time.Second * 1)
 	perfStatsForTest.PeakMemory = *peakMemoryAllocation
 	perfStatsForTest.MemoryAudit = memoryAudit
 	perfStatsForTest.TestPartitions = testPartitions
-}
 
-//Single execution function for all service test.
-//Runs multiple invocations of the test based on num iterations parameter
-func executeServiceTest(testDefinition *perfTestUtils.TestDefinition, loadPerUser int, remainder int) int64 {
-
-	averageResponseTime := int64(0)
-
-	//responseTimes := make(perfTestUtils.RspTimes, configurationSettings.NumIterations)
-	responseTimes := make([]int64, 0)
-
-	subsetOfResponseTimesChan := make(chan perfTestUtils.RspTimes, 1)
-
-	//Execute the test in a loop
-
-	var wg sync.WaitGroup
-	wg.Add(configurationSettings.ConcurrentUsers)
-	for i := 0; i < configurationSettings.ConcurrentUsers; i++ {
-		go buildAndSendUserRequests(subsetOfResponseTimesChan, loadPerUser, testDefinition)
-		go aggregateResponseTimes(&responseTimes, subsetOfResponseTimesChan, &wg)
-	}
-	if remainder > 0 {
-		wg.Add(1)
-		go buildAndSendUserRequests(subsetOfResponseTimesChan, remainder, testDefinition)
-		go aggregateResponseTimes(&responseTimes, subsetOfResponseTimesChan, &wg)
-	}
-
-	wg.Wait()
-
-	if len(responseTimes) == configurationSettings.NumIterations {
-		averageResponseTime = perfTestUtils.CalcAverageResponseTime(responseTimes, configurationSettings.NumIterations)
-	}
-	return averageResponseTime
-}
-
-func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTimes, loadPerUser int, testDefinition *perfTestUtils.TestDefinition) {
-	responseTimes := make(perfTestUtils.RspTimes, loadPerUser)
-	loopExecutedToCompletion := true
-
-	for i := 0; i < loadPerUser; i++ {
-
-		var req *http.Request
-
-		if !testDefinition.Multipart {
-			if testDefinition.Payload != "" {
-				paylaod := testDefinition.Payload
-				newPayload := substituteRequestValues(&paylaod)
-				req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+configurationSettings.TargetHost+":"+configurationSettings.TargetPort+testDefinition.BaseUri, strings.NewReader(newPayload))
-			} else {
-				req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+configurationSettings.TargetHost+":"+configurationSettings.TargetPort+testDefinition.BaseUri, nil)
-			}
-		} else {
-			if testDefinition.HttpMethod != "POST" {
-				//log.Fatal("Multipart request has to be 'POST' method.")
-				fmt.Println("Multipart request has to be 'POST' method.")
-			} else {
-				body := new(bytes.Buffer)
-				writer := multipart.NewWriter(body)
-				for _, field := range testDefinition.MultipartPayload {
-					if field.FileName == "" {
-						writer.WriteField(field.FieldName, field.FieldValue)
-					} else {
-						part, _ := writer.CreateFormFile(field.FieldName, field.FileName)
-						io.Copy(part, bytes.NewReader(field.FileContent))
-					}
-				}
-				writer.Close()
-				req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+configurationSettings.TargetHost+":"+configurationSettings.TargetPort+testDefinition.BaseUri, body)
-				req.Header.Set("Content-Type", writer.FormDataContentType())
-			}
-		}
-
-		//add headers
-		for _, v := range testDefinition.Headers {
-			req.Header.Add(v.Key, v.Value)
-		}
-		startTime := time.Now()
-		if resp, err := (&http.Client{}).Do(req); err != nil {
-			//log.Error("Error by firing request: ", req, "Error:", err)
-			fmt.Println("Error by firing request: ", req, "Error:", err)
-			loopExecutedToCompletion = false
-			break
-		} else {
-
-			timeTaken := time.Since(startTime)
-
-			body, _ := ioutil.ReadAll(resp.Body)
-			defer resp.Body.Close()
-
-			//Validate service response
-			contentLengthOk := perfTestUtils.ValidateResponseBody(body, testDefinition.TestName)
-			responseCodeOk := perfTestUtils.ValidateResponseStatusCode(resp.StatusCode, testDefinition.ResponseStatusCode, testDefinition.TestName)
-			responseTimeOK := perfTestUtils.ValidateServiceResponseTime(timeTaken.Nanoseconds(), testDefinition.TestName)
-
-			if contentLengthOk && responseCodeOk && responseTimeOK {
-				responseTimes[i] = timeTaken.Nanoseconds()
-				extracResponseValues(testDefinition.TestName, body, testDefinition.ResponseProperties)
-			} else {
-				loopExecutedToCompletion = false
-				break
-			}
-		}
-	}
-
-	if loopExecutedToCompletion {
-		subsetOfResponseTimesChan <- responseTimes
-	} else {
-		subsetOfResponseTimesChan <- nil
-	}
-}
-
-func substituteRequestValues(requestBody *string) string {
-
-	requestPayloadCopy := *requestBody
-
-	r := regexp.MustCompile("{{(.+)?}}")
-	res := r.FindAllString(*requestBody, -1)
-
-	if len(res) > 0 {
-		for _, property := range res {
-			//remove placeholder syntax
-			cleanedPropertyName := strings.TrimPrefix(property, "{{")
-			cleanedPropertyName = strings.TrimSuffix(cleanedPropertyName, "}}")
-			//lookup value in the globals map
-			value := globals[cleanedPropertyName]
-			if value != "" {
-				requestPayloadCopy = strings.Replace(requestPayloadCopy, property, value, 1)
-			}
-		}
-
-	}
-	return requestPayloadCopy
-}
-
-func extracResponseValues(testCaseName string, body []byte, resposneProperties []string) {
-	for _, name := range resposneProperties {
-		if globals[testCaseName+"."+name] == "" {
-			r := regexp.MustCompile("<(.+)?:" + name + ">(.+)?</(.+)?:" + name + ">")
-			res := r.FindStringSubmatch(string(body))
-			globals[testCaseName+"."+name] = res[2]
-		}
-	}
-}
-
-func aggregateResponseTimes(responseTimes *[]int64, subsetOfResponseTimesChan chan perfTestUtils.RspTimes, wg *sync.WaitGroup) {
-	subsetOfResponseTimes := <-subsetOfResponseTimesChan
-	if subsetOfResponseTimes != nil {
-		*responseTimes = append(*responseTimes, subsetOfResponseTimes...)
-	}
-	wg.Done()
 }
 
 //This function runs the assertions to ensure memory and service have not deviated past the allowed variance
