@@ -32,10 +32,10 @@ type Header struct {
 	Key   string `xml:"key,attr"`
 }
 
-//This struct defines test definition
+//This struct defines the base performance statistics
 type TestDefinition struct {
 	XMLName            xml.Name             `xml:"testDefinition"`
-	TestName           string               `xml:"testName"`
+	TestName           string               `xml:"testName" toml:"testName"`
 	HttpMethod         string               `xml:"httpMethod"`
 	BaseUri            string               `xml:"baseUri"`
 	Multipart          bool                 `xml:"multipart"`
@@ -44,6 +44,18 @@ type TestDefinition struct {
 	ResponseStatusCode int                  `xml:"responseStatusCode"`
 	Headers            []Header             `xml:"headers>header"`
 	ResponseProperties []string             `xml:"responseProperties>value"`
+}
+
+//TomlTestDefinition defines the test in TOML language
+type TomlTestDefinition struct {
+	TestName           string               `toml:"testName"`
+	HttpMethod         string               `toml:"httpMethod"`
+	BaseUri            string               `toml:"baseUri"`
+	Multipart          bool                 `toml:"multipart"`
+	Payload            string               `toml:"payload"`
+	MultipartPayload   []multipartFormField `toml:"multipartFormField"`
+	ResponseStatusCode int                  `toml:"responseStatusCode"`
+	Headers            http.Header          `toml:"headers"`
 }
 
 //This struct defines a load test scenario
@@ -63,10 +75,10 @@ type TestSuite struct {
 }
 
 type multipartFormField struct {
-	FieldName   string `xml:"fieldName"`
-	FieldValue  string `xml:"fieldValue"`
-	FileName    string `xml:"fileName"`
-	FileContent []byte `xml:"fileContent"`
+	FieldName   string `xml:"fieldName" toml:"fieldName"`
+	FieldValue  string `xml:"fieldValue" toml:"fieldValue"`
+	FileName    string `xml:"fileName" toml:"fileName"`
+	FileContent []byte `xml:"fileContent" toml:"fileContent"`
 }
 
 func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config) {

@@ -3,8 +3,6 @@ package perfTestUtils
 import (
 	"fmt"
 	//log "github.com/Sirupsen/logrus"
-	"encoding/xml"
-	"net/http"
 	"runtime"
 	"strings"
 	"time"
