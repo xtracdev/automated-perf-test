@@ -86,7 +86,7 @@ func TestReadBasePerfFileErrUnmarshal(t *testing.T) {
 
 func TestValidateTestDefinitionAmount(t *testing.T) {
 	c := &Config{
-		TestDefinitionsDir: "mockDir",
+		TestCaseDir: "mockDir",
 	}
 	valid := ValidateTestDefinitionAmount(10, c, mockedFs)
 	assert.True(t, valid)
@@ -94,7 +94,7 @@ func TestValidateTestDefinitionAmount(t *testing.T) {
 
 func TestValidateTestDefinitionAmountFail(t *testing.T) {
 	c := &Config{
-		TestDefinitionsDir: "mockDir",
+		TestCaseDir: "mockDir",
 	}
 	valid := ValidateTestDefinitionAmount(100, c, mockedFs)
 	assert.False(t, valid)

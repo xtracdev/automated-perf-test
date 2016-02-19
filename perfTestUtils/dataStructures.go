@@ -15,10 +15,13 @@ const (
 	defaultNumIterations                        = 1000
 	defaultAllowablePeakMemoryVariance          = float64(15)
 	defaultAllowableServiceResponseTimeVariance = float64(15)
-	defaultTestDefinitionsDir                   = "./testDefinitions"
+	defaultTestDefinitionsDir                   = "./definitions/testCases"
+	defaultTestSuiteDir                         = "./definitions/testSuites"
 	defaultBaseStatsOutputDir                   = "./envStats"
 	defaultReportOutputDir                      = "./"
 	defaultConcurrentUsers                      = 1
+	defaultTestSuite                            = ""
+	defaultTestFileFormat                       = "xml"
 )
 
 type Config struct {
@@ -50,19 +53,19 @@ type Config struct {
 }
 
 func (c *Config) SetDefaults() {
-	c.APIName = "Default_API_NAME"
-	c.TargetHost = "localhost"
-	c.TargetPort = "8080"
-	c.NumIterations = 1000
-	c.AllowablePeakMemoryVariance = 15
-	c.AllowableServiceResponseTimeVariance = 15
-	c.TestCaseDir = "./definitions/testCases"
-	c.TestSuiteDir = "./definitions/testSuites"
-	c.BaseStatsOutputDir = "./envStats"
-	c.ReportOutputDir = "./"
-	c.ConcurrentUsers = 1
-	c.TestSuite = ""
-	c.TestFileFormat = "xml"
+	c.APIName = defaultAPIName
+	c.TargetHost = defaultTargetHost
+	c.TargetPort = defaultTargetPort
+	c.NumIterations = defaultNumIterations
+	c.AllowablePeakMemoryVariance = defaultAllowablePeakMemoryVariance
+	c.AllowableServiceResponseTimeVariance = defaultAllowableServiceResponseTimeVariance
+	c.TestCaseDir = defaultTestDefinitionsDir
+	c.TestSuiteDir = defaultTestSuiteDir
+	c.BaseStatsOutputDir = defaultBaseStatsOutputDir
+	c.ReportOutputDir = defaultReportOutputDir
+	c.ConcurrentUsers = defaultConcurrentUsers
+	c.TestSuite = defaultTestSuite
+	c.TestFileFormat = defaultTestFileFormat
 
 	c.GBS = false
 	c.ReBaseMemory = false
