@@ -31,6 +31,8 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	var reBaseMemory bool
 	var reBaseAll bool
 	var configFilePath string
+	var configFileFormat string
+	var testFileFormat string
 
 	//Process command line arugments.
 	flag.BoolVar(&gbs, "gbs", false, "Genertate Base Performance Staticists for this server")
@@ -38,29 +40,31 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	flag.BoolVar(&reBaseAll, "reBaseAll", false, "Generate new base for memory and service resposne times for this server")
 	flag.BoolVar(&checkTestReadyness, "checkTestReadyness", false, "Simple check to see if system requires training.")
 	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
+	flag.StringVar(&configFileFormat, "configFileFormat", "xml", "The format of the configuration file {xlm, toml}")
+	flag.StringVar(&testFileFormat, "testFileFormat", "xml", "The format of the test definition file {xlm, toml}")
 	flag.CommandLine.Parse(args)
 
 	//Read and paser config file if present.
 	configurationSettings = new(perfTestUtils.Config)
 	if configFilePath != "" {
 		cf, err := fs.Open(configFilePath)
-		if err != nil {
-			log.Fatal("No config file found at path: ", configFilePath)
-			exit(1)
-		}
 		if cf != nil {
 			defer cf.Close()
 		}
-		fileContent, fileErr := ioutil.ReadAll(cf)
-		if fileErr != nil {
-			fmt.Println("No readable config file found at path: ", configFilePath)
-			exit(1)
+		if err != nil {
+			log.Error("No config file found at path: ", configFilePath, " - Using default values.")
+			configurationSettings.SetDefaults()
 		} else {
-			xmlError := xml.Unmarshal(fileContent, &configurationSettings)
-			if xmlError != nil {
-				//log.Info("Failed to parse config file ", configFilePath, ". Error:", xmlError)
-				fmt.Println("Failed to parse config file ", configFilePath, ". Error:", xmlError)
-				exit(1)
+			fileContent, fileErr := ioutil.ReadAll(cf)
+			if fileErr != nil {
+				log.Error("No readable config file found at path: ", configFilePath, " - Using default values.")
+				configurationSettings.SetDefaults()
+			} else {
+				xmlError := xml.Unmarshal(fileContent, &configurationSettings)
+				if xmlError != nil {
+					log.Error("Failed to parse config file ", configFilePath, ". Error:", xmlError, " - Using default values.")
+					configurationSettings.SetDefaults()
+				}
 			}
 		}
 	} else {
@@ -80,11 +84,12 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	configurationSettings.ReBaseMemory = reBaseMemory
 	configurationSettings.ReBaseAll = reBaseAll
 
+	configurationSettings.ConfigFileFormat = configFileFormat
+	configurationSettings.TestFileFormat = testFileFormat
 }
 
 //Main Test Method
 func main() {
-	fmt.Println(log.GetLevel())
 	log.Debugf("[START]")
 	initConfig(os.Args[1:], osFileSystem, os.Exit)
 

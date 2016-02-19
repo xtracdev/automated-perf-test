@@ -57,11 +57,12 @@ func (c *Config) SetDefaults() {
 	c.AllowablePeakMemoryVariance = 15
 	c.AllowableServiceResponseTimeVariance = 15
 	c.TestCaseDir = "./definitions/testCases"
-	c.TestCaseDir = "./definitions/testSuites"
+	c.TestSuiteDir = "./definitions/testSuites"
 	c.BaseStatsOutputDir = "./envStats"
 	c.ReportOutputDir = "./"
 	c.ConcurrentUsers = 1
 	c.TestSuite = ""
+	c.TestFileFormat = "xml"
 
 	c.GBS = false
 	c.ReBaseMemory = false

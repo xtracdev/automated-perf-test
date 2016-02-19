@@ -8,7 +8,6 @@ import (
 	"io"
 	"os"
 	"strings"
-	"sync"
 	"testing"
 )
 
@@ -29,7 +28,7 @@ const (
     <numIterations>1000</numIterations>
 
     <!--Location of directory where test cases reside-->
-    <testDefinitionsDir>./testDefinitions</testDefinitionsDir>
+    <testCaseDir>./definitions/testCases</testCaseDir>
 
     <!--Output locations for generated files-->
     <baseStatsOutputDir>./envStats</baseStatsOutputDir>
@@ -114,27 +113,47 @@ func (m *mockedFile) Read(p []byte) (n int, err error) {
 	return m.r.Read(p)
 }
 
+func assertDefaultConfig(t *testing.T) {
+	assert.NotNil(t, configurationSettings)
+	assert.Equal(t, "Default_API_NAME", configurationSettings.APIName)
+	assert.Equal(t, "localhost", configurationSettings.TargetHost)
+	assert.Equal(t, "8080", configurationSettings.TargetPort)
+	assert.Equal(t, 1000, configurationSettings.NumIterations)
+	assert.Equal(t, float64(15), configurationSettings.AllowablePeakMemoryVariance)
+	assert.Equal(t, float64(15), configurationSettings.AllowableServiceResponseTimeVariance)
+	assert.Equal(t, "./definitions/testCases", configurationSettings.TestCaseDir)
+	assert.Equal(t, "./definitions/testSuites", configurationSettings.TestSuiteDir)
+	assert.Equal(t, "./envStats", configurationSettings.BaseStatsOutputDir)
+	assert.Equal(t, "./", configurationSettings.ReportOutputDir)
+	assert.Equal(t, 1, configurationSettings.ConcurrentUsers)
+	assert.Equal(t, "", configurationSettings.TestSuite)
+	assert.Equal(t, "xml", configurationSettings.TestFileFormat)
+
+	assert.True(t, configurationSettings.ReBaseMemory)
+	assert.True(t, configurationSettings.ReBaseAll)
+	assert.True(t, configurationSettings.GBS)
+}
 func TestInitConfigFileNotFound(t *testing.T) {
 	willCallOsExit := false
-	exit := func(i int) { willCallOsExit = true }
+	exit := func(i int) { willCallOsExit = false }
 
 	args := []string{"-gbs", "-reBaseMemory", "-reBaseAll", "-configFilePath=test"}
 
 	initConfig(args, osFileSystem, exit)
-	assert.NotNil(t, configurationSettings)
-	assert.True(t, willCallOsExit)
+	assertDefaultConfig(t)
+	assert.False(t, willCallOsExit)
 }
 
 func TestInitConfigFileUnmarshalErr(t *testing.T) {
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	willCallOsExit := false
-	exit := func(i int) { willCallOsExit = true }
+	exit := func(i int) { willCallOsExit = false }
 
 	args := []string{"-gbs", "-reBaseMemory", "-reBaseAll", "-configFilePath=FAIL"}
 
 	initConfig(args, mockedFs, exit)
-	assert.NotNil(t, configurationSettings)
-	assert.True(t, willCallOsExit)
+	assertDefaultConfig(t)
+	assert.False(t, willCallOsExit)
 }
 
 func TestInitConfigFile(t *testing.T) {
@@ -152,10 +171,10 @@ func TestInitConfigFile(t *testing.T) {
 	assert.True(t, configurationSettings.ReBaseMemory)
 	assert.False(t, configurationSettings.ReBaseAll)
 	assert.True(t, configurationSettings.GBS)
-	assert.Equal(t, "./testDefinitions", configurationSettings.TestDefinitionsDir)
+	assert.Equal(t, "./definitions/testCases", configurationSettings.TestCaseDir)
 }
 
-func TestInitConfigFileToml(t *testing.T) {
+/*func TestInitConfigFileToml(t *testing.T) {
 	configurationSettings = &perfTestUtils.Config{}
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	willCallOsExit := false
@@ -171,8 +190,8 @@ func TestInitConfigFileToml(t *testing.T) {
 	assert.True(t, configurationSettings.ReBaseMemory)
 	assert.False(t, configurationSettings.ReBaseAll)
 	assert.True(t, configurationSettings.GBS)
-	assert.Equal(t, "./testDefinitions", configurationSettings.TestDefinitionsDir)
-}
+	assert.Equal(t, "./testDefinitions", configurationSettings.TestCaseDir)
+}*/
 
 func TestValidateBasePerfStat(t *testing.T) {
 	bs := &perfTestUtils.BasePerfStats{}
@@ -187,30 +206,6 @@ func TestValidateBasePerfStat(t *testing.T) {
 	bs.ModifiedDate = "bbb"
 	bs.MemoryAudit = []uint64{1, 2, 3}
 	assert.True(t, validateBasePerfStat(bs))
-}
-
-func TestAggregateResponseTimes(t *testing.T) {
-	var wg sync.WaitGroup
-
-	srtChan := make(chan perfTestUtils.RspTimes)
-	testChan := make(chan perfTestUtils.RspTimes)
-	times := &[]int64{1, 2, 3, 4}
-	go func() {
-		for i := 0; i < 5; i++ {
-			wg.Add(1)
-			go func() {
-				srtChan <- []int64{10, 20}
-			}()
-			go aggregateResponseTimes(times, srtChan, &wg)
-		}
-		wg.Wait()
-		testChan <- *times
-	}()
-
-	go func() {
-		toTest := <-testChan
-		assert.Equal(t, 14, len(toTest))
-	}()
 }
 
 func TestRunAssertions(t *testing.T) {
