@@ -3,11 +3,12 @@ package perfTestUtils
 import (
 	"encoding/json"
 	"fmt"
-	//log "github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"os"
 	"sort"
+	"strconv"
 	"time"
 )
 
@@ -34,7 +35,7 @@ func (OsFS) Open(name string) (File, error) { return os.Open(name) }
 func (OsFS) Create(name string) (File, error) { return os.Create(name) }
 
 //=============================
-//Testing run utility functions
+//Test run utility functions
 //=============================
 //This function reads a base perf and converts it to a base perf struct
 func ReadBasePerfFile(r io.Reader) (*BasePerfStats, error) {
@@ -60,25 +61,99 @@ func ValidateTestDefinitionAmount(baselineAmount int, configurationSettings *Con
 
 	d, err := fs.Open(configurationSettings.TestCaseDir)
 	if err != nil {
-		fmt.Println("Failed to open test definitions directory. Error:", err)
+		log.Error("Failed to open test definitions directory. Error:", err)
 		os.Exit(1)
 	}
 	defer d.Close()
 	fi, err := d.Readdir(-1)
 	if err != nil {
-		fmt.Println("Failed to read files in test definitions directory. Error:", err)
+		log.Error("Failed to read files in test definitions directory. Error:", err)
 		os.Exit(1)
 	}
 
 	definitionAmount := len(fi)
 
-	fmt.Println("Number of defined test cases:", definitionAmount)
-	fmt.Println("Number of base line test cases:", baselineAmount)
+	log.Info("Number of defined test cases:", definitionAmount)
+	log.Info("Number of base line test cases:", baselineAmount)
 	if definitionAmount != baselineAmount {
-		fmt.Printf("Amount of test definition: %d does not equal to baseline amount: %d.\n", definitionAmount, baselineAmount)
+		log.Error(fmt.Sprintf("Amount of test definition: %d does not equal to baseline amount: %d.\n", definitionAmount, baselineAmount))
 		return false
 	}
 	return true
+}
+
+func GetExecutionTimeDisplay(executionTime int64) string {
+	timeInMilliSeconds := executionTime / 1000000
+	seconds := (timeInMilliSeconds / 1000)
+	secondsDisplay := seconds % 60
+	minutes := seconds / 60
+	minutesDisplay := minutes % 60
+
+	displayStatement := []byte("")
+	displayStatement = append(displayStatement, []byte(strconv.FormatInt(minutesDisplay, 10))...)
+	displayStatement = append(displayStatement, []byte(":")...)
+	if secondsDisplay <= 9 {
+		displayStatement = append(displayStatement, []byte("0")...)
+	}
+	displayStatement = append(displayStatement, []byte(strconv.FormatInt(secondsDisplay, 10))...)
+	return string(displayStatement)
+}
+
+func IsReadyForTest(configurationSettings *Config, osFileSystem OsFS) (bool, *BasePerfStats) {
+
+	//1) read in perf base stats
+	f, err := os.Open(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-perfBaseStats")
+	if err != nil {
+		log.Error("Failed to open env stats for %v. Error: %v.", configurationSettings.ExecutionHost, err)
+		return false, nil
+	}
+	basePerfstats, err := ReadBasePerfFile(f)
+	if err != nil {
+		log.Error("Failed to read env stats for " + configurationSettings.ExecutionHost + ". Error:" + err.Error() + ".")
+		return false, nil
+	}
+
+	//2) validate content  of base stats file
+	isBasePerfStatsValid := validateBasePerfStat(basePerfstats)
+	if !isBasePerfStatsValid {
+		log.Error("Base Perf stats are not fully populated for  " + configurationSettings.ExecutionHost + ".")
+		return false, nil
+	}
+	//3) Verify the number of base test cases is equal to the number of service test cases.
+	correctNumberOfTests := ValidateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes), configurationSettings, osFileSystem)
+	if !correctNumberOfTests {
+		return false, nil
+	}
+
+	return true, basePerfstats
+}
+
+func validateBasePerfStat(basePerfstats *BasePerfStats) bool {
+	isBasePerfStatsValid := true
+
+	if basePerfstats.BasePeakMemory <= 0 {
+		isBasePerfStatsValid = false
+	}
+	if basePerfstats.GenerationDate == "" {
+		isBasePerfStatsValid = false
+	}
+	if basePerfstats.ModifiedDate == "" {
+		isBasePerfStatsValid = false
+	}
+	if len(basePerfstats.MemoryAudit) <= 0 {
+		isBasePerfStatsValid = false
+	}
+	if basePerfstats.BaseServiceResponseTimes != nil {
+		for _, baseResponseTime := range basePerfstats.BaseServiceResponseTimes {
+			if baseResponseTime <= 0 {
+				isBasePerfStatsValid = false
+				break
+			}
+		}
+	} else {
+		isBasePerfStatsValid = false
+	}
+	return isBasePerfStatsValid
 }
 
 //=====================
@@ -148,7 +223,7 @@ func ValidateResponseBody(body []byte, testName string) bool {
 	if len(body) > 0 {
 		isResponseBodyValid = true
 	} else {
-		fmt.Printf("Incorrect Content lenght (%d) returned for service %s", len(body), testName)
+		log.Error(fmt.Sprintf("Incorrect Content lenght (%d) returned for service %s", len(body), testName))
 	}
 	return isResponseBodyValid
 }
@@ -159,7 +234,7 @@ func ValidateResponseStatusCode(responseStatusCode int, expectedStatusCode int, 
 	if responseStatusCode == expectedStatusCode {
 		isResponseStatusCodeValid = true
 	} else {
-		fmt.Printf("Incorrect status code of %d retruned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode)
+		log.Error(fmt.Sprintf("Incorrect status code of %d retruned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode))
 	}
 	return isResponseStatusCodeValid
 }
@@ -170,7 +245,7 @@ func ValidateServiceResponseTime(responseTime int64, testName string) bool {
 	if responseTime > 0 {
 		isResponseTimeValid = true
 	} else {
-		fmt.Printf("Time taken to complete request %s was 0 nanoseconds", testName)
+		log.Error(fmt.Sprintf("Time taken to complete request %s was 0 nanoseconds", testName))
 	}
 	return isResponseTimeValid
 }
@@ -186,17 +261,6 @@ func ValidatePeakMemoryVariance(allowablePeakMemoryVariance float64, peakMemoryV
 		return false
 	}
 }
-
-/*func ValidateTestCaseCount(baseTestCaseCount int, testTestCaseCount int) bool {
-
-	isTestCaseCountValid := false
-	if baseTestCaseCount == testTestCaseCount {
-		isTestCaseCountValid = true
-	} else {
-		fmt.Printf("Number of service tests in base is differnet to the number of services for this test run.")
-	}
-	return isTestCaseCountValid
-}*/
 
 func ValidateAverageServiceResponeTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64, serviceName string) bool {
 	if allowableServiceResponseTimeVariance >= serviceResponseTimeVariancePercentage {
@@ -256,12 +320,12 @@ func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *B
 	//Convert base perf stat to Json and write out to file
 	basePerfstatsJson, err := json.Marshal(basePerfstats)
 	if err != nil {
-		fmt.Println("Failed to marshal to Json. Error:", err)
+		log.Error("Failed to marshal to Json. Error:", err)
 		exit(1)
 	}
 	file, err := fs.Create(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-perfBaseStats")
 	if err != nil {
-		fmt.Println("Failed to create output file. Error:", err)
+		log.Error("Failed to create output file. Error:", err)
 		exit(1)
 	}
 	if file != nil {

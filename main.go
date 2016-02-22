@@ -11,7 +11,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -68,15 +67,14 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 			}
 		}
 	} else {
-		fmt.Println("No config file specified. Using default values.")
+		log.Error("No config file specified. Using default values.")
 		configurationSettings.SetDefaults()
 	}
 
 	//Get Hostname for this machine.
 	host, err := os.Hostname()
 	if err != nil {
-		//log.Error("Failed to resolve host name. Error:", err)
-		fmt.Println("Failed to resolve host name. Error:", err)
+		log.Error("Failed to resolve host name. Error:", err)
 		exit(1)
 	}
 	configurationSettings.ExecutionHost = host
@@ -94,12 +92,12 @@ func main() {
 	initConfig(os.Args[1:], osFileSystem, os.Exit)
 
 	if checkTestReadyness {
-		readyForTest, _ := isReadyForTest(configurationSettings.ExecutionHost)
+		readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem)
 		if !readyForTest {
-			fmt.Println("System is not ready for testing.")
+			log.Info("System is not ready for testing.")
 			os.Exit(1)
 		} else {
-			fmt.Println("System is ready for testing.")
+			log.Info("System is ready for testing.")
 			os.Exit(0)
 		}
 	}
@@ -112,25 +110,25 @@ func main() {
 		if configurationSettings.ReBaseAll {
 			runInTrainingMode(configurationSettings.ExecutionHost, true)
 		} else {
-			readyForTest, _ := isReadyForTest(configurationSettings.ExecutionHost)
+			readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem)
 			if !readyForTest {
 				runInTrainingMode(configurationSettings.ExecutionHost, false)
 			} else {
-				fmt.Println("System is ready for testing. Training is not required....")
+				log.Info("System is ready for testing. Training is not required.")
 			}
 		}
 	} else {
-		readyForTest, basePerfStats := isReadyForTest(configurationSettings.ExecutionHost)
+		readyForTest, basePerfStats := perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem)
 		if readyForTest {
 			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport)
 		} else {
-			fmt.Println("System is not ready for testing. Attempting to run training mode....")
+			log.Info("System is not ready for testing. Attempting to run training mode....")
 			runInTrainingMode(configurationSettings.ExecutionHost, false)
-			readyForTest, basePerfStats = isReadyForTest(configurationSettings.ExecutionHost)
+			readyForTest, basePerfStats = perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem)
 			if readyForTest {
 				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport)
 			} else {
-				fmt.Println("System is not ready for testing. Check logs for more details.")
+				log.Info("System is not ready for testing. Attempting to run training failed. Check logs for more details.")
 				os.Exit(1)
 			}
 		}
@@ -138,13 +136,12 @@ func main() {
 }
 
 func runInTrainingMode(host string, reBaseAll bool) {
-	fmt.Println("Running Perf test in Training mode for host ", host)
+	log.Info("Running performance test in Training mode for host ", host)
 	testStratTime := time.Now().UnixNano()
 
 	var basePerfstats *perfTestUtils.BasePerfStats
 	if reBaseAll {
-		fmt.Println("Performing full rebase of perf stats for host ", host)
-
+		log.Info("Performing full rebase of performance statistics for host ", host)
 		basePerfstats = &perfTestUtils.BasePerfStats{
 			BaseServiceResponseTimes: make(map[string]int64),
 			MemoryAudit:              make([]uint64, 0),
@@ -162,122 +159,56 @@ func runInTrainingMode(host string, reBaseAll bool) {
 
 	//Run the test
 	runTests(perfStatsForTest, TRAINING_MODE)
+
+	//Generate base statistics output file for this training run.
 	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem)
 
 	testRunTime := time.Now().UnixNano() - testStratTime
-	fmt.Println("Training mode completed successfully. ", getExecutionTimeDisplay(testRunTime))
+	log.Info("Training mode completed successfully. ")
+	log.Info("Execution Run Time :", perfTestUtils.GetExecutionTimeDisplay(testRunTime))
 }
 
 func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem)) {
-	fmt.Println("Running Perf test in Testing mode for host ", host)
+	log.Info("Running Performance test in Testing mode for host ", host)
 	testStratTime := time.Now().UnixNano()
 
 	//initilize Performance statistics struct for this test run
-	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64)}
-	perfStatsForTest.TestDate = time.Now()
+	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64), TestDate: time.Now()}
 
+	//Run the test
 	runTests(perfStatsForTest, TESTING_MODE)
+
+	//Validate test results
 	assertionFailures := runAssertions(basePerfstats, perfStatsForTest)
+
+	//Generate performance test report
 	frg(basePerfstats, perfStatsForTest, configurationSettings, osFileSystem)
 
-	fmt.Println("=================== TEST RESULTS ===================")
+	//Print test results to std out
+	log.Info("=================== TEST RESULTS ===================")
 	if len(assertionFailures) > 0 {
-		fmt.Println("Failures : ", len(assertionFailures))
-		//Print assertion failures
+		log.Info("Number of Failures : ", len(assertionFailures))
 		for _, failure := range assertionFailures {
-			fmt.Println(failure)
+			log.Info(failure)
 		}
 	} else {
-		fmt.Println("Testing mode completed successfully")
+		log.Info("Testing mode completed successfully")
 	}
 
 	testRunTime := time.Now().UnixNano() - testStratTime
-	fmt.Println(getExecutionTimeDisplay(testRunTime))
-	fmt.Println("=====================================================")
+	log.Info("Execution Run Time :", perfTestUtils.GetExecutionTimeDisplay(testRunTime))
+	log.Info("=====================================================")
 
 	if len(assertionFailures) > 0 {
 		os.Exit(1)
 	}
 }
 
-func getExecutionTimeDisplay(executionTime int64) string {
-	timeInMilliSeconds := executionTime / 1000000
-	seconds := (timeInMilliSeconds / 1000)
-	secondsDisplay := seconds % 60
-	minutes := seconds / 60
-	minutesDisplay := minutes % 60
-
-	displayStatement := []byte("Execution Time: ")
-	displayStatement = append(displayStatement, []byte(strconv.FormatInt(minutesDisplay, 10))...)
-	displayStatement = append(displayStatement, []byte(":")...)
-	if secondsDisplay <= 9 {
-		displayStatement = append(displayStatement, []byte("0")...)
-	}
-	displayStatement = append(displayStatement, []byte(strconv.FormatInt(secondsDisplay, 10))...)
-	return string(displayStatement)
-}
-
-func isReadyForTest(host string) (bool, *perfTestUtils.BasePerfStats) {
-
-	//1) read in perf base stats
-	f, err := os.Open(configurationSettings.BaseStatsOutputDir + "/" + host + "-perfBaseStats")
-	if err != nil {
-		fmt.Printf("Failed to open env stats for %v. Error: %v.", host, err)
-		return false, nil
-	}
-	basePerfstats, err := perfTestUtils.ReadBasePerfFile(f)
-	if err != nil {
-		fmt.Println("Failed to read env stats for " + host + ". Error:" + err.Error() + ".")
-		return false, nil
-	}
-
-	//2) validate content  of base stats file
-	isBasePerfStatsValid := validateBasePerfStat(basePerfstats)
-	if !isBasePerfStatsValid {
-		fmt.Println("Base Perf stats are not fully populated for  " + host + ".")
-		return false, nil
-	}
-	//3) Verify the number of base test cases is equal to the number of service test cases.
-	correctNumberOfTests := perfTestUtils.ValidateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes), configurationSettings, osFileSystem)
-	if !correctNumberOfTests {
-		return false, nil
-	}
-
-	return true, basePerfstats
-}
-
-func validateBasePerfStat(basePerfstats *perfTestUtils.BasePerfStats) bool {
-	isBasePerfStatsValid := true
-
-	if basePerfstats.BasePeakMemory <= 0 {
-		isBasePerfStatsValid = false
-	}
-	if basePerfstats.GenerationDate == "" {
-		isBasePerfStatsValid = false
-	}
-	if basePerfstats.ModifiedDate == "" {
-		isBasePerfStatsValid = false
-	}
-	if len(basePerfstats.MemoryAudit) <= 0 {
-		isBasePerfStatsValid = false
-	}
-	if basePerfstats.BaseServiceResponseTimes != nil {
-		for _, baseResponseTime := range basePerfstats.BaseServiceResponseTimes {
-			if baseResponseTime <= 0 {
-				isBasePerfStatsValid = false
-				break
-			}
-		}
-	} else {
-		isBasePerfStatsValid = false
-	}
-	return isBasePerfStatsValid
-}
-
 //This function does two thing,
 //1 Start a go routine to preiodically grab the memory foot print and set the peak memory value
 //2 Run all test using mock servers and gather performance stats
 func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
+
 	//Initilize Memory analysis
 	var peakMemoryAllocation = new(uint64)
 	memoryAudit := make([]uint64, 0)
@@ -298,8 +229,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 				memoryStatsUrl := "http://" + configurationSettings.TargetHost + ":" + configurationSettings.TargetPort + "/debug/vars"
 				resp, err := http.Get(memoryStatsUrl)
 				if err != nil {
-					//log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl)
-					fmt.Println("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error:", err)
+					log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error:", err)
 					quit <- true
 				} else {
 
@@ -310,8 +240,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 					m := new(perfTestUtils.Entry)
 					unmarshalErr := json.Unmarshal(body, m)
 					if unmarshalErr != nil {
-						//log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics. ", unmarshalErr)
-						fmt.Println("Memory analysis unavailable. Failed to unmarshal memory statistics. ", unmarshalErr)
+						log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics. ", unmarshalErr)
 						quit <- true
 					} else {
 						if m.Memstats.Alloc > *peakMemoryAllocation {
@@ -336,14 +265,14 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 	//Check the test strategy
 	if testSuite.TestStrategy == testStrategies.SERVICE_BASED_TESTING {
 
-		fmt.Println("Running Service Based Testing Strategy")
+		log.Info("Running Service Based Testing Strategy")
 
 		//Determine load per concurrent user
 		loadPerUser := int(configurationSettings.NumIterations / configurationSettings.ConcurrentUsers)
 		remainder := configurationSettings.NumIterations % configurationSettings.ConcurrentUsers
 
 		for index, testDefinition := range testSuite.TestCases {
-			fmt.Println("Running Test case ", index, " [Name:", testDefinition.TestName, "]")
+			log.Info("Running Test case ", index, " [Name:", testDefinition.TestName, "]")
 			testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: testDefinition.TestName})
 			averageResponseTime := testStrategies.ExecuteServiceTest(testDefinition, loadPerUser, remainder, configurationSettings)
 			if averageResponseTime > 0 {
@@ -351,14 +280,14 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 			} else {
 				if mode == TRAINING_MODE {
 					//Fail fast on training mode if any requests fail. If training fails we cannot guarantee the results.
-					fmt.Println("Training mode failed due to invalid response on service [Name:", testDefinition.TestName, "]")
+					log.Error("Training mode failed due to invalid response on service [Name:", testDefinition.TestName, "]")
 					os.Exit(1)
 				}
 			}
 		}
 	} else if testSuite.TestStrategy == testStrategies.SUITE_BASED_TESTING {
 
-		fmt.Println("Running Suite Based Testing Strategy")
+		log.Info("Running Suite Based Testing Strategy. Suite:", testSuite.Name)
 		allServicesResponseTimesMap := testStrategies.ExecuteTestSuiteWrapper(testSuite, configurationSettings)
 
 		for serviceName, serviceResponseTimes := range allServicesResponseTimesMap {
@@ -369,13 +298,14 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 				} else {
 					if mode == TRAINING_MODE {
 						//Fail fast on training mode if any requests fail. If training fails we cannot guarantee the results.
-						fmt.Println("Training mode failed due to invalid response on service [Name:", serviceName, "]")
+						log.Error("Training mode failed due to invalid response on service [Name:", serviceName, "]")
 						os.Exit(1)
 					}
 				}
 			}
 		}
 	}
+
 	time.Sleep(time.Second * 1)
 	perfStatsForTest.PeakMemory = *peakMemoryAllocation
 	perfStatsForTest.MemoryAudit = memoryAudit
@@ -395,6 +325,7 @@ func runAssertions(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTe
 		assertionFailures = append(assertionFailures, fmt.Sprintf("Memory Failure: Peak variance exceeded by %3.2f %1s", peakMemoryVariancePercentage, "%"))
 	}
 
+	//Asserts service response times have not exceeded the allowable variance
 	for serviceName, baseResponseTime := range basePerfstats.BaseServiceResponseTimes {
 		averageServiceResponseTime := perfStats.ServiceResponseTimes[serviceName]
 		if averageServiceResponseTime == 0 {
@@ -406,7 +337,6 @@ func runAssertions(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTe
 		if !varianceOk {
 			assertionFailures = append(assertionFailures, fmt.Sprintf("Service Failure: Service test %-60s response time variance exceeded by %3.2f %1s", serviceName, responseTimeVariancePercentage, "%"))
 		}
-
 	}
 	return assertionFailures
 }

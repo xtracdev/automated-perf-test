@@ -257,3 +257,18 @@ func TestGenerateEnvBasePerfOutputFileFailCreate(t *testing.T) {
 	GenerateEnvBasePerfOutputFile(ps, bs, &Config{ReBaseMemory: true, BaseStatsOutputDir: "env", ExecutionHost: "FAIL"}, exit, mockedFs)
 	assert.True(t, willCallOsExit)
 }
+
+func TestValidateBasePerfStat(t *testing.T) {
+	bs := &BasePerfStats{}
+	assert.False(t, validateBasePerfStat(bs))
+
+	bs.BaseServiceResponseTimes = map[string]int64{"service 1": 123, "service 2": -1}
+	assert.False(t, validateBasePerfStat(bs))
+
+	bs.BaseServiceResponseTimes = map[string]int64{"service 1": 123, "service 2": 321}
+	bs.BasePeakMemory = 12
+	bs.GenerationDate = "aaa"
+	bs.ModifiedDate = "bbb"
+	bs.MemoryAudit = []uint64{1, 2, 3}
+	assert.True(t, validateBasePerfStat(bs))
+}

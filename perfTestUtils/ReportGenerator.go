@@ -2,6 +2,7 @@ package perfTestUtils
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"html/template"
 	"io"
 	"os"
@@ -110,12 +111,12 @@ func (p *perfStatsModel) JsonTimeArray() template.JS {
 func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, configurationSettings *Config, fs FileSystem) {
 	file, err := fs.Create(configurationSettings.ReportOutputDir + "/PerformanceReport.html")
 	if err != nil {
-		fmt.Printf("Error creating report file: %v\n", err)
+		log.Error("Error creating report file: %v\n", err)
 	}
 	if file != nil {
 		defer file.Close()
 	} else {
-		fmt.Printf("No file was created, falling back to stdout: %v\n", err)
+		log.Error("No file was created, falling back to stdout: %v\n", err)
 		file = os.Stdout
 	}
 	tf := configurationSettings.ReportTemplateFile

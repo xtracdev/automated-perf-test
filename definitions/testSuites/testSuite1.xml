@@ -1,6 +1,6 @@
 <testSuite>
     <name>testSuite</name>
-    <testStrategy>SuiteBased</testStrategy>
+    <testStrategy>ServiceBased</testStrategy>
     <testCases>
         <testCase>xiws-loginLTPA-success.xml</testCase>
         <testCase>xiws-workitem-create-success.xml</testCase>

@@ -3,7 +3,7 @@ package testStrategies
 import (
 	"bytes"
 	"encoding/xml"
-	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"io"
 	"io/ioutil"
@@ -82,7 +82,7 @@ type multipartFormField struct {
 }
 
 func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config) {
-	fmt.Println("Building Test Suite ....")
+	log.Info("Building Test Suite ....")
 
 	if configurationSettings.TestSuite == "" {
 		ts.Name = "Default"
@@ -91,25 +91,25 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 		//If no test suite has been defined, treat and all test case files as the suite
 		d, err := os.Open(configurationSettings.TestCaseDir)
 		if err != nil {
-			fmt.Println("Failed to open test definitions directory. Error:", err)
+			log.Error("Failed to open test definitions directory. Error:", err)
 			os.Exit(1)
 		}
 		defer d.Close()
 
 		fi, err := d.Readdir(-1)
 		if err != nil {
-			fmt.Println("Failed to read files in test definitions directory. Error:", err)
+			log.Error("Failed to read files in test definitions directory. Error:", err)
 			os.Exit(1)
 		}
 		if len(fi) == 0 {
-			fmt.Println("No test case files found in specified directory ", configurationSettings.TestCaseDir)
+			log.Error("No test case files found in specified directory ", configurationSettings.TestCaseDir)
 			os.Exit(1)
 		}
 
 		for _, fi := range fi {
 			bs, err := ioutil.ReadFile(configurationSettings.TestCaseDir + "/" + fi.Name())
 			if err != nil {
-				fmt.Println("Failed to read test file. Filename: ", fi.Name(), err)
+				log.Error("Failed to read test file. Filename: ", fi.Name(), err)
 				continue
 			}
 
@@ -121,7 +121,7 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 		//If a test suite has been defined, load in all tests associated with the test suite.
 		bs, err := ioutil.ReadFile(configurationSettings.TestSuiteDir + "/" + configurationSettings.TestSuite)
 		if err != nil {
-			fmt.Println("Failed to read test suite defination file. Filename: ", configurationSettings.TestSuiteDir+"/"+configurationSettings.TestSuite, " ", err)
+			log.Error("Failed to read test suite defination file. Filename: ", configurationSettings.TestSuiteDir+"/"+configurationSettings.TestSuite, " ", err)
 			os.Exit(1)
 		}
 		testSuiteDefinition := new(TestSuiteDefinition)
@@ -132,7 +132,7 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 		for _, fi := range testSuiteDefinition.TestCases {
 			bs, err := ioutil.ReadFile(configurationSettings.TestCaseDir + "/" + fi)
 			if err != nil {
-				fmt.Println("Failed to read test file. Filename: ", fi, err)
+				log.Error("Failed to read test file. Filename: ", fi, err)
 				continue
 			}
 
@@ -158,8 +158,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, tar
 		}
 	} else {
 		if testDefinition.HttpMethod != "POST" {
-			//log.Fatal("Multipart request has to be 'POST' method.")
-			fmt.Println("Multipart request has to be 'POST' method.")
+			log.Error("Multipart request has to be 'POST' method.")
 		} else {
 			body := new(bytes.Buffer)
 			writer := multipart.NewWriter(body)
@@ -183,8 +182,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, tar
 	}
 	startTime := time.Now()
 	if resp, err := (&http.Client{}).Do(req); err != nil {
-		//log.Error("Error by firing request: ", req, "Error:", err)
-		fmt.Println("Error by firing request: ", req, "Error:", err)
+		log.Error("Error by firing request: ", req, "Error:", err)
 		return 0
 	} else {
 

@@ -1,7 +1,6 @@
 package testStrategies
 
 import (
-	"fmt"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"sync"
 )
@@ -18,9 +17,6 @@ func ExecuteTestSuiteWrapper(testSuite *TestSuite, configurationSettings *perfTe
 		go aggregateSuiteResponseTimes(testSuiteResponseTimesChan, allServicesResponseTimesMap, &suiteWaitGroup)
 	}
 	suiteWaitGroup.Wait()
-
-	fmt.Println("Waitgrouop done")
-	fmt.Println("allServicesResponseTimesMap", allServicesResponseTimesMap)
 	return allServicesResponseTimesMap
 }
 
@@ -39,7 +35,6 @@ func executeTestSuite(testSuiteResponseTimesChan chan []map[string]int64, testSu
 
 func aggregateSuiteResponseTimes(testSuiteResponseTimesChan chan []map[string]int64, allServicesResponseTimesMap map[string][]int64, suiteWaitGroup *sync.WaitGroup) {
 	perUserSuiteResponseTimes := <-testSuiteResponseTimesChan
-	fmt.Println("allServicesResponseTimesMap:", allServicesResponseTimesMap)
 	for _, singleSuiteRunResponseTimes := range perUserSuiteResponseTimes {
 		for serviceName, serviceResponseTime := range singleSuiteRunResponseTimes {
 			if allServicesResponseTimesMap[serviceName] == nil {
@@ -49,6 +44,5 @@ func aggregateSuiteResponseTimes(testSuiteResponseTimesChan chan []map[string]in
 			allServicesResponseTimesMap[serviceName] = append(allServicesResponseTimesMap[serviceName], serviceResponseTime)
 		}
 	}
-	fmt.Println("allServicesResponseTimesMap:", allServicesResponseTimesMap)
 	suiteWaitGroup.Done()
 }
