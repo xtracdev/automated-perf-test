@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
+	"github.com/BurntSushi/toml"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"github.com/xtracdev/automated-perf-test/testStrategies"
@@ -59,16 +60,22 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 				log.Error("No readable config file found at path: ", configFilePath, " - Using default values.")
 				configurationSettings.SetDefaults()
 			} else {
-				xmlError := xml.Unmarshal(fileContent, &configurationSettings)
-				if xmlError != nil {
-					log.Error("Failed to parse config file ", configFilePath, ". Error:", xmlError, " - Using default values.")
-					configurationSettings.SetDefaults()
+				switch configFileFormat {
+				case "toml":
+					err := toml.Unmarshal(fileContent, &configurationSettings)
+					if err != nil {
+						fmt.Println("Failed to parse config file ", configFilePath, ". Error:", err)
+						configurationSettings.SetDefaults()
+					}
+				default:
+					xmlError := xml.Unmarshal(fileContent, &configurationSettings)
+					if xmlError != nil {
+						log.Error("Failed to parse config file ", configFilePath, ". Error:", xmlError, " - Using default values.")
+						configurationSettings.SetDefaults()
+					}
 				}
 			}
 		}
-	} else {
-		log.Error("No config file specified. Using default values.")
-		configurationSettings.SetDefaults()
 	}
 
 	//Get Hostname for this machine.

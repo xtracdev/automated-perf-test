@@ -104,7 +104,7 @@ func IsReadyForTest(configurationSettings *Config, osFileSystem OsFS) (bool, *Ba
 	//1) read in perf base stats
 	f, err := os.Open(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-perfBaseStats")
 	if err != nil {
-		log.Error("Failed to open env stats for %v. Error: %v.", configurationSettings.ExecutionHost, err)
+		log.Errorf("Failed to open env stats for %v. Error: %v.", configurationSettings.ExecutionHost, err)
 		return false, nil
 	}
 	basePerfstats, err := ReadBasePerfFile(f)
