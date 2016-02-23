@@ -22,11 +22,12 @@ const (
 	SUITE_BASED_TESTING   = "SuiteBased"
 )
 
-var globals map[string]string
+var globals map[string]map[string]string
 
 func init() {
 	//Initilize globals map
-	globals = make(map[string]string)
+	globals = make(map[string]map[string]string)
+
 }
 
 type Header struct {
@@ -156,14 +157,14 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 	}
 }
 
-func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, targetPort string) int64 {
+func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, targetPort string, uniqueTestRunId string) int64 {
 
 	var req *http.Request
 
 	if !testDefinition.Multipart {
 		if testDefinition.Payload != "" {
 			paylaod := testDefinition.Payload
-			newPayload := substituteRequestValues(&paylaod)
+			newPayload := substituteRequestValues(&paylaod, uniqueTestRunId)
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+testDefinition.BaseUri, strings.NewReader(newPayload))
 		} else {
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+testDefinition.BaseUri, nil)
@@ -214,7 +215,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, tar
 		responseTimeOK := perfTestUtils.ValidateServiceResponseTime(timeTaken.Nanoseconds(), testDefinition.TestName)
 
 		if contentLengthOk && responseCodeOk && responseTimeOK {
-			extracResponseValues(testDefinition.TestName, body, testDefinition.ResponseProperties)
+			extracResponseValues(testDefinition.TestName, body, testDefinition.ResponseProperties, uniqueTestRunId)
 			return timeTaken.Nanoseconds()
 		} else {
 			return 0
@@ -222,35 +223,46 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, tar
 	}
 }
 
-func substituteRequestValues(requestBody *string) string {
-
+func substituteRequestValues(requestBody *string, uniqueTestRunId string) string {
 	requestPayloadCopy := *requestBody
 
-	r := regexp.MustCompile("{{(.+)?}}")
-	res := r.FindAllString(*requestBody, -1)
+	//Get Global Properties for this test run
+	testRunGlobals := globals[uniqueTestRunId]
+	if testRunGlobals != nil {
+		r := regexp.MustCompile("{{(.+)?}}")
+		res := r.FindAllString(*requestBody, -1)
 
-	if len(res) > 0 {
-		for _, property := range res {
-			//remove placeholder syntax
-			cleanedPropertyName := strings.TrimPrefix(property, "{{")
-			cleanedPropertyName = strings.TrimSuffix(cleanedPropertyName, "}}")
-			//lookup value in the globals map
-			value := globals[cleanedPropertyName]
-			if value != "" {
-				requestPayloadCopy = strings.Replace(requestPayloadCopy, property, value, 1)
+		if len(res) > 0 {
+			for _, property := range res {
+				//remove placeholder syntax
+				cleanedPropertyName := strings.TrimPrefix(property, "{{")
+				cleanedPropertyName = strings.TrimSuffix(cleanedPropertyName, "}}")
+
+				//lookup value in the test run map
+				value := testRunGlobals[cleanedPropertyName]
+				if value != "" {
+					requestPayloadCopy = strings.Replace(requestPayloadCopy, property, value, 1)
+				}
 			}
-		}
 
+		}
 	}
 	return requestPayloadCopy
 }
 
-func extracResponseValues(testCaseName string, body []byte, resposneProperties []string) {
+func extracResponseValues(testCaseName string, body []byte, resposneProperties []string, uniqueTestRunId string) {
+	//Get Global Properties for this test run
+	testRunGlobals := globals[uniqueTestRunId]
+	if testRunGlobals == nil {
+		testRunGlobals = make(map[string]string)
+		globals[uniqueTestRunId] = testRunGlobals
+	}
+
 	for _, name := range resposneProperties {
-		if globals[testCaseName+"."+name] == "" {
+		if testRunGlobals[testCaseName+"."+name] == "" {
 			r := regexp.MustCompile("<(.+)?:" + name + ">(.+)?</(.+)?:" + name + ">")
 			res := r.FindStringSubmatch(string(body))
-			globals[testCaseName+"."+name] = res[2]
+			testRunGlobals[testCaseName+"."+name] = res[2]
 		}
 	}
 }

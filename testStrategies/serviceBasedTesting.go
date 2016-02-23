@@ -38,8 +38,7 @@ func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTi
 	loopExecutedToCompletion := true
 
 	for i := 0; i < loadPerUser; i++ {
-
-		responseTime := testDefinition.BuildAndSendRequest(targetHost, targetPort)
+		responseTime := testDefinition.BuildAndSendRequest(targetHost, targetPort, "")
 
 		if responseTime > 0 {
 			responseTimes[i] = responseTime
