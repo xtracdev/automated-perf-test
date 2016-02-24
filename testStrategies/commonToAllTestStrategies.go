@@ -3,7 +3,8 @@ package testStrategies
 import (
 	"bytes"
 	"encoding/xml"
-
+	"fmt"
+	"github.com/BurntSushi/toml"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"io"
@@ -35,7 +36,7 @@ type Header struct {
 }
 
 //This struct defines the base performance statistics
-type TestDefinition struct {
+type XmlTestDefinition struct {
 	XMLName            xml.Name             `xml:"testDefinition"`
 	TestName           string               `xml:"testName" toml:"testName"`
 	HttpMethod         string               `xml:"httpMethod"`
@@ -49,7 +50,7 @@ type TestDefinition struct {
 }
 
 //TomlTestDefinition defines the test in TOML language
-type TomlTestDefinition struct {
+type TestDefinition struct {
 	TestName           string               `toml:"testName"`
 	HttpMethod         string               `toml:"httpMethod"`
 	BaseUri            string               `toml:"baseUri"`
@@ -58,17 +59,18 @@ type TomlTestDefinition struct {
 	MultipartPayload   []multipartFormField `toml:"multipartFormField"`
 	ResponseStatusCode int                  `toml:"responseStatusCode"`
 	Headers            http.Header          `toml:"headers"`
+	ResponseProperties []string             `toml:"responseProperties"`
 }
 
 //This struct defines a load test scenario
 type TestSuiteDefinition struct {
 	XMLName      xml.Name `xml:"testSuite"`
-	Name         string   `xml:"name"`
-	TestStrategy string   `xml:"testStrategy"`
-	TestCases    []string `xml:"testCases>testCase"`
+	Name         string   `xml:"name" toml:"name"`
+	TestStrategy string   `xml:"testStrategy" toml:"testStrategy"`
+	TestCases    []string `xml:"testCases>testCase" toml:"testCases"`
 }
 
-//This struct defines a load test scenario
+//This struct defines a load test scenario //fixme xml flags are needed?
 type TestSuite struct {
 	XMLName      xml.Name          `xml:"testSuite"`
 	Name         string            `xml:"name"`
@@ -115,19 +117,26 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 				continue
 			}
 
-			testDefinition := new(TestDefinition)
-			xml.Unmarshal(bs, &testDefinition)
+			testDefinition, err := loadTestDefinition(bs, configurationSettings)
+			if err != nil {
+				log.Error("Failed to load test definition. Error:", err)
+				os.Exit(1)
+			}
 			ts.TestCases = append(ts.TestCases, testDefinition)
 		}
 	} else {
 		//If a test suite has been defined, load in all tests associated with the test suite.
 		bs, err := ioutil.ReadFile(configurationSettings.TestSuiteDir + "/" + configurationSettings.TestSuite)
 		if err != nil {
-			log.Error("Failed to read test suite defination file. Filename: ", configurationSettings.TestSuiteDir+"/"+configurationSettings.TestSuite, " ", err)
+			log.Error("Failed to read test suite definition file. Filename: ", configurationSettings.TestSuiteDir+"/"+configurationSettings.TestSuite, " ", err)
 			os.Exit(1)
 		}
-		testSuiteDefinition := new(TestSuiteDefinition)
-		xml.Unmarshal(bs, &testSuiteDefinition)
+
+		testSuiteDefinition, err := loadTestSuiteDefinition(bs, configurationSettings)
+		if err != nil {
+			log.Errorf("Failed to load the test suite: %v", err)
+			os.Exit(1)
+		}
 
 		ts.Name = testSuiteDefinition.Name
 		ts.TestStrategy = testSuiteDefinition.TestStrategy
@@ -138,8 +147,10 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 				continue
 			}
 
-			testDefinition := new(TestDefinition)
-			xml.Unmarshal(bs, &testDefinition)
+			testDefinition, err := loadTestDefinition(bs, configurationSettings)
+			if err != nil {
+				log.Error("Failed to load test definition. Error:", err)
+			}
 			ts.TestCases = append(ts.TestCases, testDefinition)
 		}
 
@@ -179,8 +190,13 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, tar
 	}
 
 	//add headers
-	for _, v := range testDefinition.Headers {
+	/*	for _, v := range testDefinition.Headers {
 		req.Header.Add(v.Key, v.Value)
+	}*/
+	for k, v := range testDefinition.Headers {
+		for _, hv := range v {
+			req.Header.Add(k, hv)
+		}
 	}
 	startTime := time.Now()
 	if resp, err := (&http.Client{}).Do(req); err != nil {
@@ -249,4 +265,62 @@ func extracResponseValues(testCaseName string, body []byte, resposneProperties [
 			testRunGlobals[testCaseName+"."+name] = res[2]
 		}
 	}
+}
+
+func loadTestDefinition(bs []byte, configurationSettings *perfTestUtils.Config) (*TestDefinition, error) {
+	testDefinition := &TestDefinition{}
+	switch configurationSettings.TestFileFormat {
+	case "toml":
+		err := toml.Unmarshal(bs, testDefinition)
+		if err != nil {
+			fmt.Printf("Error occurred loading test definition file: %v\n", err)
+			return nil, err
+		}
+	default:
+		td := &XmlTestDefinition{}
+		err := xml.Unmarshal(bs, &td)
+		if err != nil {
+			fmt.Printf("Error occurred loading test definition file: %v\n", err)
+			return nil, err
+		}
+		testDefinition = &TestDefinition{
+			TestName:           td.TestName,
+			HttpMethod:         td.HttpMethod,
+			BaseUri:            td.BaseUri,
+			Multipart:          td.Multipart,
+			Payload:            td.Payload,
+			MultipartPayload:   td.MultipartPayload,
+			ResponseStatusCode: td.ResponseStatusCode,
+			Headers:            tomlHeaders(td.Headers),
+			ResponseProperties: td.ResponseProperties,
+		}
+	}
+	return testDefinition, nil
+}
+
+func tomlHeaders(headers []Header) http.Header {
+	h := make(http.Header)
+	for _, v := range headers {
+		h.Add(v.Key, v.Value)
+	}
+	return h
+}
+
+func loadTestSuiteDefinition(bs []byte, configurationSettings *perfTestUtils.Config) (*TestSuiteDefinition, error) {
+	ts := &TestSuiteDefinition{}
+	switch configurationSettings.TestFileFormat {
+	case "toml":
+		err := toml.Unmarshal(bs, ts)
+		if err != nil {
+			fmt.Printf("Error occurred loading test definition file: %v\n", err)
+			return nil, err
+		}
+	default:
+		err := xml.Unmarshal(bs, ts)
+		if err != nil {
+			fmt.Printf("Error occurred loading test definition file: %v\n", err)
+			return nil, err
+		}
+	}
+	return ts, nil
 }

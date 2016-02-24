@@ -5,6 +5,8 @@ import (
 	"encoding/xml"
 	"github.com/BurntSushi/toml"
 	"github.com/stretchr/testify/assert"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
+	"strings"
 	"testing"
 )
 
@@ -32,6 +34,9 @@ const (
     <headers>
         <header key="scenario">ltpa-success1</header>
     </headers>
+     <responseProperties>
+        <value>sessionToken</value>
+    </responseProperties>
 </testDefinition>`
 
 	multipartXmlTestDefinition = `<testDefinition>
@@ -98,6 +103,8 @@ multipart = false
 payload = "\n        {\n        \"credentials\": {\n        \"operatorName\": \"DRSCAN\",\n        \"password\": \"Tester01\"\n        }\n        }\n    "
 responseStatusCode = 200
 
+responseProperties = ["sessionToken"]
+
 [headers]
   Scenario = ["success1"]
   Xtractoken = ["509760429188261892213816064522998760"]`
@@ -137,13 +144,28 @@ responseStatusCode = 200
 
 [headers]
   Scenario = ["addcontent-valid"]`
+
+	xmlTestSuite = `<testSuite>
+    <name>testSuite</name>
+    <testStrategy>ServiceBased</testStrategy>
+    <testCases>
+        <testCase>xiws-loginLTPA-success.xml</testCase>
+        <testCase>xiws-workitem-create-success.xml</testCase>
+        <testCase>xiws-workitem-search-success.xml</testCase>
+    </testCases>
+</testSuite>`
+
+	tomlTestSuite = `name = "testSuite"
+testStrategy = "SuiteBased"
+testCases = ["xiws-loginLTPA-success.toml", "xiws-workitem-create-success.toml", "xiws-workitem-search-success.toml"]`
 )
 
 func TestMarshalTomlTestDefinition(t *testing.T) {
-	td := &TestDefinition{}
+	td := &XmlTestDefinition{}
 	err := xml.Unmarshal([]byte(xmlTestDefinition), td)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(td.Headers))
+	assert.Equal(t, 1, len(td.ResponseProperties))
 	t.Logf("%+v\n", *td)
 
 	//toml
@@ -154,7 +176,7 @@ func TestMarshalTomlTestDefinition(t *testing.T) {
 }
 
 func TestMarshalTomlMultipartTestDefinition(t *testing.T) {
-	td := &TestDefinition{}
+	td := &XmlTestDefinition{}
 	err := xml.Unmarshal([]byte(multipartXmlTestDefinition), td)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(td.Headers))
@@ -168,15 +190,134 @@ func TestMarshalTomlMultipartTestDefinition(t *testing.T) {
 }
 
 func TestUnmarshalTomlTestDefinition(t *testing.T) {
-	td := &TomlTestDefinition{}
+	td := &TestDefinition{}
 	err := toml.Unmarshal([]byte(tomlTestDefinition), td)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(td.ResponseProperties))
 	t.Logf("%+v\n", td)
 }
 
 func TestUnmarshalTomlMultipartTestDefinition(t *testing.T) {
-	td := &TomlTestDefinition{}
+	td := &TestDefinition{}
 	err := toml.Unmarshal([]byte(tomlMultipartTestDefinition), td)
 	assert.Nil(t, err)
 	t.Logf("%+v\n", td)
+}
+
+func TestUnmarshalXmlTestSuite(t *testing.T) {
+	ts := &TestSuiteDefinition{}
+	err := xml.Unmarshal([]byte(xmlTestSuite), ts)
+	assert.Nil(t, err)
+	assert.Equal(t, 3, len(ts.TestCases))
+	t.Logf("%+v\n", *ts)
+
+	//toml
+	buf := new(bytes.Buffer)
+	err = toml.NewEncoder(buf).Encode(ts)
+	assert.Nil(t, err)
+	t.Logf("%s\n", buf.Bytes())
+}
+
+func TestTomlHeaders(t *testing.T) {
+	headers := []Header{Header{Value: "val", Key: "key"}, Header{Value: "hello", Key: "header"}}
+	h := tomlHeaders(headers)
+	assert.NotNil(t, h)
+	assert.Equal(t, 2, len(h))
+	assert.Equal(t, "val", h.Get("key"))
+	assert.Equal(t, "hello", h.Get("header"))
+}
+
+func TestLoadTestDefinitionXml(t *testing.T) {
+	config := &perfTestUtils.Config{}
+	config.SetDefaults()
+	td, err := loadTestDefinition([]byte(xmlTestDefinition), config)
+	assert.Nil(t, err)
+	assert.NotNil(t, td)
+	assert.Equal(t, "XiwsLoginLTPASuccess", td.TestName)
+	assert.Equal(t, "POST", td.HttpMethod)
+	assert.Equal(t, "/xiws/webservices/LoginLTPA", td.BaseUri)
+	assert.Equal(t, 200, td.ResponseStatusCode)
+	assert.Equal(t, "ltpa-success1", td.Headers.Get("scenario"))
+	assert.Equal(t, "sessionToken", td.ResponseProperties[0])
+	assert.True(t, strings.Contains(td.Payload, "<elem:operatorName>drscan</elem:operatorName>"))
+}
+
+func TestLoadTestDefinitionXmlErr(t *testing.T) {
+	config := &perfTestUtils.Config{}
+	config.SetDefaults()
+	td, err := loadTestDefinition([]byte(tomlMultipartTestDefinition), config)
+	assert.NotNil(t, err)
+	assert.Nil(t, td)
+}
+
+func TestLoadTestDefinitionToml(t *testing.T) {
+	config := &perfTestUtils.Config{}
+	config.SetDefaults()
+	config.TestFileFormat = "toml"
+	td, err := loadTestDefinition([]byte(tomlTestDefinition), config)
+	assert.Nil(t, err)
+	assert.NotNil(t, td)
+	assert.Equal(t, "createSession", td.TestName)
+	assert.Equal(t, "POST", td.HttpMethod)
+	assert.Equal(t, "/xtrac/api/v1/sessions", td.BaseUri)
+	assert.Equal(t, 200, td.ResponseStatusCode)
+	assert.Equal(t, "success1", td.Headers.Get("scenario"))
+	assert.Equal(t, "509760429188261892213816064522998760", td.Headers.Get("Xtractoken"))
+	assert.Equal(t, "sessionToken", td.ResponseProperties[0])
+	assert.True(t, strings.Contains(td.Payload, "operatorName"))
+}
+
+func TestLoadTestDefinitionTomlErr(t *testing.T) {
+	config := &perfTestUtils.Config{}
+	config.SetDefaults()
+	config.TestFileFormat = "toml"
+	td, err := loadTestDefinition([]byte(xmlTestDefinition), config)
+	assert.NotNil(t, err)
+	assert.Nil(t, td)
+}
+
+func TestLoadTestSuiteDefinitionXml(t *testing.T) {
+	config := &perfTestUtils.Config{}
+	config.SetDefaults()
+	ts, err := loadTestSuiteDefinition([]byte(xmlTestSuite), config)
+	assert.Nil(t, err)
+	assert.NotNil(t, ts)
+	assert.Equal(t, "testSuite", ts.Name)
+	assert.Equal(t, "ServiceBased", ts.TestStrategy)
+	assert.Equal(t, 3, len(ts.TestCases))
+	assert.Equal(t, "xiws-loginLTPA-success.xml", ts.TestCases[0])
+	assert.Equal(t, "xiws-workitem-create-success.xml", ts.TestCases[1])
+	assert.Equal(t, "xiws-workitem-search-success.xml", ts.TestCases[2])
+}
+
+func TestLoadTestSuiteDefinitionXmlErr(t *testing.T) {
+	config := &perfTestUtils.Config{}
+	config.SetDefaults()
+	ts, err := loadTestSuiteDefinition([]byte(tomlTestSuite), config)
+	assert.Nil(t, ts)
+	assert.NotNil(t, err)
+}
+
+func TestLoadTestSuiteDefinitionToml(t *testing.T) {
+	config := &perfTestUtils.Config{}
+	config.SetDefaults()
+	config.TestFileFormat = "toml"
+	ts, err := loadTestSuiteDefinition([]byte(tomlTestSuite), config)
+	assert.Nil(t, err)
+	assert.NotNil(t, ts)
+	assert.Equal(t, "testSuite", ts.Name)
+	assert.Equal(t, "SuiteBased", ts.TestStrategy)
+	assert.Equal(t, 3, len(ts.TestCases))
+	assert.Equal(t, "xiws-loginLTPA-success.toml", ts.TestCases[0])
+	assert.Equal(t, "xiws-workitem-create-success.toml", ts.TestCases[1])
+	assert.Equal(t, "xiws-workitem-search-success.toml", ts.TestCases[2])
+}
+
+func TestLoadTestSuiteDefinitionTomlErr(t *testing.T) {
+	config := &perfTestUtils.Config{}
+	config.SetDefaults()
+	config.TestFileFormat = "toml"
+	ts, err := loadTestSuiteDefinition([]byte(xmlTestSuite), config)
+	assert.Nil(t, ts)
+	assert.NotNil(t, err)
 }
