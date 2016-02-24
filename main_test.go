@@ -55,7 +55,7 @@ allowableServiceResponseTimeVariance = 15.0
 numIterations = 1000
 
 #Location of directory where test cases reside
-testDefinitionsDir = "./testDefinitions"
+testCaseDir = "./testDefinitions"
 
 #Output locations for generated files
 baseStatsOutputDir = "./envStats"
@@ -174,7 +174,7 @@ func TestInitConfigFile(t *testing.T) {
 	assert.Equal(t, "./definitions/testCases", configurationSettings.TestCaseDir)
 }
 
-/*func TestInitConfigFileToml(t *testing.T) {
+func TestInitConfigFileToml(t *testing.T) {
 	configurationSettings = &perfTestUtils.Config{}
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	willCallOsExit := false
@@ -191,7 +191,7 @@ func TestInitConfigFile(t *testing.T) {
 	assert.False(t, configurationSettings.ReBaseAll)
 	assert.True(t, configurationSettings.GBS)
 	assert.Equal(t, "./testDefinitions", configurationSettings.TestCaseDir)
-}*/
+}
 
 func TestRunAssertions(t *testing.T) {
 	bs := &perfTestUtils.BasePerfStats{
