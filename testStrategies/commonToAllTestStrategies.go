@@ -87,7 +87,7 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 	log.Info("Building Test Suite ....")
 
 	if configurationSettings.TestSuite == "" {
-		ts.Name = "Default"
+		ts.Name = "DefaultSuite"
 		ts.TestStrategy = SERVICE_BASED_TESTING
 
 		//If no test suite has been defined, treat and all test case files as the suite
