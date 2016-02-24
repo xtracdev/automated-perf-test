@@ -188,7 +188,7 @@ func TestGenerateTemplateReport(t *testing.T) {
 	bs := &BasePerfStats{
 		BaseServiceResponseTimes: map[string]int64{"service 1": 101, "service 2": 80},
 	}
-	GenerateTemplateReport(bs, ps, c, mockedFs)
+	GenerateTemplateReport(bs, ps, c, mockedFs, "TestSuiteName")
 }
 
 func TestGenerateTemplateReportErrorCreate(t *testing.T) {
@@ -199,5 +199,5 @@ func TestGenerateTemplateReportErrorCreate(t *testing.T) {
 	bs := &BasePerfStats{
 		BaseServiceResponseTimes: map[string]int64{"service 1": 101, "service 2": 80},
 	}
-	GenerateTemplateReport(bs, ps, c, mockedFs)
+	GenerateTemplateReport(bs, ps, c, mockedFs, "TestSuiteName")
 }

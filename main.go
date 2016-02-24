@@ -91,8 +91,12 @@ func main() {
 	log.Debugf("[START]")
 	initConfig(os.Args[1:], osFileSystem, os.Exit)
 
+	//Generate a test suite based on configuration settings
+	testSuite := new(testStrategies.TestSuite)
+	testSuite.BuildTestSuite(configurationSettings)
+
 	if checkTestReadyness {
-		readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem)
+		readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem, testSuite.Name)
 		if !readyForTest {
 			log.Info("System is not ready for testing.")
 			os.Exit(1)
@@ -108,25 +112,25 @@ func main() {
 	//Determine testing mode.
 	if configurationSettings.GBS || configurationSettings.ReBaseAll {
 		if configurationSettings.ReBaseAll {
-			runInTrainingMode(configurationSettings.ExecutionHost, true)
+			runInTrainingMode(configurationSettings.ExecutionHost, true, testSuite)
 		} else {
-			readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem)
+			readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem, testSuite.Name)
 			if !readyForTest {
-				runInTrainingMode(configurationSettings.ExecutionHost, false)
+				runInTrainingMode(configurationSettings.ExecutionHost, false, testSuite)
 			} else {
 				log.Info("System is ready for testing. Training is not required.")
 			}
 		}
 	} else {
-		readyForTest, basePerfStats := perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem)
+		readyForTest, basePerfStats := perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem, testSuite.Name)
 		if readyForTest {
-			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport)
+			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport, testSuite)
 		} else {
 			log.Info("System is not ready for testing. Attempting to run training mode....")
-			runInTrainingMode(configurationSettings.ExecutionHost, false)
-			readyForTest, basePerfStats = perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem)
+			runInTrainingMode(configurationSettings.ExecutionHost, false, testSuite)
+			readyForTest, basePerfStats = perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem, testSuite.Name)
 			if readyForTest {
-				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport)
+				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport, testSuite)
 			} else {
 				log.Info("System is not ready for testing. Attempting to run training failed. Check logs for more details.")
 				os.Exit(1)
@@ -135,7 +139,7 @@ func main() {
 	}
 }
 
-func runInTrainingMode(host string, reBaseAll bool) {
+func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.TestSuite) {
 	log.Info("Running performance test in Training mode for host ", host)
 	testStratTime := time.Now().UnixNano()
 
@@ -150,7 +154,7 @@ func runInTrainingMode(host string, reBaseAll bool) {
 		//Check to see if this server already has a base perf file defined.
 		//If so, only values not previously populated will be set.
 		//if not, a default base perf struct is created with nil values for all fields
-		f, _ := os.Open(configurationSettings.BaseStatsOutputDir + "/" + host + "-perfBaseStats")
+		f, _ := os.Open(configurationSettings.BaseStatsOutputDir + "/" + host + "-" + testSuite.Name + "-perfBaseStats")
 		basePerfstats, _ = perfTestUtils.ReadBasePerfFile(f)
 	}
 
@@ -158,17 +162,17 @@ func runInTrainingMode(host string, reBaseAll bool) {
 	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64)}
 
 	//Run the test
-	runTests(perfStatsForTest, TRAINING_MODE)
+	runTests(perfStatsForTest, TRAINING_MODE, testSuite)
 
 	//Generate base statistics output file for this training run.
-	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem)
+	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem, testSuite.Name)
 
 	testRunTime := time.Now().UnixNano() - testStratTime
 	log.Info("Training mode completed successfully. ")
 	log.Info("Execution Run Time :", perfTestUtils.GetExecutionTimeDisplay(testRunTime))
 }
 
-func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem)) {
+func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem, string), testSuite *testStrategies.TestSuite) {
 	log.Info("Running Performance test in Testing mode for host ", host)
 	testStratTime := time.Now().UnixNano()
 
@@ -176,13 +180,13 @@ func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, f
 	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64), TestDate: time.Now()}
 
 	//Run the test
-	runTests(perfStatsForTest, TESTING_MODE)
+	runTests(perfStatsForTest, TESTING_MODE, testSuite)
 
 	//Validate test results
 	assertionFailures := runAssertions(basePerfstats, perfStatsForTest)
 
 	//Generate performance test report
-	frg(basePerfstats, perfStatsForTest, configurationSettings, osFileSystem)
+	frg(basePerfstats, perfStatsForTest, configurationSettings, osFileSystem, testSuite.Name)
 
 	//Print test results to std out
 	log.Info("=================== TEST RESULTS ===================")
@@ -207,7 +211,7 @@ func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, f
 //This function does two thing,
 //1 Start a go routine to preiodically grab the memory foot print and set the peak memory value
 //2 Run all test using mock servers and gather performance stats
-func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
+func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *testStrategies.TestSuite) {
 
 	//Initilize Memory analysis
 	var peakMemoryAllocation = new(uint64)
@@ -258,10 +262,6 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 	//Add a 1 second delay before running test case to allow the graph get some initial memory data before test cases are executed.
 	time.Sleep(time.Second * 1)
 
-	//Generate a test suite based on configuration settings
-	testSuite := new(testStrategies.TestSuite)
-	testSuite.BuildTestSuite(configurationSettings)
-
 	//Check the test strategy
 	if testSuite.TestStrategy == testStrategies.SERVICE_BASED_TESTING {
 
@@ -310,7 +310,6 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int) {
 	perfStatsForTest.PeakMemory = *peakMemoryAllocation
 	perfStatsForTest.MemoryAudit = memoryAudit
 	perfStatsForTest.TestPartitions = testPartitions
-
 }
 
 //This function runs the assertions to ensure memory and service have not deviated past the allowed variance

@@ -99,10 +99,10 @@ func GetExecutionTimeDisplay(executionTime int64) string {
 	return string(displayStatement)
 }
 
-func IsReadyForTest(configurationSettings *Config, osFileSystem OsFS) (bool, *BasePerfStats) {
+func IsReadyForTest(configurationSettings *Config, osFileSystem OsFS, testSuiteName string) (bool, *BasePerfStats) {
 
 	//1) read in perf base stats
-	f, err := os.Open(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-perfBaseStats")
+	f, err := os.Open(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-" + testSuiteName + "-perfBaseStats")
 	if err != nil {
 		log.Error("Failed to open env stats for %v. Error: %v.", configurationSettings.ExecutionHost, err)
 		return false, nil
@@ -312,7 +312,7 @@ func populateBasePerfStats(perfStatsForTest *PerfStats, basePerfstats *BasePerfS
 	}
 }
 
-func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *BasePerfStats, configurationSettings *Config, exit func(code int), fs FileSystem) {
+func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *BasePerfStats, configurationSettings *Config, exit func(code int), fs FileSystem, testSuiteName string) {
 
 	//Set base performance based on training test run
 	populateBasePerfStats(perfStatsForTest, basePerfstats, configurationSettings.ReBaseMemory)
@@ -323,7 +323,7 @@ func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *B
 		log.Error("Failed to marshal to Json. Error:", err)
 		exit(1)
 	}
-	file, err := fs.Create(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-perfBaseStats")
+	file, err := fs.Create(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-" + testSuiteName + "-perfBaseStats")
 	if err != nil {
 		log.Error("Failed to create output file. Error:", err)
 		exit(1)
