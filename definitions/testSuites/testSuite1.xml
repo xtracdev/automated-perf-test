@@ -1,9 +1,0 @@
-<testSuite>
-    <name>testSuite</name>
-    <testStrategy>ServiceBased</testStrategy>
-    <testCases>
-        <testCase>xiws-loginLTPA-success.xml</testCase>
-        <testCase>xiws-workitem-create-success.xml</testCase>
-        <testCase>xiws-workitem-search-success.xml</testCase>
-    </testCases>
-</testSuite>
