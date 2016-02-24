@@ -117,7 +117,6 @@ func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, 
 		file = os.Stdout
 	}
 	tf := configurationSettings.ReportTemplateFile
-	fmt.Printf("TestPartitions: %+v\n", perfStats.TestPartitions)
 	err = generateTemplate(basePerfstats, perfStats, configurationSettings, file, tf)
 	if err != nil {
 		log.Errorf("Error generating template report: %v", err)
