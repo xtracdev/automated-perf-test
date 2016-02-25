@@ -255,7 +255,7 @@ func extracResponseValues(testCaseName string, body []byte, resposneProperties [
 	testRunGlobals := globalsMap[uniqueTestRunId]
 	if testRunGlobals == nil {
 		testRunGlobals = make(map[string]string)
-		globals[uniqueTestRunId] = testRunGlobals
+		globalsMap[uniqueTestRunId] = testRunGlobals
 	}
 
 	for _, name := range resposneProperties {
