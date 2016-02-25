@@ -157,14 +157,14 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 	}
 }
 
-func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, targetPort string, uniqueTestRunId string) int64 {
+func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, targetPort string, uniqueTestRunId string, globalsMap map[string]map[string]string) int64 {
 
 	var req *http.Request
 
 	if !testDefinition.Multipart {
 		if testDefinition.Payload != "" {
 			paylaod := testDefinition.Payload
-			newPayload := substituteRequestValues(&paylaod, uniqueTestRunId)
+			newPayload := substituteRequestValues(&paylaod, uniqueTestRunId, globalsMap)
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+testDefinition.BaseUri, strings.NewReader(newPayload))
 		} else {
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+testDefinition.BaseUri, nil)
@@ -215,7 +215,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, tar
 		responseTimeOK := perfTestUtils.ValidateServiceResponseTime(timeTaken.Nanoseconds(), testDefinition.TestName)
 
 		if contentLengthOk && responseCodeOk && responseTimeOK {
-			extracResponseValues(testDefinition.TestName, body, testDefinition.ResponseProperties, uniqueTestRunId)
+			extracResponseValues(testDefinition.TestName, body, testDefinition.ResponseProperties, uniqueTestRunId, globalsMap)
 			return timeTaken.Nanoseconds()
 		} else {
 			return 0
@@ -223,11 +223,11 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, tar
 	}
 }
 
-func substituteRequestValues(requestBody *string, uniqueTestRunId string) string {
+func substituteRequestValues(requestBody *string, uniqueTestRunId string, globalsMap map[string]map[string]string) string {
 	requestPayloadCopy := *requestBody
 
 	//Get Global Properties for this test run
-	testRunGlobals := globals[uniqueTestRunId]
+	testRunGlobals := globalsMap[uniqueTestRunId]
 	if testRunGlobals != nil {
 		r := regexp.MustCompile("{{(.+)?}}")
 		res := r.FindAllString(*requestBody, -1)
@@ -250,9 +250,9 @@ func substituteRequestValues(requestBody *string, uniqueTestRunId string) string
 	return requestPayloadCopy
 }
 
-func extracResponseValues(testCaseName string, body []byte, resposneProperties []string, uniqueTestRunId string) {
+func extracResponseValues(testCaseName string, body []byte, resposneProperties []string, uniqueTestRunId string, globalsMap map[string]map[string]string) {
 	//Get Global Properties for this test run
-	testRunGlobals := globals[uniqueTestRunId]
+	testRunGlobals := globalsMap[uniqueTestRunId]
 	if testRunGlobals == nil {
 		testRunGlobals = make(map[string]string)
 		globals[uniqueTestRunId] = testRunGlobals

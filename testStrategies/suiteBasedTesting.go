@@ -14,14 +14,14 @@ func ExecuteTestSuiteWrapper(testSuite *TestSuite, configurationSettings *perfTe
 	var suiteWaitGroup sync.WaitGroup
 	suiteWaitGroup.Add(configurationSettings.ConcurrentUsers)
 	for i := 0; i < configurationSettings.ConcurrentUsers; i++ {
-		go executeTestSuite(testSuiteResponseTimesChan, testSuite, configurationSettings, i)
+		go executeTestSuite(testSuiteResponseTimesChan, testSuite, configurationSettings, i, globals)
 		go aggregateSuiteResponseTimes(testSuiteResponseTimesChan, allServicesResponseTimesMap, &suiteWaitGroup)
 	}
 	suiteWaitGroup.Wait()
 	return allServicesResponseTimesMap
 }
 
-func executeTestSuite(testSuiteResponseTimesChan chan []map[string]int64, testSuite *TestSuite, configurationSettings *perfTestUtils.Config, userId int) {
+func executeTestSuite(testSuiteResponseTimesChan chan []map[string]int64, testSuite *TestSuite, configurationSettings *perfTestUtils.Config, userId int, globalsMap map[string]map[string]string) {
 	fmt.Println("Test Suite started")
 	allSuiteResponseTimes := make([]map[string]int64, 0)
 	for i := 0; i < configurationSettings.NumIterations; i++ {
@@ -29,7 +29,7 @@ func executeTestSuite(testSuiteResponseTimesChan chan []map[string]int64, testSu
 		testSuiteResponseTimes := make(map[string]int64)
 		for _, testDefinition := range testSuite.TestCases {
 			fmt.Println("Test case :", testDefinition.TestName, "UniqueRunID:", uniqueTestRunId)
-			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.TargetHost, configurationSettings.TargetPort, uniqueTestRunId)
+			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.TargetHost, configurationSettings.TargetPort, uniqueTestRunId, globalsMap)
 			testSuiteResponseTimes[testDefinition.TestName] = responseTime
 		}
 		allSuiteResponseTimes = append(allSuiteResponseTimes, testSuiteResponseTimes)
