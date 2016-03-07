@@ -28,7 +28,9 @@ The configuration file parameters are described in the table below.
 | allowableServiceResponseTimeVariance | This is the percentage by which a service test case response time can exceed during the test without the test without the test being considered a failure scenario |
 | numIterations                        | This property represents the number a request that will be executed for each test case.                                                                            |
 | concurrentUsers                      | This property allow for the API to be tested with multiple concurrent users. The load specified above will be equally distributed across these users.              |
-| testDefinitionsDir                   | This is the directory location for test cases                                                                                                                      |
+| testCasesDir                         | This is the directory location for test cases           
+| testSuitesDir                        | This is the directory location for test suites
+| testSuite                            | This is the name of the active test suite.
 | baseStatsOutputDir                   | This is the directory location of the output file for the base performance statistics json file.                                                                   |
 | reportOutputDir                      | This is the directory location of the output report file (HTML)                                                                                                    |
 
@@ -44,3 +46,36 @@ In addition the configuration parameters, command line arguments can the passed 
 | -reBaseAll        | Run a training run which will overwrite the all statistics of previous training on the execution host         |
 | -reBaseAll        | Run a training run which will overwrite the all statistics of previous training on the execution host         |
 | -testFileFormat   | The format of the test definition files, the supported formats are XML and TOML (default XML)                 |
+
+#### Testing Strategies
+The framework supports two type of testing strategies, ServiceBased and SuiteBased. These testing strategies allow flexalbility when performing performance 
+test under different conditions, for example Build pipeline mock vs Live back end load test. 
+##### ServiceBased
+This is the default testing strategy and will be used if no test test suite is defined in the configuration file. In this scenarion, all files in the test case dir will 
+for an informal test suite. Service Based testing focuses on each service  independently of others. Memory and service response time data is gathered during the test and analysis is performed once the test is complete. Service based testing is very 
+appropiate when used in conjunction with a build pipeline and mock back end. These test should run quickly to ensure fast overall run time of the pipeline. This type of testing 
+divides the load accross concurrent users. Eg. For 1000 iterations per test case with 10 concurrent users, each user will perform 100 requests concurrently per test case. 
+
+##### SuiteBased
+Suite based testing is designed to simulate real load testing hitting a live backend. Data can be passed between requests so response data from one request can be used 
+in the request of another. Memory and service response time data is gathered during the test and analysis is performed once the test is complete.
+In suite based testing, the number of iteration controls the number of time the suite is run per concurrent user. Thus adding more concurrent user will increase the 
+testing load. 
+
+### Contributing
+
+To contribute, you must certify you agree with the [Developer Certificate of Origin](http://developercertificate.org/)
+by signing your commits via `git -s`. To create a signature, configure your user name and email address in git.
+Sign with your real name, do not use pseudonyms or submit anonymous commits.
+
+
+In terms of workflow:
+
+0. For significant changes or improvement, create an issue before commencing work.
+1. Fork the respository, and create a branch for your edits.
+2. Add tests that cover your changes, unit tests for smaller changes, acceptance test
+for more significant functionality.
+3. Run gofmt on each file you change before committing your changes.
+4. Run golint on each file you change before committing your changes.
+5. Make sure all the tests pass before committing your changes.
+6. Commit your changes and issue a pull request.
