@@ -10,6 +10,6 @@ Below is a example of a test suite definition.
             <!--A list of predefined test case to be executed as part of this suite. testCase element should be populated 
             with the name of the test case definition file.-->
             <testCases>
-                <testCase>xiws-loginLTPA-success.xml</testCase>
+                <testCase>testCase-definition.xml</testCase>
             </testCases>
         </testSuite>
