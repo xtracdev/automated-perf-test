@@ -88,17 +88,17 @@
                     <td width="20%"><b>TestTime (Milli)</b></td>
                     <td width="20%"><b>%variance</b></td>
                 </tr>
-                {{range $test := .PerfStats.TestPartitions}}
-                    {{$base := index $.BasePerfStats.BaseServiceResponseTimes $test.TestName}}
-                    {{$avg := index $.PerfStats.ServiceResponseTimes $test.TestName }}
-                    {{if ne $test.TestName "StartUp"}}
-                    {{if eq $avg 0}}
-                    <tr height=10px><td>{{$test.TestName}}</td><td>{{div $base 1e6 | formatMem}}</td><td>FAILED</td><td style="color:red">FAILED</td></tr>
-                    {{else}}
-                    <tr height=10px><td>{{$test.TestName}}</td><td>{{div $base 1e6 | formatMem}}</td><td>{{div $avg 1e6 | formatMem}}</td><td {{if $.IsServiceTimePass $test.TestName}}{{else}}style="color:red"{{end}}>{{avgVar $avg $base | printf "%4.2f"}}%</td></tr>
-                    {{end}}
-                    {{end}}
-                {{end}}
+
+                    {{range $key, $base := $.BasePerfStats.BaseServiceResponseTimes}}
+                    	    {{$avg := index $.PerfStats.ServiceResponseTimes $key }}
+                    	    {{if ne $key "StartUp"}}
+                    	    	 {{if eq $avg 0}}
+                    		      <tr height=10px><td>{{$key}}</td><td>{{div $base 1e6 | formatMem}}</td><td>FAILED</td><td style="color:red">FAILED</td></tr>
+                    		 {{else}}
+				      <tr height=10px><td>{{$key}}</td><td>{{div $base 1e6 | formatMem}}</td><td>{{div $avg 1e6 | formatMem}}</td><td {{if $.IsServiceTimePass $key}}{{else}}style="color:red"{{end}}>{{avgVar $avg $base | printf "%4.2f"}}%</td></tr>
+                                 {{end}}
+                            {{end}}
+                   {{end}}
             </table>
         </div>
         <div class='container'>

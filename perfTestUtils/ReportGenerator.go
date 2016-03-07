@@ -78,11 +78,8 @@ func (p *perfStatsModel) JsonTimeArray() template.JS {
 	serviceResponseTimesBase := []byte("['Base',")
 	serviceResponseTimesTest := []byte("['Test',")
 	serviceNames := []byte("['")
-	for i := 1; i < len(p.PerfStats.TestPartitions); i++ {
-		tp := p.PerfStats.TestPartitions[i]
-		averageServiceResponseTime := p.PerfStats.ServiceResponseTimes[tp.TestName]
-
-		baseTimeMillis := float64(float32(p.BasePerfStats.BaseServiceResponseTimes[tp.TestName]) / float32(1000000))
+	for name, averageServiceResponseTime := range p.PerfStats.ServiceResponseTimes {
+		baseTimeMillis := float64(float32(p.BasePerfStats.BaseServiceResponseTimes[name]) / float32(1000000))
 		serviceResponseTimesBase = append(serviceResponseTimesBase, []byte(strconv.FormatFloat(baseTimeMillis, 'f', 3, 64))...)
 		serviceResponseTimesBase = append(serviceResponseTimesBase, []byte(",")...)
 
@@ -92,10 +89,10 @@ func (p *perfStatsModel) JsonTimeArray() template.JS {
 		serviceResponseTimesTest = append(serviceResponseTimesTest, []byte(",")...)
 
 		if averageServiceResponseTime != 0 {
-			responseTimeVariancePercentage := CalcAverageResponseVariancePercentage(averageServiceResponseTime, p.BasePerfStats.BaseServiceResponseTimes[tp.TestName])
-			serviceNames = append(serviceNames, []byte(tp.TestName+" ("+fmt.Sprintf("%3.2f", responseTimeVariancePercentage)+" %)")...)
+			responseTimeVariancePercentage := CalcAverageResponseVariancePercentage(averageServiceResponseTime, p.BasePerfStats.BaseServiceResponseTimes[name])
+			serviceNames = append(serviceNames, []byte(name+" ("+fmt.Sprintf("%3.2f", responseTimeVariancePercentage)+" %)")...)
 		} else {
-			serviceNames = append(serviceNames, []byte(tp.TestName+" ("+fmt.Sprintf("%3.2f", 0.0)+" %)")...)
+			serviceNames = append(serviceNames, []byte(name+" ("+fmt.Sprintf("%3.2f", 0.0)+" %)")...)
 		}
 		serviceNames = append(serviceNames, []byte("','")...)
 	}
@@ -120,7 +117,10 @@ func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, 
 		file = os.Stdout
 	}
 	tf := configurationSettings.ReportTemplateFile
-	generateTemplate(basePerfstats, perfStats, configurationSettings, file, tf)
+	err = generateTemplate(basePerfstats, perfStats, configurationSettings, file, tf)
+	if err != nil {
+		log.Errorf("Error generating template report: %v", err)
+	}
 }
 
 func generateTemplate(bstats *BasePerfStats, pstats *PerfStats, configurationSettings *Config, wr io.Writer, templFile string) error {
@@ -144,7 +144,10 @@ func generateTemplate(bstats *BasePerfStats, pstats *PerfStats, configurationSet
 			if err != nil {
 				return fmt.Errorf("Error asset not found: %v", err)
 			}
-			s1.New(tname).Parse(string(header))
+			_, err = s1.New(tname).Parse(string(header))
+			if err != nil {
+				return fmt.Errorf("Error parsing template %v: %v\n", tname, err)
+			}
 		}
 		err = s1.ExecuteTemplate(wr, "header", ps)
 		if err != nil {
