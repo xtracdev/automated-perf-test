@@ -217,17 +217,6 @@ func CalcAverageResponseVariancePercentage(averageResponseTime int64, baseRespon
 //=====================================
 //Service response validation functions
 //=====================================
-func ValidateResponseBody(body []byte, testName string) bool {
-
-	isResponseBodyValid := false
-	if len(body) > 0 {
-		isResponseBodyValid = true
-	} else {
-		log.Error(fmt.Sprintf("Incorrect Content lenght (%d) returned for service %s", len(body), testName))
-	}
-	return isResponseBodyValid
-}
-
 func ValidateResponseStatusCode(responseStatusCode int, expectedStatusCode int, testName string) bool {
 
 	isResponseStatusCodeValid := false

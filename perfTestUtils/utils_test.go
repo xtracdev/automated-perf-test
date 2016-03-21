@@ -167,14 +167,6 @@ func TestPopulateBasePerfStats(t *testing.T) {
 	assert.Equal(t, bs.ModifiedDate, bs.GenerationDate)
 }
 
-func TestValidateResponseBody(t *testing.T) {
-	b := []byte("content")
-	empty := []byte{}
-
-	assert.True(t, ValidateResponseBody(b, "test"))
-	assert.False(t, ValidateResponseBody(empty, "test"))
-}
-
 func TestValidateResponseStatusCode(t *testing.T) {
 	assert.True(t, ValidateResponseStatusCode(http.StatusOK, http.StatusOK, "test"))
 	assert.False(t, ValidateResponseStatusCode(http.StatusOK, http.StatusInternalServerError, "test"))
