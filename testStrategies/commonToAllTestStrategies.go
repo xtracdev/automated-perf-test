@@ -210,11 +210,10 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, tar
 		defer resp.Body.Close()
 
 		//Validate service response
-		contentLengthOk := perfTestUtils.ValidateResponseBody(body, testDefinition.TestName)
 		responseCodeOk := perfTestUtils.ValidateResponseStatusCode(resp.StatusCode, testDefinition.ResponseStatusCode, testDefinition.TestName)
 		responseTimeOK := perfTestUtils.ValidateServiceResponseTime(timeTaken.Nanoseconds(), testDefinition.TestName)
 
-		if contentLengthOk && responseCodeOk && responseTimeOK {
+		if responseCodeOk && responseTimeOK {
 			extracResponseValues(testDefinition.TestName, body, testDefinition.ResponseProperties, uniqueTestRunId, globalsMap)
 			return timeTaken.Nanoseconds()
 		} else {
