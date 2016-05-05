@@ -14,6 +14,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -22,13 +23,14 @@ const (
 	SUITE_BASED_TESTING   = "SuiteBased"
 )
 
-var globals map[string]map[string]string
+//var globals map[string]map[string]string
 
-func init() {
-	//Initilize globals map
-	globals = make(map[string]map[string]string)
-
+type GlobalsMaps struct {
+	sync.RWMutex
+	m map[string]map[string]string
 }
+
+var GlobalsLockCounter = GlobalsMaps{m: make(map[string]map[string]string)}
 
 type Header struct {
 	Value string `xml:",chardata"`
@@ -157,7 +159,7 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 	}
 }
 
-func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, targetPort string, uniqueTestRunId string, globalsMap map[string]map[string]string) int64 {
+func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, targetPort string, uniqueTestRunId string, globalsMap GlobalsMaps) int64 {
 
 	var req *http.Request
 
@@ -177,7 +179,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, tar
 			writer := multipart.NewWriter(body)
 			for _, field := range testDefinition.MultipartPayload {
 				if field.FileName == "" {
-					writer.WriteField(field.FieldName, field.FieldValue)
+					writer.WriteField(field.FieldName, substituteRequestValues(&field.FieldValue, uniqueTestRunId, globalsMap))
 				} else {
 					part, _ := writer.CreateFormFile(field.FieldName, field.FileName)
 					io.Copy(part, bytes.NewReader(field.FileContent))
@@ -222,11 +224,14 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, tar
 	}
 }
 
-func substituteRequestValues(requestBody *string, uniqueTestRunId string, globalsMap map[string]map[string]string) string {
+func substituteRequestValues(requestBody *string, uniqueTestRunId string, globalsMap GlobalsMaps) string {
 	requestPayloadCopy := *requestBody
 
 	//Get Global Properties for this test run
-	testRunGlobals := globalsMap[uniqueTestRunId]
+	globalsMap.RLock()
+	testRunGlobals := globalsMap.m[uniqueTestRunId]
+	globalsMap.RUnlock()
+
 	if testRunGlobals != nil {
 		r := regexp.MustCompile("{{(.+)?}}")
 		res := r.FindAllString(*requestBody, -1)
@@ -249,12 +254,17 @@ func substituteRequestValues(requestBody *string, uniqueTestRunId string, global
 	return requestPayloadCopy
 }
 
-func extracResponseValues(testCaseName string, body []byte, resposneProperties []string, uniqueTestRunId string, globalsMap map[string]map[string]string) {
+func extracResponseValues(testCaseName string, body []byte, resposneProperties []string, uniqueTestRunId string, globalsMap GlobalsMaps) {
 	//Get Global Properties for this test run
-	testRunGlobals := globalsMap[uniqueTestRunId]
+	globalsMap.RLock()
+	testRunGlobals := globalsMap.m[uniqueTestRunId]
+	globalsMap.RUnlock()
+
 	if testRunGlobals == nil {
 		testRunGlobals = make(map[string]string)
-		globalsMap[uniqueTestRunId] = testRunGlobals
+		globalsMap.Lock()
+		globalsMap.m[uniqueTestRunId] = testRunGlobals
+		globalsMap.Unlock()
 	}
 
 	for _, name := range resposneProperties {

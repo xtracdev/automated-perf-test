@@ -14,14 +14,14 @@ func ExecuteTestSuiteWrapper(testSuite *TestSuite, configurationSettings *perfTe
 	var suiteWaitGroup sync.WaitGroup
 	suiteWaitGroup.Add(configurationSettings.ConcurrentUsers)
 	for i := 0; i < configurationSettings.ConcurrentUsers; i++ {
-		go executeTestSuite(testSuiteResponseTimesChan, testSuite, configurationSettings, i, globals)
+		go executeTestSuite(testSuiteResponseTimesChan, testSuite, configurationSettings, i, GlobalsLockCounter)
 		go aggregateSuiteResponseTimes(testSuiteResponseTimesChan, allServicesResponseTimesMap, &suiteWaitGroup)
 	}
 	suiteWaitGroup.Wait()
 	return allServicesResponseTimesMap
 }
 
-func executeTestSuite(testSuiteResponseTimesChan chan []map[string]int64, testSuite *TestSuite, configurationSettings *perfTestUtils.Config, userId int, globalsMap map[string]map[string]string) {
+func executeTestSuite(testSuiteResponseTimesChan chan []map[string]int64, testSuite *TestSuite, configurationSettings *perfTestUtils.Config, userId int, globalsMap GlobalsMaps) {
 	fmt.Println("Test Suite started")
 	allSuiteResponseTimes := make([]map[string]int64, 0)
 	for i := 0; i < configurationSettings.NumIterations; i++ {
@@ -33,7 +33,10 @@ func executeTestSuite(testSuiteResponseTimesChan chan []map[string]int64, testSu
 			testSuiteResponseTimes[testDefinition.TestName] = responseTime
 		}
 		allSuiteResponseTimes = append(allSuiteResponseTimes, testSuiteResponseTimes)
-		globals[uniqueTestRunId] = nil
+
+		globalsMap.Lock()
+		globalsMap.m[uniqueTestRunId] = nil
+		globalsMap.Unlock()
 	}
 	testSuiteResponseTimesChan <- allSuiteResponseTimes
 	fmt.Println("Test Suite Finished")
