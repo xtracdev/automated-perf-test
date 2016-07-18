@@ -1,4 +1,4 @@
-package main
+ package main
 
 import (
 	"encoding/json"
@@ -76,6 +76,9 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 				}
 			}
 		}
+	}else{
+		log.Warn("No config file found. - Using default values.")
+		configurationSettings.SetDefaults()
 	}
 
 	//Get Hostname for this machine.
@@ -98,6 +101,9 @@ func main() {
 	log.Debugf("[START]")
 	initConfig(os.Args[1:], osFileSystem, os.Exit)
 
+	//Validate config()
+	configurationSettings.PrintAndValidateConfig()
+
 	//Generate a test suite based on configuration settings
 	testSuite := new(testStrategies.TestSuite)
 	testSuite.BuildTestSuite(configurationSettings)
@@ -112,9 +118,6 @@ func main() {
 			os.Exit(0)
 		}
 	}
-
-	//Validate config()
-	configurationSettings.PrintAndValidateConfig(os.Exit)
 
 	//Determine testing mode.
 	if configurationSettings.GBS || configurationSettings.ReBaseAll {
@@ -237,7 +240,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 				return
 			default:
 
-				memoryStatsUrl := "http://" + configurationSettings.TargetHost + ":" + configurationSettings.TargetPort + "/debug/vars"
+				memoryStatsUrl := "http://" + configurationSettings.TargetHost + ":" + configurationSettings.TargetPort + configurationSettings.MemoryEndpoint
 				resp, err := http.Get(memoryStatsUrl)
 				if err != nil {
 					log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error:", err)
@@ -247,7 +250,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 					body, _ := ioutil.ReadAll(resp.Body)
 
 					defer resp.Body.Close()
-
+					
 					m := new(perfTestUtils.Entry)
 					unmarshalErr := json.Unmarshal(body, m)
 					if unmarshalErr != nil {
