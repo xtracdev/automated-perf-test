@@ -23,6 +23,7 @@ const (
 	defaultTestSuite                            = ""
 	defaultTestFileFormat                       = "xml"
 	defaultMemoryEndpoint                       = "/debug/vars"
+	defaultRequestDelay                         = 1
 )
 
 type Config struct {
@@ -39,6 +40,7 @@ type Config struct {
 	ConcurrentUsers                      int     `xml:"concurrentUsers"`
 	TestSuite                            string  `xml:"testSuite"`
 	MemoryEndpoint                       string  `xml:"memoryEndpoint"`
+	RequestDelay                         int     `xml:"requestDelay"`
 
 	//These value can only be set by command line arguments as they control each training and test run.
 	GBS          bool
@@ -69,6 +71,7 @@ func (c *Config) SetDefaults() {
 	c.TestSuite = defaultTestSuite
 	c.TestFileFormat = defaultTestFileFormat
 	c.MemoryEndpoint = defaultMemoryEndpoint
+	c.RequestDelay = defaultRequestDelay
 
 	c.GBS = false
 	c.ReBaseMemory = false
@@ -110,6 +113,9 @@ func (c Config) PrintAndValidateConfig() {
 	if strings.TrimSpace(c.MemoryEndpoint) == "" {
 		c.MemoryEndpoint = defaultMemoryEndpoint
 	}
+	if c.RequestDelay < 1 {
+		c.MemoryEndpoint = defaultMemoryEndpoint
+	}
 
 	configOutput := []byte("")
 	configOutput = append(configOutput, []byte("\n============== Configuration Settings =========\n")...)
@@ -124,6 +130,7 @@ func (c Config) PrintAndValidateConfig() {
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testSuiteDir", c.TestSuiteDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testSuite", c.TestSuite, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "memoryEndpoint", c.MemoryEndpoint, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "requestDelay", c.RequestDelay, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "baseStatsOutputDir", c.BaseStatsOutputDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "reportOutputDir", c.ReportOutputDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "gbs", c.GBS, "\n"))...)

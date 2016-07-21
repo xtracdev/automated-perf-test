@@ -29,7 +29,7 @@ func executeTestSuite(testSuiteResponseTimesChan chan []map[string]int64, testSu
 		testSuiteResponseTimes := make(map[string]int64)
 		for _, testDefinition := range testSuite.TestCases {
 			fmt.Println("Test case :", testDefinition.TestName, "UniqueRunID:", uniqueTestRunId)
-			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.TargetHost, configurationSettings.TargetPort, uniqueTestRunId, globalsMap)
+			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.RequestDelay, configurationSettings.TargetHost, configurationSettings.TargetPort, uniqueTestRunId, globalsMap)
 			testSuiteResponseTimes[testDefinition.TestName] = responseTime
 		}
 		allSuiteResponseTimes = append(allSuiteResponseTimes, testSuiteResponseTimes)

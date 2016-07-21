@@ -16,6 +16,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"math/rand"
 )
 
 const (
@@ -159,10 +160,12 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 	}
 }
 
-func (testDefinition *TestDefinition) BuildAndSendRequest(targetHost string, targetPort string, uniqueTestRunId string, globalsMap GlobalsMaps) int64 {
+func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost string, targetPort string, uniqueTestRunId string, globalsMap GlobalsMaps) int64 {
+
+	randomDelay := rand.Intn(delay);
+	time.Sleep(time.Duration(randomDelay)*time.Millisecond)
 
 	var req *http.Request
-
 	if !testDefinition.Multipart {
 		if testDefinition.Payload != "" {
 			paylaod := testDefinition.Payload
