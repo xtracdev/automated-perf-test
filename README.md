@@ -3,13 +3,13 @@
 Automated performance test framework allows API developers to test the performance of their APIs as part of a CI / CD pipeline. The framework is intended to be run after code is committed and validates that performance has not 
 degraded since the last commit. It analyzes the memory footprint and service response times of the API services and reports on success and failure scenarios. 
 
-Featrues include:
+Features include:
 * **Training mode** This mode executes all defined test cases and outputs the results to a json file. This json file represents the base memory profile of the API in relation to the target environment.
 * **Testing mode** This mode executes all defined test cases and compares the results with the pre-generated base profile.
 * **Peak memory analysis.** If the peak memory usage during testing mode exceeds an allowed threshold (configurable) the test will fail.
 * **Service response time analysis** If the response time of any service test case exceeds an allowed threshold (configurable) the test will fail.
-* **Simulated concurrent users** The system can be configured to allow multiple concurrent hitting the API at once, dividing teh test load across these users.
-* **Report generation** In both successful and failed test runs, a report will be generated indicating the test finding and trageting ares where performance issue have been found.
+* **Simulated concurrent users** The system can be configured to allow multiple concurrent hitting the API at once, dividing the test load across these users.
+* **Report generation** In both successful and failed test runs, a report will be generated indicating the test finding and targeting ares where performance issue have been found.
 * **Easily defined test cases** To define a new test case, all that is required is a request definition which describes the service request.
 * **Integration into Build Pipeline** Can be configured to run as part of a build pipeline to validate performance as code is checked in. 
 
@@ -48,16 +48,16 @@ In addition the configuration parameters, command line arguments can the passed 
 | -testFileFormat   | The format of the test definition files, the supported formats are XML and TOML (default XML)                 |
 
 #### Testing Strategies
-The framework supports two type of testing strategies, ServiceBased and SuiteBased. These testing strategies allow flexalbility when performing performance 
+The framework supports two type of testing strategies, ServiceBased and SuiteBased. These testing strategies allow flexibility when performing performance 
 test under different conditions, for example Build pipeline mock vs Live back end load test. 
 ##### ServiceBased
-This is the default testing strategy and will be used if no test test suite is defined in the configuration file. In this scenarion, all files in the test case dir will 
+This is the default testing strategy and will be used if no test test suite is defined in the configuration file. In this scenario, all files in the test case dir will 
 for an informal test suite. Service Based testing focuses on each service  independently of others. Memory and service response time data is gathered during the test and analysis is performed once the test is complete. Service based testing is very 
-appropiate when used in conjunction with a build pipeline and mock back end. These test should run quickly to ensure fast overall run time of the pipeline. This type of testing 
-divides the load accross concurrent users. Eg. For 1000 iterations per test case with 10 concurrent users, each user will perform 100 requests concurrently per test case. 
+appropriate when used in conjunction with a build pipeline and mock back end. These test should run quickly to ensure fast overall run time of the pipeline. This type of testing 
+divides the load across concurrent users. Eg. For 1000 iterations per test case with 10 concurrent users, each user will perform 100 requests concurrently per test case. 
 
 ##### SuiteBased
-Suite based testing is designed to simulate real load testing hitting a live backend. Data can be passed between requests so response data from one request can be used 
+Suite based testing is designed to simulate real load testing hitting a live back-end. Data can be passed between requests so response data from one request can be used 
 in the request of another. Memory and service response time data is gathered during the test and analysis is performed once the test is complete.
 In suite based testing, the number of iteration controls the number of time the suite is run per concurrent user. Thus adding more concurrent user will increase the 
 testing load. 
@@ -72,7 +72,7 @@ Sign with your real name, do not use pseudonyms or submit anonymous commits.
 In terms of workflow:
 
 0. For significant changes or improvement, create an issue before commencing work.
-1. Fork the respository, and create a branch for your edits.
+1. Fork the repository, and create a branch for your edits.
 2. Add tests that cover your changes, unit tests for smaller changes, acceptance test
 for more significant functionality.
 3. Run gofmt on each file you change before committing your changes.
