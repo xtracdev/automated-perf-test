@@ -22,20 +22,3 @@ func TestSetDefaults(t *testing.T) {
 	assert.Equal(t, false, c.ReBaseMemory)
 	assert.Equal(t, false, c.ReBaseAll)
 }
-
-func TestPrintAndValidateConfig(t *testing.T) {
-	willCallOsExit := false
-	exit := func(i int) { willCallOsExit = true }
-	c := &Config{}
-	c.SetDefaults()
-	c.PrintAndValidateConfig(exit)
-	assert.False(t, willCallOsExit)
-}
-
-func TestPrintAndValidateConfigErr(t *testing.T) {
-	willCallOsExit := false
-	exit := func(i int) { willCallOsExit = true }
-	c := &Config{}
-	c.PrintAndValidateConfig(exit)
-	assert.True(t, willCallOsExit)
-}
