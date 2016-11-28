@@ -1,4 +1,4 @@
- package main
+package main
 
 import (
 	"encoding/json"
@@ -17,86 +17,83 @@ import (
 
 var configurationSettings *perfTestUtils.Config
 var checkTestReadyness bool
+var osFileSystem = perfTestUtils.OsFS{}
 
 const (
 	TRAINING_MODE = 1
 	TESTING_MODE  = 2
 )
 
-var osFileSystem = perfTestUtils.OsFS{}
+//----- initConfig ------------------------------------------------------------
+func initConfig( args []string, fs perfTestUtils.FileSystem, exit func(code int) ) {
+	//----- Initialize config data structure and set defaults.
+	// Note: Defaults will be overridden as needed. The user can ignore
+	// unnecessary parameters in config file and command prompt.
+	configurationSettings = new( perfTestUtils.Config )
+	configurationSettings.SetDefaults()
 
-func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int)) {
-	//Command line ags
-	var gbs bool
-	var reBaseMemory bool
-	var reBaseAll bool
-	var configFilePath string
-	var configFileFormat string
-	var testFileFormat string
 
-	//Process command line arugments.
-	flag.BoolVar(&gbs, "gbs", false, "Genertate Base Performance Staticists for this server")
-	flag.BoolVar(&reBaseMemory, "reBaseMemory", false, "Generate new base peak memory for this server")
-	flag.BoolVar(&reBaseAll, "reBaseAll", false, "Generate new base for memory and service resposne times for this server")
-	flag.BoolVar(&checkTestReadyness, "checkTestReadyness", false, "Simple check to see if system requires training.")
-	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
-	flag.StringVar(&configFileFormat, "configFileFormat", "xml", "The format of the configuration file {xlm, toml}")
-	flag.StringVar(&testFileFormat, "testFileFormat", "xml", "The format of the test definition file {xlm, toml}")
-	flag.CommandLine.Parse(args)
-
-	//Read and paser config file if present.
-	configurationSettings = new(perfTestUtils.Config)
-	if configFilePath != "" {
-		cf, err := fs.Open(configFilePath)
-		if cf != nil {
-			defer cf.Close()
-		}
-		if err != nil {
-			log.Error("No config file found at path: ", configFilePath, " - Using default values.")
-			configurationSettings.SetDefaults()
-		} else {
-			fileContent, fileErr := ioutil.ReadAll(cf)
-			if fileErr != nil {
-				log.Error("No readable config file found at path: ", configFilePath, " - Using default values.")
-				configurationSettings.SetDefaults()
-			} else {
-				switch configFileFormat {
-				case "toml":
-					err := toml.Unmarshal(fileContent, &configurationSettings)
-					if err != nil {
-						fmt.Println("Failed to parse config file ", configFilePath, ". Error:", err)
-						configurationSettings.SetDefaults()
-					}
-				default:
-					xmlError := xml.Unmarshal(fileContent, &configurationSettings)
-					if xmlError != nil {
-						log.Error("Failed to parse config file ", configFilePath, ". Error:", xmlError, " - Using default values.")
-						configurationSettings.SetDefaults()
-					}
-				}
-			}
-		}
-	}else{
-		log.Warn("No config file found. - Using default values.")
-		configurationSettings.SetDefaults()
-	}
-
-	//Get Hostname for this machine.
+	//----- Get Hostname for this machine.
 	host, err := os.Hostname()
 	if err != nil {
-		log.Error("Failed to resolve host name. Error:", err)
+		log.Error( "Failed to resolve host name. Error:", err )
 		exit(1)
 	}
 	configurationSettings.ExecutionHost = host
-	configurationSettings.GBS = gbs
-	configurationSettings.ReBaseMemory = reBaseMemory
-	configurationSettings.ReBaseAll = reBaseAll
 
-	configurationSettings.ConfigFileFormat = configFileFormat
-	configurationSettings.TestFileFormat = testFileFormat
+
+	//----- Process command line args.
+	// Global controls outside of Config struct:
+	var configFilePath string
+	flag.StringVar( &configFilePath,     "configFilePath",     "", "The location of the configuration file.")
+	flag.BoolVar(   &checkTestReadyness, "checkTestReadyness", false, "Simple check to see if system requires training.")
+
+	// Args that override default options in Config struct:
+	flag.BoolVar(   &configurationSettings.GBS,              "gbs",              false, "Genertate Base Statistics for this server")
+	flag.BoolVar(   &configurationSettings.ReBaseMemory,     "reBaseMemory",     false, "Generate new base peak memory for this server")
+	flag.BoolVar(   &configurationSettings.ReBaseAll,        "reBaseAll",        false, "Generate new base for memory and service resposne times for this server")
+	flag.StringVar( &configurationSettings.ConfigFileFormat, "configFileFormat", "xml", "The format of the configuration file {xlm, toml}")
+	flag.StringVar( &configurationSettings.TestFileFormat,   "testFileFormat",   "xml", "The format of the test definition file {xlm, toml}")
+	flag.CommandLine.Parse(args)
+
+
+	//----- Parse the config file.
+	if configFilePath == "" {
+		log.Warn( "No config file found. - Using default values." )
+		return
+	}
+
+	cf, err := fs.Open( configFilePath )
+	if cf != nil {
+		defer cf.Close()
+	}
+	if err != nil {
+		log.Error( "No config file found at path: ", configFilePath, " - Using default values." )
+	} else {
+		fileContent, fileErr := ioutil.ReadAll( cf)
+		if fileErr != nil {
+			log.Error( "No readable config file found at path: ", configFilePath, " - Using default values." )
+		} else {
+			switch configurationSettings.ConfigFileFormat {
+			case "toml":
+				err := toml.Unmarshal( fileContent, &configurationSettings )
+				if err != nil {
+					log.Error( "Failed to parse config file ", configFilePath, ". Error:", err, " - Using default values." )
+				}
+			default:
+				xmlError := xml.Unmarshal(fileContent, &configurationSettings)
+				if xmlError != nil {
+					log.Error("Failed to parse config file ", configFilePath, ". Error:", xmlError, " - Using default values.")
+				}
+			}
+		}
+	}
 }
 
-//Main Test Method
+
+
+
+//----- main ------------------------------------------------------------------
 func main() {
 	log.Debugf("[START]")
 	initConfig(os.Args[1:], osFileSystem, os.Exit)
