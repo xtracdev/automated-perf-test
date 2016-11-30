@@ -306,13 +306,22 @@ func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *B
 	//Set base performance based on training test run
 	populateBasePerfStats(perfStatsForTest, basePerfstats, configurationSettings.ReBaseMemory)
 
-	//Convert base perf stat to Json and write out to file
+	//Convert base perf stat to Json
 	basePerfstatsJson, err := json.Marshal(basePerfstats)
 	if err != nil {
 		log.Error("Failed to marshal to Json. Error:", err)
 		exit(1)
 	}
-	file, err := fs.Create(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-" + testSuiteName + "-perfBaseStats")
+
+	// Check for existence of output dir and create if needed.
+	if os.MkdirAll( configurationSettings.BaseStatsOutputDir, os.ModePerm ); err != nil {
+		log.Errorf( "Failed to create path: [%s]. Error: %s\n", configurationSettings.BaseStatsOutputDir, err )
+		exit(1)
+	}
+
+	// Write base perf stat to file.
+	file_name := configurationSettings.ExecutionHost + "-" + testSuiteName + "-perfBaseStats"
+	file, err := fs.Create( configurationSettings.BaseStatsOutputDir + "/" + file_name )
 	if err != nil {
 		log.Error("Failed to create output file. Error:", err)
 		exit(1)
