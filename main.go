@@ -242,25 +242,23 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 				if err != nil {
 					log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error:", err)
 					quit <- true
+				}
+				body, _ := ioutil.ReadAll(resp.Body)
+
+				defer resp.Body.Close()
+
+				m := new(perfTestUtils.Entry)
+				unmarshalErr := json.Unmarshal(body, m)
+				if unmarshalErr != nil {
+					log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics. ", unmarshalErr)
+					quit <- true
 				} else {
-
-					body, _ := ioutil.ReadAll(resp.Body)
-
-					defer resp.Body.Close()
-					
-					m := new(perfTestUtils.Entry)
-					unmarshalErr := json.Unmarshal(body, m)
-					if unmarshalErr != nil {
-						log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics. ", unmarshalErr)
-						quit <- true
-					} else {
-						if m.Memstats.Alloc > *peakMemoryAllocation {
-							*peakMemoryAllocation = m.Memstats.Alloc
-						}
-						memoryAudit = append(memoryAudit, m.Memstats.Alloc)
-						counter++
-						time.Sleep(time.Millisecond * 200)
+					if m.Memstats.Alloc > *peakMemoryAllocation {
+						*peakMemoryAllocation = m.Memstats.Alloc
 					}
+					memoryAudit = append(memoryAudit, m.Memstats.Alloc)
+					counter++
+					time.Sleep(time.Millisecond * 200)
 				}
 			}
 		}
