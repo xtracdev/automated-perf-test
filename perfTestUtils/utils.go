@@ -74,7 +74,7 @@ func GetExecutionTimeDisplay(executionTime int64) string {
 	return string(displayStatement)
 }
 
-func IsReadyForTest(configurationSettings *Config, osFileSystem OsFS, testSuiteName string, numTestCases int) (bool, *BasePerfStats) {
+func IsReadyForTest(configurationSettings *Config, testSuiteName string, numTestCases int) (bool, *BasePerfStats) {
 	//1) read in perf base stats
 	f, err := os.Open(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-" + testSuiteName + "-perfBaseStats")
 	if err != nil {
@@ -236,7 +236,7 @@ func ValidatePeakMemoryVariance(allowablePeakMemoryVariance float64, peakMemoryV
 	}
 }
 
-func ValidateAverageServiceResponeTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64, serviceName string) bool {
+func ValidateAverageServiceResponseTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64, serviceName string) bool {
 	if allowableServiceResponseTimeVariance >= serviceResponseTimeVariancePercentage {
 		return true
 	} else {
