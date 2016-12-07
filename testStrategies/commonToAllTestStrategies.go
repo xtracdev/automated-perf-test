@@ -90,10 +90,11 @@ type multipartFormField struct {
 
 func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config) {
 	log.Info("Building Test Suite ....")
+	// Default to ServiceBased testing:
+	ts.TestStrategy = SERVICE_BASED_TESTING
 
 	if configurationSettings.TestSuite == "" {
 		ts.Name = "DefaultSuite"
-		ts.TestStrategy = SERVICE_BASED_TESTING
 
 		//If no test suite has been defined, treat and all test case files as the suite
 		d, err := os.Open(configurationSettings.TestCaseDir)
@@ -128,6 +129,9 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 			ts.TestCases = append(ts.TestCases, testDefinition)
 		}
 	} else {
+		// Flag as SuiteBased testing:
+		ts.TestStrategy = SUITE_BASED_TESTING
+
 		//If a test suite has been defined, load in all tests associated with the test suite.
 		bs, err := ioutil.ReadFile(configurationSettings.TestSuiteDir + "/" + configurationSettings.TestSuite)
 		if err != nil {
