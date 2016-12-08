@@ -104,9 +104,10 @@ func main() {
 	//Generate a test suite based on configuration settings
 	testSuite := new(testStrategies.TestSuite)
 	testSuite.BuildTestSuite(configurationSettings)
+	numTestCases := len( testSuite.TestCases ) //convenience variable
 
 	if checkTestReadyness {
-		readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem, testSuite.Name)
+		readyForTest, _ := perfTestUtils.IsReadyForTest( configurationSettings, testSuite.Name, numTestCases )
 		if !readyForTest {
 			log.Info("System is not ready for testing.")
 			os.Exit(1)
@@ -121,7 +122,7 @@ func main() {
 		if configurationSettings.ReBaseAll {
 			runInTrainingMode(configurationSettings.ExecutionHost, true, testSuite)
 		} else {
-			readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem, testSuite.Name)
+			readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
 			if !readyForTest {
 				runInTrainingMode(configurationSettings.ExecutionHost, false, testSuite)
 			} else {
@@ -129,13 +130,13 @@ func main() {
 			}
 		}
 	} else {
-		readyForTest, basePerfStats := perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem, testSuite.Name)
+		readyForTest, basePerfStats := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
 		if readyForTest {
 			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport, testSuite)
 		} else {
 			log.Info("System is not ready for testing. Attempting to run training mode....")
 			runInTrainingMode(configurationSettings.ExecutionHost, false, testSuite)
-			readyForTest, basePerfStats = perfTestUtils.IsReadyForTest(configurationSettings, osFileSystem, testSuite.Name)
+			readyForTest, basePerfStats = perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
 			if readyForTest {
 				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport, testSuite)
 			} else {
@@ -337,7 +338,7 @@ func runAssertions(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTe
 		}
 
 		responseTimeVariancePercentage := perfTestUtils.CalcAverageResponseVariancePercentage(averageServiceResponseTime, baseResponseTime)
-		varianceOk := perfTestUtils.ValidateAverageServiceResponeTimeVariance(configurationSettings.AllowableServiceResponseTimeVariance, responseTimeVariancePercentage, serviceName)
+		varianceOk := perfTestUtils.ValidateAverageServiceResponseTimeVariance(configurationSettings.AllowableServiceResponseTimeVariance, responseTimeVariancePercentage, serviceName)
 		if !varianceOk {
 			assertionFailures = append(assertionFailures, fmt.Sprintf("Service Failure: Service test %-60s response time variance exceeded by %3.2f %1s", serviceName, responseTimeVariancePercentage, "%"))
 		}

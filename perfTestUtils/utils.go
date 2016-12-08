@@ -57,31 +57,6 @@ func ReadBasePerfFile(r io.Reader) (*BasePerfStats, error) {
 	return basePerfstats, errorFound
 }
 
-func ValidateTestDefinitionAmount(baselineAmount int, configurationSettings *Config, fs FileSystem) bool {
-
-	d, err := fs.Open(configurationSettings.TestCaseDir)
-	if err != nil {
-		log.Error("Failed to open test definitions directory. Error:", err)
-		os.Exit(1)
-	}
-	defer d.Close()
-	fi, err := d.Readdir(-1)
-	if err != nil {
-		log.Error("Failed to read files in test definitions directory. Error:", err)
-		os.Exit(1)
-	}
-
-	definitionAmount := len(fi)
-
-	log.Info("Number of defined test cases:", definitionAmount)
-	log.Info("Number of base line test cases:", baselineAmount)
-	if definitionAmount != baselineAmount {
-		log.Error(fmt.Sprintf("Amount of test definition: %d does not equal to baseline amount: %d.\n", definitionAmount, baselineAmount))
-		return false
-	}
-	return true
-}
-
 func GetExecutionTimeDisplay(executionTime int64) string {
 	timeInMilliSeconds := executionTime / 1000000
 	seconds := (timeInMilliSeconds / 1000)
@@ -99,8 +74,7 @@ func GetExecutionTimeDisplay(executionTime int64) string {
 	return string(displayStatement)
 }
 
-func IsReadyForTest(configurationSettings *Config, osFileSystem OsFS, testSuiteName string) (bool, *BasePerfStats) {
-
+func IsReadyForTest(configurationSettings *Config, testSuiteName string, numTestCases int) (bool, *BasePerfStats) {
 	//1) read in perf base stats
 	f, err := os.Open(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-" + testSuiteName + "-perfBaseStats")
 	if err != nil {
@@ -119,9 +93,20 @@ func IsReadyForTest(configurationSettings *Config, osFileSystem OsFS, testSuiteN
 		log.Error("Base Perf stats are not fully populated for  " + configurationSettings.ExecutionHost + ".")
 		return false, nil
 	}
+
 	//3) Verify the number of base test cases is equal to the number of service test cases.
-	correctNumberOfTests := ValidateTestDefinitionAmount(len(basePerfstats.BaseServiceResponseTimes), configurationSettings, osFileSystem)
-	if !correctNumberOfTests {
+	baselineAmount := len( basePerfstats.BaseServiceResponseTimes )
+	log.Info( "Number of defined test cases:", numTestCases )
+	log.Info( "Number of base line test cases:", baselineAmount )
+
+	if baselineAmount != numTestCases {
+		log.Error(
+			fmt.Sprintf(
+				"Amount of test definition: %d does not equal to baseline amount: %d.\n",
+				numTestCases,
+				baselineAmount,
+			),
+		)
 		return false, nil
 	}
 
@@ -251,7 +236,7 @@ func ValidatePeakMemoryVariance(allowablePeakMemoryVariance float64, peakMemoryV
 	}
 }
 
-func ValidateAverageServiceResponeTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64, serviceName string) bool {
+func ValidateAverageServiceResponseTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64, serviceName string) bool {
 	if allowableServiceResponseTimeVariance >= serviceResponseTimeVariancePercentage {
 		return true
 	} else {
