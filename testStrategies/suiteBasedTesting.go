@@ -23,13 +23,17 @@ func ExecuteTestSuiteWrapper(testSuite *TestSuite, configurationSettings *perfTe
 
 func executeTestSuite(testSuiteResponseTimesChan chan []map[string]int64, testSuite *TestSuite, configurationSettings *perfTestUtils.Config, userId int, globalsMap GlobalsMaps) {
 	fmt.Println("Test Suite started")
+
 	allSuiteResponseTimes := make([]map[string]int64, 0)
 	for i := 0; i < configurationSettings.NumIterations; i++ {
 		uniqueTestRunId := fmt.Sprintf("User%dIter%d", userId, i)
 		testSuiteResponseTimes := make(map[string]int64)
 		for _, testDefinition := range testSuite.TestCases {
 			fmt.Println("Test case :", testDefinition.TestName, "UniqueRunID:", uniqueTestRunId)
-			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.RequestDelay, configurationSettings.TargetHost, configurationSettings.TargetPort, uniqueTestRunId, globalsMap)
+
+			targetHost, targetPort := determineHostandPortforRequest(testDefinition, configurationSettings)
+
+			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.RequestDelay, targetHost, targetPort, uniqueTestRunId, globalsMap)
 			testSuiteResponseTimes[testDefinition.TestName] = responseTime
 		}
 		allSuiteResponseTimes = append(allSuiteResponseTimes, testSuiteResponseTimes)

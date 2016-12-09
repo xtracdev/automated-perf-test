@@ -15,6 +15,8 @@ const (
     <testName>XiwsLoginLTPASuccess</testName>
     <httpMethod>POST</httpMethod>
     <baseUri>/xiws/webservices/LoginLTPA</baseUri>
+    <overrideHost>localhost</overrideHost>
+    <overridePort>9192</overridePort>
     <payload>
         <![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
 				   xmlns:log="http://webservices.xtrac.com/loginltpa"
@@ -35,7 +37,7 @@ const (
         <header key="scenario">ltpa-success1</header>
     </headers>
      <responseProperties>
-        <value>sessionToken</value>
+        <value extractionKey="sessionToken">sessionToken</value>
     </responseProperties>
 </testDefinition>`
 
@@ -103,7 +105,9 @@ multipart = false
 payload = "\n        {\n        \"credentials\": {\n        \"operatorName\": \"DRSCAN\",\n        \"password\": \"Tester01\"\n        }\n        }\n    "
 responseStatusCode = 200
 
-responseProperties = ["sessionToken"]
+[[responseProperties]]
+	extractionKey = "extractionKey"
+	value = "sessionToken"
 
 [headers]
   Scenario = ["success1"]
@@ -165,7 +169,8 @@ func TestMarshalTomlTestDefinition(t *testing.T) {
 	err := xml.Unmarshal([]byte(xmlTestDefinition), td)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(td.Headers))
-	assert.Equal(t, 1, len(td.ResponseProperties))
+	assert.Equal(t, 1, len(td.ResponseValues))
+	assert.Equal(t, "9192", td.OverridePort)
 	t.Logf("%+v\n", *td)
 
 	//toml
@@ -193,7 +198,7 @@ func TestUnmarshalTomlTestDefinition(t *testing.T) {
 	td := &TestDefinition{}
 	err := toml.Unmarshal([]byte(tomlTestDefinition), td)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(td.ResponseProperties))
+	assert.Equal(t, 1, len(td.ResponseValues))
 	t.Logf("%+v\n", td)
 }
 
@@ -238,7 +243,7 @@ func TestLoadTestDefinitionXml(t *testing.T) {
 	assert.Equal(t, "/xiws/webservices/LoginLTPA", td.BaseUri)
 	assert.Equal(t, 200, td.ResponseStatusCode)
 	assert.Equal(t, "ltpa-success1", td.Headers.Get("scenario"))
-	assert.Equal(t, "sessionToken", td.ResponseProperties[0])
+	assert.Equal(t, "sessionToken", td.ResponseValues[0].Value)
 	assert.True(t, strings.Contains(td.Payload, "<elem:operatorName>drscan</elem:operatorName>"))
 }
 
@@ -263,7 +268,7 @@ func TestLoadTestDefinitionToml(t *testing.T) {
 	assert.Equal(t, 200, td.ResponseStatusCode)
 	assert.Equal(t, "success1", td.Headers.Get("scenario"))
 	assert.Equal(t, "509760429188261892213816064522998760", td.Headers.Get("Xtractoken"))
-	assert.Equal(t, "sessionToken", td.ResponseProperties[0])
+	assert.Equal(t, "sessionToken", td.ResponseValues[0].Value)
 	assert.True(t, strings.Contains(td.Payload, "operatorName"))
 }
 

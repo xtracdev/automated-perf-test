@@ -13,15 +13,17 @@ func ExecuteServiceTest(testDefinition *TestDefinition, loadPerUser int, remaind
 	responseTimes := make([]int64, 0)
 	subsetOfResponseTimesChan := make(chan perfTestUtils.RspTimes, 1)
 
+	targetHost, targetPort := determineHostandPortforRequest(testDefinition, configurationSettings)
+
 	var wg sync.WaitGroup
 	wg.Add(configurationSettings.ConcurrentUsers)
 	for i := 0; i < configurationSettings.ConcurrentUsers; i++ {
-		go buildAndSendUserRequests(subsetOfResponseTimesChan, loadPerUser, testDefinition, configurationSettings.RequestDelay, configurationSettings.TargetHost, configurationSettings.TargetPort, GlobalsLockCounter)
+		go buildAndSendUserRequests(subsetOfResponseTimesChan, loadPerUser, testDefinition, configurationSettings.RequestDelay, targetHost, targetPort, GlobalsLockCounter)
 		go aggregateResponseTimes(&responseTimes, subsetOfResponseTimesChan, &wg)
 	}
 	if remainder > 0 {
 		wg.Add(1)
-		go buildAndSendUserRequests(subsetOfResponseTimesChan, remainder, testDefinition, configurationSettings.RequestDelay, configurationSettings.TargetHost, configurationSettings.TargetPort, GlobalsLockCounter)
+		go buildAndSendUserRequests(subsetOfResponseTimesChan, remainder, testDefinition, configurationSettings.RequestDelay, targetHost, targetPort, GlobalsLockCounter)
 		go aggregateResponseTimes(&responseTimes, subsetOfResponseTimesChan, &wg)
 	}
 

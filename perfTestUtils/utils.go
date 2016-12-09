@@ -83,6 +83,7 @@ func ValidateTestDefinitionAmount(baselineAmount int, configurationSettings *Con
 }
 
 func GetExecutionTimeDisplay(executionTime int64) string {
+
 	timeInMilliSeconds := executionTime / 1000000
 	seconds := (timeInMilliSeconds / 1000)
 	secondsDisplay := seconds % 60
@@ -174,6 +175,16 @@ func CalcPeakMemoryVariancePercentage(basePeakMemory uint64, peakMemory uint64) 
 	}
 
 	return peakMemoryVariancePercentage
+}
+
+func CalcTps(testRunTime int64, numIterations int) float64 {
+
+	timeInMilliSeconds := testRunTime / 1000000
+	seconds := (timeInMilliSeconds / 1000)
+
+	fmt.Println("seconds:", seconds)
+	fmt.Println("numIterations:", numIterations)
+	return float64(float64(numIterations) / float64(seconds))
 }
 
 //============================

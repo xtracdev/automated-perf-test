@@ -129,6 +129,7 @@ func generateTemplate(bstats *BasePerfStats, pstats *PerfStats, configurationSet
 	var err error
 	s1 = s1.Funcs(template.FuncMap{"memToMB": MemoryMB, "formatMem": FormatMemory, "jsonMem": JsonMemoryArray, "div": Div, "avgVar": CalcAverageResponseVariancePercentage})
 	if templFile != "" {
+		fmt.Println("IN FIRST")
 		s1, err = s1.ParseFiles(templFile)
 		if err != nil {
 			return fmt.Errorf("Error loading template files: %v", err)
@@ -138,6 +139,7 @@ func generateTemplate(bstats *BasePerfStats, pstats *PerfStats, configurationSet
 			return fmt.Errorf("Error executing template: %v", err)
 		}
 	} else {
+		fmt.Println("IN SECOND")
 		//use builtin report
 		for _, tname := range []string{"report/header.tmpl", "report/content.tmpl", "report/footer.tmpl"} {
 			header, err := Asset(tname)
