@@ -84,22 +84,6 @@ func TestReadBasePerfFileErrUnmarshal(t *testing.T) {
 	assert.Equal(t, `invalid character 'e' in literal true (expecting 'r')`, err.Error())
 }
 
-func TestValidateTestDefinitionAmount(t *testing.T) {
-	c := &Config{
-		TestCaseDir: "mockDir",
-	}
-	valid := ValidateTestDefinitionAmount(10, c, mockedFs)
-	assert.True(t, valid)
-}
-
-func TestValidateTestDefinitionAmountFail(t *testing.T) {
-	c := &Config{
-		TestCaseDir: "mockDir",
-	}
-	valid := ValidateTestDefinitionAmount(100, c, mockedFs)
-	assert.False(t, valid)
-}
-
 func TestCalcPeakMemoryVariancePercentage(t *testing.T) {
 	vp := CalcPeakMemoryVariancePercentage(100, 110)
 	assert.Equal(t, float64(10), vp)
@@ -185,9 +169,9 @@ func TestValidatePeakMemoryVariance(t *testing.T) {
 }
 
 func TestValidateAverageServiceResponeTimeVariance(t *testing.T) {
-	assert.True(t, ValidateAverageServiceResponeTimeVariance(15, 10, "test"))
-	assert.True(t, ValidateAverageServiceResponeTimeVariance(15, 15, "test"))
-	assert.False(t, ValidateAverageServiceResponeTimeVariance(15, 16, "test"))
+	assert.True(t, ValidateAverageServiceResponseTimeVariance(15, 10, "test"))
+	assert.True(t, ValidateAverageServiceResponseTimeVariance(15, 15, "test"))
+	assert.False(t, ValidateAverageServiceResponseTimeVariance(15, 16, "test"))
 }
 
 func TestGenerateEnvBasePerfOutputFile(t *testing.T) {
