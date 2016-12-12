@@ -265,6 +265,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 
 	//Add a 1 second delay before running test case to allow the graph get some initial memory data before test cases are executed.
 	time.Sleep(time.Second * 1)
+	testExecutionTime := int64(0)
 
 	//Check the test strategy
 	if testSuite.TestStrategy == testStrategies.SERVICE_BASED_TESTING {
@@ -294,8 +295,10 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 			}
 			//Start Test Timer
 			testEndTime := time.Now().UnixNano()
+			testExecutionTime = testEndTime - testStartTime
 			perfStatsForTest.ServiceTps[testDefinition.TestName] = perfTestUtils.CalcTps(testEndTime-testStartTime, configurationSettings.NumIterations)
 		}
+		perfStatsForTest.OverAllTPS = perfTestUtils.CalcTps(testExecutionTime, (configurationSettings.NumIterations * len(testSuite.TestCases)))
 
 	} else if testSuite.TestStrategy == testStrategies.SUITE_BASED_TESTING {
 
@@ -307,6 +310,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 
 		//Start Test Timer
 		testEndTime := time.Now().UnixNano()
+		testExecutionTime = testEndTime - testStartTime
 		for serviceName, serviceResponseTimes := range allServicesResponseTimesMap {
 			if len(serviceResponseTimes) == (configurationSettings.NumIterations * configurationSettings.ConcurrentUsers) {
 				averageResponseTime := perfTestUtils.CalcAverageResponseTime(serviceResponseTimes, configurationSettings.NumIterations)
@@ -319,7 +323,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 						os.Exit(1)
 					}
 				}
-				perfStatsForTest.ServiceTps[serviceName] = perfTestUtils.CalcTps(testEndTime-testStartTime, len(serviceResponseTimes))
+				perfStatsForTest.ServiceTps[serviceName] = perfTestUtils.CalcTps(testExecutionTime, len(serviceResponseTimes))
 			}
 		}
 	}
@@ -328,6 +332,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 	perfStatsForTest.PeakMemory = *peakMemoryAllocation
 	perfStatsForTest.MemoryAudit = memoryAudit
 	perfStatsForTest.TestPartitions = testPartitions
+	perfStatsForTest.OverAllTPS = perfTestUtils.CalcTps(testExecutionTime, (configurationSettings.NumIterations * len(testSuite.TestCases) * configurationSettings.ConcurrentUsers))
 }
 
 //This function runs the assertions to ensure memory and service have not deviated past the allowed variance

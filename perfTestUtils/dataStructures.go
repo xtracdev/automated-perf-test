@@ -155,6 +155,7 @@ type PerfStats struct {
 	PeakMemory           uint64
 	ServiceResponseTimes map[string]int64
 	ServiceTps           map[string]float64
+	OverAllTPS           float64
 	MemoryAudit          []uint64
 	TestPartitions       []TestPartition
 	TestDate             time.Time

@@ -73,9 +73,10 @@
         <div class="divHeading" onclick="hideServiceAnalysis()">
             <table class="divHeading" border="0" width="90%">
                 <tr>
-                    <td width="50%"><h3 class="padding">Service Response Time Analysis</h3></td>
-                    <td width="25%"><h6 class="padding">Allowed Variance : {{.Config.AllowableServiceResponseTimeVariance | printf "%4.2f"}}%</h6></td>
-                    <td width="25%"><h6 class="padding"><font color="{{if .IsTimePass}}green">PASS{{else}}red">FAIL{{end}}</font></h6></td>
+                    <td width="40%"><h3 class="padding">Service Response Time Analysis</h3></td>
+                    <td width="20%"><h6 class="padding">Allowed Variance : {{.Config.AllowableServiceResponseTimeVariance | printf "%4.2f"}}%</h6></td>
+                    <td width="20%"><h6 class="padding">OverAll TPS : {{.PerfStats.OverAllTPS | printf "%4.2f"}}</h6></td>
+                    <td width="20%"><h6 class="padding"><font color="{{if .IsTimePass}}green">PASS{{else}}red">FAIL{{end}}</font></h6></td>
                 </tr>
             </table>
         </div>

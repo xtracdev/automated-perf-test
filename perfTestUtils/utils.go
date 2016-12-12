@@ -166,9 +166,6 @@ func CalcTps(testRunTime int64, numIterations int) float64 {
 
 	timeInMilliSeconds := testRunTime / 1000000
 	seconds := (timeInMilliSeconds / 1000)
-
-	fmt.Println("seconds:", seconds)
-	fmt.Println("numIterations:", numIterations)
 	return float64(float64(numIterations) / float64(seconds))
 }
 
