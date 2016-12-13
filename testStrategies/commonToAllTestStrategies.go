@@ -2,21 +2,24 @@ package testStrategies
 
 import (
 	"bytes"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	log "github.com/Sirupsen/logrus"
+	"github.com/jmespath/go-jmespath"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
-	"math/rand"
 )
 
 const (
@@ -24,45 +27,53 @@ const (
 	SUITE_BASED_TESTING   = "SuiteBased"
 )
 
-//var globals map[string]map[string]string
-
 type GlobalsMaps struct {
 	sync.RWMutex
-	m map[string]map[string]string
+	m map[string]map[string]interface{}
 }
 
-var GlobalsLockCounter = GlobalsMaps{m: make(map[string]map[string]string)}
+var GlobalsLockCounter = GlobalsMaps{m: make(map[string]map[string]interface{})}
 
 type Header struct {
 	Value string `xml:",chardata"`
 	Key   string `xml:"key,attr"`
 }
+type ResponseValue struct {
+	Value         string `xml:",chardata" toml:"value"`
+	ExtractionKey string `xml:"extractionKey,attr" toml:"extractionKey"`
+}
 
 //This struct defines the base performance statistics
 type XmlTestDefinition struct {
-	XMLName            xml.Name             `xml:"testDefinition"`
-	TestName           string               `xml:"testName" toml:"testName"`
-	HttpMethod         string               `xml:"httpMethod"`
-	BaseUri            string               `xml:"baseUri"`
-	Multipart          bool                 `xml:"multipart"`
-	Payload            string               `xml:"payload"`
-	MultipartPayload   []multipartFormField `xml:"multipartPayload>multipartFormField"`
-	ResponseStatusCode int                  `xml:"responseStatusCode"`
-	Headers            []Header             `xml:"headers>header"`
-	ResponseProperties []string             `xml:"responseProperties>value"`
+	XMLName             xml.Name             `xml:"testDefinition"`
+	TestName            string               `xml:"testName" toml:"testName"`
+	OverrideHost        string               `xml:"overrideHost" toml:"overrideHost"`
+	OverridePort        string               `xml:"overridePort" toml:"overridePort"`
+	HttpMethod          string               `xml:"httpMethod"`
+	BaseUri             string               `xml:"baseUri"`
+	Multipart           bool                 `xml:"multipart"`
+	Payload             string               `xml:"payload"`
+	MultipartPayload    []multipartFormField `xml:"multipartPayload>multipartFormField"`
+	ResponseStatusCode  int                  `xml:"responseStatusCode"`
+	ResponseContentType string               `xml:"responseContentType"`
+	Headers             []Header             `xml:"headers>header"`
+	ResponseValues      []ResponseValue      `xml:"responseProperties>value"`
 }
 
 //TomlTestDefinition defines the test in TOML language
 type TestDefinition struct {
-	TestName           string               `toml:"testName"`
-	HttpMethod         string               `toml:"httpMethod"`
-	BaseUri            string               `toml:"baseUri"`
-	Multipart          bool                 `toml:"multipart"`
-	Payload            string               `toml:"payload"`
-	MultipartPayload   []multipartFormField `toml:"multipartFormField"`
-	ResponseStatusCode int                  `toml:"responseStatusCode"`
-	Headers            http.Header          `toml:"headers"`
-	ResponseProperties []string             `toml:"responseProperties"`
+	TestName            string               `toml:"testName"`
+	OverrideHost        string               `toml:"overrideHost"`
+	OverridePort        string               `toml:"overridePort"`
+	HttpMethod          string               `toml:"httpMethod"`
+	BaseUri             string               `toml:"baseUri"`
+	Multipart           bool                 `toml:"multipart"`
+	Payload             string               `toml:"payload"`
+	MultipartPayload    []multipartFormField `toml:"multipartFormField"`
+	ResponseStatusCode  int                  `toml:"responseStatusCode"`
+	ResponseContentType string               `xml:"responseContentType"`
+	Headers             http.Header          `toml:"headers"`
+	ResponseValues      []ResponseValue      `toml:"responseProperties"`
 }
 
 //This struct defines a load test scenario
@@ -166,17 +177,23 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 
 func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost string, targetPort string, uniqueTestRunId string, globalsMap GlobalsMaps) int64 {
 
-	randomDelay := rand.Intn(delay);
-	time.Sleep(time.Duration(randomDelay)*time.Millisecond)
+	randomDelay := rand.Intn(delay)
+	time.Sleep(time.Duration(randomDelay) * time.Millisecond)
 
 	var req *http.Request
+
+	//Retrieve requestBaseURI and perform any necessary substitution
+	requestBaseURI := substituteRequestValues(&testDefinition.BaseUri, uniqueTestRunId, globalsMap)
+
 	if !testDefinition.Multipart {
 		if testDefinition.Payload != "" {
+			//Retrieve Payload and perform any necessary substitution
 			paylaod := testDefinition.Payload
 			newPayload := substituteRequestValues(&paylaod, uniqueTestRunId, globalsMap)
-			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+testDefinition.BaseUri, strings.NewReader(newPayload))
+
+			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, strings.NewReader(newPayload))
 		} else {
-			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+testDefinition.BaseUri, nil)
+			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, nil)
 		}
 	} else {
 		if testDefinition.HttpMethod != "POST" {
@@ -193,18 +210,15 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 				}
 			}
 			writer.Close()
-			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+testDefinition.BaseUri, body)
+			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, body)
 			req.Header.Set("Content-Type", writer.FormDataContentType())
 		}
 	}
 
-	//add headers
-	/*	for _, v := range testDefinition.Headers {
-		req.Header.Add(v.Key, v.Value)
-	}*/
+	//add headers and perform and necessary substitution
 	for k, v := range testDefinition.Headers {
 		for _, hv := range v {
-			req.Header.Add(k, hv)
+			req.Header.Add(k, substituteRequestValues(&hv, uniqueTestRunId, globalsMap))
 		}
 	}
 	startTime := time.Now()
@@ -223,12 +237,36 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 		responseTimeOK := perfTestUtils.ValidateServiceResponseTime(timeTaken.Nanoseconds(), testDefinition.TestName)
 
 		if responseCodeOk && responseTimeOK {
-			extracResponseValues(testDefinition.TestName, body, testDefinition.ResponseProperties, uniqueTestRunId, globalsMap)
+			contentType := detectContentType(resp.Header, body, testDefinition.ResponseContentType)
+			extractResponseValues(testDefinition.TestName, body, testDefinition.ResponseValues, uniqueTestRunId, globalsMap, contentType)
 			return timeTaken.Nanoseconds()
 		} else {
 			return 0
 		}
 	}
+}
+func detectContentType(respHeaders http.Header, respBody []byte, respContentType string) string {
+	if respHeaders.Get("Content-Type") != "" {
+		return respHeaders.Get("Content-Type")
+	} else if respContentType != "" {
+		return respContentType
+	} else {
+		return http.DetectContentType(respBody)
+	}
+}
+
+func determineHostandPortforRequest(testDefinition *TestDefinition, configurationSettings *perfTestUtils.Config) (string, string) {
+
+	var targetHost = configurationSettings.TargetHost
+	var targetPort = configurationSettings.TargetPort
+
+	if testDefinition.OverrideHost != "" {
+		targetHost = testDefinition.OverrideHost
+	}
+	if testDefinition.OverridePort != "" {
+		targetPort = testDefinition.OverridePort
+	}
+	return targetHost, targetPort
 }
 
 func substituteRequestValues(requestBody *string, uniqueTestRunId string, globalsMap GlobalsMaps) string {
@@ -240,19 +278,28 @@ func substituteRequestValues(requestBody *string, uniqueTestRunId string, global
 	globalsMap.RUnlock()
 
 	if testRunGlobals != nil {
-		r := regexp.MustCompile("{{(.+)?}}")
+		r := regexp.MustCompile("{{(.[^ ]+)?}}")
 		res := r.FindAllString(*requestBody, -1)
 
 		if len(res) > 0 {
-			for _, property := range res {
+			for _, propertyPlaceHolder := range res {
 				//remove placeholder syntax
-				cleanedPropertyName := strings.TrimPrefix(property, "{{")
+				cleanedPropertyName := strings.TrimPrefix(propertyPlaceHolder, "{{")
 				cleanedPropertyName = strings.TrimSuffix(cleanedPropertyName, "}}")
 
-				//lookup value in the test run map
-				value := testRunGlobals[cleanedPropertyName]
-				if value != "" {
-					requestPayloadCopy = strings.Replace(requestPayloadCopy, property, value, 1)
+				propertyPlaceHolderName := cleanedPropertyName
+				propertyPlaceHolderIndex := 0
+
+				if strings.Contains(cleanedPropertyName, "[") && strings.Contains(cleanedPropertyName, "]") {
+					propertyPlaceHolderName, propertyPlaceHolderIndex = getArrayNameAndIndex(cleanedPropertyName)
+				}
+
+				placeHolderValue := testRunGlobals[propertyPlaceHolderName]
+
+				valueAsString := convertStoredValuetoRequestFormat(placeHolderValue, propertyPlaceHolderIndex)
+
+				if valueAsString != "" {
+					requestPayloadCopy = strings.Replace(requestPayloadCopy, propertyPlaceHolder, valueAsString, 1)
 				}
 			}
 
@@ -260,25 +307,94 @@ func substituteRequestValues(requestBody *string, uniqueTestRunId string, global
 	}
 	return requestPayloadCopy
 }
+func convertStoredValuetoRequestFormat(storedValue interface{}, requiredIndex int) string {
+	requestFormattedValue := ""
+	switch objectType := storedValue.(type) {
 
-func extracResponseValues(testCaseName string, body []byte, resposneProperties []string, uniqueTestRunId string, globalsMap GlobalsMaps) {
+	case map[string]interface{}:
+		jsonValue, _ := json.Marshal(objectType)
+		requestFormattedValue = string(jsonValue)
+	case []interface{}:
+		value := objectType[requiredIndex]
+		requestFormattedValue = convertStoredValuetoRequestFormat(value, 0)
+	case string:
+		requestFormattedValue = string(objectType)
+	default:
+		requestFormattedValue = fmt.Sprintf("%v", objectType)
+	}
+	return requestFormattedValue
+}
+
+func extractResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunId string, globalsMap GlobalsMaps, contentType string) {
+	if strings.Contains(contentType, "json") {
+		extractJSONResponseValues(testCaseName, body, responseValues, uniqueTestRunId, globalsMap)
+	} else if strings.Contains(contentType, "xml") {
+		extractXMLResponseValues(testCaseName, body, responseValues, uniqueTestRunId, globalsMap)
+	} else {
+		log.Warn("Unsupported resposne content type of:", contentType)
+	}
+}
+
+func extractJSONResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunId string, globalsMap GlobalsMaps) {
 	//Get Global Properties for this test run
 	globalsMap.RLock()
 	testRunGlobals := globalsMap.m[uniqueTestRunId]
 	globalsMap.RUnlock()
 
 	if testRunGlobals == nil {
-		testRunGlobals = make(map[string]string)
+		testRunGlobals = make(map[string]interface{})
 		globalsMap.Lock()
 		globalsMap.m[uniqueTestRunId] = testRunGlobals
 		globalsMap.Unlock()
 	}
 
-	for _, name := range resposneProperties {
-		if testRunGlobals[testCaseName+"."+name] == "" {
-			r := regexp.MustCompile("<(.+)?:" + name + ">(.+)?</(.+)?:" + name + ">")
+	for _, propPath := range responseValues {
+
+		var data interface{}
+		json.Unmarshal(body, &data)
+
+		result, _ := jmespath.Search(propPath.Value, data) //Todo handle error
+
+		if testRunGlobals[testCaseName+"."+propPath.ExtractionKey] == nil {
+			testRunGlobals[testCaseName+"."+propPath.ExtractionKey] = result
+		}
+	}
+}
+
+func getArrayNameAndIndex(propPathPart string) (string, int) {
+
+	propPathPart = strings.Replace(propPathPart, "[", "::", 1)
+	propPathPart = strings.Replace(propPathPart, "]", "", 1)
+	propertyNameParts := strings.Split(propPathPart, "::")
+
+	index, _ := strconv.Atoi(propertyNameParts[1]) //todo, handle error
+
+	return propertyNameParts[0], index
+}
+
+func extractXMLResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunId string, globalsMap GlobalsMaps) {
+	//Get Global Properties for this test run
+	globalsMap.RLock()
+	testRunGlobals := globalsMap.m[uniqueTestRunId]
+	globalsMap.RUnlock()
+
+	if testRunGlobals == nil {
+		testRunGlobals = make(map[string]interface{})
+		globalsMap.Lock()
+		globalsMap.m[uniqueTestRunId] = testRunGlobals
+		globalsMap.Unlock()
+	}
+
+	for _, responseValue := range responseValues {
+		extractionKey := responseValue.ExtractionKey
+		if extractionKey == "" {
+			extractionKey = responseValue.Value
+		}
+
+		if testRunGlobals[testCaseName+"."+responseValue.Value] == "" {
+			r := regexp.MustCompile("<(.+)?:" + responseValue.Value + ">(.+)?</(.+)?:" + responseValue.Value + ">")
 			res := r.FindStringSubmatch(string(body))
-			testRunGlobals[testCaseName+"."+name] = res[2]
+			testRunGlobals[testCaseName+"."+responseValue.ExtractionKey] = res[2]
 		}
 	}
 }
@@ -300,15 +416,18 @@ func loadTestDefinition(bs []byte, configurationSettings *perfTestUtils.Config) 
 			return nil, err
 		}
 		testDefinition = &TestDefinition{
-			TestName:           td.TestName,
-			HttpMethod:         td.HttpMethod,
-			BaseUri:            td.BaseUri,
-			Multipart:          td.Multipart,
-			Payload:            td.Payload,
-			MultipartPayload:   td.MultipartPayload,
-			ResponseStatusCode: td.ResponseStatusCode,
-			Headers:            tomlHeaders(td.Headers),
-			ResponseProperties: td.ResponseProperties,
+			TestName:            td.TestName,
+			OverrideHost:        td.OverrideHost,
+			OverridePort:        td.OverridePort,
+			HttpMethod:          td.HttpMethod,
+			BaseUri:             td.BaseUri,
+			Multipart:           td.Multipart,
+			Payload:             td.Payload,
+			MultipartPayload:    td.MultipartPayload,
+			ResponseStatusCode:  td.ResponseStatusCode,
+			ResponseContentType: td.ResponseContentType,
+			Headers:             tomlHeaders(td.Headers),
+			ResponseValues:      td.ResponseValues,
 		}
 	}
 	return testDefinition, nil

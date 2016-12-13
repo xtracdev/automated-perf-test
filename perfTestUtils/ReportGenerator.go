@@ -107,15 +107,15 @@ func (p *perfStatsModel) JsonTimeArray() template.JS {
 
 func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, configurationSettings *Config, fs FileSystem, testSuiteName string) {
 	// Check for existence of output dir and create if needed.
-	err := os.MkdirAll( configurationSettings.ReportOutputDir, os.ModePerm )
+	err := os.MkdirAll(configurationSettings.ReportOutputDir, os.ModePerm)
 	if err != nil {
 		// Non-fatal error. Don't exit.
-		log.Errorf( "Failed to create path: [%s]. Error: %s\n", configurationSettings.ReportOutputDir, err )
+		log.Errorf("Failed to create path: [%s]. Error: %s\n", configurationSettings.ReportOutputDir, err)
 	}
 
 	filename := "PerformanceReport-" + configurationSettings.APIName + "-" + testSuiteName + ".html"
 
-	file, err := fs.Create( configurationSettings.ReportOutputDir + "/" + filename )
+	file, err := fs.Create(configurationSettings.ReportOutputDir + "/" + filename)
 	if err != nil {
 		log.Errorf("Error creating report file: %v", err)
 	}

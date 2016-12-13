@@ -81,7 +81,7 @@ func (c *Config) SetDefaults() {
 func (c Config) PrintAndValidateConfig() {
 
 	if strings.TrimSpace(c.APIName) == "" {
-		c.APIName = defaultAPIName;
+		c.APIName = defaultAPIName
 	}
 	if strings.TrimSpace(c.TargetHost) == "" {
 		c.TargetHost = defaultTargetHost
@@ -154,6 +154,8 @@ type BasePerfStats struct {
 type PerfStats struct {
 	PeakMemory           uint64
 	ServiceResponseTimes map[string]int64
+	ServiceTps           map[string]float64
+	OverAllTPS           float64
 	MemoryAudit          []uint64
 	TestPartitions       []TestPartition
 	TestDate             time.Time

@@ -58,6 +58,7 @@ func ReadBasePerfFile(r io.Reader) (*BasePerfStats, error) {
 }
 
 func GetExecutionTimeDisplay(executionTime int64) string {
+
 	timeInMilliSeconds := executionTime / 1000000
 	seconds := (timeInMilliSeconds / 1000)
 	secondsDisplay := seconds % 60
@@ -95,9 +96,9 @@ func IsReadyForTest(configurationSettings *Config, testSuiteName string, numTest
 	}
 
 	//3) Verify the number of base test cases is equal to the number of service test cases.
-	baselineAmount := len( basePerfstats.BaseServiceResponseTimes )
-	log.Info( "Number of defined test cases:", numTestCases )
-	log.Info( "Number of base line test cases:", baselineAmount )
+	baselineAmount := len(basePerfstats.BaseServiceResponseTimes)
+	log.Info("Number of defined test cases:", numTestCases)
+	log.Info("Number of base line test cases:", baselineAmount)
 
 	if baselineAmount != numTestCases {
 		log.Error(
@@ -159,6 +160,13 @@ func CalcPeakMemoryVariancePercentage(basePeakMemory uint64, peakMemory uint64) 
 	}
 
 	return peakMemoryVariancePercentage
+}
+
+func CalcTps(testRunTime int64, numIterations int) float64 {
+
+	timeInMilliSeconds := testRunTime / 1000000
+	seconds := (timeInMilliSeconds / 1000)
+	return float64(float64(numIterations) / float64(seconds))
 }
 
 //============================
@@ -299,14 +307,14 @@ func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *B
 	}
 
 	// Check for existence of output dir and create if needed.
-	if os.MkdirAll( configurationSettings.BaseStatsOutputDir, os.ModePerm ); err != nil {
-		log.Errorf( "Failed to create path: [%s]. Error: %s\n", configurationSettings.BaseStatsOutputDir, err )
+	if os.MkdirAll(configurationSettings.BaseStatsOutputDir, os.ModePerm); err != nil {
+		log.Errorf("Failed to create path: [%s]. Error: %s\n", configurationSettings.BaseStatsOutputDir, err)
 		exit(1)
 	}
 
 	// Write base perf stat to file.
 	file_name := configurationSettings.ExecutionHost + "-" + testSuiteName + "-perfBaseStats"
-	file, err := fs.Create( configurationSettings.BaseStatsOutputDir + "/" + file_name )
+	file, err := fs.Create(configurationSettings.BaseStatsOutputDir + "/" + file_name)
 	if err != nil {
 		log.Error("Failed to create output file. Error:", err)
 		exit(1)

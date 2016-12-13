@@ -25,60 +25,57 @@ const (
 )
 
 //----- initConfig ------------------------------------------------------------
-func initConfig( args []string, fs perfTestUtils.FileSystem, exit func(code int) ) {
+func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int)) {
 	//----- Initialize config data structure and set defaults.
 	// Note: Defaults will be overridden as needed. The user can ignore
 	// unnecessary parameters in config file and command prompt.
-	configurationSettings = new( perfTestUtils.Config )
+	configurationSettings = new(perfTestUtils.Config)
 	configurationSettings.SetDefaults()
-
 
 	//----- Get Hostname for this machine.
 	host, err := os.Hostname()
 	if err != nil {
-		log.Error( "Failed to resolve host name. Error:", err )
+		log.Error("Failed to resolve host name. Error:", err)
 		exit(1)
 	}
 	configurationSettings.ExecutionHost = host
 
-
 	//----- Process command line args.
 	// Global controls outside of Config struct:
 	var configFilePath string
-	flag.StringVar( &configFilePath,     "configFilePath",     "", "The location of the configuration file.")
-	flag.BoolVar(   &checkTestReadyness, "checkTestReadyness", false, "Simple check to see if system requires training.")
+	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
+	flag.BoolVar(&checkTestReadyness, "checkTestReadyness", false, "Simple check to see if system requires training.")
 
 	// Args that override default options in Config struct:
-	flag.BoolVar(   &configurationSettings.GBS,              "gbs",              false, "Genertate Base Statistics for this server")
-	flag.BoolVar(   &configurationSettings.ReBaseMemory,     "reBaseMemory",     false, "Generate new base peak memory for this server")
-	flag.BoolVar(   &configurationSettings.ReBaseAll,        "reBaseAll",        false, "Generate new base for memory and service resposne times for this server")
-	flag.StringVar( &configurationSettings.ConfigFileFormat, "configFileFormat", "xml", "The format of the configuration file {xlm, toml}")
-	flag.StringVar( &configurationSettings.TestFileFormat,   "testFileFormat",   "xml", "The format of the test definition file {xlm, toml}")
+	flag.BoolVar(&configurationSettings.GBS, "gbs", false, "Genertate Base Statistics for this server")
+	flag.BoolVar(&configurationSettings.ReBaseMemory, "reBaseMemory", false, "Generate new base peak memory for this server")
+	flag.BoolVar(&configurationSettings.ReBaseAll, "reBaseAll", false, "Generate new base for memory and service resposne times for this server")
+	flag.StringVar(&configurationSettings.ConfigFileFormat, "configFileFormat", "xml", "The format of the configuration file {xlm, toml}")
+	flag.StringVar(&configurationSettings.TestFileFormat, "testFileFormat", "xml", "The format of the test definition file {xlm, toml}")
 	flag.CommandLine.Parse(args)
-
 
 	//----- Parse the config file.
 	if configFilePath == "" {
-		log.Warn( "No config file found. - Using default values." )
+		log.Warn("No config file found. - Using default values.")
 		return
 	}
 
-	cf, err := fs.Open( configFilePath )
+	cf, err := fs.Open(configFilePath)
 	if cf != nil {
 		defer cf.Close()
 	}
 	if err != nil {
-		log.Error( "No config file found at path: ", configFilePath, " - Using default values." )
+		log.Error("No config file found at path: ", configFilePath, " - Using default values.")
 	} else {
-		fileContent, fileErr := ioutil.ReadAll( cf)
+		fileContent, fileErr := ioutil.ReadAll(cf)
 		if fileErr != nil {
-			log.Error( "No readable config file found at path: ", configFilePath, " - Using default values." )
+			log.Error("No readable config file found at path: ", configFilePath, " - Using default values.")
 		} else {
 			switch configurationSettings.ConfigFileFormat {
 			case "toml":
-				err := toml.Unmarshal( fileContent, &configurationSettings )
+				err := toml.Unmarshal(fileContent, &configurationSettings)
 				if err != nil {
-					log.Error( "Failed to parse config file ", configFilePath, ". Error:", err, " - Using default values." )
+					log.Error("Failed to parse config file ", configFilePath, ". Error:", err, " - Using default values.")
 				}
 			default:
 				xmlError := xml.Unmarshal(fileContent, &configurationSettings)
@@ -89,9 +86,6 @@ func initConfig( args []string, fs perfTestUtils.FileSystem, exit func(code int)
 		}
 	}
 }
-
-
-
 
 //----- main ------------------------------------------------------------------
 func main() {
@@ -104,10 +98,10 @@ func main() {
 	//Generate a test suite based on configuration settings
 	testSuite := new(testStrategies.TestSuite)
 	testSuite.BuildTestSuite(configurationSettings)
-	numTestCases := len( testSuite.TestCases ) //convenience variable
+	numTestCases := len(testSuite.TestCases) //convenience variable
 
 	if checkTestReadyness {
-		readyForTest, _ := perfTestUtils.IsReadyForTest( configurationSettings, testSuite.Name, numTestCases )
+		readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
 		if !readyForTest {
 			log.Info("System is not ready for testing.")
 			os.Exit(1)
@@ -149,7 +143,9 @@ func main() {
 
 func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.TestSuite) {
 	log.Info("Running performance test in Training mode for host ", host)
-	testStratTime := time.Now().UnixNano()
+
+	//Start Test Timer
+	executionStartTime := time.Now().UnixNano()
 
 	var basePerfstats *perfTestUtils.BasePerfStats
 	if reBaseAll {
@@ -167,7 +163,7 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 	}
 
 	//initilize Performance statistics struct for this test run
-	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64)}
+	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64), ServiceTps: make(map[string]float64)}
 
 	//Run the test
 	runTests(perfStatsForTest, TRAINING_MODE, testSuite)
@@ -175,17 +171,18 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 	//Generate base statistics output file for this training run.
 	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem, testSuite.Name)
 
-	testRunTime := time.Now().UnixNano() - testStratTime
 	log.Info("Training mode completed successfully. ")
-	log.Info("Execution Run Time :", perfTestUtils.GetExecutionTimeDisplay(testRunTime))
+	log.Info("Execution Run Time :", perfTestUtils.GetExecutionTimeDisplay(time.Now().UnixNano()-executionStartTime))
 }
 
 func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem, string), testSuite *testStrategies.TestSuite) {
 	log.Info("Running Performance test in Testing mode for host ", host)
-	testStratTime := time.Now().UnixNano()
+
+	//Start Test Timer
+	executionStartTime := time.Now().UnixNano()
 
 	//initilize Performance statistics struct for this test run
-	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64), TestDate: time.Now()}
+	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64), TestDate: time.Now(), ServiceTps: make(map[string]float64)}
 
 	//Run the test
 	runTests(perfStatsForTest, TESTING_MODE, testSuite)
@@ -207,8 +204,7 @@ func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, f
 		log.Info("Testing mode completed successfully")
 	}
 
-	testRunTime := time.Now().UnixNano() - testStratTime
-	log.Info("Execution Run Time :", perfTestUtils.GetExecutionTimeDisplay(testRunTime))
+	log.Info("Execution Run Time :", perfTestUtils.GetExecutionTimeDisplay(time.Now().UnixNano()-executionStartTime))
 	log.Info("=====================================================")
 
 	if len(assertionFailures) > 0 {
@@ -243,23 +239,25 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 				if err != nil {
 					log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error:", err)
 					quit <- true
-				}
-				body, _ := ioutil.ReadAll(resp.Body)
-
-				defer resp.Body.Close()
-
-				m := new(perfTestUtils.Entry)
-				unmarshalErr := json.Unmarshal(body, m)
-				if unmarshalErr != nil {
-					log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics. ", unmarshalErr)
-					quit <- true
 				} else {
-					if m.Memstats.Alloc > *peakMemoryAllocation {
-						*peakMemoryAllocation = m.Memstats.Alloc
+
+					body, _ := ioutil.ReadAll(resp.Body)
+
+					defer resp.Body.Close()
+
+					m := new(perfTestUtils.Entry)
+					unmarshalErr := json.Unmarshal(body, m)
+					if unmarshalErr != nil {
+						log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics. ", unmarshalErr)
+						quit <- true
+					} else {
+						if m.Memstats.Alloc > *peakMemoryAllocation {
+							*peakMemoryAllocation = m.Memstats.Alloc
+						}
+						memoryAudit = append(memoryAudit, m.Memstats.Alloc)
+						counter++
+						time.Sleep(time.Millisecond * 200)
 					}
-					memoryAudit = append(memoryAudit, m.Memstats.Alloc)
-					counter++
-					time.Sleep(time.Millisecond * 200)
 				}
 			}
 		}
@@ -267,6 +265,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 
 	//Add a 1 second delay before running test case to allow the graph get some initial memory data before test cases are executed.
 	time.Sleep(time.Second * 1)
+	testExecutionTime := int64(0)
 
 	//Check the test strategy
 	if testSuite.TestStrategy == testStrategies.SERVICE_BASED_TESTING {
@@ -278,9 +277,13 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 		remainder := configurationSettings.NumIterations % configurationSettings.ConcurrentUsers
 
 		for index, testDefinition := range testSuite.TestCases {
+			//Start Test Timer
+			testStartTime := time.Now().UnixNano()
+
 			log.Info("Running Test case ", index, " [Name:", testDefinition.TestName, "]")
 			testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: testDefinition.TestName})
 			averageResponseTime := testStrategies.ExecuteServiceTest(testDefinition, loadPerUser, remainder, configurationSettings)
+
 			if averageResponseTime > 0 {
 				perfStatsForTest.ServiceResponseTimes[testDefinition.TestName] = averageResponseTime
 			} else {
@@ -290,12 +293,24 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 					os.Exit(1)
 				}
 			}
+			//Start Test Timer
+			testEndTime := time.Now().UnixNano()
+			testExecutionTime = testEndTime - testStartTime
+			perfStatsForTest.ServiceTps[testDefinition.TestName] = perfTestUtils.CalcTps(testEndTime-testStartTime, configurationSettings.NumIterations)
 		}
+		perfStatsForTest.OverAllTPS = perfTestUtils.CalcTps(testExecutionTime, (configurationSettings.NumIterations * len(testSuite.TestCases)))
+
 	} else if testSuite.TestStrategy == testStrategies.SUITE_BASED_TESTING {
+
+		//Start Test Timer
+		testStartTime := time.Now().UnixNano()
 
 		log.Info("Running Suite Based Testing Strategy. Suite:", testSuite.Name)
 		allServicesResponseTimesMap := testStrategies.ExecuteTestSuiteWrapper(testSuite, configurationSettings)
 
+		//Start Test Timer
+		testEndTime := time.Now().UnixNano()
+		testExecutionTime = testEndTime - testStartTime
 		for serviceName, serviceResponseTimes := range allServicesResponseTimesMap {
 			if len(serviceResponseTimes) == (configurationSettings.NumIterations * configurationSettings.ConcurrentUsers) {
 				averageResponseTime := perfTestUtils.CalcAverageResponseTime(serviceResponseTimes, configurationSettings.NumIterations)
@@ -308,6 +323,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 						os.Exit(1)
 					}
 				}
+				perfStatsForTest.ServiceTps[serviceName] = perfTestUtils.CalcTps(testExecutionTime, len(serviceResponseTimes))
 			}
 		}
 	}
@@ -316,6 +332,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 	perfStatsForTest.PeakMemory = *peakMemoryAllocation
 	perfStatsForTest.MemoryAudit = memoryAudit
 	perfStatsForTest.TestPartitions = testPartitions
+	perfStatsForTest.OverAllTPS = perfTestUtils.CalcTps(testExecutionTime, (configurationSettings.NumIterations * len(testSuite.TestCases) * configurationSettings.ConcurrentUsers))
 }
 
 //This function runs the assertions to ensure memory and service have not deviated past the allowed variance

@@ -1,9 +1,7 @@
 {
 	"ImportPath": "github.com/xtracdev/automated-perf-test",
-	"GoVersion": "go1.5",
-	"Packages": [
-		"./..."
-	],
+	"GoVersion": "go1.7",
+	"GodepVersion": "v75",
 	"Deps": [
 		{
 			"ImportPath": "github.com/BurntSushi/toml",
@@ -20,6 +18,11 @@
 			"Rev": "5215b55f46b2b919f50a1df0eaa5886afe4e3b3d"
 		},
 		{
+			"ImportPath": "github.com/jmespath/go-jmespath",
+			"Comment": "0.2.2-14-gbd40a43",
+			"Rev": "bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d"
+		},
+		{
 			"ImportPath": "github.com/pmezard/go-difflib/difflib",
 			"Rev": "792786c7400a136282c1664665ae0a8db921c6c2"
 		},
@@ -31,16 +34,6 @@
 		{
 			"ImportPath": "golang.org/x/sys/unix",
 			"Rev": "50c6bc5e4292a1d4e65c6e9be5f53be28bcbe28e"
-		},
-		{
-			"ImportPath": "gopkg.in/airbrake/gobrake.v2",
-			"Comment": "v2.0.3",
-			"Rev": "c9d51adc624b5cc4c1bf8de730a09af4878ffe2d"
-		},
-		{
-			"ImportPath": "gopkg.in/gemnasium/logrus-airbrake-hook.v2",
-			"Comment": "v2.0.0",
-			"Rev": "31e6fd4bd5a98d8ee7673d24bc54ec73c31810dd"
 		}
 	]
 }

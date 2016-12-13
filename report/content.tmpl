@@ -73,9 +73,10 @@
         <div class="divHeading" onclick="hideServiceAnalysis()">
             <table class="divHeading" border="0" width="90%">
                 <tr>
-                    <td width="50%"><h3 class="padding">Service Response Time Analysis</h3></td>
-                    <td width="25%"><h6 class="padding">Allowed Variance : {{.Config.AllowableServiceResponseTimeVariance | printf "%4.2f"}}%</h6></td>
-                    <td width="25%"><h6 class="padding"><font color="{{if .IsTimePass}}green">PASS{{else}}red">FAIL{{end}}</font></h6></td>
+                    <td width="40%"><h3 class="padding">Service Response Time Analysis</h3></td>
+                    <td width="20%"><h6 class="padding">Allowed Variance : {{.Config.AllowableServiceResponseTimeVariance | printf "%4.2f"}}%</h6></td>
+                    <td width="20%"><h6 class="padding">OverAll TPS : {{.PerfStats.OverAllTPS | printf "%4.2f"}}</h6></td>
+                    <td width="20%"><h6 class="padding"><font color="{{if .IsTimePass}}green">PASS{{else}}red">FAIL{{end}}</font></h6></td>
                 </tr>
             </table>
         </div>
@@ -83,19 +84,21 @@
         <div class="tablePadding">
             <table width="90%">
                 <tr style="background:LightGray">
-                    <td width="30%"><b>TestName</b></td>
-                    <td width="20%"><b>BaseTime (Milli)</b></td>
-                    <td width="20%"><b>TestTime (Milli)</b></td>
-                    <td width="20%"><b>%variance</b></td>
+                    <td width="28%"><b>TestName</b></td>
+                    <td width="18%"><b>BaseTime (Milli)</b></td>
+                    <td width="18%"><b>TestTime (Milli)</b></td>
+                    <td width="18%"><b>%variance</b></td>
+                    <td width="18%"><b>TPS</b></td>
                 </tr>
 
                     {{range $key, $base := $.BasePerfStats.BaseServiceResponseTimes}}
                     	    {{$avg := index $.PerfStats.ServiceResponseTimes $key }}
+                    	    {{$tps := index $.PerfStats.ServiceTps $key }}
                     	    {{if ne $key "StartUp"}}
                     	    	 {{if eq $avg 0}}
                     		      <tr height=10px><td>{{$key}}</td><td>{{div $base 1e6 | formatMem}}</td><td>FAILED</td><td style="color:red">FAILED</td></tr>
                     		 {{else}}
-				      <tr height=10px><td>{{$key}}</td><td>{{div $base 1e6 | formatMem}}</td><td>{{div $avg 1e6 | formatMem}}</td><td {{if $.IsServiceTimePass $key}}{{else}}style="color:red"{{end}}>{{avgVar $avg $base | printf "%4.2f"}}%</td></tr>
+				      <tr height=10px><td>{{$key}}</td><td>{{div $base 1e6 | formatMem}}</td><td>{{div $avg 1e6 | formatMem}}</td><td {{if $.IsServiceTimePass $key}}{{else}}style="color:red"{{end}}>{{avgVar $avg $base | printf "%4.2f"}}%</td><td>{{$tps | printf "%4.2f"}}</td></tr>
                                  {{end}}
                             {{end}}
                    {{end}}
