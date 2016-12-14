@@ -71,25 +71,35 @@ type TestDefinition struct {
 	Payload             string               `toml:"payload"`
 	MultipartPayload    []multipartFormField `toml:"multipartFormField"`
 	ResponseStatusCode  int                  `toml:"responseStatusCode"`
-	ResponseContentType string               `xml:"responseContentType"`
+	ResponseContentType string               `toml:"responseContentType"`
 	Headers             http.Header          `toml:"headers"`
 	ResponseValues      []ResponseValue      `toml:"responseProperties"`
+	// Attributes defined in the testSuite:
+	PreThinkTime        int64
+	PostThinkTime       int64
+	ExecPercent         int
+}
+
+//The following structs define a load test scenario
+type TestCase struct {
+	Name           string `xml:",chardata"`
+	PreThinkTime   int64  `xml:"preThinkTime,attr"`
+	PostThinkTime  int64  `xml:"postThinkTime,attr"`
+	ExecPercent    int    `xml:"execPercent,attr"`
+}
+type TestSuiteDefinition struct {
+	XMLName      xml.Name   `xml:"testSuite"`
+	Name         string     `xml:"name" toml:"name"`
+	TestStrategy string     `xml:"testStrategy" toml:"testStrategy"`
+	TestCases    []TestCase `xml:"testCases>testCase" toml:"testCases"`
 }
 
 //This struct defines a load test scenario
-type TestSuiteDefinition struct {
-	XMLName      xml.Name `xml:"testSuite"`
-	Name         string   `xml:"name" toml:"name"`
-	TestStrategy string   `xml:"testStrategy" toml:"testStrategy"`
-	TestCases    []string `xml:"testCases>testCase" toml:"testCases"`
-}
-
-//This struct defines a load test scenario //fixme xml flags are needed?
 type TestSuite struct {
-	XMLName      xml.Name          `xml:"testSuite"`
-	Name         string            `xml:"name"`
-	TestStrategy string            `xml:"testStrategy"`
-	TestCases    []*TestDefinition `xml:"testCases>testCase"`
+	XMLName      xml.Name
+	Name         string
+	TestStrategy string
+	TestCases    []*TestDefinition
 }
 
 type multipartFormField struct {
@@ -156,12 +166,15 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 			os.Exit(1)
 		}
 
+		// Add testSuite-level attributes to ts.
 		ts.Name = testSuiteDefinition.Name
 		ts.TestStrategy = testSuiteDefinition.TestStrategy
-		for _, fi := range testSuiteDefinition.TestCases {
-			bs, err := ioutil.ReadFile(configurationSettings.TestCaseDir + "/" + fi)
+
+		// Populate ts.testCases array with test definitions.
+		for _, testCase := range testSuiteDefinition.TestCases {
+			bs, err := ioutil.ReadFile(configurationSettings.TestCaseDir + "/" + testCase.Name)
 			if err != nil {
-				log.Error("Failed to read test file. Filename: ", fi, err)
+				log.Error("Failed to read test file. Filename: ", testCase.Name, err)
 				continue
 			}
 
@@ -169,6 +182,13 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 			if err != nil {
 				log.Error("Failed to load test definition. Error:", err)
 			}
+
+			// Add the testCase attributes from the testSuiteDefinition (thinktime, etc).
+			testDefinition.PreThinkTime   = testCase.PreThinkTime
+			testDefinition.PostThinkTime  = testCase.PostThinkTime
+			testDefinition.ExecPercent    = testCase.ExecPercent
+
+			// Append the testDefinition to the testSuite
 			ts.TestCases = append(ts.TestCases, testDefinition)
 		}
 
@@ -405,14 +425,14 @@ func loadTestDefinition(bs []byte, configurationSettings *perfTestUtils.Config) 
 	case "toml":
 		err := toml.Unmarshal(bs, testDefinition)
 		if err != nil {
-			fmt.Printf("Error occurred loading test definition file: %v\n", err)
+			fmt.Printf("Error occurred loading TOML testCase definition file: %v\n", err)
 			return nil, err
 		}
 	default:
 		td := &XmlTestDefinition{}
 		err := xml.Unmarshal(bs, &td)
 		if err != nil {
-			fmt.Printf("Error occurred loading test definition file: %v\n", err)
+			fmt.Printf("Error occurred loading XML testCase definition file: %v\n", err)
 			return nil, err
 		}
 		testDefinition = &TestDefinition{
@@ -447,13 +467,13 @@ func loadTestSuiteDefinition(bs []byte, configurationSettings *perfTestUtils.Con
 	case "toml":
 		err := toml.Unmarshal(bs, ts)
 		if err != nil {
-			fmt.Printf("Error occurred loading test definition file: %v\n", err)
+			fmt.Printf("Error occurred loading TOML testSuite definition file: %v\n", err)
 			return nil, err
 		}
 	default:
 		err := xml.Unmarshal(bs, ts)
 		if err != nil {
-			fmt.Printf("Error occurred loading test definition file: %v\n", err)
+			fmt.Printf("Error occurred loading XML testSuite definition file: %v\n", err)
 			return nil, err
 		}
 	}
