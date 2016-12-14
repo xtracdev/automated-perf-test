@@ -196,9 +196,15 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 }
 
 func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost string, targetPort string, uniqueTestRunId string, globalsMap GlobalsMaps) int64 {
-
 	randomDelay := rand.Intn(delay)
 	time.Sleep(time.Duration(randomDelay) * time.Millisecond)
+
+	//Execute the PreThinkTime, if any.
+	if testDefinition.PreThinkTime > 0 {
+		tt := float64(testDefinition.PreThinkTime) / 1000
+		log.Infof("Think time: [%.2f] seconds.\n", tt )
+	}
+	time.Sleep(time.Duration(testDefinition.PreThinkTime) * time.Millisecond)
 
 	var req *http.Request
 
@@ -208,8 +214,8 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 	if !testDefinition.Multipart {
 		if testDefinition.Payload != "" {
 			//Retrieve Payload and perform any necessary substitution
-			paylaod := testDefinition.Payload
-			newPayload := substituteRequestValues(&paylaod, uniqueTestRunId, globalsMap)
+			payload := testDefinition.Payload
+			newPayload := substituteRequestValues(&payload, uniqueTestRunId, globalsMap)
 
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, strings.NewReader(newPayload))
 		} else {
@@ -259,12 +265,21 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 		if responseCodeOk && responseTimeOK {
 			contentType := detectContentType(resp.Header, body, testDefinition.ResponseContentType)
 			extractResponseValues(testDefinition.TestName, body, testDefinition.ResponseValues, uniqueTestRunId, globalsMap, contentType)
+
+			//Execute the PostThinkTime, if any.
+			if testDefinition.PostThinkTime > 0 {
+				tt := float64(testDefinition.PostThinkTime) / 1000
+				log.Infof("Think time: [%.2f] seconds.\n", tt )
+			}
+			time.Sleep(time.Duration(testDefinition.PostThinkTime) * time.Millisecond)
+
 			return timeTaken.Nanoseconds()
 		} else {
 			return 0
 		}
 	}
 }
+
 func detectContentType(respHeaders http.Header, respBody []byte, respContentType string) string {
 	if respHeaders.Get("Content-Type") != "" {
 		return respHeaders.Get("Content-Type")

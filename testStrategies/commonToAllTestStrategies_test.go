@@ -304,6 +304,7 @@ func TestLoadTestSuiteDefinitionXml(t *testing.T) {
 	assert.Equal(t, int64(10), ts.TestCases[0].PreThinkTime)
 	assert.Equal(t, int64(20), ts.TestCases[0].PostThinkTime)
 	assert.Equal(t, 30,        ts.TestCases[0].ExecPercent)
+	assert.Equal(t, int64(0),  ts.TestCases[1].PreThinkTime)
 }
 
 func TestLoadTestSuiteDefinitionXmlErr(t *testing.T) {
@@ -330,6 +331,7 @@ func TestLoadTestSuiteDefinitionToml(t *testing.T) {
 	assert.Equal(t, int64(40), ts.TestCases[0].PreThinkTime)
 	assert.Equal(t, int64(50), ts.TestCases[0].PostThinkTime)
 	assert.Equal(t, 60,        ts.TestCases[0].ExecPercent)
+	assert.Equal(t, int64(0),  ts.TestCases[1].PreThinkTime)
 }
 
 func TestLoadTestSuiteDefinitionTomlErr(t *testing.T) {
