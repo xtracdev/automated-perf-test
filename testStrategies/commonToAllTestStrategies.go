@@ -202,7 +202,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 	//Execute the PreThinkTime, if any.
 	if testDefinition.PreThinkTime > 0 {
 		tt := float64(testDefinition.PreThinkTime) / 1000
-		log.Infof("Think time: [%.2f] seconds.\n", tt )
+		log.Infof("Think time: [%.2f] seconds.", tt )
 	}
 	time.Sleep(time.Duration(testDefinition.PreThinkTime) * time.Millisecond)
 
@@ -269,7 +269,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 			//Execute the PostThinkTime, if any.
 			if testDefinition.PostThinkTime > 0 {
 				tt := float64(testDefinition.PostThinkTime) / 1000
-				log.Infof("Think time: [%.2f] seconds.\n", tt )
+				log.Infof("Think time: [%.2f] seconds.", tt )
 			}
 			time.Sleep(time.Duration(testDefinition.PostThinkTime) * time.Millisecond)
 
