@@ -195,6 +195,9 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 	}
 }
 
+//----- BuildAndSendRequest ---------------------------------------------------
+// Returns response time of the call, or 0 if failure.
+// Note: Response time does not include random delay or think time.
 func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost string, targetPort string, uniqueTestRunId string, globalsMap GlobalsMaps) int64 {
 	randomDelay := rand.Intn(delay)
 	time.Sleep(time.Duration(randomDelay) * time.Millisecond)
@@ -212,6 +215,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 	requestBaseURI := substituteRequestValues(&testDefinition.BaseUri, uniqueTestRunId, globalsMap)
 
 	if !testDefinition.Multipart {
+		log.Debug( "Building non-Multipart request." )
 		if testDefinition.Payload != "" {
 			//Retrieve Payload and perform any necessary substitution
 			payload := testDefinition.Payload
@@ -222,8 +226,9 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, nil)
 		}
 	} else {
+		log.Debug( "Building Multipart request." )
 		if testDefinition.HttpMethod != "POST" {
-			log.Error("Multipart request has to be 'POST' method.")
+			log.Error("Multipart request must be 'POST' method.")
 		} else {
 			body := new(bytes.Buffer)
 			writer := multipart.NewWriter(body)
@@ -249,10 +254,11 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 	}
 	startTime := time.Now()
 	if resp, err := (&http.Client{}).Do(req); err != nil {
-		log.Error("Error by firing request: ", req, "Error:", err)
+		log.Errorf("Connection failed for request [Name:%s]: %+v", testDefinition.TestName, err)
 		return 0
 	} else {
 
+		// Mark response time, and gather the response.
 		timeTaken := time.Since(startTime)
 
 		body, _ := ioutil.ReadAll(resp.Body)
@@ -269,7 +275,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 			//Execute the PostThinkTime, if any.
 			if testDefinition.PostThinkTime > 0 {
 				tt := float64(testDefinition.PostThinkTime) / 1000
-				log.Infof("Think time: [%.2f] seconds.", tt )
+				log.Infof("Think time: [%.2f] seconds.", tt)
 			}
 			time.Sleep(time.Duration(testDefinition.PostThinkTime) * time.Millisecond)
 
@@ -440,14 +446,14 @@ func loadTestDefinition(bs []byte, configurationSettings *perfTestUtils.Config) 
 	case "toml":
 		err := toml.Unmarshal(bs, testDefinition)
 		if err != nil {
-			fmt.Printf("Error occurred loading TOML testCase definition file: %v\n", err)
+			log.Errorf("Error occurred loading TOML testCase definition file: %v\n", err)
 			return nil, err
 		}
 	default:
 		td := &XmlTestDefinition{}
 		err := xml.Unmarshal(bs, &td)
 		if err != nil {
-			fmt.Printf("Error occurred loading XML testCase definition file: %v\n", err)
+			log.Errorf("Error occurred loading XML testCase definition file: %v\n", err)
 			return nil, err
 		}
 		testDefinition = &TestDefinition{
@@ -482,13 +488,13 @@ func loadTestSuiteDefinition(bs []byte, configurationSettings *perfTestUtils.Con
 	case "toml":
 		err := toml.Unmarshal(bs, ts)
 		if err != nil {
-			fmt.Printf("Error occurred loading TOML testSuite definition file: %v\n", err)
+			log.Errorf("Error occurred loading TOML testSuite definition file: %v\n", err)
 			return nil, err
 		}
 	default:
 		err := xml.Unmarshal(bs, ts)
 		if err != nil {
-			fmt.Printf("Error occurred loading XML testSuite definition file: %v\n", err)
+			log.Errorf("Error occurred loading XML testSuite definition file: %v\n", err)
 			return nil, err
 		}
 	}
