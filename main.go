@@ -15,14 +15,36 @@ import (
 	"time"
 )
 
+//----- Globals ------------------------------------------------------------------
 var configurationSettings *perfTestUtils.Config
-var checkTestReadyness bool
 var osFileSystem = perfTestUtils.OsFS{}
+
+// Command line arguments:
+var configFilePath string
+var checkTestReadiness bool
+var verbose bool
+var debug bool
 
 const (
 	TRAINING_MODE = 1
 	TESTING_MODE  = 2
 )
+
+//----- setLogLevel -----------------------------------------------------------
+// Set log level using a simplified interface for end user. See "Process
+// command line args" in initConfig().
+func setLogLevel( verbose, debug bool ) {
+	// Set default to WarnLevel
+	log.SetLevel( log.WarnLevel )
+
+	// Increase verbosity as set by user at command line.
+	if verbose {
+		log.SetLevel( log.InfoLevel )
+	}
+	if debug {
+		log.SetLevel( log.DebugLevel )
+	}
+}
 
 //----- initConfig ------------------------------------------------------------
 func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int)) {
@@ -42,17 +64,22 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 
 	//----- Process command line args.
 	// Global controls outside of Config struct:
-	var configFilePath string
 	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
-	flag.BoolVar(&checkTestReadyness, "checkTestReadyness", false, "Simple check to see if system requires training.")
+	flag.BoolVar(&checkTestReadiness, "checkTestReadiness", false, "Simple check to see if system requires training.")
+
+	// Log level simplified for the end user.
+	flag.BoolVar(&verbose, "v", false, "Set logging verbosity to 'info' from default of 'warn'. Use -vv for debug.")
+	flag.BoolVar(&debug, "vv", false, "Set verbosity to debug.")
 
 	// Args that override default options in Config struct:
-	flag.BoolVar(&configurationSettings.GBS, "gbs", false, "Genertate Base Statistics for this server")
+	flag.BoolVar(&configurationSettings.GBS, "gbs", false, "Generate 'Base Statistics' for this server")
 	flag.BoolVar(&configurationSettings.ReBaseMemory, "reBaseMemory", false, "Generate new base peak memory for this server")
 	flag.BoolVar(&configurationSettings.ReBaseAll, "reBaseAll", false, "Generate new base for memory and service resposne times for this server")
 	flag.StringVar(&configurationSettings.ConfigFileFormat, "configFileFormat", "xml", "The format of the configuration file {xlm, toml}")
 	flag.StringVar(&configurationSettings.TestFileFormat, "testFileFormat", "xml", "The format of the test definition file {xlm, toml}")
 	flag.CommandLine.Parse(args)
+
+	setLogLevel( verbose, debug )
 
 	//----- Parse the config file.
 	if configFilePath == "" {
@@ -100,13 +127,13 @@ func main() {
 	testSuite.BuildTestSuite(configurationSettings)
 	numTestCases := len(testSuite.TestCases) //convenience variable
 
-	if checkTestReadyness {
+	if checkTestReadiness {
 		readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
 		if !readyForTest {
-			log.Info("System is not ready for testing.")
+			log.Warn("System is not ready for testing.")
 			os.Exit(1)
 		} else {
-			log.Info("System is ready for testing.")
+			log.Warn("System is ready for testing.")
 			os.Exit(0)
 		}
 	}
@@ -120,7 +147,7 @@ func main() {
 			if !readyForTest {
 				runInTrainingMode(configurationSettings.ExecutionHost, false, testSuite)
 			} else {
-				log.Info("System is ready for testing. Training is not required.")
+				log.Warn("System is ready for testing. Training is not required.")
 			}
 		}
 	} else {
@@ -128,13 +155,13 @@ func main() {
 		if readyForTest {
 			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport, testSuite)
 		} else {
-			log.Info("System is not ready for testing. Attempting to run training mode....")
+			log.Warn("System is not ready for testing. Attempting to run training mode....")
 			runInTrainingMode(configurationSettings.ExecutionHost, false, testSuite)
 			readyForTest, basePerfStats = perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
 			if readyForTest {
 				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport, testSuite)
 			} else {
-				log.Info("System is not ready for testing. Attempting to run training failed. Check logs for more details.")
+				log.Error("System is not ready for testing. Failed to run in training mode. Check service logs for more details.")
 				os.Exit(1)
 			}
 		}
@@ -212,12 +239,12 @@ func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, f
 	}
 }
 
-//This function does two thing,
-//1 Start a go routine to preiodically grab the memory foot print and set the peak memory value
+//This function does two things,
+//1 Start a go routine to periodically grab the memory foot print and set the peak memory value
 //2 Run all test using mock servers and gather performance stats
 func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *testStrategies.TestSuite) {
 
-	//Initilize Memory analysis
+	//Initialize Memory analysis
 	var peakMemoryAllocation = new(uint64)
 	memoryAudit := make([]uint64, 0)
 	testPartitions := make([]perfTestUtils.TestPartition, 0)
@@ -225,7 +252,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 	testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: "StartUp"})
 
 	//Start go routine to grab memory in use
-	//Peak memory is stored in peakMemoryAlocation variable.
+	//Peak memory is stored in peakMemoryAllocation variable.
 	quit := make(chan bool)
 	go func() {
 		for {
@@ -237,7 +264,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 				memoryStatsUrl := "http://" + configurationSettings.TargetHost + ":" + configurationSettings.TargetPort + configurationSettings.MemoryEndpoint
 				resp, err := http.Get(memoryStatsUrl)
 				if err != nil {
-					log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error:", err)
+					log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error: ", err)
 					quit <- true
 				} else {
 

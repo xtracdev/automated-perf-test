@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"sync"
+	log "github.com/Sirupsen/logrus"
 )
 
 func ExecuteTestSuiteWrapper(testSuite *TestSuite, configurationSettings *perfTestUtils.Config) map[string][]int64 {
@@ -22,14 +23,14 @@ func ExecuteTestSuiteWrapper(testSuite *TestSuite, configurationSettings *perfTe
 }
 
 func executeTestSuite(testSuiteResponseTimesChan chan []map[string]int64, testSuite *TestSuite, configurationSettings *perfTestUtils.Config, userId int, globalsMap GlobalsMaps) {
-	fmt.Println("Test Suite started")
+	log.Info("Test Suite started")
 
 	allSuiteResponseTimes := make([]map[string]int64, 0)
 	for i := 0; i < configurationSettings.NumIterations; i++ {
 		uniqueTestRunId := fmt.Sprintf("User%dIter%d", userId, i)
 		testSuiteResponseTimes := make(map[string]int64)
 		for _, testDefinition := range testSuite.TestCases {
-			fmt.Println("Test case :", testDefinition.TestName, "UniqueRunID:", uniqueTestRunId)
+			log.Info("Test case: [", testDefinition.TestName, "] UniqueRunID: [", uniqueTestRunId, "]")
 
 			targetHost, targetPort := determineHostandPortforRequest(testDefinition, configurationSettings)
 
@@ -43,7 +44,7 @@ func executeTestSuite(testSuiteResponseTimesChan chan []map[string]int64, testSu
 		globalsMap.Unlock()
 	}
 	testSuiteResponseTimesChan <- allSuiteResponseTimes
-	fmt.Println("Test Suite Finished")
+	log.Info("Test Suite Finished")
 }
 
 func aggregateSuiteResponseTimes(testSuiteResponseTimesChan chan []map[string]int64, allServicesResponseTimesMap map[string][]int64, suiteWaitGroup *sync.WaitGroup) {

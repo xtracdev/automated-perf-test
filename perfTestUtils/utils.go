@@ -101,12 +101,10 @@ func IsReadyForTest(configurationSettings *Config, testSuiteName string, numTest
 	log.Info("Number of base line test cases:", baselineAmount)
 
 	if baselineAmount != numTestCases {
-		log.Error(
-			fmt.Sprintf(
-				"Amount of test definition: %d does not equal to baseline amount: %d.\n",
-				numTestCases,
-				baselineAmount,
-			),
+		log.Errorf(
+			"The number of test definitions [%d] does not equal the number of baseline metrics [%d].",
+			numTestCases,
+			baselineAmount,
 		)
 		return false, nil
 	}
@@ -216,7 +214,7 @@ func ValidateResponseStatusCode(responseStatusCode int, expectedStatusCode int, 
 	if responseStatusCode == expectedStatusCode {
 		isResponseStatusCodeValid = true
 	} else {
-		log.Error(fmt.Sprintf("Incorrect status code of %d retruned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode))
+		log.Errorf("Incorrect status code of %d retruned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode)
 	}
 	return isResponseStatusCodeValid
 }
