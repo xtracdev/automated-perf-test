@@ -199,6 +199,13 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 // Returns response time of the call, or 0 if failure.
 // Note: Response time does not include random delay or think time.
 func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost string, targetPort string, uniqueTestRunId string, globalsMap GlobalsMaps) int64 {
+	log.Debugf(
+		"BEGIN \"%s\" testDefinition\n-----\n%+v\n-----\nEND \"%s\" testDefinition\n",
+		testDefinition.TestName,
+		testDefinition,
+		testDefinition.TestName,
+	)
+
 	randomDelay := rand.Intn(delay)
 	time.Sleep(time.Duration(randomDelay) * time.Millisecond)
 
@@ -210,6 +217,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 	time.Sleep(time.Duration(testDefinition.PreThinkTime) * time.Millisecond)
 
 	var req *http.Request
+	reqbody := "N/A" //for debug
 
 	//Retrieve requestBaseURI and perform any necessary substitution
 	requestBaseURI := substituteRequestValues(&testDefinition.BaseUri, uniqueTestRunId, globalsMap)
@@ -243,6 +251,9 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 			writer.Close()
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, body)
 			req.Header.Set("Content-Type", writer.FormDataContentType())
+
+			// For debug output
+			reqbody = body.String()
 		}
 	}
 
@@ -252,6 +263,17 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 			req.Header.Add(k, substituteRequestValues(&hv, uniqueTestRunId, globalsMap))
 		}
 	}
+
+	log.Debugf(
+		"BEGIN \"%s\" Request:\n-----\nHEADER:%+v\nURL:%s\nBODY:%s\n-----\nEND [%s] Request",
+		testDefinition.TestName,
+		req.Header,
+		req.URL,
+		reqbody,
+		testDefinition.TestName,
+	)
+
+
 	startTime := time.Now()
 	if resp, err := (&http.Client{}).Do(req); err != nil {
 		log.Errorf("Connection failed for request [Name:%s]: %+v", testDefinition.TestName, err)
@@ -264,11 +286,23 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 		body, _ := ioutil.ReadAll(resp.Body)
 		defer resp.Body.Close()
 
+		log.Debugf(
+			"BEGIN \"%s\" Response:\n-----\nSTATUSCODE:%d\nHEADER:%+v\nBODY:%s\n-----\nEND [%s] Response",
+			testDefinition.TestName,
+			resp.StatusCode,
+			resp.Header,
+			string(body),
+			testDefinition.TestName,
+		)
+
 		//Validate service response
 		responseCodeOk := perfTestUtils.ValidateResponseStatusCode(resp.StatusCode, testDefinition.ResponseStatusCode, testDefinition.TestName)
 		responseTimeOK := perfTestUtils.ValidateServiceResponseTime(timeTaken.Nanoseconds(), testDefinition.TestName)
 
-		if responseCodeOk && responseTimeOK {
+		if !responseCodeOk || !responseTimeOK {
+			return 0
+		}
+		//if responseCodeOk && responseTimeOK {
 			contentType := detectContentType(resp.Header, body, testDefinition.ResponseContentType)
 			extractResponseValues(testDefinition.TestName, body, testDefinition.ResponseValues, uniqueTestRunId, globalsMap, contentType)
 
@@ -280,9 +314,9 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 			time.Sleep(time.Duration(testDefinition.PostThinkTime) * time.Millisecond)
 
 			return timeTaken.Nanoseconds()
-		} else {
-			return 0
-		}
+		//} else {
+		//	return 0
+		//}
 	}
 }
 
