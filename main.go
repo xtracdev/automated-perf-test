@@ -275,7 +275,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 					m := new(perfTestUtils.Entry)
 					unmarshalErr := json.Unmarshal(body, m)
 					if unmarshalErr != nil {
-						log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics. ", unmarshalErr)
+						log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics from endpoint: ", memoryStatsUrl, ". UnmarsahlErr: ", unmarshalErr)
 						quit <- true
 					} else {
 						if m.Memstats.Alloc > *peakMemoryAllocation {
