@@ -237,8 +237,10 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 		responseTimeOK := perfTestUtils.ValidateServiceResponseTime(timeTaken.Nanoseconds(), testDefinition.TestName)
 
 		if responseCodeOk && responseTimeOK {
-			contentType := detectContentType(resp.Header, body, testDefinition.ResponseContentType)
-			extractResponseValues(testDefinition.TestName, body, testDefinition.ResponseValues, uniqueTestRunId, globalsMap, contentType)
+			if testDefinition.ResponseValues != nil && len(testDefinition.ResponseValues) > 0 {
+				contentType := detectContentType(resp.Header, body, testDefinition.ResponseContentType)
+				extractResponseValues(testDefinition.TestName, body, testDefinition.ResponseValues, uniqueTestRunId, globalsMap, contentType)
+			}
 			return timeTaken.Nanoseconds()
 		} else {
 			return 0
