@@ -33,6 +33,7 @@ The configuration file parameters are described in the table below.
 | testSuite                            | This is the name of the active test suite.
 | baseStatsOutputDir                   | This is the directory location of the output file for the base performance statistics json file.                                                                   |
 | reportOutputDir                      | This is the directory location of the output report file (HTML)                                                                                                    |
+| requestDelay                         | Add a random delay between all requests from 0 to "requestDelay" specified in milliseconds.
 
 #### Command line arguments
 In addition the configuration parameters, command line arguments can the passed in to control specifics of each individual test run. The command line arguments are described in the table below. 

@@ -153,7 +153,7 @@ responseStatusCode = 200
     <name>testSuite</name>
     <testStrategy>ServiceBased</testStrategy>
     <testCases>
-        <testCase>xiws-loginLTPA-success.xml</testCase>
+        <testCase preThinkTime="10" postThinkTime="20" execPercent="30">xiws-loginLTPA-success.xml</testCase>
         <testCase>xiws-workitem-create-success.xml</testCase>
         <testCase>xiws-workitem-search-success.xml</testCase>
     </testCases>
@@ -161,7 +161,15 @@ responseStatusCode = 200
 
 	tomlTestSuite = `name = "testSuite"
 testStrategy = "SuiteBased"
-testCases = ["xiws-loginLTPA-success.toml", "xiws-workitem-create-success.toml", "xiws-workitem-search-success.toml"]`
+[[testCases]]
+	name = "xiws-loginLTPA-success.toml"
+	preThinkTime = 40
+	postThinkTime = 50
+	execPercent = 60
+[[testCases]]
+	Name = "xiws-workitem-create-success.toml"
+[[testCases]]
+	Name = "xiws-workitem-search-success.toml"`
 )
 
 func TestMarshalTomlTestDefinition(t *testing.T) {
@@ -290,9 +298,13 @@ func TestLoadTestSuiteDefinitionXml(t *testing.T) {
 	assert.Equal(t, "testSuite", ts.Name)
 	assert.Equal(t, "ServiceBased", ts.TestStrategy)
 	assert.Equal(t, 3, len(ts.TestCases))
-	assert.Equal(t, "xiws-loginLTPA-success.xml", ts.TestCases[0])
-	assert.Equal(t, "xiws-workitem-create-success.xml", ts.TestCases[1])
-	assert.Equal(t, "xiws-workitem-search-success.xml", ts.TestCases[2])
+	assert.Equal(t, "xiws-loginLTPA-success.xml", ts.TestCases[0].Name)
+	assert.Equal(t, "xiws-workitem-create-success.xml", ts.TestCases[1].Name)
+	assert.Equal(t, "xiws-workitem-search-success.xml", ts.TestCases[2].Name)
+	assert.Equal(t, int64(10), ts.TestCases[0].PreThinkTime)
+	assert.Equal(t, int64(20), ts.TestCases[0].PostThinkTime)
+	assert.Equal(t, 30,        ts.TestCases[0].ExecPercent)
+	assert.Equal(t, int64(0),  ts.TestCases[1].PreThinkTime)
 }
 
 func TestLoadTestSuiteDefinitionXmlErr(t *testing.T) {
@@ -313,9 +325,13 @@ func TestLoadTestSuiteDefinitionToml(t *testing.T) {
 	assert.Equal(t, "testSuite", ts.Name)
 	assert.Equal(t, "SuiteBased", ts.TestStrategy)
 	assert.Equal(t, 3, len(ts.TestCases))
-	assert.Equal(t, "xiws-loginLTPA-success.toml", ts.TestCases[0])
-	assert.Equal(t, "xiws-workitem-create-success.toml", ts.TestCases[1])
-	assert.Equal(t, "xiws-workitem-search-success.toml", ts.TestCases[2])
+	assert.Equal(t, "xiws-loginLTPA-success.toml", ts.TestCases[0].Name)
+	assert.Equal(t, "xiws-workitem-create-success.toml", ts.TestCases[1].Name)
+	assert.Equal(t, "xiws-workitem-search-success.toml", ts.TestCases[2].Name)
+	assert.Equal(t, int64(40), ts.TestCases[0].PreThinkTime)
+	assert.Equal(t, int64(50), ts.TestCases[0].PostThinkTime)
+	assert.Equal(t, 60,        ts.TestCases[0].ExecPercent)
+	assert.Equal(t, int64(0),  ts.TestCases[1].PreThinkTime)
 }
 
 func TestLoadTestSuiteDefinitionTomlErr(t *testing.T) {

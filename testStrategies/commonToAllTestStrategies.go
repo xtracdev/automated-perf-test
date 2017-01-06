@@ -71,25 +71,35 @@ type TestDefinition struct {
 	Payload             string               `toml:"payload"`
 	MultipartPayload    []multipartFormField `toml:"multipartFormField"`
 	ResponseStatusCode  int                  `toml:"responseStatusCode"`
-	ResponseContentType string               `xml:"responseContentType"`
+	ResponseContentType string               `toml:"responseContentType"`
 	Headers             http.Header          `toml:"headers"`
 	ResponseValues      []ResponseValue      `toml:"responseProperties"`
+	// Attributes defined in the testSuite:
+	PreThinkTime        int64
+	PostThinkTime       int64
+	ExecPercent         int
+}
+
+//The following structs define a load test scenario
+type TestCase struct {
+	Name           string `xml:",chardata"`
+	PreThinkTime   int64  `xml:"preThinkTime,attr"`
+	PostThinkTime  int64  `xml:"postThinkTime,attr"`
+	ExecPercent    int    `xml:"execPercent,attr"`
+}
+type TestSuiteDefinition struct {
+	XMLName      xml.Name   `xml:"testSuite"`
+	Name         string     `xml:"name" toml:"name"`
+	TestStrategy string     `xml:"testStrategy" toml:"testStrategy"`
+	TestCases    []TestCase `xml:"testCases>testCase" toml:"testCases"`
 }
 
 //This struct defines a load test scenario
-type TestSuiteDefinition struct {
-	XMLName      xml.Name `xml:"testSuite"`
-	Name         string   `xml:"name" toml:"name"`
-	TestStrategy string   `xml:"testStrategy" toml:"testStrategy"`
-	TestCases    []string `xml:"testCases>testCase" toml:"testCases"`
-}
-
-//This struct defines a load test scenario //fixme xml flags are needed?
 type TestSuite struct {
-	XMLName      xml.Name          `xml:"testSuite"`
-	Name         string            `xml:"name"`
-	TestStrategy string            `xml:"testStrategy"`
-	TestCases    []*TestDefinition `xml:"testCases>testCase"`
+	XMLName      xml.Name
+	Name         string
+	TestStrategy string
+	TestCases    []*TestDefinition
 }
 
 type multipartFormField struct {
@@ -156,12 +166,15 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 			os.Exit(1)
 		}
 
+		// Add testSuite-level attributes to ts.
 		ts.Name = testSuiteDefinition.Name
 		ts.TestStrategy = testSuiteDefinition.TestStrategy
-		for _, fi := range testSuiteDefinition.TestCases {
-			bs, err := ioutil.ReadFile(configurationSettings.TestCaseDir + "/" + fi)
+
+		// Populate ts.testCases array with test definitions.
+		for _, testCase := range testSuiteDefinition.TestCases {
+			bs, err := ioutil.ReadFile(configurationSettings.TestCaseDir + "/" + testCase.Name)
 			if err != nil {
-				log.Error("Failed to read test file. Filename: ", fi, err)
+				log.Error("Failed to read test file. Filename: ", testCase.Name, err)
 				continue
 			}
 
@@ -169,35 +182,61 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 			if err != nil {
 				log.Error("Failed to load test definition. Error:", err)
 			}
+
+			// Add the testCase attributes from the testSuiteDefinition (thinktime, etc).
+			testDefinition.PreThinkTime   = testCase.PreThinkTime
+			testDefinition.PostThinkTime  = testCase.PostThinkTime
+			testDefinition.ExecPercent    = testCase.ExecPercent
+
+			// Append the testDefinition to the testSuite
 			ts.TestCases = append(ts.TestCases, testDefinition)
 		}
 
 	}
 }
 
+//----- BuildAndSendRequest ---------------------------------------------------
+// Returns response time of the call, or 0 if failure.
+// Note: Response time does not include random delay or think time.
 func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost string, targetPort string, uniqueTestRunId string, globalsMap GlobalsMaps) int64 {
+	log.Debugf(
+		"BEGIN \"%s\" testDefinition\n-----\n%+v\n-----\nEND \"%s\" testDefinition\n",
+		testDefinition.TestName,
+		testDefinition,
+		testDefinition.TestName,
+	)
 
 	randomDelay := rand.Intn(delay)
 	time.Sleep(time.Duration(randomDelay) * time.Millisecond)
 
+	//Execute the PreThinkTime, if any.
+	if testDefinition.PreThinkTime > 0 {
+		tt := float64(testDefinition.PreThinkTime) / 1000
+		log.Infof("Think time: [%.2f] seconds.", tt )
+	}
+	time.Sleep(time.Duration(testDefinition.PreThinkTime) * time.Millisecond)
+
 	var req *http.Request
+	reqbody := "N/A" //for debug
 
 	//Retrieve requestBaseURI and perform any necessary substitution
 	requestBaseURI := substituteRequestValues(&testDefinition.BaseUri, uniqueTestRunId, globalsMap)
 
 	if !testDefinition.Multipart {
+		log.Debug( "Building non-Multipart request." )
 		if testDefinition.Payload != "" {
 			//Retrieve Payload and perform any necessary substitution
-			paylaod := testDefinition.Payload
-			newPayload := substituteRequestValues(&paylaod, uniqueTestRunId, globalsMap)
+			payload := testDefinition.Payload
+			newPayload := substituteRequestValues(&payload, uniqueTestRunId, globalsMap)
 
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, strings.NewReader(newPayload))
 		} else {
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, nil)
 		}
 	} else {
+		log.Debug( "Building Multipart request." )
 		if testDefinition.HttpMethod != "POST" {
-			log.Error("Multipart request has to be 'POST' method.")
+			log.Error("Multipart request must be 'POST' method.")
 		} else {
 			body := new(bytes.Buffer)
 			writer := multipart.NewWriter(body)
@@ -212,6 +251,9 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 			writer.Close()
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, body)
 			req.Header.Set("Content-Type", writer.FormDataContentType())
+
+			// For debug output
+			reqbody = body.String()
 		}
 	}
 
@@ -221,32 +263,64 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 			req.Header.Add(k, substituteRequestValues(&hv, uniqueTestRunId, globalsMap))
 		}
 	}
+
+	log.Debugf(
+		"BEGIN \"%s\" Request:\n-----\nHEADER:%+v\nURL:%s\nBODY:%s\n-----\nEND [%s] Request",
+		testDefinition.TestName,
+		req.Header,
+		req.URL,
+		reqbody,
+		testDefinition.TestName,
+	)
+
+
 	startTime := time.Now()
 	if resp, err := (&http.Client{}).Do(req); err != nil {
-		log.Error("Error by firing request: ", req, "Error:", err)
+		log.Errorf("Connection failed for request [Name:%s]: %+v", testDefinition.TestName, err)
 		return 0
 	} else {
 
+		// Mark response time, and gather the response.
 		timeTaken := time.Since(startTime)
 
 		body, _ := ioutil.ReadAll(resp.Body)
 		defer resp.Body.Close()
 
+		log.Debugf(
+			"BEGIN \"%s\" Response:\n-----\nSTATUSCODE:%d\nHEADER:%+v\nBODY:%s\n-----\nEND [%s] Response",
+			testDefinition.TestName,
+			resp.StatusCode,
+			resp.Header,
+			string(body),
+			testDefinition.TestName,
+		)
+
 		//Validate service response
 		responseCodeOk := perfTestUtils.ValidateResponseStatusCode(resp.StatusCode, testDefinition.ResponseStatusCode, testDefinition.TestName)
 		responseTimeOK := perfTestUtils.ValidateServiceResponseTime(timeTaken.Nanoseconds(), testDefinition.TestName)
 
-		if responseCodeOk && responseTimeOK {
-			if testDefinition.ResponseValues != nil && len(testDefinition.ResponseValues) > 0 {
-				contentType := detectContentType(resp.Header, body, testDefinition.ResponseContentType)
-				extractResponseValues(testDefinition.TestName, body, testDefinition.ResponseValues, uniqueTestRunId, globalsMap, contentType)
-			}
-			return timeTaken.Nanoseconds()
-		} else {
+		if !responseCodeOk || !responseTimeOK {
 			return 0
 		}
+		if testDefinition.ResponseValues != nil && len(testDefinition.ResponseValues) > 0 {
+			contentType := detectContentType(resp.Header, body, testDefinition.ResponseContentType)
+			extractResponseValues(testDefinition.TestName, body, testDefinition.ResponseValues, uniqueTestRunId, globalsMap, contentType)
+    }
+			//Execute the PostThinkTime, if any.
+			if testDefinition.PostThinkTime > 0 {
+				tt := float64(testDefinition.PostThinkTime) / 1000
+				log.Infof("Think time: [%.2f] seconds.", tt)
+        time.Sleep(time.Duration(testDefinition.PostThinkTime) * time.Millisecond)
+			}
+		
+    
+			return timeTaken.Nanoseconds()
+		//} else {
+		//	return 0
+		//}
 	}
 }
+
 func detectContentType(respHeaders http.Header, respBody []byte, respContentType string) string {
 	if respHeaders.Get("Content-Type") != "" {
 		return respHeaders.Get("Content-Type")
@@ -407,14 +481,14 @@ func loadTestDefinition(bs []byte, configurationSettings *perfTestUtils.Config) 
 	case "toml":
 		err := toml.Unmarshal(bs, testDefinition)
 		if err != nil {
-			fmt.Printf("Error occurred loading test definition file: %v\n", err)
+			log.Errorf("Error occurred loading TOML testCase definition file: %v\n", err)
 			return nil, err
 		}
 	default:
 		td := &XmlTestDefinition{}
 		err := xml.Unmarshal(bs, &td)
 		if err != nil {
-			fmt.Printf("Error occurred loading test definition file: %v\n", err)
+			log.Errorf("Error occurred loading XML testCase definition file: %v\n", err)
 			return nil, err
 		}
 		testDefinition = &TestDefinition{
@@ -449,13 +523,13 @@ func loadTestSuiteDefinition(bs []byte, configurationSettings *perfTestUtils.Con
 	case "toml":
 		err := toml.Unmarshal(bs, ts)
 		if err != nil {
-			fmt.Printf("Error occurred loading test definition file: %v\n", err)
+			log.Errorf("Error occurred loading TOML testSuite definition file: %v\n", err)
 			return nil, err
 		}
 	default:
 		err := xml.Unmarshal(bs, ts)
 		if err != nil {
-			fmt.Printf("Error occurred loading test definition file: %v\n", err)
+			log.Errorf("Error occurred loading XML testSuite definition file: %v\n", err)
 			return nil, err
 		}
 	}
