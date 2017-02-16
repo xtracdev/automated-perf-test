@@ -103,7 +103,7 @@ func TestCalcAverageResponseTime(t *testing.T) {
 	for i := int64(200); i >= 0; i-- {
 		times = append(times, i*1000)
 	}
-	avg := CalcAverageResponseTime(times, 100)
+	avg := CalcAverageResponseTime(times, 100, 2)
 	assert.Equal(t, int64(201611), avg)
 }
 

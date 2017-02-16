@@ -33,16 +33,16 @@ const (
 //----- setLogLevel -----------------------------------------------------------
 // Set log level using a simplified interface for end user. See "Process
 // command line args" in initConfig().
-func setLogLevel( verbose, debug bool ) {
+func setLogLevel(verbose, debug bool) {
 	// Set default to WarnLevel
-	log.SetLevel( log.WarnLevel )
+	log.SetLevel(log.WarnLevel)
 
 	// Increase verbosity as set by user at command line.
 	if verbose {
-		log.SetLevel( log.InfoLevel )
+		log.SetLevel(log.InfoLevel)
 	}
 	if debug {
-		log.SetLevel( log.DebugLevel )
+		log.SetLevel(log.DebugLevel)
 	}
 }
 
@@ -79,7 +79,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	flag.StringVar(&configurationSettings.TestFileFormat, "testFileFormat", "xml", "The format of the test definition file {xlm, toml}")
 	flag.CommandLine.Parse(args)
 
-	setLogLevel( verbose, debug )
+	setLogLevel(verbose, debug)
 
 	//----- Parse the config file.
 	if configFilePath == "" {
@@ -292,7 +292,6 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 
 	//Add a 1 second delay before running test case to allow the graph get some initial memory data before test cases are executed.
 	time.Sleep(time.Second * 1)
-	testExecutionTime := int64(0)
 
 	//Check the test strategy
 	if testSuite.TestStrategy == testStrategies.SERVICE_BASED_TESTING {
@@ -303,13 +302,13 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 		loadPerUser := int(configurationSettings.NumIterations / configurationSettings.ConcurrentUsers)
 		remainder := configurationSettings.NumIterations % configurationSettings.ConcurrentUsers
 
+		//overAllStartTime := time.Now().UnixNano()
+
 		for index, testDefinition := range testSuite.TestCases {
-			//Start Test Timer
-			testStartTime := time.Now().UnixNano()
 
 			log.Info("Running Test case ", index, " [Name:", testDefinition.TestName, "]")
 			testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: testDefinition.TestName})
-			averageResponseTime := testStrategies.ExecuteServiceTest(testDefinition, loadPerUser, remainder, configurationSettings)
+			averageResponseTime := testStrategies.ExecuteServiceTest(testDefinition, loadPerUser, remainder, configurationSettings, mode)
 
 			if averageResponseTime > 0 {
 				perfStatsForTest.ServiceResponseTimes[testDefinition.TestName] = averageResponseTime
@@ -320,27 +319,20 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 					os.Exit(1)
 				}
 			}
-			//Start Test Timer
-			testEndTime := time.Now().UnixNano()
-			testExecutionTime = testEndTime - testStartTime
-			perfStatsForTest.ServiceTps[testDefinition.TestName] = perfTestUtils.CalcTps(testEndTime-testStartTime, configurationSettings.NumIterations)
+
+			perfStatsForTest.ServiceTps[testDefinition.TestName] = perfTestUtils.CalcTpsForService(averageResponseTime)
 		}
-		perfStatsForTest.OverAllTPS = perfTestUtils.CalcTps(testExecutionTime, (configurationSettings.NumIterations * len(testSuite.TestCases)))
+
+		perfStatsForTest.OverAllTPS = perfTestUtils.CalcTpsOverAllBasedOnAverageServiceResponseTimes(perfStatsForTest.ServiceResponseTimes)
 
 	} else if testSuite.TestStrategy == testStrategies.SUITE_BASED_TESTING {
-
-		//Start Test Timer
-		testStartTime := time.Now().UnixNano()
 
 		log.Info("Running Suite Based Testing Strategy. Suite:", testSuite.Name)
 		allServicesResponseTimesMap := testStrategies.ExecuteTestSuiteWrapper(testSuite, configurationSettings)
 
-		//Start Test Timer
-		testEndTime := time.Now().UnixNano()
-		testExecutionTime = testEndTime - testStartTime
 		for serviceName, serviceResponseTimes := range allServicesResponseTimesMap {
 			if len(serviceResponseTimes) == (configurationSettings.NumIterations * configurationSettings.ConcurrentUsers) {
-				averageResponseTime := perfTestUtils.CalcAverageResponseTime(serviceResponseTimes, configurationSettings.NumIterations)
+				averageResponseTime := perfTestUtils.CalcAverageResponseTime(serviceResponseTimes, configurationSettings.NumIterations, mode)
 				if averageResponseTime > 0 {
 					perfStatsForTest.ServiceResponseTimes[serviceName] = averageResponseTime
 				} else {
@@ -350,16 +342,16 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 						os.Exit(1)
 					}
 				}
-				perfStatsForTest.ServiceTps[serviceName] = perfTestUtils.CalcTps(testExecutionTime, len(serviceResponseTimes))
+				perfStatsForTest.ServiceTps[serviceName] = perfTestUtils.CalcTpsForService(averageResponseTime)
 			}
 		}
+		perfStatsForTest.OverAllTPS = perfTestUtils.CalcTpsOverAllBasedOnAverageServiceResponseTimes(perfStatsForTest.ServiceResponseTimes)
 	}
 
 	time.Sleep(time.Second * 1)
 	perfStatsForTest.PeakMemory = *peakMemoryAllocation
 	perfStatsForTest.MemoryAudit = memoryAudit
 	perfStatsForTest.TestPartitions = testPartitions
-	perfStatsForTest.OverAllTPS = perfTestUtils.CalcTps(testExecutionTime, (configurationSettings.NumIterations * len(testSuite.TestCases) * configurationSettings.ConcurrentUsers))
 }
 
 //This function runs the assertions to ensure memory and service have not deviated past the allowed variance

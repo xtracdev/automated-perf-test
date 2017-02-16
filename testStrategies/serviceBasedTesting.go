@@ -7,7 +7,7 @@ import (
 
 //Single execution function for all service test.
 //Runs multiple invocations of the test based on num iterations parameter
-func ExecuteServiceTest(testDefinition *TestDefinition, loadPerUser int, remainder int, configurationSettings *perfTestUtils.Config) int64 {
+func ExecuteServiceTest(testDefinition *TestDefinition, loadPerUser int, remainder int, configurationSettings *perfTestUtils.Config, mode int) int64 {
 
 	averageResponseTime := int64(0)
 	responseTimes := make([]int64, 0)
@@ -30,7 +30,7 @@ func ExecuteServiceTest(testDefinition *TestDefinition, loadPerUser int, remaind
 	wg.Wait()
 
 	if len(responseTimes) == configurationSettings.NumIterations {
-		averageResponseTime = perfTestUtils.CalcAverageResponseTime(responseTimes, configurationSettings.NumIterations)
+		averageResponseTime = perfTestUtils.CalcAverageResponseTime(responseTimes, configurationSettings.NumIterations, mode)
 	}
 	return averageResponseTime
 }

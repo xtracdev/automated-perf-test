@@ -2,9 +2,9 @@ package testStrategies
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"sync"
-	log "github.com/Sirupsen/logrus"
 )
 
 func ExecuteTestSuiteWrapper(testSuite *TestSuite, configurationSettings *perfTestUtils.Config) map[string][]int64 {

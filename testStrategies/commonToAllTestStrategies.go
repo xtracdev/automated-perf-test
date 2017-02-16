@@ -75,17 +75,17 @@ type TestDefinition struct {
 	Headers             http.Header          `toml:"headers"`
 	ResponseValues      []ResponseValue      `toml:"responseProperties"`
 	// Attributes defined in the testSuite:
-	PreThinkTime        int64
-	PostThinkTime       int64
-	ExecPercent         int
+	PreThinkTime  int64
+	PostThinkTime int64
+	ExecPercent   int
 }
 
 //The following structs define a load test scenario
 type TestCase struct {
-	Name           string `xml:",chardata"`
-	PreThinkTime   int64  `xml:"preThinkTime,attr"`
-	PostThinkTime  int64  `xml:"postThinkTime,attr"`
-	ExecPercent    int    `xml:"execPercent,attr"`
+	Name          string `xml:",chardata"`
+	PreThinkTime  int64  `xml:"preThinkTime,attr"`
+	PostThinkTime int64  `xml:"postThinkTime,attr"`
+	ExecPercent   int    `xml:"execPercent,attr"`
 }
 type TestSuiteDefinition struct {
 	XMLName      xml.Name   `xml:"testSuite"`
@@ -184,9 +184,9 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 			}
 
 			// Add the testCase attributes from the testSuiteDefinition (thinktime, etc).
-			testDefinition.PreThinkTime   = testCase.PreThinkTime
-			testDefinition.PostThinkTime  = testCase.PostThinkTime
-			testDefinition.ExecPercent    = testCase.ExecPercent
+			testDefinition.PreThinkTime = testCase.PreThinkTime
+			testDefinition.PostThinkTime = testCase.PostThinkTime
+			testDefinition.ExecPercent = testCase.ExecPercent
 
 			// Append the testDefinition to the testSuite
 			ts.TestCases = append(ts.TestCases, testDefinition)
@@ -212,7 +212,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 	//Execute the PreThinkTime, if any.
 	if testDefinition.PreThinkTime > 0 {
 		tt := float64(testDefinition.PreThinkTime) / 1000
-		log.Infof("Think time: [%.2f] seconds.", tt )
+		log.Infof("Think time: [%.2f] seconds.", tt)
 	}
 	time.Sleep(time.Duration(testDefinition.PreThinkTime) * time.Millisecond)
 
@@ -223,7 +223,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 	requestBaseURI := substituteRequestValues(&testDefinition.BaseUri, uniqueTestRunId, globalsMap)
 
 	if !testDefinition.Multipart {
-		log.Debug( "Building non-Multipart request." )
+		log.Debug("Building non-Multipart request.")
 		if testDefinition.Payload != "" {
 			//Retrieve Payload and perform any necessary substitution
 			payload := testDefinition.Payload
@@ -234,7 +234,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, nil)
 		}
 	} else {
-		log.Debug( "Building Multipart request." )
+		log.Debug("Building Multipart request.")
 		if testDefinition.HttpMethod != "POST" {
 			log.Error("Multipart request must be 'POST' method.")
 		} else {
@@ -273,15 +273,15 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 		testDefinition.TestName,
 	)
 
-
-	startTime := time.Now()
+	startTime := time.Now().UnixNano()
 	if resp, err := (&http.Client{}).Do(req); err != nil {
 		log.Errorf("Connection failed for request [Name:%s]: %+v", testDefinition.TestName, err)
 		return 0
 	} else {
 
 		// Mark response time, and gather the response.
-		timeTaken := time.Since(startTime)
+		endTime := time.Now().UnixNano()
+		timeTaken := endTime - startTime
 
 		body, _ := ioutil.ReadAll(resp.Body)
 		defer resp.Body.Close()
@@ -297,7 +297,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 
 		//Validate service response
 		responseCodeOk := perfTestUtils.ValidateResponseStatusCode(resp.StatusCode, testDefinition.ResponseStatusCode, testDefinition.TestName)
-		responseTimeOK := perfTestUtils.ValidateServiceResponseTime(timeTaken.Nanoseconds(), testDefinition.TestName)
+		responseTimeOK := perfTestUtils.ValidateServiceResponseTime(timeTaken, testDefinition.TestName)
 
 		if !responseCodeOk || !responseTimeOK {
 			return 0
@@ -305,16 +305,15 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(delay int, targetHost 
 		if testDefinition.ResponseValues != nil && len(testDefinition.ResponseValues) > 0 {
 			contentType := detectContentType(resp.Header, body, testDefinition.ResponseContentType)
 			extractResponseValues(testDefinition.TestName, body, testDefinition.ResponseValues, uniqueTestRunId, globalsMap, contentType)
-    }
-			//Execute the PostThinkTime, if any.
-			if testDefinition.PostThinkTime > 0 {
-				tt := float64(testDefinition.PostThinkTime) / 1000
-				log.Infof("Think time: [%.2f] seconds.", tt)
-        time.Sleep(time.Duration(testDefinition.PostThinkTime) * time.Millisecond)
-			}
-		
-    
-			return timeTaken.Nanoseconds()
+		}
+		//Execute the PostThinkTime, if any.
+		if testDefinition.PostThinkTime > 0 {
+			tt := float64(testDefinition.PostThinkTime) / 1000
+			log.Infof("Think time: [%.2f] seconds.", tt)
+			time.Sleep(time.Duration(testDefinition.PostThinkTime) * time.Millisecond)
+		}
+
+		return timeTaken
 		//} else {
 		//	return 0
 		//}

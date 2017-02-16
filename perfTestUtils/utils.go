@@ -160,25 +160,46 @@ func CalcPeakMemoryVariancePercentage(basePeakMemory uint64, peakMemory uint64) 
 	return peakMemoryVariancePercentage
 }
 
-func CalcTps(testRunTime int64, numIterations int) float64 {
+func CalcTpsForService(averageRespTimeForServiceinNanoSeconds int64) float64 {
+	timeInMilliSeconds := float64(float64(averageRespTimeForServiceinNanoSeconds) / float64(1000000))
+	return float64(float64(1000) / float64(timeInMilliSeconds))
+}
 
-	timeInMilliSeconds := testRunTime / 1000000
-	seconds := (timeInMilliSeconds / 1000)
-	return float64(float64(numIterations) / float64(seconds))
+func CalcTpsOverAllBasedOnAverageserviceTPS(ServiceTps map[string]float64) float64 {
+	totalServiceTPS := float64(0)
+	for _, v := range ServiceTps {
+		totalServiceTPS = totalServiceTPS + v
+	}
+	averageServiceTPSTPS := float64(float64(totalServiceTPS) / float64(len(ServiceTps)))
+
+	return averageServiceTPSTPS
+}
+
+func CalcTpsOverAllBasedOnAverageServiceResponseTimes(serviceResponseTimes map[string]int64) float64 {
+	totalServiceResponseTimes := int64(0)
+	for _, v := range serviceResponseTimes {
+		totalServiceResponseTimes = totalServiceResponseTimes + v
+	}
+	averageServiceResponseTimesTPS := float64(float64(totalServiceResponseTimes) / float64(len(serviceResponseTimes)))
+
+	averageinMilieseonds := float64(float64(averageServiceResponseTimesTPS) / float64(1000000))
+	return float64(float64(1000) / averageinMilieseonds)
 }
 
 //============================
 //Calc Response time functions
 //============================
-func CalcAverageResponseTime(responseTimes RspTimes, numIterations int) int64 {
+func CalcAverageResponseTime(responseTimes RspTimes, numIterations int, testMode int) int64 {
 
 	averageResponseTime := int64(0)
-
-	//Remove the highest =10% to take out anomolies
+	numberToRemove := 0
 	sort.Sort(responseTimes)
-	numberToRemove := int(float32(numIterations) * float32(0.1))
-	responseTimes = responseTimes[0 : len(responseTimes)-numberToRemove]
 
+	if testMode == 2 {
+		//It in testing mode, remove the highest 10% to take out anomolies and outliers
+		numberToRemove = int(float32(numIterations) * float32(0.1))
+		responseTimes = responseTimes[0 : len(responseTimes)-numberToRemove]
+	}
 	totalOfAllresponseTimes := int64(0)
 	for _, val := range responseTimes {
 		totalOfAllresponseTimes = totalOfAllresponseTimes + val
