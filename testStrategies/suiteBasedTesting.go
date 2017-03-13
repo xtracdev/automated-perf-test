@@ -44,7 +44,7 @@ func executeTestSuite(testSuiteResponseTimesChan chan []map[string]int64, testSu
 		globalsMap.Unlock()
 	}
 	testSuiteResponseTimesChan <- allSuiteResponseTimes
-	log.Info("Test Suite Finished")
+	log.Infof("Test Suite [%s] Finished", testSuite.Name)
 }
 
 func aggregateSuiteResponseTimes(testSuiteResponseTimesChan chan []map[string]int64, allServicesResponseTimesMap map[string][]int64, suiteWaitGroup *sync.WaitGroup) {

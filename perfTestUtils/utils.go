@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"os"
 	"sort"
-	"strconv"
 	"time"
 )
 
@@ -57,22 +56,8 @@ func ReadBasePerfFile(r io.Reader) (*BasePerfStats, error) {
 	return basePerfstats, errorFound
 }
 
-func GetExecutionTimeDisplay(executionTime int64) string {
-
-	timeInMilliSeconds := executionTime / 1000000
-	seconds := (timeInMilliSeconds / 1000)
-	secondsDisplay := seconds % 60
-	minutes := seconds / 60
-	minutesDisplay := minutes % 60
-
-	displayStatement := []byte("")
-	displayStatement = append(displayStatement, []byte(strconv.FormatInt(minutesDisplay, 10))...)
-	displayStatement = append(displayStatement, []byte(":")...)
-	if secondsDisplay <= 9 {
-		displayStatement = append(displayStatement, []byte("0")...)
-	}
-	displayStatement = append(displayStatement, []byte(strconv.FormatInt(secondsDisplay, 10))...)
-	return string(displayStatement)
+func GetExecutionTimeDisplay(durExecTime time.Duration) string {
+	return fmt.Sprintf( "%s (%.9fs)", durExecTime.String(), durExecTime.Seconds() )
 }
 
 func IsReadyForTest(configurationSettings *Config, testSuiteName string, numTestCases int) (bool, *BasePerfStats) {
@@ -214,7 +199,7 @@ func ValidateResponseStatusCode(responseStatusCode int, expectedStatusCode int, 
 	if responseStatusCode == expectedStatusCode {
 		isResponseStatusCodeValid = true
 	} else {
-		log.Errorf("Incorrect status code of %d retruned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode)
+		log.Errorf("Incorrect status code of %d returned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode)
 	}
 	return isResponseStatusCodeValid
 }
