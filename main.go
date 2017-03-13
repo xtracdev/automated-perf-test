@@ -172,7 +172,7 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 	log.Info("Running performance test in Training mode for host ", host)
 
 	//Start Test Timer
-	executionStartTime := time.Now().UnixNano()
+	executionStartTime := time.Now()
 
 	var basePerfstats *perfTestUtils.BasePerfStats
 	if reBaseAll {
@@ -199,14 +199,14 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem, testSuite.Name)
 
 	log.Info("Training mode completed successfully. ")
-	log.Info("Execution Run Time :", perfTestUtils.GetExecutionTimeDisplay(time.Now().UnixNano()-executionStartTime))
+	log.Info( "Execution Run Time [", perfTestUtils.GetExecutionTimeDisplay( time.Now().Sub(executionStartTime) ), "]" )
 }
 
 func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem, string), testSuite *testStrategies.TestSuite) {
 	log.Info("Running Performance test in Testing mode for host ", host)
 
 	//Start Test Timer
-	executionStartTime := time.Now().UnixNano()
+	executionStartTime := time.Now()
 
 	//initilize Performance statistics struct for this test run
 	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64), TestDate: time.Now(), ServiceTps: make(map[string]float64)}
@@ -231,7 +231,8 @@ func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, f
 		log.Info("Testing mode completed successfully")
 	}
 
-	log.Info("Execution Run Time :", perfTestUtils.GetExecutionTimeDisplay(time.Now().UnixNano()-executionStartTime))
+	log.Info( "Execution Run Time [", perfTestUtils.GetExecutionTimeDisplay( time.Now().Sub(executionStartTime) ), "]" )
+
 	log.Info("=====================================================")
 
 	if len(assertionFailures) > 0 {
@@ -320,7 +321,10 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 				}
 			}
 
-			perfStatsForTest.ServiceTps[testDefinition.TestName] = perfTestUtils.CalcTpsForService(averageResponseTime)
+			//Stop Test Timer
+			testEndTime := time.Now().UnixNano()
+			testExecutionTime = (testEndTime - testStartTime)
+			perfStatsForTest.ServiceTps[testDefinition.TestName] = perfTestUtils.CalcTps(testExecutionTime, configurationSettings.NumIterations)
 		}
 
 		perfStatsForTest.OverAllTPS = perfTestUtils.CalcTpsOverAllBasedOnAverageServiceResponseTimes(perfStatsForTest.ServiceResponseTimes)
@@ -329,6 +333,10 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 
 		log.Info("Running Suite Based Testing Strategy. Suite:", testSuite.Name)
 		allServicesResponseTimesMap := testStrategies.ExecuteTestSuiteWrapper(testSuite, configurationSettings)
+
+		//Stop Test Timer
+		testEndTime := time.Now().UnixNano()
+		testExecutionTime = (testEndTime - testStartTime)
 
 		for serviceName, serviceResponseTimes := range allServicesResponseTimesMap {
 			if len(serviceResponseTimes) == (configurationSettings.NumIterations * configurationSettings.ConcurrentUsers) {
