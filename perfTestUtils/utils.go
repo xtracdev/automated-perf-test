@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"os"
 	"sort"
-	"strconv"
 	"time"
 )
 
@@ -57,22 +56,8 @@ func ReadBasePerfFile(r io.Reader) (*BasePerfStats, error) {
 	return basePerfstats, errorFound
 }
 
-func GetExecutionTimeDisplay(executionTime int64) string {
-
-	timeInMilliSeconds := executionTime / 1000000
-	seconds := (timeInMilliSeconds / 1000)
-	secondsDisplay := seconds % 60
-	minutes := seconds / 60
-	minutesDisplay := minutes % 60
-
-	displayStatement := []byte("")
-	displayStatement = append(displayStatement, []byte(strconv.FormatInt(minutesDisplay, 10))...)
-	displayStatement = append(displayStatement, []byte(":")...)
-	if secondsDisplay <= 9 {
-		displayStatement = append(displayStatement, []byte("0")...)
-	}
-	displayStatement = append(displayStatement, []byte(strconv.FormatInt(secondsDisplay, 10))...)
-	return string(displayStatement)
+func GetExecutionTimeDisplay(durExecTime time.Duration) string {
+	return fmt.Sprintf( "%s (%.9fs)", durExecTime.String(), durExecTime.Seconds() )
 }
 
 func IsReadyForTest(configurationSettings *Config, testSuiteName string, numTestCases int) (bool, *BasePerfStats) {
@@ -160,6 +145,10 @@ func CalcPeakMemoryVariancePercentage(basePeakMemory uint64, peakMemory uint64) 
 	return peakMemoryVariancePercentage
 }
 
+
+//=====================
+//Calc TPS functions
+//=====================
 func CalcTpsForService(averageRespTimeForServiceinNanoSeconds int64) float64 {
 	timeInMilliSeconds := float64(float64(averageRespTimeForServiceinNanoSeconds) / float64(1000000))
 	return float64(float64(1000) / float64(timeInMilliSeconds))
@@ -184,6 +173,13 @@ func CalcTpsOverAllBasedOnAverageServiceResponseTimes(serviceResponseTimes map[s
 
 	averageinMilieseonds := float64(float64(averageServiceResponseTimesTPS) / float64(1000000))
 	return float64(float64(1000) / averageinMilieseonds)
+
+}
+
+//----- CalcTps --------------------------------------------------------------------------------------------------------
+func CalcTps(numIterations int, testRunTime time.Duration) float64 {
+	log.Debugf("CalcTps numIter: %d, Sec: %f", numIterations, testRunTime.Seconds())
+	return float64(float64(numIterations) / testRunTime.Seconds())
 }
 
 //============================
@@ -193,6 +189,8 @@ func CalcAverageResponseTime(responseTimes RspTimes, numIterations int, testMode
 
 	averageResponseTime := int64(0)
 	numberToRemove := 0
+
+	//Remove the highest =10% to take out anomalies
 	sort.Sort(responseTimes)
 
 	if testMode == 2 {
@@ -235,7 +233,7 @@ func ValidateResponseStatusCode(responseStatusCode int, expectedStatusCode int, 
 	if responseStatusCode == expectedStatusCode {
 		isResponseStatusCodeValid = true
 	} else {
-		log.Errorf("Incorrect status code of %d retruned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode)
+		log.Errorf("Incorrect status code of %d returned for service %s. %d expected", responseStatusCode, testName, expectedStatusCode)
 	}
 	return isResponseStatusCodeValid
 }
@@ -263,7 +261,7 @@ func ValidatePeakMemoryVariance(allowablePeakMemoryVariance float64, peakMemoryV
 	}
 }
 
-func ValidateAverageServiceResponseTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64, serviceName string) bool {
+func ValidateAverageServiceResponseTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64) bool {
 	if allowableServiceResponseTimeVariance >= serviceResponseTimeVariancePercentage {
 		return true
 	} else {

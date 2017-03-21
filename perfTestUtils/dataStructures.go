@@ -15,15 +15,18 @@ const (
 	defaultNumIterations                        = 1000
 	defaultAllowablePeakMemoryVariance          = float64(15)
 	defaultAllowableServiceResponseTimeVariance = float64(15)
-	defaultTestDefinitionsDir                   = "./definitions/testCases"
+	defaultTestCaseDir                          = "./definitions/testCases"
 	defaultTestSuiteDir                         = "./definitions/testSuites"
 	defaultBaseStatsOutputDir                   = "./envStats"
 	defaultReportOutputDir                      = "./"
 	defaultConcurrentUsers                      = 1
 	defaultTestSuite                            = ""
-	defaultTestFileFormat                       = "xml"
 	defaultMemoryEndpoint                       = "/debug/vars"
 	defaultRequestDelay                         = 1
+	defaultTPSFreq                              = 5
+
+	// Template file
+	defaultTestFileFormat                       = "xml"
 )
 
 type Config struct {
@@ -41,6 +44,7 @@ type Config struct {
 	TestSuite                            string  `xml:"testSuite"`
 	MemoryEndpoint                       string  `xml:"memoryEndpoint"`
 	RequestDelay                         int     `xml:"requestDelay"`
+	TPSFreq                              int     `xml:"TPSFreq"`
 
 	//These value can only be set by command line arguments as they control each training and test run.
 	GBS          bool
@@ -50,7 +54,7 @@ type Config struct {
 	//This value is determined by the environment/machine on which the test is being run.
 	ExecutionHost string
 
-	//template file
+	//Template file
 	ReportTemplateFile string `xml:"reportTemplateFile,omitempty"`
 	ConfigFileFormat   string
 	TestFileFormat     string
@@ -63,7 +67,7 @@ func (c *Config) SetDefaults() {
 	c.NumIterations = defaultNumIterations
 	c.AllowablePeakMemoryVariance = defaultAllowablePeakMemoryVariance
 	c.AllowableServiceResponseTimeVariance = defaultAllowableServiceResponseTimeVariance
-	c.TestCaseDir = defaultTestDefinitionsDir
+	c.TestCaseDir = defaultTestCaseDir
 	c.TestSuiteDir = defaultTestSuiteDir
 	c.BaseStatsOutputDir = defaultBaseStatsOutputDir
 	c.ReportOutputDir = defaultReportOutputDir
@@ -72,6 +76,7 @@ func (c *Config) SetDefaults() {
 	c.TestFileFormat = defaultTestFileFormat
 	c.MemoryEndpoint = defaultMemoryEndpoint
 	c.RequestDelay = defaultRequestDelay
+	c.TPSFreq = defaultTPSFreq
 
 	c.GBS = false
 	c.ReBaseMemory = false
@@ -102,7 +107,7 @@ func (c Config) PrintAndValidateConfig() {
 		c.AllowableServiceResponseTimeVariance = defaultAllowableServiceResponseTimeVariance
 	}
 	if strings.TrimSpace(c.TestCaseDir) == "" {
-		c.TestCaseDir = defaultTestDefinitionsDir
+		c.TestCaseDir = defaultTestCaseDir
 	}
 	if strings.TrimSpace(c.BaseStatsOutputDir) == "" {
 		c.BaseStatsOutputDir = defaultBaseStatsOutputDir
@@ -115,6 +120,9 @@ func (c Config) PrintAndValidateConfig() {
 	}
 	if c.RequestDelay < 1 {
 		c.MemoryEndpoint = defaultMemoryEndpoint
+	}
+	if c.TPSFreq < 1 {
+		c.TPSFreq = defaultTPSFreq
 	}
 
 	configOutput := []byte("")
@@ -137,6 +145,8 @@ func (c Config) PrintAndValidateConfig() {
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "reBaseMemory", c.ReBaseMemory, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "reBaseAll", c.ReBaseAll, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "ExecutionHost", c.ExecutionHost, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "RequestDelay", c.RequestDelay, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "TPSFreq", c.TPSFreq, "\n"))...)
 	configOutput = append(configOutput, []byte("\n=================================================\n")...)
 	log.Info(string(configOutput))
 }
