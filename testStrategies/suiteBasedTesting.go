@@ -14,9 +14,9 @@ import (
 
 //----- ExecuteTestSuiteWrapper ----------------------------------------------
 func ExecuteTestSuiteWrapper(
-			testSuite *TestSuite,
-			configurationSettings *perfTestUtils.Config,
-			startTime time.Time,
+		testSuite *TestSuite,
+		configurationSettings *perfTestUtils.Config,
+		startTime time.Time,
 ) map[string][]int64 {
 	allServicesResponseTimesMap := make(map[string][]int64, 0)
 	testSuiteResponseTimesChan := make(chan []map[string]int64, 1)
@@ -48,12 +48,12 @@ func ExecuteTestSuiteWrapper(
 
 //----- executeTestSuite ------------------------------------------------------
 func executeTestSuite(
-			testSuiteResponseTimesChan chan []map[string]int64,
-			testSuite *TestSuite,
-			configurationSettings *perfTestUtils.Config,
-			userId int,
-			globalsMap GlobalsMaps,
-			curOps *uint64,
+		testSuiteResponseTimesChan chan []map[string]int64,
+		testSuite *TestSuite,
+		configurationSettings *perfTestUtils.Config,
+		userId int,
+		globalsMap GlobalsMaps,
+		curOps *uint64,
 ) {
 	log.Info("Test Suite started")
 
