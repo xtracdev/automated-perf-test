@@ -145,30 +145,11 @@ func CalcPeakMemoryVariancePercentage(basePeakMemory uint64, peakMemory uint64) 
 	return peakMemoryVariancePercentage
 }
 
-func CalcTpsForService(averageRespTimeForServiceinNanoSeconds int64) float64 {
-	timeInMilliSeconds := float64(float64(averageRespTimeForServiceinNanoSeconds) / float64(1000000))
-	return float64(float64(1000) / float64(timeInMilliSeconds))
-}
 
-func CalcTpsOverAllBasedOnAverageserviceTPS(ServiceTps map[string]float64) float64 {
-	totalServiceTPS := float64(0)
-	for _, v := range ServiceTps {
-		totalServiceTPS = totalServiceTPS + v
-	}
-	averageServiceTPSTPS := float64(float64(totalServiceTPS) / float64(len(ServiceTps)))
-
-	return averageServiceTPSTPS
-}
-
-func CalcTpsOverAllBasedOnAverageServiceResponseTimes(serviceResponseTimes map[string]int64) float64 {
-	totalServiceResponseTimes := int64(0)
-	for _, v := range serviceResponseTimes {
-		totalServiceResponseTimes = totalServiceResponseTimes + v
-	}
-	averageServiceResponseTimesTPS := float64(float64(totalServiceResponseTimes) / float64(len(serviceResponseTimes)))
-
-	averageinMilieseonds := float64(float64(averageServiceResponseTimesTPS) / float64(1000000))
-	return float64(float64(1000) / averageinMilieseonds)
+//----- CalcTps --------------------------------------------------------------------------------------------------------
+func CalcTps(numIterations int, testRunTime time.Duration) float64 {
+	log.Debugf("CalcTps numIter: %d, Sec: %f", numIterations, testRunTime.Seconds())
+	return float64(float64(numIterations) / testRunTime.Seconds())
 }
 
 //============================
@@ -177,7 +158,8 @@ func CalcTpsOverAllBasedOnAverageServiceResponseTimes(serviceResponseTimes map[s
 func CalcAverageResponseTime(responseTimes RspTimes, numIterations int, testMode int) int64 {
 
 	averageResponseTime := int64(0)
-	numberToRemove := 0
+
+	//Remove the highest =10% to take out anomalies
 	sort.Sort(responseTimes)
 
 	if testMode == 2 {
