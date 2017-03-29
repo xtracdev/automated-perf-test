@@ -15,27 +15,25 @@ import (
 //----- ExecuteTestSuiteWrapper ----------------------------------------------
 func ExecuteTestSuiteWrapper(
 		testSuite *TestSuite,
-		configurationSettings *perfTestUtils.Config,
-		startTime time.Time,
-) map[string][]int64 {
+		configSettings *perfTestUtils.Config,
+		perfStatsForTest *perfTestUtils.PerfStats,
+		scenarioTimeStart time.Time,
+) (map[string][]int64) {
 	allServicesResponseTimesMap := make(map[string][]int64, 0)
 	testSuiteResponseTimesChan := make(chan []map[string]int64, 1)
 	var suiteWaitGroup sync.WaitGroup
 
-	// Variables to track total current TPS across all threads.
-	// We'll use an unsigned integer to represent our (always-positive) counter,
-	// and use a wait group from the sync package to track a concurrent counter.
-	var curOps uint64 = 0
-	quitShowTPSChan := make(chan bool)
+	// Set concurrency control:
+	suiteWaitGroup.Add(configSettings.ConcurrentUsers)
 
-	suiteWaitGroup.Add(configurationSettings.ConcurrentUsers)
-	for i := 0; i < configurationSettings.ConcurrentUsers; i++ {
-		go executeTestSuite(testSuiteResponseTimesChan, testSuite, configurationSettings, i, GlobalsLockCounter, &curOps)
+	for i := 0; i < configSettings.ConcurrentUsers; i++ {
+		go executeTestSuite(testSuiteResponseTimesChan, testSuite, configSettings, i, GlobalsLockCounter, perfStatsForTest)
 		go aggregateSuiteResponseTimes(testSuiteResponseTimesChan, allServicesResponseTimesMap, &suiteWaitGroup)
 	}
 
 	// Display the ongoing TPS to log.Info based on period specified in configurationSettings.TPSFreq:
-	go showCurrentTPS(quitShowTPSChan, &curOps, startTime, configurationSettings)
+	quitShowTPSChan := make(chan bool)
+	go showCurrentTPS(quitShowTPSChan, configSettings, scenarioTimeStart, &perfStatsForTest.OverAllTransCount)
 
 	suiteWaitGroup.Wait()
 	quitShowTPSChan <- true
@@ -53,12 +51,14 @@ func executeTestSuite(
 		configurationSettings *perfTestUtils.Config,
 		userId int,
 		globalsMap GlobalsMaps,
-		curOps *uint64,
+		perfStatsForTest *perfTestUtils.PerfStats,
 ) {
 	log.Info("Test Suite started")
 
+
 	allSuiteResponseTimes := make([]map[string]int64, 0)
 	uniqueTestRunId := ""
+
 	for i := 0; i < configurationSettings.NumIterations; i++ {
 		// Run all services of the test suite NumIterations of times.
 		uniqueTestRunId = fmt.Sprintf("User%dIter%d", userId, i)
@@ -68,11 +68,27 @@ func executeTestSuite(
 			log.Info("Test case: [", testDefinition.TestName, "] UniqueRunID: [", uniqueTestRunId, "]")
 
 			targetHost, targetPort := determineHostandPortforRequest(testDefinition, configurationSettings)
+
 			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.RequestDelay, targetHost, targetPort, uniqueTestRunId, globalsMap)
 			testSuiteResponseTimes[testDefinition.TestName] = responseTime
 
-			// Increment the global ops counter
-			atomic.AddUint64( curOps, 1 )
+			// Update the concurrent counters.
+			// Overall counter:
+			atomic.AddUint64(&perfStatsForTest.OverAllTransCount, 1)
+
+			// Service-level counters:
+			// Create the counters on the fly and increment atomically.
+			if perfStatsForTest.ServiceTransCount[testDefinition.TestName] == nil {
+				perfStatsForTest.ServiceTransCount[testDefinition.TestName] = new(uint64)
+				atomic.StoreUint64(
+					perfStatsForTest.ServiceTransCount[testDefinition.TestName],
+					0,
+				)
+			}
+			atomic.AddUint64(
+				perfStatsForTest.ServiceTransCount[testDefinition.TestName],
+				1,
+			)
 		}
 
 		allSuiteResponseTimes = append(allSuiteResponseTimes, testSuiteResponseTimes)
@@ -81,8 +97,8 @@ func executeTestSuite(
 		globalsMap.m[uniqueTestRunId] = nil
 		globalsMap.Unlock()
 	}
+
 	testSuiteResponseTimesChan <- allSuiteResponseTimes
-	log.Infof("Test Suite [%s::%s] Finished", testSuite.Name, uniqueTestRunId)
 }
 
 
@@ -112,37 +128,45 @@ func aggregateSuiteResponseTimes(
 
 //----- showCurrentTPS -------------------------------------------------------------------------------------------------
 // Print current TPS progress every period of time defined by configurationSettings.TPSFREQ.
-func showCurrentTPS( chQuit chan bool, curOps *uint64, startTime time.Time, configurationSettings *perfTestUtils.Config ) {
+func showCurrentTPS(
+		chQuit chan bool,
+		confgSettings *perfTestUtils.Config,
+		scenarioStartTime time.Time,
+		nNumberOfTrans *uint64,
+) {
 	for {
 		// Concurrent controls:
 		select {
 		case <-chQuit:
 			return
 		default:
-			// We only want one output line during any given second.
-			// This effectively sets the lower bound for TPSFreq.
+			// Set variables for convenience.
+			durElapsedTime := time.Since(scenarioStartTime)
+			num_ops := atomic.LoadUint64(nNumberOfTrans)
+
+			// We only want one output line during any given second. This
+			// effectively sets the lower bound for TPSFreq to one second.
 			time.Sleep(time.Second)
 
 			// No need to display until at least one operation has completed.
-			if (*curOps < uint64(1)) {
+			if (num_ops < uint64(1)) {
 				break
 			}
 
-			elapsedTime := time.Since(startTime)
 			// No need to display if not within the period set in config:
-			if (int64(elapsedTime.Seconds()) % int64(configurationSettings.TPSFreq) != 0) {
+			if (int64(durElapsedTime.Seconds()) % int64(confgSettings.TPSFreq) != 0) {
 				break
 			}
 
 			// Print the display.
-			num_ops := atomic.LoadUint64(curOps)
 			tps := 0.0
-			if (int(elapsedTime.Seconds()) > 0) {
-				tps = (float64(num_ops) / elapsedTime.Seconds())
+			if (int(durElapsedTime.Seconds()) > 0) {
+				tps = (float64(num_ops) / durElapsedTime.Seconds())
 			}
-			log.Infof("[showCurrentTPS] {\"curOps\":\"%d\",\"elapsedTime\":\"%f\",\"TPS\":\"%f\"}",
+
+			log.Infof("[showCurrentTPS] {\"TransCount\":\"%d\",\"ElapsedTime\":\"%v\",\"TPS\":\"%f\"}",
 				num_ops,
-				elapsedTime.Seconds(),
+				durElapsedTime,
 				tps,
 			)
 		}
