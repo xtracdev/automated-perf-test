@@ -21,7 +21,7 @@ cd -
 #----- Report overall success
 MSG="All Unit Tests PASSED"
 if [ $EXCEPT -eq $TRUE ]; then
-	MSG="!! Unit Test FAILED !!   Search '--- FAIL' in output above for details."
+	MSG="!! Unit Test FAILED !!   Search '--- FAIL' or '[build failed]' in output above for details."
 fi
 
 echo

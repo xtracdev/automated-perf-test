@@ -145,7 +145,6 @@ func CalcPeakMemoryVariancePercentage(basePeakMemory uint64, peakMemory uint64) 
 	return peakMemoryVariancePercentage
 }
 
-
 //----- CalcTps --------------------------------------------------------------------------------------------------------
 func CalcTps(numIterations int, testRunTime time.Duration) float64 {
 	log.Debugf("CalcTps numIter: %d, Sec: %f", numIterations, testRunTime.Seconds())
@@ -158,6 +157,7 @@ func CalcTps(numIterations int, testRunTime time.Duration) float64 {
 func CalcAverageResponseTime(responseTimes RspTimes, numIterations int, testMode int) int64 {
 
 	averageResponseTime := int64(0)
+	numberToRemove := 0
 
 	//Remove the highest =10% to take out anomalies
 	sort.Sort(responseTimes)
@@ -230,7 +230,7 @@ func ValidatePeakMemoryVariance(allowablePeakMemoryVariance float64, peakMemoryV
 	}
 }
 
-func ValidateAverageServiceResponseTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64, serviceName string) bool {
+func ValidateAverageServiceResponseTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64) bool {
 	if allowableServiceResponseTimeVariance >= serviceResponseTimeVariancePercentage {
 		return true
 	} else {
