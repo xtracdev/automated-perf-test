@@ -161,6 +161,8 @@ func CalcAverageResponseTime(responseTimes RspTimes, numIterations int, testMode
 	averageResponseTime := int64(0)
 
 	// Remove the highest =10% outliers.
+	numberToRemove := 0
+
 	sort.Sort(responseTimes)
 
 	if testMode == 2 {
@@ -231,7 +233,7 @@ func ValidatePeakMemoryVariance(allowablePeakMemoryVariance float64, peakMemoryV
 	}
 }
 
-func ValidateAverageServiceResponseTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64, serviceName string) bool {
+func ValidateAverageServiceResponseTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64) bool {
 	if allowableServiceResponseTimeVariance >= serviceResponseTimeVariancePercentage {
 		return true
 	} else {

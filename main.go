@@ -353,7 +353,6 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 	// some initial memory data before test cases are executed.
 	time.Sleep(time.Second * 1)
 
-
 	// 2. Execute tests based on strategy defaulting to SERVICE_BASED_TESTING.
 	if testSuite.TestStrategy == testStrategies.SUITE_BASED_TESTING {
 		// SUITE_BASED_TESTING strategy runs service requests in the order
@@ -458,10 +457,11 @@ func runAssertions(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTe
 		}
 
 		responseTimeVariancePercentage := perfTestUtils.CalcAverageResponseVariancePercentage(averageServiceResponseTime, baseResponseTime)
-		varianceOk := perfTestUtils.ValidateAverageServiceResponseTimeVariance(configurationSettings.AllowableServiceResponseTimeVariance, responseTimeVariancePercentage, serviceName)
+		varianceOk := perfTestUtils.ValidateAverageServiceResponseTimeVariance(configurationSettings.AllowableServiceResponseTimeVariance, responseTimeVariancePercentage)
 		if !varianceOk {
 			assertionFailures = append(assertionFailures, fmt.Sprintf("Service Failure: Service test %-60s response time variance exceeded by %3.2f %1s", serviceName, responseTimeVariancePercentage, "%"))
 		}
 	}
 	return assertionFailures
 }
+

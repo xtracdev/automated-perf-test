@@ -4,9 +4,9 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
-	"sync"
-	"time"
 	"sync/atomic"
+	"time"
+	"sync"
 )
 
 
@@ -68,7 +68,6 @@ func executeTestSuite(
 			log.Info("Test case: [", testDefinition.TestName, "] UniqueRunID: [", uniqueTestRunId, "]")
 
 			targetHost, targetPort := determineHostandPortforRequest(testDefinition, configurationSettings)
-
 			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.RequestDelay, targetHost, targetPort, uniqueTestRunId, globalsMap)
 			testSuiteResponseTimes[testDefinition.TestName] = responseTime
 
