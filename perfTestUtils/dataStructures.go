@@ -164,7 +164,9 @@ type BasePerfStats struct {
 type PerfStats struct {
 	PeakMemory           uint64
 	ServiceResponseTimes map[string]int64
-	ServiceTps           map[string]float64
+	ServiceTransCount    map[string]*uint64
+	ServiceTPS           map[string]float64
+	OverAllTransCount    uint64
 	OverAllTPS           float64
 	MemoryAudit          []uint64
 	TestPartitions       []TestPartition

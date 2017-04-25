@@ -145,11 +145,15 @@ func CalcPeakMemoryVariancePercentage(basePeakMemory uint64, peakMemory uint64) 
 	return peakMemoryVariancePercentage
 }
 
+
+
+
 //----- CalcTps --------------------------------------------------------------------------------------------------------
-func CalcTps(numIterations int, testRunTime time.Duration) float64 {
+func CalcTps(numIterations uint64, testRunTime time.Duration) float64 {
 	log.Debugf("CalcTps numIter: %d, Sec: %f", numIterations, testRunTime.Seconds())
 	return float64(float64(numIterations) / testRunTime.Seconds())
 }
+
 
 //============================
 //Calc Response time functions
@@ -157,13 +161,14 @@ func CalcTps(numIterations int, testRunTime time.Duration) float64 {
 func CalcAverageResponseTime(responseTimes RspTimes, numIterations int, testMode int) int64 {
 
 	averageResponseTime := int64(0)
+
+	// Remove the highest =10% outliers.
 	numberToRemove := 0
 
-	//Remove the highest =10% to take out anomalies
 	sort.Sort(responseTimes)
 
 	if testMode == 2 {
-		//It in testing mode, remove the highest 10% to take out anomolies and outliers
+		// If in testing mode, remove the highest 10% outliers.
 		numberToRemove = int(float32(numIterations) * float32(0.1))
 		responseTimes = responseTimes[0 : len(responseTimes)-numberToRemove]
 	}
