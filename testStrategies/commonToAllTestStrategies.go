@@ -278,6 +278,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 		testDefinition.TestName,
 	)
 
+
 	var resp *http.Response
 	var err error
 	startTime := time.Now()
