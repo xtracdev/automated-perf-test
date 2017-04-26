@@ -15,6 +15,8 @@ import (
 	"time"
 )
 
+
+
 //----- Globals ------------------------------------------------------------------
 var configurationSettings *perfTestUtils.Config
 var osFileSystem = perfTestUtils.OsFS{}
@@ -30,21 +32,66 @@ const (
 	TESTING_MODE  = 2
 )
 
-//----- setLogLevel -----------------------------------------------------------
-// Set log level using a simplified interface for end user. See "Process
-// command line args" in initConfig().
-func setLogLevel(verbose, debug bool) {
-	// Set default to WarnLevel
-	log.SetLevel(log.WarnLevel)
 
-	// Increase verbosity as set by user at command line.
-	if verbose {
-		log.SetLevel(log.InfoLevel)
+
+
+//----- main ------------------------------------------------------------------
+func main() {
+	log.Debugf("[START]")
+
+	initConfig(os.Args[1:], osFileSystem, os.Exit)
+
+	//Validate config()
+	configurationSettings.PrintAndValidateConfig()
+
+	//Generate a test suite based on configuration settings
+	testSuite := new(testStrategies.TestSuite)
+	testSuite.BuildTestSuite(configurationSettings)
+	numTestCases := len(testSuite.TestCases) //convenience variable
+
+	if checkTestReadiness {
+		readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
+		if !readyForTest {
+			log.Warn("System is not ready for testing.")
+			os.Exit(1)
+		} else {
+			log.Warn("System is ready for testing.")
+			os.Exit(0)
+		}
 	}
-	if debug {
-		log.SetLevel(log.DebugLevel)
+
+	//Determine testing mode.
+	if configurationSettings.GBS || configurationSettings.ReBaseAll {
+		if configurationSettings.ReBaseAll {
+			runInTrainingMode(configurationSettings.ExecutionHost, true, testSuite)
+		} else {
+			readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
+			if !readyForTest {
+				runInTrainingMode(configurationSettings.ExecutionHost, false, testSuite)
+			} else {
+				log.Warn("System is ready for testing. Training is not required.")
+			}
+		}
+	} else {
+		readyForTest, basePerfStats := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
+		if readyForTest {
+			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport, testSuite)
+		} else {
+			log.Warn("System is not ready for testing. Attempting to run training mode....")
+			runInTrainingMode(configurationSettings.ExecutionHost, false, testSuite)
+			readyForTest, basePerfStats = perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
+			if readyForTest {
+				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport, testSuite)
+			} else {
+				log.Error("System is not ready for testing. Failed to run in training mode. Check service logs for more details.")
+				os.Exit(1)
+			}
+		}
 	}
 }
+
+
+
 
 //----- initConfig ------------------------------------------------------------
 func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int)) {
@@ -114,65 +161,42 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	}
 }
 
-//----- main ------------------------------------------------------------------
-func main() {
-	log.Debugf("[START]")
-	initConfig(os.Args[1:], osFileSystem, os.Exit)
 
-	//Validate config()
-	configurationSettings.PrintAndValidateConfig()
 
-	//Generate a test suite based on configuration settings
-	testSuite := new(testStrategies.TestSuite)
-	testSuite.BuildTestSuite(configurationSettings)
-	numTestCases := len(testSuite.TestCases) //convenience variable
 
-	if checkTestReadiness {
-		readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
-		if !readyForTest {
-			log.Warn("System is not ready for testing.")
-			os.Exit(1)
-		} else {
-			log.Warn("System is ready for testing.")
-			os.Exit(0)
-		}
+//----- setLogLevel -----------------------------------------------------------
+// Set log level using a simplified interface for end user. See "Process
+// command line args" in initConfig().
+func setLogLevel( verbose, debug bool ) {
+	// Set default to WarnLevel
+	log.SetLevel( log.WarnLevel )
+
+	// Increase verbosity as set by user at command line.
+	if verbose {
+		log.SetLevel( log.InfoLevel )
 	}
-
-	//Determine testing mode.
-	if configurationSettings.GBS || configurationSettings.ReBaseAll {
-		if configurationSettings.ReBaseAll {
-			runInTrainingMode(configurationSettings.ExecutionHost, true, testSuite)
-		} else {
-			readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
-			if !readyForTest {
-				runInTrainingMode(configurationSettings.ExecutionHost, false, testSuite)
-			} else {
-				log.Warn("System is ready for testing. Training is not required.")
-			}
-		}
-	} else {
-		readyForTest, basePerfStats := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
-		if readyForTest {
-			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport, testSuite)
-		} else {
-			log.Warn("System is not ready for testing. Attempting to run training mode....")
-			runInTrainingMode(configurationSettings.ExecutionHost, false, testSuite)
-			readyForTest, basePerfStats = perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
-			if readyForTest {
-				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport, testSuite)
-			} else {
-				log.Error("System is not ready for testing. Failed to run in training mode. Check service logs for more details.")
-				os.Exit(1)
-			}
-		}
+	if debug {
+		log.SetLevel( log.DebugLevel )
 	}
 }
 
+
+
+
+//----- runInTrainingMode -----------------------------------------------------
 func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.TestSuite) {
 	log.Info("Running performance test in Training mode for host ", host)
 
-	//Start Test Timer
-	executionStartTime := time.Now().UnixNano()
+	// Start test timer.
+	scenarioTimeStart := time.Now()
+
+	// Initialize the performance statistics struct.
+	perfStatsForTest := &perfTestUtils.PerfStats{
+		TestDate:             scenarioTimeStart,
+		ServiceResponseTimes: make(map[string]int64),
+		ServiceTransCount:    make(map[string]*uint64),
+		ServiceTPS:           make(map[string]float64),
+	}
 
 	var basePerfstats *perfTestUtils.BasePerfStats
 	if reBaseAll {
@@ -189,38 +213,70 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 		basePerfstats, _ = perfTestUtils.ReadBasePerfFile(f)
 	}
 
-	//initilize Performance statistics struct for this test run
-	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64), ServiceTps: make(map[string]float64)}
-
 	//Run the test
-	runTests(perfStatsForTest, TRAINING_MODE, testSuite)
+	runTests(perfStatsForTest, TRAINING_MODE, testSuite, scenarioTimeStart)
+	scenarioTimeElapsed := time.Since(scenarioTimeStart)
 
 	//Generate base statistics output file for this training run.
 	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem, testSuite.Name)
 
 	log.Info("Training mode completed successfully. ")
-	log.Info("Execution Run Time :", perfTestUtils.GetExecutionTimeDisplay(time.Now().UnixNano()-executionStartTime))
+	log.Infof("Execution Run Time [%v]", scenarioTimeElapsed)
 }
 
-func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem, string), testSuite *testStrategies.TestSuite) {
+
+
+
+//----- runInTestingMode ------------------------------------------------------
+func runInTestingMode(
+		basePerfstats *perfTestUtils.BasePerfStats,
+		host string,
+		frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem, string),
+		testSuite *testStrategies.TestSuite,
+) {
 	log.Info("Running Performance test in Testing mode for host ", host)
 
-	//Start Test Timer
-	executionStartTime := time.Now().UnixNano()
+	// Start test timer. This will give us a basis for all TPS calculations,
+	// and will enable the engineer to:
+	//     o  Adjust config.NumIterations to control the overall length of the
+	//        test run.
+	//     o  Set config.ConcurrentUsers to adjust load (see documentation).
+	scenarioTimeStart := time.Now()
 
-	//initilize Performance statistics struct for this test run
-	perfStatsForTest := &perfTestUtils.PerfStats{ServiceResponseTimes: make(map[string]int64), TestDate: time.Now(), ServiceTps: make(map[string]float64)}
+	// Initialize performance statistics struct.
+	perfStatsForTest := &perfTestUtils.PerfStats{
+		TestDate:             scenarioTimeStart,
+		ServiceResponseTimes: make(map[string]int64),
+		ServiceTransCount:    make(map[string]*uint64),
+		ServiceTPS:           make(map[string]float64),
+	}
 
-	//Run the test
-	runTests(perfStatsForTest, TESTING_MODE, testSuite)
+	// Run the test.
+	runTests(perfStatsForTest, TESTING_MODE, testSuite, scenarioTimeStart)
 
-	//Validate test results
+	// Stop the timer. See comment on scenarioTimeStart above.
+	scenarioTimeElapsed := time.Since(scenarioTimeStart)
+
+	// Save overall TPS.
+	perfStatsForTest.OverAllTPS = perfTestUtils.CalcTps(perfStatsForTest.OverAllTransCount, scenarioTimeElapsed)
+
+	// Save per-service TPS.
+	for key, val := range perfStatsForTest.ServiceTransCount {
+		perfStatsForTest.ServiceTPS[key] = perfTestUtils.CalcTps(*val, scenarioTimeElapsed)
+		log.Debugf("ServiceName[%v]=%v TPS=%v",
+			key,
+			*val,
+			perfTestUtils.CalcTps(*val, scenarioTimeElapsed),
+		)
+	}
+
+	// Validate test results
 	assertionFailures := runAssertions(basePerfstats, perfStatsForTest)
 
-	//Generate performance test report
+	// Generate performance test report
 	frg(basePerfstats, perfStatsForTest, configurationSettings, osFileSystem, testSuite.Name)
 
-	//Print test results to std out
+	// Print test results to std out at log level "INFO".
 	log.Info("=================== TEST RESULTS ===================")
 	if len(assertionFailures) > 0 {
 		log.Info("Number of Failures : ", len(assertionFailures))
@@ -231,7 +287,9 @@ func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, f
 		log.Info("Testing mode completed successfully")
 	}
 
-	log.Info("Execution Run Time :", perfTestUtils.GetExecutionTimeDisplay(time.Now().UnixNano()-executionStartTime))
+	log.Infof("Scenario Time:   [%v]", scenarioTimeElapsed)
+	log.Infof("Overall Trans:   [%d]", perfStatsForTest.OverAllTransCount)
+	log.Infof("Overall TPS:     [%f]", perfStatsForTest.OverAllTPS)
 	log.Info("=====================================================")
 
 	if len(assertionFailures) > 0 {
@@ -239,20 +297,25 @@ func runInTestingMode(basePerfstats *perfTestUtils.BasePerfStats, host string, f
 	}
 }
 
-//This function does two things,
-//1 Start a go routine to periodically grab the memory foot print and set the peak memory value
-//2 Run all test using mock servers and gather performance stats
-func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *testStrategies.TestSuite) {
 
-	//Initialize Memory analysis
+
+
+//----- runTests --------------------------------------------------------------
+// This function does two things,
+// 1. Start a go routine to periodically grab the memory foot print and set the
+//    peak memory value.
+// 2. Run all test cases depending on Service-based or Suite-based strategy.
+func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *testStrategies.TestSuite, scenarioTimeStart time.Time) {
+	// Initialize Memory analysis.
 	var peakMemoryAllocation = new(uint64)
 	memoryAudit := make([]uint64, 0)
 	testPartitions := make([]perfTestUtils.TestPartition, 0)
 	counter := 0
 	testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: "StartUp"})
 
-	//Start go routine to grab memory in use
-	//Peak memory is stored in peakMemoryAllocation variable.
+
+	// 1. Start go routine to grab memory in use.
+	// Peak memory is stored in peakMemoryAllocation variable.
 	quit := make(chan bool)
 	go func() {
 		for {
@@ -260,18 +323,14 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 			case <-quit:
 				return
 			default:
-
 				memoryStatsUrl := "http://" + configurationSettings.TargetHost + ":" + configurationSettings.TargetPort + configurationSettings.MemoryEndpoint
 				resp, err := http.Get(memoryStatsUrl)
 				if err != nil {
 					log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error: ", err)
 					quit <- true
 				} else {
-
 					body, _ := ioutil.ReadAll(resp.Body)
-
 					defer resp.Body.Close()
-
 					m := new(perfTestUtils.Entry)
 					unmarshalErr := json.Unmarshal(body, m)
 					if unmarshalErr != nil {
@@ -290,46 +349,29 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 		}
 	}()
 
-	//Add a 1 second delay before running test case to allow the graph get some initial memory data before test cases are executed.
+	// Add a 1 second delay before running test case to allow the graph to get
+	// some initial memory data before test cases are executed.
 	time.Sleep(time.Second * 1)
 
-	//Check the test strategy
-	if testSuite.TestStrategy == testStrategies.SERVICE_BASED_TESTING {
+	// 2. Execute tests based on strategy defaulting to SERVICE_BASED_TESTING.
+	if testSuite.TestStrategy == testStrategies.SUITE_BASED_TESTING {
+		// SUITE_BASED_TESTING strategy runs service requests in the order
+		// they are defined in the suite config file. Each full suite
+		// definition is run concurrently across the number of threads defined
+		// by the config.ConcurrentUsers value. Each thread runs the scenario
+		// for config.NumIterations number of times. Usually used for capacity
+		// and longevity test runs against a live back end.
+		log.Info("Running Suite Based Testing Strategy. Suite Name: [", testSuite.Name, "]")
 
-		log.Info("Running Service Based Testing Strategy")
+		// Execute the suite.
+		allServicesResponseTimesMap := testStrategies.ExecuteTestSuiteWrapper(
+			testSuite,
+			configurationSettings,
+			perfStatsForTest,
+			scenarioTimeStart,
+		)
 
-		//Determine load per concurrent user
-		loadPerUser := int(configurationSettings.NumIterations / configurationSettings.ConcurrentUsers)
-		remainder := configurationSettings.NumIterations % configurationSettings.ConcurrentUsers
-
-		//overAllStartTime := time.Now().UnixNano()
-
-		for index, testDefinition := range testSuite.TestCases {
-
-			log.Info("Running Test case ", index, " [Name:", testDefinition.TestName, "]")
-			testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: testDefinition.TestName})
-			averageResponseTime := testStrategies.ExecuteServiceTest(testDefinition, loadPerUser, remainder, configurationSettings, mode)
-
-			if averageResponseTime > 0 {
-				perfStatsForTest.ServiceResponseTimes[testDefinition.TestName] = averageResponseTime
-			} else {
-				if mode == TRAINING_MODE {
-					//Fail fast on training mode if any requests fail. If training fails we cannot guarantee the results.
-					log.Error("Training mode failed due to invalid response on service [Name:", testDefinition.TestName, "]")
-					os.Exit(1)
-				}
-			}
-
-			perfStatsForTest.ServiceTps[testDefinition.TestName] = perfTestUtils.CalcTpsForService(averageResponseTime)
-		}
-
-		perfStatsForTest.OverAllTPS = perfTestUtils.CalcTpsOverAllBasedOnAverageServiceResponseTimes(perfStatsForTest.ServiceResponseTimes)
-
-	} else if testSuite.TestStrategy == testStrategies.SUITE_BASED_TESTING {
-
-		log.Info("Running Suite Based Testing Strategy. Suite:", testSuite.Name)
-		allServicesResponseTimesMap := testStrategies.ExecuteTestSuiteWrapper(testSuite, configurationSettings)
-
+		// Collate the service-level response time data.
 		for serviceName, serviceResponseTimes := range allServicesResponseTimesMap {
 			if len(serviceResponseTimes) == (configurationSettings.NumIterations * configurationSettings.ConcurrentUsers) {
 				averageResponseTime := perfTestUtils.CalcAverageResponseTime(serviceResponseTimes, configurationSettings.NumIterations, mode)
@@ -342,10 +384,47 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 						os.Exit(1)
 					}
 				}
-				perfStatsForTest.ServiceTps[serviceName] = perfTestUtils.CalcTpsForService(averageResponseTime)
+			} else {
+				log.Warn("runTests: Not enough Service Response Times in array. Check -vv output for errors. [%d != %d]",
+					len(serviceResponseTimes),
+					configurationSettings.NumIterations * configurationSettings.ConcurrentUsers,
+				)
 			}
 		}
-		perfStatsForTest.OverAllTPS = perfTestUtils.CalcTpsOverAllBasedOnAverageServiceResponseTimes(perfStatsForTest.ServiceResponseTimes)
+	} else {
+		// SERVICE_BASED_TESTING strategy runs sequentially through all test
+		// cases in the config.TestCaseDir folder for config.NumIterations
+		// number of times in parallel across the number of threads defined by
+		// the config.ConcurrentUsers value. Usually used with mock calls.
+		log.Info("Running Service Based Testing Strategy")
+
+		// Determine load per concurrent user.
+		loadPerUser := int(configurationSettings.NumIterations / configurationSettings.ConcurrentUsers)
+		remainder := configurationSettings.NumIterations % configurationSettings.ConcurrentUsers
+
+		// Set the overall TransCount, which will subsequently be used to
+		// calculate OverallTPS (see runInTestingMode() above).
+		perfStatsForTest.OverAllTransCount = uint64(len( testSuite.TestCases ) * configurationSettings.NumIterations)
+
+		log.Infof("SERVICE_BASED_TESTING loadPerUser=[%d] remainder=[%d]", loadPerUser, remainder)
+
+		var index int
+		var testDefinition *testStrategies.TestDefinition
+		for index, testDefinition = range testSuite.TestCases {
+			log.Infof("Running Test case [%d] [Name:%s]", index, testDefinition.TestName)
+			testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: testDefinition.TestName})
+			averageResponseTime := testStrategies.ExecuteServiceTest(testDefinition, loadPerUser, remainder, configurationSettings, mode)
+
+			if averageResponseTime > 0 {
+				perfStatsForTest.ServiceResponseTimes[testDefinition.TestName] = averageResponseTime
+			} else {
+				if mode == TRAINING_MODE {
+					//Fail fast on training mode if any requests fail. If training fails we cannot guarantee the results.
+					log.Error("Training mode failed due to invalid response on service [Name:", testDefinition.TestName, "]")
+					os.Exit(1)
+				}
+			}
+		}
 	}
 
 	time.Sleep(time.Second * 1)
@@ -354,6 +433,10 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 	perfStatsForTest.TestPartitions = testPartitions
 }
 
+
+
+
+//----- runAssertions ---------------------------------------------------------
 //This function runs the assertions to ensure memory and service have not deviated past the allowed variance
 func runAssertions(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTestUtils.PerfStats) []string {
 
@@ -374,10 +457,11 @@ func runAssertions(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTe
 		}
 
 		responseTimeVariancePercentage := perfTestUtils.CalcAverageResponseVariancePercentage(averageServiceResponseTime, baseResponseTime)
-		varianceOk := perfTestUtils.ValidateAverageServiceResponseTimeVariance(configurationSettings.AllowableServiceResponseTimeVariance, responseTimeVariancePercentage, serviceName)
+		varianceOk := perfTestUtils.ValidateAverageServiceResponseTimeVariance(configurationSettings.AllowableServiceResponseTimeVariance, responseTimeVariancePercentage)
 		if !varianceOk {
 			assertionFailures = append(assertionFailures, fmt.Sprintf("Service Failure: Service test %-60s response time variance exceeded by %3.2f %1s", serviceName, responseTimeVariancePercentage, "%"))
 		}
 	}
 	return assertionFailures
 }
+

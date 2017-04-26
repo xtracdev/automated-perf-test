@@ -169,9 +169,9 @@ func TestValidatePeakMemoryVariance(t *testing.T) {
 }
 
 func TestValidateAverageServiceResponeTimeVariance(t *testing.T) {
-	assert.True(t, ValidateAverageServiceResponseTimeVariance(15, 10, "test"))
-	assert.True(t, ValidateAverageServiceResponseTimeVariance(15, 15, "test"))
-	assert.False(t, ValidateAverageServiceResponseTimeVariance(15, 16, "test"))
+	assert.True(t, ValidateAverageServiceResponseTimeVariance(15, 10))
+	assert.True(t, ValidateAverageServiceResponseTimeVariance(15, 15))
+	assert.False(t, ValidateAverageServiceResponseTimeVariance(15, 16))
 }
 
 func TestGenerateEnvBasePerfOutputFile(t *testing.T) {

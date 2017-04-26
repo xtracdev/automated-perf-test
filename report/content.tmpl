@@ -93,7 +93,7 @@
 
                     {{range $key, $base := $.BasePerfStats.BaseServiceResponseTimes}}
                     	    {{$avg := index $.PerfStats.ServiceResponseTimes $key }}
-                    	    {{$tps := index $.PerfStats.ServiceTps $key }}
+                    	    {{$tps := index $.PerfStats.ServiceTPS $key }}
                     	    {{if ne $key "StartUp"}}
                     	    	 {{if eq $avg 0}}
                     		      <tr height=10px><td>{{$key}}</td><td>{{div $base 1e6 | formatMem}}</td><td>FAILED</td><td style="color:red">FAILED</td></tr>
