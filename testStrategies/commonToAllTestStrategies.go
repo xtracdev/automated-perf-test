@@ -77,7 +77,7 @@ type TestDefinition struct {
 	// Attributes defined in the testSuite:
 	PreThinkTime  int64
 	PostThinkTime int64
-	ExecPercent   int
+	ExecWeight    string
 }
 
 //The following structs define a load test scenario
@@ -85,7 +85,7 @@ type TestCase struct {
 	Name          string `xml:",chardata"`
 	PreThinkTime  int64  `xml:"preThinkTime,attr"`
 	PostThinkTime int64  `xml:"postThinkTime,attr"`
-	ExecPercent   int    `xml:"execPercent,attr"`
+	ExecWeight    string `xml:"execWeight,attr"`
 }
 type TestSuiteDefinition struct {
 	XMLName      xml.Name   `xml:"testSuite"`
@@ -186,7 +186,7 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 			// Add the testCase attributes from the testSuiteDefinition (thinktime, etc).
 			testDefinition.PreThinkTime = testCase.PreThinkTime
 			testDefinition.PostThinkTime = testCase.PostThinkTime
-			testDefinition.ExecPercent = testCase.ExecPercent
+			testDefinition.ExecWeight = testCase.ExecWeight
 
 			// Append the testDefinition to the testSuite
 			ts.TestCases = append(ts.TestCases, testDefinition)

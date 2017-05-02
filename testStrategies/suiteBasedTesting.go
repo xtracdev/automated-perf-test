@@ -64,7 +64,40 @@ func executeTestSuite(
 		uniqueTestRunId = fmt.Sprintf("User%dIter%d", userId, i)
 		testSuiteResponseTimes := make(map[string]int64)
 
+		// Set booleans for weighted load tags:
+		//
+		// Determine whether "Infrequent" items should run this iteration.
+		// [Currently set at 20% (mod 5)]
+		skipInfrequent := false
+		if i % 5 != 0 {
+			skipInfrequent = true
+		}
+		// Determine whether "Sparse" items should run this iteration.
+		// [Currently set at 8% (mod 12)]
+		skipSparse := false
+		if i % 12 != 0 {
+			skipSparse = true
+		}
+
 		for _, testDefinition := range testSuite.TestCases {
+			// Execute service based on weighted load:
+			if testDefinition.ExecWeight == "Infrequent" && skipInfrequent {
+				// Skip "Infrequent" items:
+				continue
+			}
+			if testDefinition.ExecWeight == "Sparse" && skipSparse {
+				// Skip "Sparse" items:
+				continue
+			}
+
+			// DEBUG:
+			if testDefinition.ExecWeight == "Infrequent" {
+				log.Debug("ExecWeight = [", testDefinition.ExecWeight, "] testCase = [",testDefinition.TestName,"]")
+			}
+			if testDefinition.ExecWeight == "Sparse" {
+				log.Debug("ExecWeight = [", testDefinition.ExecWeight, "] testCase = [",testDefinition.TestName,"]")
+			}
+
 			log.Info("Test case: [", testDefinition.TestName, "] UniqueRunID: [", uniqueTestRunId, "]")
 
 			targetHost, targetPort := determineHostandPortforRequest(testDefinition, configurationSettings)

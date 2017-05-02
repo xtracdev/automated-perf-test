@@ -373,7 +373,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 
 		// Collate the service-level response time data.
 		for serviceName, serviceResponseTimes := range allServicesResponseTimesMap {
-			if len(serviceResponseTimes) == (configurationSettings.NumIterations * configurationSettings.ConcurrentUsers) {
+			//if len(serviceResponseTimes) == (configurationSettings.NumIterations * configurationSettings.ConcurrentUsers) {
 				averageResponseTime := perfTestUtils.CalcAverageResponseTime(serviceResponseTimes, configurationSettings.NumIterations, mode)
 				if averageResponseTime > 0 {
 					perfStatsForTest.ServiceResponseTimes[serviceName] = averageResponseTime
@@ -384,12 +384,12 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 						os.Exit(1)
 					}
 				}
-			} else {
-				log.Warn("runTests: Not enough Service Response Times in array. Check -vv output for errors. [%d != %d]",
-					len(serviceResponseTimes),
-					configurationSettings.NumIterations * configurationSettings.ConcurrentUsers,
-				)
-			}
+			//} else {
+			//	log.Warnf("runTests: Not enough Service Response Times in array. Check -vv output for errors. [%d != %d]",
+			//		len(serviceResponseTimes),
+			//		configurationSettings.NumIterations * configurationSettings.ConcurrentUsers,
+			//	)
+			//}
 		}
 	} else {
 		// SERVICE_BASED_TESTING strategy runs sequentially through all test
