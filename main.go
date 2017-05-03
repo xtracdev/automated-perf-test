@@ -373,23 +373,16 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 
 		// Collate the service-level response time data.
 		for serviceName, serviceResponseTimes := range allServicesResponseTimesMap {
-			//if len(serviceResponseTimes) == (configurationSettings.NumIterations * configurationSettings.ConcurrentUsers) {
-				averageResponseTime := perfTestUtils.CalcAverageResponseTime(serviceResponseTimes, configurationSettings.NumIterations, mode)
-				if averageResponseTime > 0 {
-					perfStatsForTest.ServiceResponseTimes[serviceName] = averageResponseTime
-				} else {
-					if mode == TRAINING_MODE {
-						//Fail fast on training mode if any requests fail. If training fails we cannot guarantee the results.
-						log.Error("Training mode failed due to invalid response on service [Name:", serviceName, "]")
-						os.Exit(1)
-					}
+			averageResponseTime := perfTestUtils.CalcAverageResponseTime(serviceResponseTimes, mode)
+			if averageResponseTime > 0 {
+				perfStatsForTest.ServiceResponseTimes[serviceName] = averageResponseTime
+			} else {
+				if mode == TRAINING_MODE {
+					//Fail fast on training mode if any requests fail. If training fails we cannot guarantee the results.
+					log.Error("Training mode failed due to invalid response on service [Name:", serviceName, "]")
+					os.Exit(1)
 				}
-			//} else {
-			//	log.Warnf("runTests: Not enough Service Response Times in array. Check -vv output for errors. [%d != %d]",
-			//		len(serviceResponseTimes),
-			//		configurationSettings.NumIterations * configurationSettings.ConcurrentUsers,
-			//	)
-			//}
+			}
 		}
 	} else {
 		// SERVICE_BASED_TESTING strategy runs sequentially through all test

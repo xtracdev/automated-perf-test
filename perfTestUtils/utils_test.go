@@ -101,10 +101,10 @@ func BenchmarkCalcPeakMemoryVariancePercentage(t *testing.B) {
 func TestCalcAverageResponseTime(t *testing.T) {
 	times := make([]int64, 0)
 	for i := int64(200); i >= 0; i-- {
-		times = append(times, i*1000)
+		times = append(times, i*1243)
 	}
-	avg := CalcAverageResponseTime(times, 100, 2)
-	assert.Equal(t, int64(201611), avg)
+	avg := CalcAverageResponseTime(times, 2)
+	assert.Equal(t, int64(111870), avg)
 }
 
 func TestCalcAverageResponseVariancePercentage(t *testing.T) {
