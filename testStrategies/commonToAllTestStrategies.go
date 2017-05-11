@@ -355,7 +355,7 @@ func substituteRequestValues(requestBody *string, uniqueTestRunId string, global
 	globalsMap.RUnlock()
 
 	if testRunGlobals != nil {
-		r := regexp.MustCompile("{{(.[^ ]+)?}}")
+		r := regexp.MustCompile("{{([^}]+)}}")
 		res := r.FindAllString(*requestBody, -1)
 
 		if len(res) > 0 {
