@@ -233,7 +233,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 			//Retrieve Payload and perform any necessary substitution
 			payload := testDefinition.Payload
 			newPayload := substituteRequestValues(&payload, uniqueTestRunId, globalsMap)
-
+			reqbody = newPayload
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, strings.NewReader(newPayload))
 		} else {
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, nil)
@@ -408,7 +408,7 @@ func extractResponseValues(testCaseName string, body []byte, responseValues []Re
 	} else if strings.Contains(contentType, "xml") {
 		extractXMLResponseValues(testCaseName, body, responseValues, uniqueTestRunId, globalsMap)
 	} else {
-		log.Warn("Unsupported resposne content type of:", contentType)
+		log.Warn("Unsupported response content type of:", contentType)
 	}
 }
 
