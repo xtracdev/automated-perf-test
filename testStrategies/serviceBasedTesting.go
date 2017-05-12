@@ -30,7 +30,7 @@ func ExecuteServiceTest(testDefinition *TestDefinition, loadPerUser int, remaind
 	wg.Wait()
 
 	if len(responseTimes) == configurationSettings.NumIterations {
-		averageResponseTime = perfTestUtils.CalcAverageResponseTime(responseTimes, configurationSettings.NumIterations, mode)
+		averageResponseTime = perfTestUtils.CalcAverageResponseTime(responseTimes, mode)
 	}
 	return averageResponseTime
 }
