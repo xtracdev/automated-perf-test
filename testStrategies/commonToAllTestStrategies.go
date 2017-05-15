@@ -403,6 +403,11 @@ func convertStoredValuetoRequestFormat(storedValue interface{}, requiredIndex in
 }
 
 func extractResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunId string, globalsMap GlobalsMaps, contentType string) {
+	// Short-circuit if call returned empty response bodys.
+	if string(body) == "" {
+		return
+	}
+
 	if strings.Contains(contentType, "json") {
 		extractJSONResponseValues(testCaseName, body, responseValues, uniqueTestRunId, globalsMap)
 	} else if strings.Contains(contentType, "xml") {
