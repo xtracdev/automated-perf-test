@@ -270,7 +270,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 	}
 
 	log.Debugf(
-		"BEGIN \"%s\" Request:\n-----\nHEADER:%+v\nURL:%s\nBODY:%s\n-----\nEND [%s] Request",
+		"BEGIN \"%s\" Request:\n-----\nHEADER:%+v\nURL:%s\nREQ_BODY:%s\n-----\nEND [%s] Request",
 		testDefinition.TestName,
 		req.Header,
 		req.URL,
@@ -292,7 +292,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 	defer resp.Body.Close()
 
 	log.Debugf(
-		"BEGIN \"%s\" Response:\n-----\nSTATUSCODE:%d\nHEADER:%+v\nBODY:%s\n-----\nEND [%s] Response",
+		"BEGIN \"%s\" Response:\n-----\nSTATUSCODE:%d\nHEADER:%+v\nRESP_BODY:%s\n-----\nEND [%s] Response",
 		testDefinition.TestName,
 		resp.StatusCode,
 		resp.Header,
