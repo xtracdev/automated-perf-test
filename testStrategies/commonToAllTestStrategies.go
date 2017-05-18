@@ -416,6 +416,11 @@ func extractResponseValues(testCaseName string, body []byte, responseValues []Re
 	}
 }
 
+//----- extractJSONResponseValues --------------------------------------------
+// Extract the response values from the JSON result based on the JMESPath
+// query provided by the user.
+// Note: The user may choose to query an entire array, in which case we
+// return a random element from the set.
 func extractJSONResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunId string, globalsMap GlobalsMaps) {
 	//Get Global Properties for this test run
 	globalsMap.RLock()
@@ -435,6 +440,14 @@ func extractJSONResponseValues(testCaseName string, body []byte, responseValues 
 		json.Unmarshal(body, &data)
 
 		result, _ := jmespath.Search(propPath.Value, data) //Todo handle error
+
+		// If result is array, return a random element:
+		randidx := rand.New(rand.NewSource(time.Now().UnixNano()))
+		switch objectType := result.(type) {
+		case []interface{}:
+		       len := len(objectType)
+		       result = objectType[randidx.Intn(len)]
+		}
 
 		if testRunGlobals[testCaseName+"."+propPath.ExtractionKey] == nil {
 			testRunGlobals[testCaseName+"."+propPath.ExtractionKey] = result
