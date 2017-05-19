@@ -22,6 +22,8 @@ func TestSetDefaults(t *testing.T) {
 	assert.Equal(t, defaultMemoryEndpoint, c.MemoryEndpoint)
 	assert.Equal(t, defaultRequestDelay, c.RequestDelay)
 	assert.Equal(t, defaultTPSFreq, c.TPSFreq)
+	assert.Equal(t, defaultRampUsers, c.RampUsers)
+	assert.Equal(t, defaultRampDelay, c.RampDelay)
 	assert.Equal(t, false, c.GBS)
 	assert.Equal(t, false, c.ReBaseMemory)
 	assert.Equal(t, false, c.ReBaseAll)

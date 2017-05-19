@@ -4,21 +4,19 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
+	"sync"
 	"sync/atomic"
 	"time"
-	"sync"
 )
 
-
-
-
-//----- ExecuteTestSuiteWrapper ----------------------------------------------
+// ExecuteTestSuiteWrapper executes suites using concurrent goroutines and
+// returns response time metrics.
 func ExecuteTestSuiteWrapper(
-		testSuite *TestSuite,
-		configSettings *perfTestUtils.Config,
-		perfStatsForTest *perfTestUtils.PerfStats,
-		scenarioTimeStart time.Time,
-) (map[string][]int64) {
+	testSuite *TestSuite,
+	configSettings *perfTestUtils.Config,
+	perfStatsForTest *perfTestUtils.PerfStats,
+	scenarioTimeStart time.Time,
+) map[string][]int64 {
 	allServicesResponseTimesMap := make(map[string][]int64, 0)
 	testSuiteResponseTimesChan := make(chan []map[string]int64, 1)
 	var suiteWaitGroup sync.WaitGroup
@@ -26,7 +24,14 @@ func ExecuteTestSuiteWrapper(
 	// Set concurrency control:
 	suiteWaitGroup.Add(configSettings.ConcurrentUsers)
 
+	// Run the test suites concurrently.
 	for i := 0; i < configSettings.ConcurrentUsers; i++ {
+		// If RampUsers is set, start a batch of user threads, then wait the
+		// specified delay time. Otherwise, skip the delay and start all
+		// threads simultaneously.
+		if (i != 0) && (configSettings.RampUsers != 0) && (i%configSettings.RampUsers == 0) {
+			time.Sleep(time.Duration(configSettings.RampDelay) * time.Second)
+		}
 		go executeTestSuite(testSuiteResponseTimesChan, testSuite, configSettings, i, GlobalsLockCounter, perfStatsForTest)
 		go aggregateSuiteResponseTimes(testSuiteResponseTimesChan, allServicesResponseTimesMap, &suiteWaitGroup)
 	}
@@ -41,41 +46,36 @@ func ExecuteTestSuiteWrapper(
 	return allServicesResponseTimesMap
 }
 
-
-
-
 //----- executeTestSuite ------------------------------------------------------
 func executeTestSuite(
-		testSuiteResponseTimesChan chan []map[string]int64,
-		testSuite *TestSuite,
-		configurationSettings *perfTestUtils.Config,
-		userId int,
-		globalsMap GlobalsMaps,
-		perfStatsForTest *perfTestUtils.PerfStats,
+	testSuiteResponseTimesChan chan []map[string]int64,
+	testSuite *TestSuite,
+	configurationSettings *perfTestUtils.Config,
+	userID int,
+	globalsMap GlobalsMaps,
+	perfStatsForTest *perfTestUtils.PerfStats,
 ) {
 	log.Info("Test Suite started")
 
-
 	allSuiteResponseTimes := make([]map[string]int64, 0)
-	uniqueTestRunId := ""
+	uniqueTestRunID := ""
 
 	for i := 0; i < configurationSettings.NumIterations; i++ {
 		// Run all services of the test suite NumIterations of times.
-		uniqueTestRunId = fmt.Sprintf("User%dIter%d", userId, i)
+		uniqueTestRunID = fmt.Sprintf("User%dIter%d", userID, i)
 		testSuiteResponseTimes := make(map[string]int64)
 
 		// Set booleans for weighted load tags:
-		//
 		// Determine whether "Infrequent" items should run this iteration.
 		// [Currently set at 20% (mod 5)]
 		skipInfrequent := false
-		if i % 5 != 0 {
+		if i%5 != 0 {
 			skipInfrequent = true
 		}
 		// Determine whether "Sparse" items should run this iteration.
 		// [Currently set at 8% (mod 12)]
 		skipSparse := false
-		if i % 12 != 0 {
+		if i%12 != 0 {
 			skipSparse = true
 		}
 
@@ -92,16 +92,16 @@ func executeTestSuite(
 
 			// DEBUG:
 			if testDefinition.ExecWeight == "Infrequent" {
-				log.Debug("ExecWeight = [", testDefinition.ExecWeight, "] testCase = [",testDefinition.TestName,"]")
+				log.Debug("ExecWeight = [", testDefinition.ExecWeight, "] testCase = [", testDefinition.TestName, "]")
 			}
 			if testDefinition.ExecWeight == "Sparse" {
-				log.Debug("ExecWeight = [", testDefinition.ExecWeight, "] testCase = [",testDefinition.TestName,"]")
+				log.Debug("ExecWeight = [", testDefinition.ExecWeight, "] testCase = [", testDefinition.TestName, "]")
 			}
 
-			log.Info("Test case: [", testDefinition.TestName, "] UniqueRunID: [", uniqueTestRunId, "]")
+			log.Info("Test case: [", testDefinition.TestName, "] UniqueRunID: [", uniqueTestRunID, "]")
 
 			targetHost, targetPort := determineHostandPortforRequest(testDefinition, configurationSettings)
-			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.RequestDelay, targetHost, targetPort, uniqueTestRunId, globalsMap)
+			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.RequestDelay, targetHost, targetPort, uniqueTestRunID, globalsMap)
 			testSuiteResponseTimes[testDefinition.TestName] = responseTime
 
 			// Update the concurrent counters.
@@ -126,21 +126,18 @@ func executeTestSuite(
 		allSuiteResponseTimes = append(allSuiteResponseTimes, testSuiteResponseTimes)
 
 		globalsMap.Lock()
-		globalsMap.m[uniqueTestRunId] = nil
+		globalsMap.m[uniqueTestRunID] = nil
 		globalsMap.Unlock()
 	}
 
 	testSuiteResponseTimesChan <- allSuiteResponseTimes
 }
 
-
-
-
 //----- aggregateSuiteResponseTimes -------------------------------------------
 func aggregateSuiteResponseTimes(
-		testSuiteResponseTimesChan chan []map[string]int64,
-		allServicesResponseTimesMap map[string][]int64,
-		suiteWaitGroup *sync.WaitGroup,
+	testSuiteResponseTimesChan chan []map[string]int64,
+	allServicesResponseTimesMap map[string][]int64,
+	suiteWaitGroup *sync.WaitGroup,
 ) {
 	perUserSuiteResponseTimes := <-testSuiteResponseTimesChan
 	for _, singleSuiteRunResponseTimes := range perUserSuiteResponseTimes {
@@ -155,16 +152,13 @@ func aggregateSuiteResponseTimes(
 	suiteWaitGroup.Done()
 }
 
-
-
-
 //----- showCurrentTPS -------------------------------------------------------------------------------------------------
 // Print current TPS progress every period of time defined by configurationSettings.TPSFREQ.
 func showCurrentTPS(
-		chQuit chan bool,
-		confgSettings *perfTestUtils.Config,
-		scenarioStartTime time.Time,
-		nNumberOfTrans *uint64,
+	chQuit chan bool,
+	confgSettings *perfTestUtils.Config,
+	scenarioStartTime time.Time,
+	nNumberOfTrans *uint64,
 ) {
 	for {
 		// Concurrent controls:
@@ -174,30 +168,30 @@ func showCurrentTPS(
 		default:
 			// Set variables for convenience.
 			durElapsedTime := time.Since(scenarioStartTime)
-			num_ops := atomic.LoadUint64(nNumberOfTrans)
+			numOps := atomic.LoadUint64(nNumberOfTrans)
 
 			// We only want one output line during any given second. This
 			// effectively sets the lower bound for TPSFreq to one second.
 			time.Sleep(time.Second)
 
 			// No need to display until at least one operation has completed.
-			if (num_ops < uint64(1)) {
+			if numOps < uint64(1) {
 				break
 			}
 
 			// No need to display if not within the period set in config:
-			if (int64(durElapsedTime.Seconds()) % int64(confgSettings.TPSFreq) != 0) {
+			if int64(durElapsedTime.Seconds())%int64(confgSettings.TPSFreq) != 0 {
 				break
 			}
 
 			// Print the display.
 			tps := 0.0
-			if (int(durElapsedTime.Seconds()) > 0) {
-				tps = (float64(num_ops) / durElapsedTime.Seconds())
+			if int(durElapsedTime.Seconds()) > 0 {
+				tps = (float64(numOps) / durElapsedTime.Seconds())
 			}
 
 			log.Infof("[showCurrentTPS] {\"TransCount\":\"%d\",\"ElapsedTime\":\"%v\",\"TPS\":\"%f\"}",
-				num_ops,
+				numOps,
 				durElapsedTime,
 				tps,
 			)

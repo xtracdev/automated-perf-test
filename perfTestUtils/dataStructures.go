@@ -24,11 +24,14 @@ const (
 	defaultMemoryEndpoint                       = "/debug/vars"
 	defaultRequestDelay                         = 1
 	defaultTPSFreq                              = 5
+	defaultRampUsers                            = 0
+	defaultRampDelay                            = 10
 
 	// Template file
-	defaultTestFileFormat                       = "xml"
+	defaultTestFileFormat = "xml"
 )
 
+// Config struct contains all values set by the config.xml file.
 type Config struct {
 	APIName                              string  `xml:"apiName"`
 	TargetHost                           string  `xml:"targetHost"`
@@ -45,6 +48,8 @@ type Config struct {
 	MemoryEndpoint                       string  `xml:"memoryEndpoint"`
 	RequestDelay                         int     `xml:"requestDelay"`
 	TPSFreq                              int     `xml:"TPSFreq"`
+	RampUsers                            int     `xml:"rampUsers"`
+	RampDelay                            int     `xml:"rampDelay"`
 
 	//These value can only be set by command line arguments as they control each training and test run.
 	GBS          bool
@@ -60,6 +65,7 @@ type Config struct {
 	TestFileFormat     string
 }
 
+// SetDefaults initializes the Config struct.
 func (c *Config) SetDefaults() {
 	c.APIName = defaultAPIName
 	c.TargetHost = defaultTargetHost
@@ -77,12 +83,15 @@ func (c *Config) SetDefaults() {
 	c.MemoryEndpoint = defaultMemoryEndpoint
 	c.RequestDelay = defaultRequestDelay
 	c.TPSFreq = defaultTPSFreq
+	c.RampUsers = defaultRampUsers
+	c.RampDelay = defaultRampDelay
 
 	c.GBS = false
 	c.ReBaseMemory = false
 	c.ReBaseAll = false
 }
 
+// PrintAndValidateConfig sets any out of bounds value of the Config struct to the default.
 func (c Config) PrintAndValidateConfig() {
 
 	if strings.TrimSpace(c.APIName) == "" {
@@ -124,6 +133,12 @@ func (c Config) PrintAndValidateConfig() {
 	if c.TPSFreq < 1 {
 		c.TPSFreq = defaultTPSFreq
 	}
+	if c.RampUsers < 0 {
+		c.TPSFreq = defaultRampUsers
+	}
+	if c.RampDelay < 1 {
+		c.RampDelay = defaultRampDelay
+	}
 
 	configOutput := []byte("")
 	configOutput = append(configOutput, []byte("\n============== Configuration Settings =========\n")...)
@@ -147,11 +162,13 @@ func (c Config) PrintAndValidateConfig() {
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "ExecutionHost", c.ExecutionHost, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "RequestDelay", c.RequestDelay, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "TPSFreq", c.TPSFreq, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "RampUsers", c.RampUsers, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "RampDelay", c.RampDelay, "\n"))...)
 	configOutput = append(configOutput, []byte("\n=================================================\n")...)
 	log.Info(string(configOutput))
 }
 
-//This struct defines the base performance statistics
+// BasePerfStats struct defines the base performance statistics
 type BasePerfStats struct {
 	GenerationDate           string           `json:"GenerationDate"`
 	ModifiedDate             string           `json:"ModifiedDate"`
@@ -160,7 +177,7 @@ type BasePerfStats struct {
 	MemoryAudit              []uint64         `json:"MemoryAudit"`
 }
 
-//This struct defines the performance statistics for this test run
+// PerfStats struct defines the performance statistics for this test run
 type PerfStats struct {
 	PeakMemory           uint64
 	ServiceResponseTimes map[string]int64
@@ -173,18 +190,22 @@ type PerfStats struct {
 	TestDate             time.Time
 }
 
+// GetTestTime is used in report template for format the date.
 func (ps *PerfStats) GetTestTime() string {
 	return ps.TestDate.Format(time.RFC850)
 }
 
+// TestPartition struct combines the test name with a count for use on the report.
 type TestPartition struct {
 	Count    int
 	TestName string
 }
 
+// Entry struct combines a serivce call with memory statistics for use on the report.
 type Entry struct {
 	Cmdline  []string         `json:"cmdline"`
 	Memstats runtime.MemStats `json:"memstats"`
 }
 
+// RspTimes contains a sequential array of response time integers.
 type RspTimes []int64
