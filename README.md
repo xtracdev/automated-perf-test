@@ -4,12 +4,12 @@ Automated performance test framework allows API developers to test the performan
 degraded since the last commit. It analyzes the memory footprint and service response times of the API services and reports on success and failure scenarios.
 
 Features include:
-* **Training mode** This mode executes all defined test cases and outputs the results to a json file. This json file represents the base memory profile of the API in relation to the target environment.
+* **Training mode** This mode executes all defined test cases and outputs the results to a JSON file. This JSON file represents the base memory profile of the API in relation to the target environment.
 * **Testing mode** This mode executes all defined test cases and compares the results with the pre-generated base profile.
 * **Peak memory analysis.** If the peak memory usage during testing mode exceeds an allowed threshold (configurable) the test will fail.
 * **Service response time analysis** If the response time of any service test case exceeds an allowed threshold (configurable) the test will fail.
 * **Simulated concurrent users** The system can be configured to allow multiple concurrent hitting the API at once, dividing the test load across these users.
-* **Report generation** In both successful and failed test runs, a report will be generated indicating the test finding and targeting ares where performance issue have been found.
+* **Report generation** In both successful and failed test runs, a report will be generated indicating the test finding and targeting areas where performance issue have been found.
 * **Easily defined test cases** To define a new test case, all that is required is a request definition which describes the service request.
 * **Integration into Build Pipeline** Can be configured to run as part of a build pipeline to validate performance as code is checked in.
 
@@ -19,25 +19,25 @@ Features include:
 To use the framework, users should provide a configuration file which define the setting specific to the API under test. A sample configuration file can be in the config directory.
 The configuration file parameters are described in the table below.
 
-| Property                                | Description                                                                                                                                                        |
-|-----------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| \<apiName>                              | Provide a name to the API under test to be used for report generation.                                                                                             |
-| \<targetHost>                           | Target host of the API under test                                                                                                                                  |
-| \<targetPort>                           | Target port of the API under test                                                                                                                                  |
-| \<allowablePeakMemoryVariance>          | The percentage by which the peak memory can exceed during the test without the test without the test being considered a failure scenario                           |
-| \<allowableServiceResponseTimeVariance> | The percentage by which a service test case response time can exceed during the test without the test without the test being considered a failure scenario.        |
-| \<numIterations>                        | The number of times each test case will be executed. Controls the run time length of the test run.                                                                 |
-| \<concurrentUsers>                      | Specify the number of threads across which to spread the load. Controls overall TPS.                                                                               |
-| \<testCasesDir>                         | Directory location for test cases.                                                                                                                                 |
-| \<testSuitesDir>                        | Directory location for test suites.                                                                                                                                |
-| \<testSuite>                            | Name of the active test suite.                                                                                                                                     |
-| \<baseStatsOutputDir>                   | Directory location of the output file for the base performance statistics json file.                                                                               |
-| \<reportOutputDir>                      | Directory location of the output report file (HTML)                                                                                                                |
-| \<memoryEndpoint>                       | Override "/debug/vars" as the endpoint call for memory metrics.                                                                                                    |
-| \<requestDelay>                         | Add a random delay between all requests from 0 to "requestDelay" specified in milliseconds.                                                                        |
-| \<tpsFreq>                              | Specify the number of seconds between display of the overall TPS in log.info output.                                                                               |
-| \<rampUsers>                            | Specify the number of user threads to start in a batch during ramp up. eg. Start 5 threads every 15 seconds.                                                       |
-| \<rampDelay>                            | Specify number of seconds between starting user threads batched during ramp up.                                                                                    |
+| Property                                | Description                                                                                                                                 |
+|-----------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------|
+| \<apiName>                              | Provide a name to the API under test to be used for report generation.                                                                      |
+| \<targetHost>                           | Target host of the API under test.                                                                                                          |
+| \<targetPort>                           | Target port of the API under test.                                                                                                          |
+| \<allowablePeakMemoryVariance>          | The percentage by which the peak memory can exceed during the test without the test without the test being considered a failure scenario.   |
+| \<allowableServiceResponseTimeVariance> | The percentage by which a service test case response time can exceed during the test without the test being considered a failure scenario.  |
+| \<numIterations>                        | The number of times each test case will be executed. Controls the run time length of the test run.                                          |
+| \<concurrentUsers>                      | Specify the number of threads across which to spread the load. Controls overall TPS.                                                        |
+| \<testCasesDir>                         | Directory location for test cases.                                                                                                          |
+| \<testSuitesDir>                        | Directory location for test suites.                                                                                                         |
+| \<testSuite>                            | Name of the test suite XML file. Remove this property for service-base strategy.                                                            |
+| \<baseStatsOutputDir>                   | Directory location of the output file for the base performance statistics JSON file.                                                        |
+| \<reportOutputDir>                      | Directory location of the output report file (HTML).                                                                                        |
+| \<memoryEndpoint>                       | Override "/debug/vars" as the endpoint call for memory metrics.                                                                             |
+| \<requestDelay>                         | Add a random delay between all requests specified in milliseconds.                                                                          |
+| \<tpsFreq>                              | Specify the number of seconds between displaying the overall TPS message in log.info output.                                                |
+| \<rampUsers>                            | Specify the number of user threads to start in a batch during ramp up. Eg. Start 5 threads every 15 seconds.                                |
+| \<rampDelay>                            | Specify number of seconds between starting user threads batched during ramp up.                                                             |
 
 #### Command line arguments
 In addition the configuration parameters, command line arguments can the passed in to control specifics of each individual test run. The command line arguments are described in the table below.
@@ -56,7 +56,7 @@ In addition the configuration parameters, command line arguments can the passed 
 The framework supports two type of testing strategies, ServiceBased and SuiteBased. These testing strategies allow flexibility when performing performance
 test under different conditions, for example Build pipeline mock vs Live back end load test.
 ##### ServiceBased
-This is the default testing strategy and will be used if no test test suite is defined in the configuration file. In this scenario, all files in the test case dir will
+This is the default testing strategy and will be used if no test suite is defined in the configuration file. In this scenario, all files in the test case dir will
 for an informal test suite. Service Based testing focuses on each service  independently of others. Memory and service response time data is gathered during the test and analysis is performed once the test is complete. Service based testing is very
 appropriate when used in conjunction with a build pipeline and mock back end. These test should run quickly to ensure fast overall run time of the pipeline. This type of testing
 divides the load across concurrent users. Eg. For 1000 iterations per test case with 10 concurrent users, each user will perform 100 requests concurrently per test case.

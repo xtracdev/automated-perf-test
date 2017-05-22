@@ -7,20 +7,26 @@
     <targetHost>localhost</targetHost>
     <targetPort>8282</targetPort>
 
-    <!-- Allowed vairance as a percentage over base values. -->
+    <!-- Allowed variance as a percentage over base values. -->
     <allowablePeakMemoryVariance>15</allowablePeakMemoryVariance>
     <allowableServiceResponseTimeVariance>15</allowableServiceResponseTimeVariance>
 
-    <!-- The number of time each test case is executed. -->
+    <!-- The number of times each test case will be executed. Controls the run time length of the test run. -->
     <numIterations>1000</numIterations>
 
-    <!-- The number of time each test case is executed. -->
+    <!-- The number of concurrent user threads per service test. -->
+    <concurrentUsers>1</concurrentUsers>
+
+    <!-- Specify the number of threads across which to spread the load. Controls overall TPS. -->
     <concurrentUsers>50</concurrentUsers>
 
-    <!-- -->
-    <testCasesDir></testCasesDir>>
-    <!-- -->
-    <testCaseSuite></testCaseSuite>>
+    <!-- Directory location for test cases. -->
+    <testCasesDir>/path/to/dir</testCasesDir>
+    <!-- Directory location for test suites. -->
+    <testCaseSuiteDir>/path/to/dir</testCaseSuiteDir>
+
+    <!-- Name of the test suite XML file. Remove this property for service-base strategy. -->
+    <testSuite>suiteFileName.xml</testSuite>
 
     <!-- Location of directory where test cases reside. -->
     <testDefinitionsDir>./testDefinitions</testDefinitionsDir>
@@ -29,22 +35,19 @@
     <baseStatsOutputDir>./envStats</baseStatsOutputDir>
     <reportOutputDir>./report</reportOutputDir>
 
-    <!-- Concurrent users per service test -->
-    <concurrentUsers>1</concurrentUsers>
+    <!-- Override "/debug/vars" as the endpoint call for memory metrics. -->
+    <memoryEndpoint>/alt/debug/vars</memoryEndpoint>
 
-    <!-- optional template file location
-    <reportTemplateFile/>-->
+    <!-- Add a random delay between all requests specified in milliseconds. -->
+    <requestDelay>5000</requestDelay>
 
-    <!-- -->
-    <></>
+    <!-- Specify the number of seconds between displaying the overall TPS message in log.info output. -->
+    <tpsFreq>5000</tpsFreq>
 
-    <!-- -->
-    <></>
+    <!-- Specify the number of user threads to start in a batch during ramp up. eg. Start 5 threads every 15 seconds. -->
+    <rampUsers>5</rampUsers>
 
-    <!-- -->
-    <></>
-
-    <!-- -->
-    <></>
+    <!-- Specify number of seconds between starting user threads batched during ramp up. -->
+    <rampDelay>15</rampDelay>
 
 </config>
