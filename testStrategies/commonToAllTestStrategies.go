@@ -214,11 +214,11 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 // of the call, or 0 if failure. Note: Response time does not include
 // RequestDelay or ThinkTime.
 func (testDefinition *TestDefinition) BuildAndSendRequest(
-		delay int,
-		targetHost string,
-		targetPort string,
-		uniqueTestRunID string,
-		globalsMap GlobalsMaps,
+	delay int,
+	targetHost string,
+	targetPort string,
+	uniqueTestRunID string,
+	globalsMap GlobalsMaps,
 ) int64 {
 	log.Debugf("BEGIN \"%s\" testDefinition\n-----\n%+v\n-----\nEND \"%s\" testDefinition\n",
 		testDefinition.TestName,
@@ -381,13 +381,14 @@ func substituteRequestValues(requestBody *string, uniqueTestRunID string, global
 				propertyPlaceHolderName := cleanedPropertyName
 				propertyPlaceHolderIndex := 0
 
+				// Extract the index number if array notation encountered.
 				if strings.Contains(cleanedPropertyName, "[") && strings.Contains(cleanedPropertyName, "]") {
-					propertyPlaceHolderName, propertyPlaceHolderIndex = getArrayNameAndIndex(cleanedPropertyName)
+					propertyPlaceHolderName, propertyPlaceHolderIndex = getArrayNameAndIndex(testRunGlobals, cleanedPropertyName)
 				}
 
+				// Get the value based on the property name.
 				placeHolderValue := testRunGlobals[propertyPlaceHolderName]
-
-				valueAsString := convertStoredValuetoRequestFormat(placeHolderValue, propertyPlaceHolderIndex)
+				valueAsString := convertStoredValueToRequestFormat(placeHolderValue, propertyPlaceHolderIndex)
 
 				if valueAsString != "" {
 					requestPayloadCopy = strings.Replace(requestPayloadCopy, propertyPlaceHolder, valueAsString, 1)
@@ -398,7 +399,31 @@ func substituteRequestValues(requestBody *string, uniqueTestRunID string, global
 	}
 	return requestPayloadCopy
 }
-func convertStoredValuetoRequestFormat(storedValue interface{}, requiredIndex int) string {
+
+// getArrayNameAndIndex
+func getArrayNameAndIndex(testRunGlobals map[string]interface{}, propPathPart string) (string, int) {
+
+	propPathPart = strings.Replace(propPathPart, "[", "::", 1)
+	propPathPart = strings.Replace(propPathPart, "]", "", 1)
+	propertyNameParts := strings.Split(propPathPart, "::")
+
+	index, _ := strconv.Atoi(propertyNameParts[1]) //todo, handle error: on error set index to 0
+
+	// A value of '?' rather than a number in the index notation indicates
+	// the user would like a random record returned from the data set.
+	if propertyNameParts[1] == "?" {
+		// Seed the rand call.
+		randIdx := rand.New(rand.NewSource(time.Now().UnixNano()))
+		// Get the length of the property array to serve as boundary for rand.
+		len := len(testRunGlobals[propertyNameParts[0]].([]interface{}))
+		// Set the index to a random value.
+		index = randIdx.Intn(len)
+	}
+
+	return propertyNameParts[0], index
+}
+
+func convertStoredValueToRequestFormat(storedValue interface{}, requiredIndex int) string {
 	requestFormattedValue := ""
 	switch objectType := storedValue.(type) {
 
@@ -407,7 +432,7 @@ func convertStoredValuetoRequestFormat(storedValue interface{}, requiredIndex in
 		requestFormattedValue = string(jsonValue)
 	case []interface{}:
 		value := objectType[requiredIndex]
-		requestFormattedValue = convertStoredValuetoRequestFormat(value, 0)
+		requestFormattedValue = convertStoredValueToRequestFormat(value, 0)
 	case string:
 		requestFormattedValue = string(objectType)
 	default:
@@ -460,18 +485,6 @@ func extractJSONResponseValues(testCaseName string, body []byte, responseValues 
 	}
 }
 
-// getArrayNameAndIndex
-func getArrayNameAndIndex(propPathPart string) (string, int) {
-
-	propPathPart = strings.Replace(propPathPart, "[", "::", 1)
-	propPathPart = strings.Replace(propPathPart, "]", "", 1)
-	propertyNameParts := strings.Split(propPathPart, "::")
-
-	index, _ := strconv.Atoi(propertyNameParts[1]) //todo, handle error
-
-	return propertyNameParts[0], index
-}
-
 func extractXMLResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string, globalsMap GlobalsMaps) {
 	//Get Global Properties for this test run
 	globalsMap.RLock()
@@ -515,7 +528,7 @@ func loadTestDefinition(bs []byte, configurationSettings *perfTestUtils.Config) 
 			log.Errorf("Error occurred loading XML testCase definition file: %v\n", err)
 			return nil, err
 		}
-		testDefinition = &TestDefinition {
+		testDefinition = &TestDefinition{
 			TestName:            td.TestName,
 			OverrideHost:        td.OverrideHost,
 			OverridePort:        td.OverridePort,
