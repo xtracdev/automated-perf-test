@@ -22,35 +22,43 @@ import (
 	"time"
 )
 
+// ServiceBasedTesting and SuiteBasedTesting are used as boolean to determine
+// and control which strategy to use throughout the test run.
 const (
-	SERVICE_BASED_TESTING = "ServiceBased"
-	SUITE_BASED_TESTING   = "SuiteBased"
+	ServiceBasedTesting = "ServiceBased"
+	SuiteBasedTesting   = "SuiteBased"
 )
 
+// GlobalsMaps maintains values across concurrent threads.
 type GlobalsMaps struct {
 	sync.RWMutex
 	m map[string]map[string]interface{}
 }
 
+// GlobalsLockCounter tracks access to GlobalsMaps data across threads.
 var GlobalsLockCounter = GlobalsMaps{m: make(map[string]map[string]interface{})}
 
+// Header appears to be currently unused.
 type Header struct {
 	Value string `xml:",chardata"`
 	Key   string `xml:"key,attr"`
 }
+
+// ResponseValue encapsulates the variable name (ExtractionKey) and the value
+// from the call response. Used for variable substitution between calls.
 type ResponseValue struct {
 	Value         string `xml:",chardata" toml:"value"`
 	ExtractionKey string `xml:"extractionKey,attr" toml:"extractionKey"`
 }
 
-//This struct defines the base performance statistics
-type XmlTestDefinition struct {
+// XMLTestDefinition defines the base performance statistics.
+type XMLTestDefinition struct {
 	XMLName             xml.Name             `xml:"testDefinition"`
 	TestName            string               `xml:"testName" toml:"testName"`
 	OverrideHost        string               `xml:"overrideHost" toml:"overrideHost"`
 	OverridePort        string               `xml:"overridePort" toml:"overridePort"`
-	HttpMethod          string               `xml:"httpMethod"`
-	BaseUri             string               `xml:"baseUri"`
+	HTTPMethod          string               `xml:"httpMethod"`
+	BaseURI             string               `xml:"baseUri"`
 	Multipart           bool                 `xml:"multipart"`
 	Payload             string               `xml:"payload"`
 	MultipartPayload    []multipartFormField `xml:"multipartPayload>multipartFormField"`
@@ -60,13 +68,13 @@ type XmlTestDefinition struct {
 	ResponseValues      []ResponseValue      `xml:"responseProperties>value"`
 }
 
-//TomlTestDefinition defines the test in TOML language
+// TestDefinition encapsulates the test config file.
 type TestDefinition struct {
 	TestName            string               `toml:"testName"`
 	OverrideHost        string               `toml:"overrideHost"`
 	OverridePort        string               `toml:"overridePort"`
-	HttpMethod          string               `toml:"httpMethod"`
-	BaseUri             string               `toml:"baseUri"`
+	HTTPMethod          string               `toml:"httpMethod"`
+	BaseURI             string               `toml:"baseUri"`
 	Multipart           bool                 `toml:"multipart"`
 	Payload             string               `toml:"payload"`
 	MultipartPayload    []multipartFormField `toml:"multipartFormField"`
@@ -80,13 +88,15 @@ type TestDefinition struct {
 	ExecWeight    string
 }
 
-//The following structs define a load test scenario
+// TestCase defines a load test scenario.
 type TestCase struct {
 	Name          string `xml:",chardata"`
 	PreThinkTime  int64  `xml:"preThinkTime,attr"`
 	PostThinkTime int64  `xml:"postThinkTime,attr"`
 	ExecWeight    string `xml:"execWeight,attr"`
 }
+
+// TestSuiteDefinition encapsulates a load test scenario.
 type TestSuiteDefinition struct {
 	XMLName      xml.Name   `xml:"testSuite"`
 	Name         string     `xml:"name" toml:"name"`
@@ -94,7 +104,7 @@ type TestSuiteDefinition struct {
 	TestCases    []TestCase `xml:"testCases>testCase" toml:"testCases"`
 }
 
-//This struct defines a load test scenario
+// TestSuite defines a load test scenario.
 type TestSuite struct {
 	XMLName      xml.Name
 	Name         string
@@ -109,10 +119,14 @@ type multipartFormField struct {
 	FileContent []byte `xml:"fileContent" toml:"fileContent"`
 }
 
+// BuildTestSuite sets TestStrategy and puts together the test suite
+// accordingly. For ServiceBasedTesting, the test suite is built from test
+// cases in the TestCaseDir, unordered. For SuiteBasedTesting, the test suite
+// is built according to the testCases listed in the test suite definition.
 func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config) {
 	log.Info("Building Test Suite ....")
 	// Default to ServiceBased testing:
-	ts.TestStrategy = SERVICE_BASED_TESTING
+	ts.TestStrategy = ServiceBasedTesting
 
 	if configurationSettings.TestSuite == "" {
 		ts.Name = "DefaultSuite"
@@ -151,7 +165,7 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 		}
 	} else {
 		// Flag as SuiteBased testing:
-		ts.TestStrategy = SUITE_BASED_TESTING
+		ts.TestStrategy = SuiteBasedTesting
 
 		//If a test suite has been defined, load in all tests associated with the test suite.
 		bs, err := ioutil.ReadFile(configurationSettings.TestSuiteDir + "/" + configurationSettings.TestSuite)
@@ -195,15 +209,16 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 	}
 }
 
-//----- BuildAndSendRequest ---------------------------------------------------
-// Returns response time of the call, or 0 if failure.
-// Note: Response time does not include random delay or think time.
+// BuildAndSendRequest builds a request from the test definition, performs
+// variable substitutions, sends the request, and returns the response time
+// of the call, or 0 if failure. Note: Response time does not include
+// RequestDelay or ThinkTime.
 func (testDefinition *TestDefinition) BuildAndSendRequest(
-		delay int,
-		targetHost string,
-		targetPort string,
-		uniqueTestRunId string,
-		globalsMap GlobalsMaps,
+	delay int,
+	targetHost string,
+	targetPort string,
+	uniqueTestRunID string,
+	globalsMap GlobalsMaps,
 ) int64 {
 	log.Debugf("BEGIN \"%s\" testDefinition\n-----\n%+v\n-----\nEND \"%s\" testDefinition\n",
 		testDefinition.TestName,
@@ -225,36 +240,36 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 	reqbody := "N/A" //for debug
 
 	//Retrieve requestBaseURI and perform any necessary substitution
-	requestBaseURI := substituteRequestValues(&testDefinition.BaseUri, uniqueTestRunId, globalsMap)
+	requestBaseURI := substituteRequestValues(&testDefinition.BaseURI, uniqueTestRunID, globalsMap)
 
 	if !testDefinition.Multipart {
 		log.Debug("Building non-Multipart request.")
 		if testDefinition.Payload != "" {
 			//Retrieve Payload and perform any necessary substitution
 			payload := testDefinition.Payload
-			newPayload := substituteRequestValues(&payload, uniqueTestRunId, globalsMap)
+			newPayload := substituteRequestValues(&payload, uniqueTestRunID, globalsMap)
 			reqbody = newPayload
-			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, strings.NewReader(newPayload))
+			req, _ = http.NewRequest(testDefinition.HTTPMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, strings.NewReader(newPayload))
 		} else {
-			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, nil)
+			req, _ = http.NewRequest(testDefinition.HTTPMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, nil)
 		}
 	} else {
 		log.Debug("Building Multipart request.")
-		if testDefinition.HttpMethod != "POST" {
+		if testDefinition.HTTPMethod != "POST" {
 			log.Error("Multipart request must be 'POST' method.")
 		} else {
 			body := new(bytes.Buffer)
 			writer := multipart.NewWriter(body)
 			for _, field := range testDefinition.MultipartPayload {
 				if field.FileName == "" {
-					writer.WriteField(field.FieldName, substituteRequestValues(&field.FieldValue, uniqueTestRunId, globalsMap))
+					writer.WriteField(field.FieldName, substituteRequestValues(&field.FieldValue, uniqueTestRunID, globalsMap))
 				} else {
 					part, _ := writer.CreateFormFile(field.FieldName, field.FileName)
 					io.Copy(part, bytes.NewReader(field.FileContent))
 				}
 			}
 			writer.Close()
-			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, body)
+			req, _ = http.NewRequest(testDefinition.HTTPMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, body)
 			req.Header.Set("Content-Type", writer.FormDataContentType())
 
 			// For debug output
@@ -265,7 +280,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 	//add headers and perform and necessary substitution
 	for k, v := range testDefinition.Headers {
 		for _, hv := range v {
-			req.Header.Add(k, substituteRequestValues(&hv, uniqueTestRunId, globalsMap))
+			req.Header.Add(k, substituteRequestValues(&hv, uniqueTestRunID, globalsMap))
 		}
 	}
 
@@ -309,7 +324,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 	}
 
 	contentType := detectContentType(resp.Header, body, testDefinition.ResponseContentType)
-	extractResponseValues(testDefinition.TestName, body, testDefinition.ResponseValues, uniqueTestRunId, globalsMap, contentType)
+	extractResponseValues(testDefinition.TestName, body, testDefinition.ResponseValues, uniqueTestRunID, globalsMap, contentType)
 
 	//Execute the PostThinkTime, if any.
 	if testDefinition.PostThinkTime > 0 {
@@ -345,12 +360,12 @@ func determineHostandPortforRequest(testDefinition *TestDefinition, configuratio
 	return targetHost, targetPort
 }
 
-func substituteRequestValues(requestBody *string, uniqueTestRunId string, globalsMap GlobalsMaps) string {
+func substituteRequestValues(requestBody *string, uniqueTestRunID string, globalsMap GlobalsMaps) string {
 	requestPayloadCopy := *requestBody
 
 	//Get Global Properties for this test run
 	globalsMap.RLock()
-	testRunGlobals := globalsMap.m[uniqueTestRunId]
+	testRunGlobals := globalsMap.m[uniqueTestRunID]
 	globalsMap.RUnlock()
 
 	if testRunGlobals != nil {
@@ -366,13 +381,14 @@ func substituteRequestValues(requestBody *string, uniqueTestRunId string, global
 				propertyPlaceHolderName := cleanedPropertyName
 				propertyPlaceHolderIndex := 0
 
+				// Extract the index number if array notation encountered.
 				if strings.Contains(cleanedPropertyName, "[") && strings.Contains(cleanedPropertyName, "]") {
-					propertyPlaceHolderName, propertyPlaceHolderIndex = getArrayNameAndIndex(cleanedPropertyName)
+					propertyPlaceHolderName, propertyPlaceHolderIndex = getArrayNameAndIndex(testRunGlobals, cleanedPropertyName)
 				}
 
+				// Get the value based on the property name.
 				placeHolderValue := testRunGlobals[propertyPlaceHolderName]
-
-				valueAsString := convertStoredValuetoRequestFormat(placeHolderValue, propertyPlaceHolderIndex)
+				valueAsString := convertStoredValueToRequestFormat(placeHolderValue, propertyPlaceHolderIndex)
 
 				if valueAsString != "" {
 					requestPayloadCopy = strings.Replace(requestPayloadCopy, propertyPlaceHolder, valueAsString, 1)
@@ -383,7 +399,31 @@ func substituteRequestValues(requestBody *string, uniqueTestRunId string, global
 	}
 	return requestPayloadCopy
 }
-func convertStoredValuetoRequestFormat(storedValue interface{}, requiredIndex int) string {
+
+// getArrayNameAndIndex
+func getArrayNameAndIndex(testRunGlobals map[string]interface{}, propPathPart string) (string, int) {
+
+	propPathPart = strings.Replace(propPathPart, "[", "::", 1)
+	propPathPart = strings.Replace(propPathPart, "]", "", 1)
+	propertyNameParts := strings.Split(propPathPart, "::")
+
+	index, _ := strconv.Atoi(propertyNameParts[1]) //todo, handle error: on error set index to 0
+
+	// A value of '?' rather than a number in the index notation indicates
+	// the user would like a random record returned from the data set.
+	if propertyNameParts[1] == "?" {
+		// Seed the rand call.
+		randIdx := rand.New(rand.NewSource(time.Now().UnixNano()))
+		// Get the length of the property array to serve as boundary for rand.
+		len := len(testRunGlobals[propertyNameParts[0]].([]interface{}))
+		// Set the index to a random value.
+		index = randIdx.Intn(len)
+	}
+
+	return propertyNameParts[0], index
+}
+
+func convertStoredValueToRequestFormat(storedValue interface{}, requiredIndex int) string {
 	requestFormattedValue := ""
 	switch objectType := storedValue.(type) {
 
@@ -392,7 +432,7 @@ func convertStoredValuetoRequestFormat(storedValue interface{}, requiredIndex in
 		requestFormattedValue = string(jsonValue)
 	case []interface{}:
 		value := objectType[requiredIndex]
-		requestFormattedValue = convertStoredValuetoRequestFormat(value, 0)
+		requestFormattedValue = convertStoredValueToRequestFormat(value, 0)
 	case string:
 		requestFormattedValue = string(objectType)
 	default:
@@ -401,16 +441,16 @@ func convertStoredValuetoRequestFormat(storedValue interface{}, requiredIndex in
 	return requestFormattedValue
 }
 
-func extractResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunId string, globalsMap GlobalsMaps, contentType string) {
+func extractResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string, globalsMap GlobalsMaps, contentType string) {
 	// Short-circuit if call returned empty response bodys.
 	if string(body) == "" {
 		return
 	}
 
 	if strings.Contains(contentType, "json") {
-		extractJSONResponseValues(testCaseName, body, responseValues, uniqueTestRunId, globalsMap)
+		extractJSONResponseValues(testCaseName, body, responseValues, uniqueTestRunID, globalsMap)
 	} else if strings.Contains(contentType, "xml") {
-		extractXMLResponseValues(testCaseName, body, responseValues, uniqueTestRunId, globalsMap)
+		extractXMLResponseValues(testCaseName, body, responseValues, uniqueTestRunID, globalsMap)
 	} else {
 		log.Warn("Unsupported response content type of:", contentType)
 	}
@@ -419,18 +459,16 @@ func extractResponseValues(testCaseName string, body []byte, responseValues []Re
 //----- extractJSONResponseValues --------------------------------------------
 // Extract the response values from the JSON result based on the JMESPath
 // query provided by the user.
-// Note: The user may choose to query an entire array, in which case we
-// return a random element from the set.
-func extractJSONResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunId string, globalsMap GlobalsMaps) {
+func extractJSONResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string, globalsMap GlobalsMaps) {
 	//Get Global Properties for this test run
 	globalsMap.RLock()
-	testRunGlobals := globalsMap.m[uniqueTestRunId]
+	testRunGlobals := globalsMap.m[uniqueTestRunID]
 	globalsMap.RUnlock()
 
 	if testRunGlobals == nil {
 		testRunGlobals = make(map[string]interface{})
 		globalsMap.Lock()
-		globalsMap.m[uniqueTestRunId] = testRunGlobals
+		globalsMap.m[uniqueTestRunID] = testRunGlobals
 		globalsMap.Unlock()
 	}
 
@@ -441,41 +479,22 @@ func extractJSONResponseValues(testCaseName string, body []byte, responseValues 
 
 		result, _ := jmespath.Search(propPath.Value, data) //Todo handle error
 
-		// If result is array, return a random element:
-		randidx := rand.New(rand.NewSource(time.Now().UnixNano()))
-		switch objectType := result.(type) {
-		case []interface{}:
-		       len := len(objectType)
-		       result = objectType[randidx.Intn(len)]
-		}
-
 		if testRunGlobals[testCaseName+"."+propPath.ExtractionKey] == nil {
 			testRunGlobals[testCaseName+"."+propPath.ExtractionKey] = result
 		}
 	}
 }
 
-func getArrayNameAndIndex(propPathPart string) (string, int) {
-
-	propPathPart = strings.Replace(propPathPart, "[", "::", 1)
-	propPathPart = strings.Replace(propPathPart, "]", "", 1)
-	propertyNameParts := strings.Split(propPathPart, "::")
-
-	index, _ := strconv.Atoi(propertyNameParts[1]) //todo, handle error
-
-	return propertyNameParts[0], index
-}
-
-func extractXMLResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunId string, globalsMap GlobalsMaps) {
+func extractXMLResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string, globalsMap GlobalsMaps) {
 	//Get Global Properties for this test run
 	globalsMap.RLock()
-	testRunGlobals := globalsMap.m[uniqueTestRunId]
+	testRunGlobals := globalsMap.m[uniqueTestRunID]
 	globalsMap.RUnlock()
 
 	if testRunGlobals == nil {
 		testRunGlobals = make(map[string]interface{})
 		globalsMap.Lock()
-		globalsMap.m[uniqueTestRunId] = testRunGlobals
+		globalsMap.m[uniqueTestRunID] = testRunGlobals
 		globalsMap.Unlock()
 	}
 
@@ -503,7 +522,7 @@ func loadTestDefinition(bs []byte, configurationSettings *perfTestUtils.Config) 
 			return nil, err
 		}
 	default:
-		td := &XmlTestDefinition{}
+		td := &XMLTestDefinition{}
 		err := xml.Unmarshal(bs, &td)
 		if err != nil {
 			log.Errorf("Error occurred loading XML testCase definition file: %v\n", err)
@@ -513,8 +532,8 @@ func loadTestDefinition(bs []byte, configurationSettings *perfTestUtils.Config) 
 			TestName:            td.TestName,
 			OverrideHost:        td.OverrideHost,
 			OverridePort:        td.OverridePort,
-			HttpMethod:          td.HttpMethod,
-			BaseUri:             td.BaseUri,
+			HTTPMethod:          td.HTTPMethod,
+			BaseURI:             td.BaseURI,
 			Multipart:           td.Multipart,
 			Payload:             td.Payload,
 			MultipartPayload:    td.MultipartPayload,
