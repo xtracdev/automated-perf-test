@@ -353,9 +353,9 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 	// some initial memory data before test cases are executed.
 	time.Sleep(time.Second * 1)
 
-	// 2. Execute tests based on strategy defaulting to SERVICE_BASED_TESTING.
-	if testSuite.TestStrategy == testStrategies.SUITE_BASED_TESTING {
-		// SUITE_BASED_TESTING strategy runs service requests in the order
+	// 2. Execute tests based on strategy defaulting to ServiceBasedTesting.
+	if testSuite.TestStrategy == testStrategies.SuiteBasedTesting {
+		// SuiteBasedTesting strategy runs service requests in the order
 		// they are defined in the suite config file. Each full suite
 		// definition is run concurrently across the number of threads defined
 		// by the config.ConcurrentUsers value. Each thread runs the scenario
@@ -385,7 +385,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 			}
 		}
 	} else {
-		// SERVICE_BASED_TESTING strategy runs sequentially through all test
+		// ServiceBasedTesting strategy runs sequentially through all test
 		// cases in the config.TestCaseDir folder for config.NumIterations
 		// number of times in parallel across the number of threads defined by
 		// the config.ConcurrentUsers value. Usually used with mock calls.
@@ -399,7 +399,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 		// calculate OverallTPS (see runInTestingMode() above).
 		perfStatsForTest.OverAllTransCount = uint64(len( testSuite.TestCases ) * configurationSettings.NumIterations)
 
-		log.Infof("SERVICE_BASED_TESTING loadPerUser=[%d] remainder=[%d]", loadPerUser, remainder)
+		log.Infof("ServiceBasedTesting loadPerUser=[%d] remainder=[%d]", loadPerUser, remainder)
 
 		var index int
 		var testDefinition *testStrategies.TestDefinition
