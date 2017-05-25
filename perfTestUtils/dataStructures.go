@@ -92,7 +92,7 @@ func (c *Config) SetDefaults() {
 }
 
 // PrintAndValidateConfig sets any out of bounds value of the Config struct to the default.
-func (c Config) PrintAndValidateConfig() {
+func (c *Config) PrintAndValidateConfig() {
 
 	if strings.TrimSpace(c.APIName) == "" {
 		c.APIName = defaultAPIName
@@ -109,10 +109,10 @@ func (c Config) PrintAndValidateConfig() {
 	if c.ConcurrentUsers < 1 {
 		c.ConcurrentUsers = defaultConcurrentUsers
 	}
-	if c.AllowablePeakMemoryVariance <= 0.0 {
+	if c.AllowablePeakMemoryVariance < 0.0 {
 		c.AllowablePeakMemoryVariance = defaultAllowablePeakMemoryVariance
 	}
-	if c.AllowableServiceResponseTimeVariance <= 0.0 {
+	if c.AllowableServiceResponseTimeVariance < 0.0 {
 		c.AllowableServiceResponseTimeVariance = defaultAllowableServiceResponseTimeVariance
 	}
 	if strings.TrimSpace(c.TestCaseDir) == "" {
@@ -128,13 +128,13 @@ func (c Config) PrintAndValidateConfig() {
 		c.MemoryEndpoint = defaultMemoryEndpoint
 	}
 	if c.RequestDelay < 1 {
-		c.MemoryEndpoint = defaultMemoryEndpoint
+		c.RequestDelay = defaultRequestDelay
 	}
 	if c.TPSFreq < 1 {
 		c.TPSFreq = defaultTPSFreq
 	}
 	if c.RampUsers < 0 {
-		c.TPSFreq = defaultRampUsers
+		c.RampUsers = defaultRampUsers
 	}
 	if c.RampDelay < 1 {
 		c.RampDelay = defaultRampDelay
