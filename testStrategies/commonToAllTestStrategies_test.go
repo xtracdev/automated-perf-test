@@ -46,7 +46,7 @@ const (
     <testName>XiwsAddContentSuccess</testName>
     <!--Http method assciated with this request-->
     <httpMethod>POST</httpMethod>
-    <!--BaseURi of the request, excluding host and port. Path parameters if any should be placed here-->
+    <!--BaseURI of the request, excluding host and port. Path parameters if any should be placed here-->
     <baseUri>/xiws/camel/ciws/addContent</baseUri>
     <!-- Indicate whether the request is multipart or not -->
     <multipart>true</multipart>
@@ -173,7 +173,7 @@ testStrategy = "SuiteBased"
 )
 
 func TestMarshalTomlTestDefinition(t *testing.T) {
-	td := &XmlTestDefinition{}
+	td := &XMLTestDefinition{}
 	err := xml.Unmarshal([]byte(xmlTestDefinition), td)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(td.Headers))
@@ -189,7 +189,7 @@ func TestMarshalTomlTestDefinition(t *testing.T) {
 }
 
 func TestMarshalTomlMultipartTestDefinition(t *testing.T) {
-	td := &XmlTestDefinition{}
+	td := &XMLTestDefinition{}
 	err := xml.Unmarshal([]byte(multipartXmlTestDefinition), td)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(td.Headers))
@@ -232,7 +232,7 @@ func TestUnmarshalXmlTestSuite(t *testing.T) {
 }
 
 func TestTomlHeaders(t *testing.T) {
-	headers := []Header{Header{Value: "val", Key: "key"}, Header{Value: "hello", Key: "header"}}
+	headers := []Header{{Value: "val", Key: "key"}, {Value: "hello", Key: "header"}}
 	h := tomlHeaders(headers)
 	assert.NotNil(t, h)
 	assert.Equal(t, 2, len(h))
@@ -247,8 +247,8 @@ func TestLoadTestDefinitionXml(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, td)
 	assert.Equal(t, "XiwsLoginLTPASuccess", td.TestName)
-	assert.Equal(t, "POST", td.HttpMethod)
-	assert.Equal(t, "/xiws/webservices/LoginLTPA", td.BaseUri)
+	assert.Equal(t, "POST", td.HTTPMethod)
+	assert.Equal(t, "/xiws/webservices/LoginLTPA", td.BaseURI)
 	assert.Equal(t, 200, td.ResponseStatusCode)
 	assert.Equal(t, "ltpa-success1", td.Headers.Get("scenario"))
 	assert.Equal(t, "sessionToken", td.ResponseValues[0].Value)
@@ -271,8 +271,8 @@ func TestLoadTestDefinitionToml(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, td)
 	assert.Equal(t, "createSession", td.TestName)
-	assert.Equal(t, "POST", td.HttpMethod)
-	assert.Equal(t, "/xtrac/api/v1/sessions", td.BaseUri)
+	assert.Equal(t, "POST", td.HTTPMethod)
+	assert.Equal(t, "/xtrac/api/v1/sessions", td.BaseURI)
 	assert.Equal(t, 200, td.ResponseStatusCode)
 	assert.Equal(t, "success1", td.Headers.Get("scenario"))
 	assert.Equal(t, "509760429188261892213816064522998760", td.Headers.Get("Xtractoken"))

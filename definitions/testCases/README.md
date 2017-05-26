@@ -1,4 +1,4 @@
-This directory stored definitions of test cases. Test case configuration can be defined in XML of TOML specification. 
+This directory stored definitions of test cases. Test case configuration can be defined in XML of TOML specification.
 Below is a example of a test case definition.
 
         <testDefinition>
@@ -18,8 +18,21 @@ Below is a example of a test case definition.
                 <header key=""></header>
                 <header key=""></header>
             </headers>
-            <!--Values to be extraced from the response for use in future requests-->
+
+            <!--
+                Values to be extracted from the response for use in future
+                requests.
+                  - Use JMESPath to query JSON output.
+                  - The "extractionKey" directive sets the variable name for
+                    use in subsequent testCase entries.
+                  - Valid results are single values or arrays. Note: if an
+                    array is returned, a random index will be used for the
+                    result in the current iteration.
+            -->
             <responseProperties>
-                    <value></value>
-                </responseProperties>
+            	<!-- Set a variable with a single value: -->
+                <value extractionKey="itemType">data.itemType</value>
+                <!-- Set a variable with a random value from the array: -->
+                <value extractionKey="wi_num">data.items[].workItemNumber</value>
+            </responseProperties>
         </testDefinition>
