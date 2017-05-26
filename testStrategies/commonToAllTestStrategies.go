@@ -233,7 +233,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 			//Retrieve Payload and perform any necessary substitution
 			payload := testDefinition.Payload
 			newPayload := substituteRequestValues(&payload, uniqueTestRunId, globalsMap)
-
+			reqbody = newPayload
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, strings.NewReader(newPayload))
 		} else {
 			req, _ = http.NewRequest(testDefinition.HttpMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, nil)
@@ -270,7 +270,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 	}
 
 	log.Debugf(
-		"BEGIN \"%s\" Request:\n-----\nHEADER:%+v\nURL:%s\nBODY:%s\n-----\nEND [%s] Request",
+		"BEGIN \"%s\" Request:\n-----\nHEADER:%+v\nURL:%s\nREQ_BODY:%s\n-----\nEND [%s] Request",
 		testDefinition.TestName,
 		req.Header,
 		req.URL,
@@ -293,7 +293,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 	defer resp.Body.Close()
 
 	log.Debugf(
-		"BEGIN \"%s\" Response:\n-----\nSTATUSCODE:%d\nHEADER:%+v\nBODY:%s\n-----\nEND [%s] Response",
+		"BEGIN \"%s\" Response:\n-----\nSTATUSCODE:%d\nHEADER:%+v\nRESP_BODY:%s\n-----\nEND [%s] Response",
 		testDefinition.TestName,
 		resp.StatusCode,
 		resp.Header,
@@ -355,7 +355,7 @@ func substituteRequestValues(requestBody *string, uniqueTestRunId string, global
 	globalsMap.RUnlock()
 
 	if testRunGlobals != nil {
-		r := regexp.MustCompile("{{(.[^ ]+)?}}")
+		r := regexp.MustCompile("{{([^}]+)}}")
 		res := r.FindAllString(*requestBody, -1)
 
 		if len(res) > 0 {
@@ -403,12 +403,17 @@ func convertStoredValuetoRequestFormat(storedValue interface{}, requiredIndex in
 }
 
 func extractResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunId string, globalsMap GlobalsMaps, contentType string) {
+	// Short-circuit if call returned empty response bodys.
+	if string(body) == "" {
+		return
+	}
+
 	if strings.Contains(contentType, "json") {
 		extractJSONResponseValues(testCaseName, body, responseValues, uniqueTestRunId, globalsMap)
 	} else if strings.Contains(contentType, "xml") {
 		extractXMLResponseValues(testCaseName, body, responseValues, uniqueTestRunId, globalsMap)
 	} else {
-		log.Warn("Unsupported resposne content type of:", contentType)
+		log.Warn("Unsupported response content type of:", contentType)
 	}
 }
 
