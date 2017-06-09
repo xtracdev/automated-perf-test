@@ -90,7 +90,6 @@ func executeTestSuite(
 				continue
 			}
 
-			// DEBUG:
 			if testDefinition.ExecWeight == "Infrequent" {
 				log.Debug("ExecWeight = [", testDefinition.ExecWeight, "] testCase = [", testDefinition.TestName, "]")
 			}
@@ -102,18 +101,40 @@ func executeTestSuite(
 
 			targetHost, targetPort := determineHostandPortforRequest(testDefinition, configurationSettings)
 			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.RequestDelay, targetHost, targetPort, uniqueTestRunID, globalsMap)
+
+			// NOTE:
+			// Upon error responseTime is set to 0. Rather than drop these
+			// transactions, we record the zero and increment the TransCount.
+			// Otherwise, in the case of a service that fails all attempts,
+			// the stats would show no record of the transaction. Likewise,
+			// since we must keep the zero responseTime in the stats, we must
+			// therefore also increment the TransCount so the average will be
+			// valid in the case of services that fail incrementally.
+
+			// Track responseTime for all attempts, even failures.
 			testSuiteResponseTimes[testDefinition.TestName] = responseTime
 
-			// Update the concurrent counters.
-			// Overall counter:
+			// Increment the concurrent counters for TransCount and ErrorCount.
+			// Overall counters:
+			// TransCount:
 			atomic.AddUint64(&perfStatsForTest.OverAllTransCount, 1)
+			if responseTime == 0 {
+				// ErrorCount
+				atomic.AddUint64(&perfStatsForTest.OverAllErrorCount, 1)
+			}
 
 			// Service-level counters:
-			// Create the counters on the fly and increment atomically.
+			// Increment ServiceTransCount.
+			// (Create the counters on the fly and increment atomically.)
 			if perfStatsForTest.ServiceTransCount[testDefinition.TestName] == nil {
 				perfStatsForTest.ServiceTransCount[testDefinition.TestName] = new(uint64)
 				atomic.StoreUint64(
 					perfStatsForTest.ServiceTransCount[testDefinition.TestName],
+					0,
+				)
+				perfStatsForTest.ServiceErrorCount[testDefinition.TestName] = new(uint64)
+				atomic.StoreUint64(
+					perfStatsForTest.ServiceErrorCount[testDefinition.TestName],
 					0,
 				)
 			}
@@ -121,10 +142,26 @@ func executeTestSuite(
 				perfStatsForTest.ServiceTransCount[testDefinition.TestName],
 				1,
 			)
+			// Increment ServiceErrorCount.
+			if responseTime == 0 {
+				if perfStatsForTest.ServiceErrorCount[testDefinition.TestName] == nil {
+					perfStatsForTest.ServiceErrorCount[testDefinition.TestName] = new(uint64)
+					atomic.StoreUint64(
+						perfStatsForTest.ServiceErrorCount[testDefinition.TestName],
+						0,
+					)
+				}
+				atomic.AddUint64(
+					perfStatsForTest.ServiceErrorCount[testDefinition.TestName],
+					1,
+				)
+			}
 		}
 
 		allSuiteResponseTimes = append(allSuiteResponseTimes, testSuiteResponseTimes)
 
+		// Variables and properties for this iteration are no longer needed
+		// now that the iteration has completed.
 		globalsMap.Lock()
 		globalsMap.m[uniqueTestRunID] = nil
 		globalsMap.Unlock()

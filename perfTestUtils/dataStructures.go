@@ -182,15 +182,17 @@ type PerfStats struct {
 	PeakMemory           uint64
 	ServiceResponseTimes map[string]int64
 	ServiceTransCount    map[string]*uint64
+	ServiceErrorCount    map[string]*uint64
 	ServiceTPS           map[string]float64
 	OverAllTransCount    uint64
+	OverAllErrorCount    uint64
 	OverAllTPS           float64
 	MemoryAudit          []uint64
 	TestPartitions       []TestPartition
 	TestDate             time.Time
 }
 
-// GetTestTime is used in report template for format the date.
+// GetTestTime is used in the report template to format the date.
 func (ps *PerfStats) GetTestTime() string {
 	return ps.TestDate.Format(time.RFC850)
 }
