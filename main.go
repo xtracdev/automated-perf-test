@@ -192,7 +192,7 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 
 	// Initialize the performance statistics struct.
 	perfStatsForTest := &perfTestUtils.PerfStats{
-		TestDate:             scenarioTimeStart,
+		TestTimeStart:             scenarioTimeStart,
 		ServiceResponseTimes: make(map[string]int64),
 		ServiceTransCount:    make(map[string]*uint64),
 		ServiceErrorCount:    make(map[string]*uint64),
@@ -217,6 +217,7 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 	//Run the test
 	runTests(perfStatsForTest, TRAINING_MODE, testSuite, scenarioTimeStart)
 	scenarioTimeElapsed := time.Since(scenarioTimeStart)
+	perfStatsForTest.TestTimeEnd = time.Now()
 
 	//Generate base statistics output file for this training run.
 	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem, testSuite.Name)
@@ -246,7 +247,7 @@ func runInTestingMode(
 
 	// Initialize performance statistics struct.
 	perfStatsForTest := &perfTestUtils.PerfStats{
-		TestDate:             scenarioTimeStart,
+		TestTimeStart:        scenarioTimeStart,
 		ServiceResponseTimes: make(map[string]int64),
 		ServiceTransCount:    make(map[string]*uint64),
 		ServiceErrorCount:    make(map[string]*uint64),
@@ -258,6 +259,7 @@ func runInTestingMode(
 
 	// Stop the timer. See comment on scenarioTimeStart above.
 	scenarioTimeElapsed := time.Since(scenarioTimeStart)
+	perfStatsForTest.TestTimeEnd = time.Now()
 
 	// Save overall TPS.
 	perfStatsForTest.OverAllTPS = perfTestUtils.CalcTps(perfStatsForTest.OverAllTransCount, scenarioTimeElapsed)

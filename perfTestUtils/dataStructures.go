@@ -189,12 +189,18 @@ type PerfStats struct {
 	OverAllTPS           float64
 	MemoryAudit          []uint64
 	TestPartitions       []TestPartition
-	TestDate             time.Time
+	TestTimeStart        time.Time
+	TestTimeEnd          time.Time
 }
 
-// GetTestTime is used in the report template to format the date.
-func (ps *PerfStats) GetTestTime() string {
-	return ps.TestDate.Format(time.RFC850)
+// GetTestTimeStart returns the start time of the test in RFC850 format.
+func (ps *PerfStats) GetTestTimeStart() string {
+	return ps.TestTimeStart.Format(time.RFC850)
+}
+
+// GetTestTimeEnd returns the end time of the test in RFC850 format.
+func (ps *PerfStats) GetTestTimeEnd() string {
+	return ps.TestTimeEnd.Format(time.RFC850)
 }
 
 // TestPartition struct combines the test name with a count for use on the report.

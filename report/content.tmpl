@@ -1,6 +1,6 @@
 {{define "content"}}
   <div class="topBar">
-            <h1 class="padding">{{.Config.APIName}} :: Automated Performance Test Report :: ({{.PerfStats.GetTestTime}})</h1>
+            <h1 class="padding">{{.Config.APIName}} :: Automated Performance Test Report :: ({{.PerfStats.GetTestTimeStart}} to {{.PerfStats.GetTestTimeEnd}})</h1>
         </div>
         <div class="divHeading">
          <table class="divHeading" border="0" width="90%">

@@ -12,7 +12,7 @@ import (
 func TestGenerateTemplate(t *testing.T) {
 
 	ps := &PerfStats{
-		TestDate:   time.Now(),
+		TestTimeStart:   time.Now(),
 		PeakMemory: 10e6,
 	}
 
@@ -58,7 +58,7 @@ func TestGenerateTemplate(t *testing.T) {
 	tf := gopath + `/src/github.com/xtracdev/automated-perf-test/report/test.tmpl`
 	t.Logf("template = %v\n", filepath.Base(tf))
 
-	err := generateTemplate(bs, ps, c, os.Stdout, gopath+`/src/github.com/xtracdev/automated-perf-test/report/test.tmpl`)
+	err := generateTemplate(bs, ps, c, os.Stdout, gopath+`/src/github.com/xtracdev/automated-perf-test/report/test.tmpl`, "ServiceBased")
 	if err != nil {
 		t.Errorf("Expected to be nil: %v", err)
 	}
@@ -68,7 +68,7 @@ func TestGenerateTemplate(t *testing.T) {
 func TestGenerateTemplateBuiltin(t *testing.T) {
 
 	ps := &PerfStats{
-		TestDate:   time.Now(),
+		TestTimeStart:   time.Now(),
 		PeakMemory: 10e6,
 	}
 
@@ -111,14 +111,14 @@ func TestGenerateTemplateBuiltin(t *testing.T) {
 	gopath := os.Getenv("GOPATH")
 	t.Logf("$GOPATH = %v\n", gopath)
 
-	err := generateTemplate(bs, ps, c, os.Stdout, "")
+	err := generateTemplate(bs, ps, c, os.Stdout, "", "ServiceBased")
 	if err != nil {
 		t.Errorf("Expected to be nil: %v", err)
 	}
 }
 
 func TestGenerateTemplateNoFile(t *testing.T) {
-	err := generateTemplate(nil, nil, nil, os.Stdout, "XXX")
+	err := generateTemplate(nil, nil, nil, os.Stdout, "XXX", "ServiceBased")
 	assert.NotNil(t, err)
 	assert.Equal(t, "Error loading template files: open XXX: no such file or directory", err.Error())
 }
@@ -188,7 +188,7 @@ func TestGenerateTemplateReport(t *testing.T) {
 	bs := &BasePerfStats{
 		BaseServiceResponseTimes: map[string]int64{"service 1": 101, "service 2": 80},
 	}
-	GenerateTemplateReport(bs, ps, c, mockedFs, "TestSuiteName")
+	GenerateTemplateReport(bs, ps, c, mockedFs, "TestSuiteName", "ServiceBased")
 }
 
 func TestGenerateTemplateReportErrorCreate(t *testing.T) {
@@ -199,5 +199,5 @@ func TestGenerateTemplateReportErrorCreate(t *testing.T) {
 	bs := &BasePerfStats{
 		BaseServiceResponseTimes: map[string]int64{"service 1": 101, "service 2": 80},
 	}
-	GenerateTemplateReport(bs, ps, c, mockedFs, "TestSuiteName")
+	GenerateTemplateReport(bs, ps, c, mockedFs, "TestSuiteName", "ServiceBased")
 }
