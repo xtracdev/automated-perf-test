@@ -73,9 +73,9 @@ func executeTestSuite(
 			skipInfrequent = true
 		}
 		// Determine whether "Sparse" items should run this iteration.
-		// [Currently set at 8% (mod 12)]
+		// [Currently set at 3% (mod 30)]
 		skipSparse := false
-		if i%12 != 0 {
+		if i%30 != 0 {
 			skipSparse = true
 		}
 
