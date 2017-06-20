@@ -417,13 +417,13 @@ func getArrayNameAndIndex(testRunGlobals map[string]interface{}, propPathPart st
 		randIdx := rand.New(rand.NewSource(time.Now().UnixNano()))
 		// Get the length of the property array to serve as boundary for rand.
 		len := len(testRunGlobals[propertyNameParts[0]].([]interface{}))
-		// Check to ensure the array is not empty. We are not able to continue
+    // Check to ensure the array is not empty. We are not able to continue
 		// in this case. The user must fix the data issue before proceeding.
 		if len == 0 {
 			log.Errorf("FATAL: Unable to substitute property [%s]: Result array of size 0. Check data criteria for service call.", propertyNameParts[0])
 			os.Exit(1)
 		}
-		// Set the index to a random value.
+    // Set the index to a random value.
 		index = randIdx.Intn(len)
 	}
 
