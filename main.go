@@ -192,9 +192,10 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 
 	// Initialize the performance statistics struct.
 	perfStatsForTest := &perfTestUtils.PerfStats{
-		TestDate:             scenarioTimeStart,
+		TestTimeStart:             scenarioTimeStart,
 		ServiceResponseTimes: make(map[string]int64),
 		ServiceTransCount:    make(map[string]*uint64),
+		ServiceErrorCount:    make(map[string]*uint64),
 		ServiceTPS:           make(map[string]float64),
 	}
 
@@ -216,6 +217,7 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 	//Run the test
 	runTests(perfStatsForTest, TRAINING_MODE, testSuite, scenarioTimeStart)
 	scenarioTimeElapsed := time.Since(scenarioTimeStart)
+	perfStatsForTest.TestTimeEnd = time.Now()
 
 	//Generate base statistics output file for this training run.
 	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem, testSuite.Name)
@@ -231,7 +233,7 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 func runInTestingMode(
 		basePerfstats *perfTestUtils.BasePerfStats,
 		host string,
-		frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem, string),
+		frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem, string, string),
 		testSuite *testStrategies.TestSuite,
 ) {
 	log.Info("Running Performance test in Testing mode for host ", host)
@@ -245,9 +247,10 @@ func runInTestingMode(
 
 	// Initialize performance statistics struct.
 	perfStatsForTest := &perfTestUtils.PerfStats{
-		TestDate:             scenarioTimeStart,
+		TestTimeStart:        scenarioTimeStart,
 		ServiceResponseTimes: make(map[string]int64),
 		ServiceTransCount:    make(map[string]*uint64),
+		ServiceErrorCount:    make(map[string]*uint64),
 		ServiceTPS:           make(map[string]float64),
 	}
 
@@ -256,6 +259,7 @@ func runInTestingMode(
 
 	// Stop the timer. See comment on scenarioTimeStart above.
 	scenarioTimeElapsed := time.Since(scenarioTimeStart)
+	perfStatsForTest.TestTimeEnd = time.Now()
 
 	// Save overall TPS.
 	perfStatsForTest.OverAllTPS = perfTestUtils.CalcTps(perfStatsForTest.OverAllTransCount, scenarioTimeElapsed)
@@ -274,7 +278,7 @@ func runInTestingMode(
 	assertionFailures := runAssertions(basePerfstats, perfStatsForTest)
 
 	// Generate performance test report
-	frg(basePerfstats, perfStatsForTest, configurationSettings, osFileSystem, testSuite.Name)
+	frg(basePerfstats, perfStatsForTest, configurationSettings, osFileSystem, testSuite.Name, testSuite.TestStrategy)
 
 	// Print test results to std out at log level "INFO".
 	log.Info("=================== TEST RESULTS ===================")
@@ -374,15 +378,14 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 		// Collate the service-level response time data.
 		for serviceName, serviceResponseTimes := range allServicesResponseTimesMap {
 			averageResponseTime := perfTestUtils.CalcAverageResponseTime(serviceResponseTimes, mode)
-			if averageResponseTime > 0 {
-				perfStatsForTest.ServiceResponseTimes[serviceName] = averageResponseTime
-			} else {
-				if mode == TRAINING_MODE {
-					//Fail fast on training mode if any requests fail. If training fails we cannot guarantee the results.
-					log.Error("Training mode failed due to invalid response on service [Name:", serviceName, "]")
-					os.Exit(1)
-				}
+			if averageResponseTime == 0 && mode == TRAINING_MODE {
+				// If all response times average to zero, all attempts to call the
+				// service failed. In training mode, abort so the problem can be
+				// remedied. In testing mode, continue, but record the zero.
+				log.Error("Training mode failed due to invalid response on service [Name:", serviceName, "]")
+				os.Exit(1)
 			}
+			perfStatsForTest.ServiceResponseTimes[serviceName] = averageResponseTime
 		}
 	} else {
 		// ServiceBasedTesting strategy runs sequentially through all test

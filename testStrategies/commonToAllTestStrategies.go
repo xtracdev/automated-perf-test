@@ -407,7 +407,8 @@ func getArrayNameAndIndex(testRunGlobals map[string]interface{}, propPathPart st
 	propPathPart = strings.Replace(propPathPart, "]", "", 1)
 	propertyNameParts := strings.Split(propPathPart, "::")
 
-	index, _ := strconv.Atoi(propertyNameParts[1]) //todo, handle error: on error set index to 0
+	// Get index or set to 0 if not a valid number.
+	index, _ := strconv.Atoi(propertyNameParts[1])
 
 	// A value of '?' rather than a number in the index notation indicates
 	// the user would like a random record returned from the data set.
@@ -416,6 +417,12 @@ func getArrayNameAndIndex(testRunGlobals map[string]interface{}, propPathPart st
 		randIdx := rand.New(rand.NewSource(time.Now().UnixNano()))
 		// Get the length of the property array to serve as boundary for rand.
 		len := len(testRunGlobals[propertyNameParts[0]].([]interface{}))
+		// Check to ensure the array is not empty. We are not able to continue
+		// in this case. The user must fix the data issue before proceeding.
+		if len == 0 {
+			log.Errorf("FATAL: Unable to substitute property [%s]: Result array of size 0. Check data criteria for service call.", propertyNameParts[0])
+			os.Exit(1)
+		}
 		// Set the index to a random value.
 		index = randIdx.Intn(len)
 	}

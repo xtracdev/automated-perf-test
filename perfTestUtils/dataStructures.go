@@ -182,17 +182,25 @@ type PerfStats struct {
 	PeakMemory           uint64
 	ServiceResponseTimes map[string]int64
 	ServiceTransCount    map[string]*uint64
+	ServiceErrorCount    map[string]*uint64
 	ServiceTPS           map[string]float64
 	OverAllTransCount    uint64
+	OverAllErrorCount    uint64
 	OverAllTPS           float64
 	MemoryAudit          []uint64
 	TestPartitions       []TestPartition
-	TestDate             time.Time
+	TestTimeStart        time.Time
+	TestTimeEnd          time.Time
 }
 
-// GetTestTime is used in report template for format the date.
-func (ps *PerfStats) GetTestTime() string {
-	return ps.TestDate.Format(time.RFC850)
+// GetTestTimeStart returns the start time of the test in RFC850 format.
+func (ps *PerfStats) GetTestTimeStart() string {
+	return ps.TestTimeStart.Format(time.RFC850)
+}
+
+// GetTestTimeEnd returns the end time of the test in RFC850 format.
+func (ps *PerfStats) GetTestTimeEnd() string {
+	return ps.TestTimeEnd.Format(time.RFC850)
 }
 
 // TestPartition struct combines the test name with a count for use on the report.

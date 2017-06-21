@@ -15,6 +15,7 @@ type perfStatsModel struct {
 	PerfStats            *PerfStats
 	Config               *Config
 	JsonTimeServiceNames template.JS
+	TestStrategy         string
 }
 
 func (p *perfStatsModel) IsMemoryPass() bool {
@@ -105,7 +106,7 @@ func (p *perfStatsModel) JsonTimeArray() template.JS {
 	return template.JS(serviceResponseTimesBase)
 }
 
-func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, configurationSettings *Config, fs FileSystem, testSuiteName string) {
+func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, configurationSettings *Config, fs FileSystem, testSuiteName string, testStrategy string) {
 	// Check for existence of output dir and create if needed.
 	err := os.MkdirAll(configurationSettings.ReportOutputDir, os.ModePerm)
 	if err != nil {
@@ -126,14 +127,14 @@ func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, 
 		file = os.Stdout
 	}
 	tf := configurationSettings.ReportTemplateFile
-	err = generateTemplate(basePerfstats, perfStats, configurationSettings, file, tf)
+	err = generateTemplate(basePerfstats, perfStats, configurationSettings, file, tf, testStrategy)
 	if err != nil {
 		log.Errorf("Error generating template report: %v", err)
 	}
 }
 
-func generateTemplate(bstats *BasePerfStats, pstats *PerfStats, configurationSettings *Config, wr io.Writer, templFile string) error {
-	ps := &perfStatsModel{BasePerfStats: bstats, PerfStats: pstats, Config: configurationSettings}
+func generateTemplate(bstats *BasePerfStats, pstats *PerfStats, configurationSettings *Config, wr io.Writer, templFile string, testStrategy string) error {
+	ps := &perfStatsModel{BasePerfStats: bstats, PerfStats: pstats, Config: configurationSettings, TestStrategy: testStrategy}
 	s1 := template.New("main")
 	var err error
 	s1 = s1.Funcs(template.FuncMap{"memToMB": MemoryMB, "formatMem": FormatMemory, "jsonMem": JsonMemoryArray, "div": Div, "avgVar": CalcAverageResponseVariancePercentage})
