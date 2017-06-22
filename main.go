@@ -210,7 +210,7 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 		//Check to see if this server already has a base perf file defined.
 		//If so, only values not previously populated will be set.
 		//if not, a default base perf struct is created with nil values for all fields
-		f, _ := os.Open(configurationSettings.BaseStatsOutputDir + "/" + host + "-" + testSuite.Name + "-perfBaseStats")
+		f, _ := os.Open(configurationSettings.BaseStatsOutputDir + "/" + host + "-" + configurationSettings.APIName + "-perfBaseStats")
 		basePerfstats, _ = perfTestUtils.ReadBasePerfFile(f)
 	}
 

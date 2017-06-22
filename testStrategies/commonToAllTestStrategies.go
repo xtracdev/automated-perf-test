@@ -17,9 +17,9 @@ import (
 	"os"
 	"regexp"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
+	"strings"
 )
 
 // ServiceBasedTesting and SuiteBasedTesting are used as boolean to determine
@@ -410,21 +410,32 @@ func getArrayNameAndIndex(testRunGlobals map[string]interface{}, propPathPart st
 	// Get index or set to 0 if not a valid number.
 	index, _ := strconv.Atoi(propertyNameParts[1])
 
+	// Test to see if the property exists from a previous call.
+	if testRunGlobals[propertyNameParts[0]] == nil {
+		// Return index of 0 in cases where the property failed to populate on
+		// a previous call: eg. connection error, timeout, http 502/503, etc.
+		// Note: this may cause all subsequent calls within the
+		// same uniqueTestRunID iteration to fail.
+		return propertyNameParts[0], index
+	}
+
 	// A value of '?' rather than a number in the index notation indicates
 	// the user would like a random record returned from the data set.
 	if propertyNameParts[1] == "?" {
 		// Seed the rand call.
 		randIdx := rand.New(rand.NewSource(time.Now().UnixNano()))
-		// Get the length of the property array to serve as boundary for rand.
-		len := len(testRunGlobals[propertyNameParts[0]].([]interface{}))
-		// Check to ensure the array is not empty. We are not able to continue
-		// in this case. The user must fix the data issue before proceeding.
-		if len == 0 {
+		// Get the length of the property array to serve as boundary
+		// for rand.
+		arylen := len(testRunGlobals[propertyNameParts[0]].([]interface{}))
+		// Check to ensure the array is not empty. We are not able to
+		// continue in this case. The user must fix the data issue
+		// before proceeding.
+		if arylen == 0 {
 			log.Errorf("FATAL: Unable to substitute property [%s]: Result array of size 0. Check data criteria for service call.", propertyNameParts[0])
 			os.Exit(1)
 		}
 		// Set the index to a random value.
-		index = randIdx.Intn(len)
+		index = randIdx.Intn(arylen)
 	}
 
 	return propertyNameParts[0], index
@@ -449,7 +460,7 @@ func convertStoredValueToRequestFormat(storedValue interface{}, requiredIndex in
 }
 
 func extractResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string, globalsMap GlobalsMaps, contentType string) {
-	// Short-circuit if call returned empty response bodys.
+	// Short-circuit if call returned empty response body.
 	if string(body) == "" {
 		return
 	}
