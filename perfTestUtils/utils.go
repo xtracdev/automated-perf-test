@@ -62,7 +62,7 @@ func GetExecutionTimeDisplay(durExecTime time.Duration) string {
 
 func IsReadyForTest(configurationSettings *Config, testSuiteName string, numTestCases int) (bool, *BasePerfStats) {
 	//1) read in perf base stats
-	f, err := os.Open(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-" + testSuiteName + "-perfBaseStats")
+	f, err := os.Open(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-" + configurationSettings.APIName + "-perfBaseStats")
 	if err != nil {
 		log.Errorf("Failed to open env stats for %v. Error: %v.", configurationSettings.ExecutionHost, err)
 		return false, nil
@@ -302,7 +302,7 @@ func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *B
 	}
 
 	// Write base perf stat to file.
-	file_name := configurationSettings.ExecutionHost + "-" + testSuiteName + "-perfBaseStats"
+	file_name := configurationSettings.ExecutionHost + "-" + configurationSettings.APIName + "-perfBaseStats"
 	file, err := fs.Create(configurationSettings.BaseStatsOutputDir + "/" + file_name)
 	if err != nil {
 		log.Error("Failed to create output file. Error:", err)
