@@ -47,6 +47,16 @@
                        {{jsonMem "Test" .PerfStats.MemoryAudit}}
                     ]
                 },
+                size: {
+                    height: 500
+                },
+                legend: {
+                    show: true,
+                    position: 'inset',
+                    inset: {
+                        anchor: 'top-right'
+                    }
+                },
                 zoom: {
                     enabled: true
                 },
@@ -61,7 +71,7 @@
                 grid: {
                      x: {
                         lines: [
-                                    {{.JsonTestPartitions}}
+                                    {{.JSONTestPartitions}}
                                 ]
                          }
                     }
@@ -136,11 +146,21 @@
         </div>
         <script>
            var barChartJS = c3.generate({
+               size: {
+                    height: 500
+                },
                 data: {
                     columns: [
-                        {{.JsonTimeArray}}
+                        {{.JSONTimeArray}}
                     ],
                     type: 'bar'
+                },
+                legend: {
+                    show: true,
+                    position: 'inset',
+                    inset: {
+                        anchor: 'top-right'
+                    }
                 },
                 zoom: {
                     enabled: true
@@ -151,12 +171,17 @@
                     }
                 },
                 axis: {
-                y: {
-                    label: 'Avg Resp Time (MilliSeconds)'
-                },
+                    y: {
+                        label: 'Avg Resp Time (MilliSeconds)'
+                    },
                     x: {
                         type: 'category',
-                        categories: {{.JsonTimeServiceNames}}
+                        categories: {{.JSONTimeServiceNames}},
+                        tick: {
+                            rotate: 90,
+                            multiline: false
+                        },
+                        height: 200
                     }
                 }
             });
