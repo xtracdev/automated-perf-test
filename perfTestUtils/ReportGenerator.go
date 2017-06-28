@@ -124,7 +124,7 @@ func (p *perfStatsModel) JSONTimeArray() template.JS {
 }
 
 // GenerateTemplateReport wraps the generateTemplate() function that creates
-// the final performance report html. 
+// the final performance report html.
 func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, configurationSettings *Config, fs FileSystem, testSuiteName string, testStrategy string) {
 	// Check for existence of output dir and create if needed.
 	err := os.MkdirAll(configurationSettings.ReportOutputDir, os.ModePerm)
