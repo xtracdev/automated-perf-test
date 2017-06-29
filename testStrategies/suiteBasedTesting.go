@@ -32,7 +32,7 @@ func ExecuteTestSuiteWrapper(
 		if (i != 0) && (configSettings.RampUsers != 0) && (i%configSettings.RampUsers == 0) {
 			time.Sleep(time.Duration(configSettings.RampDelay) * time.Second)
 		}
-		go executeTestSuite(testSuiteResponseTimesChan, testSuite, configSettings, i, GlobalsLockCounter, perfStatsForTest)
+		go executeTestSuite(testSuiteResponseTimesChan, testSuite, configSettings, i, perfStatsForTest)
 		go aggregateSuiteResponseTimes(testSuiteResponseTimesChan, allServicesResponseTimesMap, &suiteWaitGroup)
 	}
 
@@ -52,7 +52,6 @@ func executeTestSuite(
 	testSuite *TestSuite,
 	configurationSettings *perfTestUtils.Config,
 	userID int,
-	globalsMap GlobalsMaps,
 	perfStatsForTest *perfTestUtils.PerfStats,
 ) {
 	log.Info("Test Suite started")
@@ -100,7 +99,7 @@ func executeTestSuite(
 			log.Info("Test case: [", testDefinition.TestName, "] UniqueRunID: [", uniqueTestRunID, "]")
 
 			targetHost, targetPort := determineHostandPortforRequest(testDefinition, configurationSettings)
-			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.RequestDelay, targetHost, targetPort, uniqueTestRunID, globalsMap)
+			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.RequestDelay, targetHost, targetPort, uniqueTestRunID)
 
 			// NOTE:
 			// Upon error responseTime is set to 0. Rather than drop these
@@ -162,9 +161,9 @@ func executeTestSuite(
 
 		// Variables and properties for this iteration are no longer needed
 		// now that the iteration has completed.
-		globalsMap.Lock()
-		globalsMap.m[uniqueTestRunID] = nil
-		globalsMap.Unlock()
+		mu.Lock()
+		GlobalsMap[uniqueTestRunID] = nil
+		mu.Unlock()
 	}
 
 	testSuiteResponseTimesChan <- allSuiteResponseTimes

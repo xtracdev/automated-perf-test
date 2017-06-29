@@ -148,7 +148,6 @@ func CalcPeakMemoryVariancePercentage(basePeakMemory uint64, peakMemory uint64) 
 
 //----- CalcTps --------------------------------------------------------------------------------------------------------
 func CalcTps(numIterations uint64, testRunTime time.Duration) float64 {
-	log.Debugf("CalcTps numIter: %d, Sec: %f", numIterations, testRunTime.Seconds())
 	return float64(float64(numIterations) / testRunTime.Seconds())
 }
 
