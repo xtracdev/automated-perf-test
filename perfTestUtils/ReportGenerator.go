@@ -8,13 +8,14 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sort"
 )
 
 type perfStatsModel struct {
 	BasePerfStats        *BasePerfStats
 	PerfStats            *PerfStats
 	Config               *Config
-	JsonTimeServiceNames template.JS
+	JSONTimeServiceNames template.JS
 	TestStrategy         string
 }
 
@@ -33,7 +34,7 @@ func (p *perfStatsModel) IsServiceTimePass(s string) bool {
 }
 
 func (p *perfStatsModel) IsTimePass() bool {
-	for k, _ := range p.BasePerfStats.BaseServiceResponseTimes {
+	for k := range p.BasePerfStats.BaseServiceResponseTimes {
 		if !p.IsServiceTimePass(k) {
 			return false
 		}
@@ -45,19 +46,19 @@ func (p *perfStatsModel) PeakMemoryVariancePercentage() float64 {
 	return float64(CalcPeakMemoryVariancePercentage(p.BasePerfStats.BasePeakMemory, p.PerfStats.PeakMemory))
 }
 
-func MemoryMB(pm uint64) float64 {
+func memoryMB(pm uint64) float64 {
 	return float64((float32(pm) / float32(1024)) / float32(1024))
 }
 
-func FormatMemory(m float64) string {
+func formatMemory(m float64) string {
 	return strconv.FormatFloat(m, 'f', 3, 64)
 }
 
-func Div(num int64, den int64) float64 {
+func div(num int64, den int64) float64 {
 	return float64(float32(num) / float32(den))
 }
 
-func JsonMemoryArray(name string, array []uint64) template.JS {
+func jsonMemoryArray(name string, array []uint64) template.JS {
 	jsonMemoryAudit := []byte("['" + name + "',")
 	for _, memValue := range array {
 		jsonMemoryAudit = append(jsonMemoryAudit, []byte(strconv.FormatFloat(float64((float32(memValue)/float32(1024))), 'f', 3, 64))...)
@@ -67,7 +68,7 @@ func JsonMemoryArray(name string, array []uint64) template.JS {
 	return template.JS(jsonMemoryAudit)
 }
 
-func (p *perfStatsModel) JsonTestPartitions() template.JS {
+func (p *perfStatsModel) JSONTestPartitions() template.JS {
 	testpatritions := []byte("")
 	for _, testPartition := range p.PerfStats.TestPartitions {
 		testpatritions = append(testpatritions, []byte("{value: "+fmt.Sprint(testPartition.Count)+" , text: '"+testPartition.TestName+"'},")...)
@@ -75,11 +76,27 @@ func (p *perfStatsModel) JsonTestPartitions() template.JS {
 	return template.JS(testpatritions)
 }
 
-func (p *perfStatsModel) JsonTimeArray() template.JS {
+// JSONTimeArray returns series data for the chart in json format suitable
+// to be inserted as javascript within <script> tags. The array is alpha
+// sorted by service name.
+func (p *perfStatsModel) JSONTimeArray() template.JS {
 	serviceResponseTimesBase := []byte("['Base',")
 	serviceResponseTimesTest := []byte("['Test',")
 	serviceNames := []byte("['")
-	for name, averageServiceResponseTime := range p.PerfStats.ServiceResponseTimes {
+
+	// Sort the keys to get consistent charts between data runs for
+	// easier comparison.
+	sortedkeys := make([]string, len(p.PerfStats.ServiceResponseTimes))
+	i := 0
+	for k := range p.PerfStats.ServiceResponseTimes {
+		sortedkeys[i] = k
+		i++
+	}
+	sort.Strings(sortedkeys)
+
+	// Format the chart data.
+	for _, name := range sortedkeys {
+		averageServiceResponseTime := p.PerfStats.ServiceResponseTimes[name]
 		baseTimeMillis := float64(float32(p.BasePerfStats.BaseServiceResponseTimes[name]) / float32(1000000))
 		serviceResponseTimesBase = append(serviceResponseTimesBase, []byte(strconv.FormatFloat(baseTimeMillis, 'f', 3, 64))...)
 		serviceResponseTimesBase = append(serviceResponseTimesBase, []byte(",")...)
@@ -100,12 +117,14 @@ func (p *perfStatsModel) JsonTimeArray() template.JS {
 	serviceResponseTimesBase = append(serviceResponseTimesBase, []byte("],")...)
 	serviceResponseTimesTest = append(serviceResponseTimesTest, []byte("]")...)
 	serviceNames = append(serviceNames, []byte("']")...)
-	p.JsonTimeServiceNames = template.JS(serviceNames)
+	p.JSONTimeServiceNames = template.JS(serviceNames)
 
 	serviceResponseTimesBase = append(serviceResponseTimesBase, serviceResponseTimesTest...)
 	return template.JS(serviceResponseTimesBase)
 }
 
+// GenerateTemplateReport wraps the generateTemplate() function that creates
+// the final performance report html.
 func GenerateTemplateReport(basePerfstats *BasePerfStats, perfStats *PerfStats, configurationSettings *Config, fs FileSystem, testSuiteName string, testStrategy string) {
 	// Check for existence of output dir and create if needed.
 	err := os.MkdirAll(configurationSettings.ReportOutputDir, os.ModePerm)
@@ -137,7 +156,7 @@ func generateTemplate(bstats *BasePerfStats, pstats *PerfStats, configurationSet
 	ps := &perfStatsModel{BasePerfStats: bstats, PerfStats: pstats, Config: configurationSettings, TestStrategy: testStrategy}
 	s1 := template.New("main")
 	var err error
-	s1 = s1.Funcs(template.FuncMap{"memToMB": MemoryMB, "formatMem": FormatMemory, "jsonMem": JsonMemoryArray, "div": Div, "avgVar": CalcAverageResponseVariancePercentage})
+	s1 = s1.Funcs(template.FuncMap{"memToMB": memoryMB, "formatMem": formatMemory, "jsonMem": jsonMemoryArray, "div": div, "avgVar": CalcAverageResponseVariancePercentage})
 	if templFile != "" {
 		s1, err = s1.ParseFiles(templFile)
 		if err != nil {
@@ -156,7 +175,7 @@ func generateTemplate(bstats *BasePerfStats, pstats *PerfStats, configurationSet
 			}
 			_, err = s1.New(tname).Parse(string(header))
 			if err != nil {
-				return fmt.Errorf("Error parsing template %v: %v\n", tname, err)
+				return fmt.Errorf("Error parsing template %v: %v", tname, err)
 			}
 		}
 		err = s1.ExecuteTemplate(wr, "header", ps)
