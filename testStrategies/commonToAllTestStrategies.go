@@ -32,14 +32,8 @@ const (
 // Global Mutex
 var mu sync.Mutex
 
-// GlobalsMap maintains parameter values across concurrent threads.
-//type GlobalsMap struct {
-//	m map[string]map[string]interface{}
-//}
-var GlobalsMap = make(map[string]map[string]interface{})
-
 // GlobalsLockCounter tracks access to GlobalsMaps data across threads.
-//var GlobalsLockCounter = GlobalsMaps{m: make(map[string]map[string]interface{})}
+var GlobalsMap = make(map[string]map[string]interface{})
 
 // Header appears to be currently unused.
 type Header struct {
