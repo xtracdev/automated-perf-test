@@ -485,14 +485,16 @@ func extractResponseValues(testCaseName string, body []byte, responseValues []Re
 // Extract the response values from the JSON result based on the JMESPath
 // query provided by the user.
 func extractJSONResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string) {
-	// Get Global Properties for this test run. Note, The GlobalsMap shared map
-	// is already covered by the mu.Lock() that was set for the duration of
-	// substituteRequestValues() above.
+	// Get Global Properties for this test run.
+	mu.Lock()
 	testRunGlobals := GlobalsMap[uniqueTestRunID]
+	mu.Unlock()
 
 	if testRunGlobals == nil {
 		testRunGlobals = make(map[string]interface{})
+		mu.Lock()
 		GlobalsMap[uniqueTestRunID] = testRunGlobals
+		mu.Unlock()
 	}
 
 	for _, propPath := range responseValues {
@@ -509,15 +511,16 @@ func extractJSONResponseValues(testCaseName string, body []byte, responseValues 
 }
 
 func extractXMLResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string) {
-	// Get Global Properties for this test run. Note, The GlobalsMap shared map
-	// is already covered by the mu.Lock() that was set for the duration of
-	// substituteRequestValues() above.
+	// Get Global Properties for this test run.
+	mu.Lock()
 	testRunGlobals := GlobalsMap[uniqueTestRunID]
+	mu.Unlock()
 
 	if testRunGlobals == nil {
 		testRunGlobals = make(map[string]interface{})
+		mu.Lock()
 		GlobalsMap[uniqueTestRunID] = testRunGlobals
-
+		mu.Unlock()
 	}
 
 	for _, responseValue := range responseValues {
