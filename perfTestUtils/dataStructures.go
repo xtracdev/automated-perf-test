@@ -18,12 +18,12 @@ const (
 	defaultTestCaseDir                          = "./definitions/testCases"
 	defaultTestSuiteDir                         = "./definitions/testSuites"
 	defaultBaseStatsOutputDir                   = "./envStats"
-	defaultReportOutputDir                      = "./"
+	defaultReportOutputDir                      = "./report"
 	defaultConcurrentUsers                      = 1
 	defaultTestSuite                            = ""
 	defaultMemoryEndpoint                       = "/debug/vars"
 	defaultRequestDelay                         = 1
-	defaultTPSFreq                              = 5
+	defaultTPSFreq                              = 30
 	defaultRampUsers                            = 0
 	defaultRampDelay                            = 10
 
@@ -31,7 +31,8 @@ const (
 	defaultTestFileFormat = "xml"
 )
 
-// Config struct contains all values set by the config.xml file.
+// Config struct contains all values set by the config.xml file. Most, if not
+// all, can be overridden from command line.
 type Config struct {
 	APIName                              string  `xml:"apiName"`
 	TargetHost                           string  `xml:"targetHost"`
@@ -153,17 +154,16 @@ func (c *Config) PrintAndValidateConfig() {
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testSuiteDir", c.TestSuiteDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "testSuite", c.TestSuite, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "memoryEndpoint", c.MemoryEndpoint, "\n"))...)
-	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "requestDelay", c.RequestDelay, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "baseStatsOutputDir", c.BaseStatsOutputDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "reportOutputDir", c.ReportOutputDir, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "gbs", c.GBS, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "reBaseMemory", c.ReBaseMemory, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "reBaseAll", c.ReBaseAll, "\n"))...)
-	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "ExecutionHost", c.ExecutionHost, "\n"))...)
-	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "RequestDelay", c.RequestDelay, "\n"))...)
-	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "TPSFreq", c.TPSFreq, "\n"))...)
-	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "RampUsers", c.RampUsers, "\n"))...)
-	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "RampDelay", c.RampDelay, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90s %2s", "executionHost", c.ExecutionHost, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "requestDelay", c.RequestDelay, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "tpsFreq", c.TPSFreq, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "rampUsers", c.RampUsers, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "rampDelay", c.RampDelay, "\n"))...)
 	configOutput = append(configOutput, []byte("\n=================================================\n")...)
 	log.Info(string(configOutput))
 }
