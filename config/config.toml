@@ -11,9 +11,6 @@ allowableServiceResponseTimeVariance = 15.0
 #The number of time each test case is executed
 numIterations = 1000
 
-#Location of directory where test cases reside
-testDefinitionsDir = "./testDefinitions"
-
 #Output locations for generated files
 baseStatsOutputDir = "./envStats"
 reportOutputDir = "./report"
