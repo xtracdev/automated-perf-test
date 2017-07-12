@@ -24,8 +24,9 @@ var osFileSystem = perfTestUtils.OsFS{}
 // Command line arguments:
 var configFilePath string
 var checkTestReadiness bool
-var verbose bool
-var debug bool
+var boolVerbose bool
+var boolDebug bool
+var configOverrides *perfTestUtils.Config
 
 const (
 	TRAINING_MODE = 1
@@ -115,20 +116,45 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	flag.BoolVar(&checkTestReadiness, "checkTestReadiness", false, "Simple check to see if system requires training.")
 
 	// Log level simplified for the end user.
-	flag.BoolVar(&verbose, "v", false, "Set logging verbosity to 'info' from default of 'warn'. Use -vv for debug.")
-	flag.BoolVar(&debug, "vv", false, "Set verbosity to debug.")
+	flag.BoolVar(&boolVerbose, "v", false, "Set logging verbosity to 'info' from default of 'warn'. Use -vv for debug.")
+	flag.BoolVar(&boolDebug, "vv", false, "Set verbosity to debug.")
 
-	// Args that override default options in Config struct:
+	// Controls that reside in Config struct:
 	flag.BoolVar(&configurationSettings.GBS, "gbs", false, "Generate 'Base Statistics' for this server")
 	flag.BoolVar(&configurationSettings.ReBaseMemory, "reBaseMemory", false, "Generate new base peak memory for this server")
 	flag.BoolVar(&configurationSettings.ReBaseAll, "reBaseAll", false, "Generate new base for memory and service response times for this server")
 	flag.StringVar(&configurationSettings.ConfigFileFormat, "configFileFormat", "xml", "The format of the configuration file {xlm, toml}")
 	flag.StringVar(&configurationSettings.TestFileFormat, "testFileFormat", "xml", "The format of the test definition file {xlm, toml}")
+
+	// Config options that can be overridden from command line args.
+	configOverrides = new(perfTestUtils.Config)
+	flag.StringVar(&configOverrides.APIName, "apiName", "", "Uniqe name of the test scenario. Do not use spaces. (Default_API_NAME)")
+	flag.StringVar(&configOverrides.TargetHost, "host", "", "Remote target host for service calls. (localhost)")
+	flag.StringVar(&configOverrides.TargetPort, "port", "", "Remote target port for service calls. (8080)")
+	flag.IntVar(&configOverrides.NumIterations, "i", 0, "Number of iterations. (1000)")
+	flag.Float64Var(&configOverrides.AllowablePeakMemoryVariance, "allowedMemVar", 0.0, "Allowed peak memory variance percent. (15)")
+	flag.Float64Var(&configOverrides.AllowableServiceResponseTimeVariance, "allowedTimeVar", 0.0, "Allowed response time variance percent. (15)")
+	flag.StringVar(&configOverrides.TestCaseDir, "tcDir", "", "Path to the testCase definition XML files. (./definitions/testCases)")
+	flag.StringVar(&configOverrides.TestSuiteDir, "tsDir", "", "Path to the testSuite defnition XML files. [Optional. Leave off for service-based test runs.] (./definitions/testSuites)")
+	flag.StringVar(&configOverrides.BaseStatsOutputDir, "statsDir", "", "Path to base stats files. Filename based on apiName. (./envStats)")
+	flag.StringVar(&configOverrides.ReportOutputDir, "rDir", "", "Path to report output files. Filename based on apiName. (./reports)")
+	flag.IntVar(&configOverrides.ConcurrentUsers, "u", 0, "Concurrent users, or number of threads. (1)")
+	flag.StringVar(&configOverrides.TestSuite, "ts", "", "Name of testSuite definition file. [Optional. Leave off for service-based test runs.]")
+	flag.StringVar(&configOverrides.MemoryEndpoint, "mem", "", "Override endpoint in URL for memory metrics. (/debug/vars)")
+	flag.IntVar(&configOverrides.RequestDelay, "d", 0, "Delay between calls in ms. (1)")
+	flag.IntVar(&configOverrides.TPSFreq, "tps", 0, "Delay between TPS reporting log events in sec. (30)")
+	flag.IntVar(&configOverrides.RampUsers, "ru", 0, "Number of users/threads to batch for ramp up. (0)")
+	flag.IntVar(&configOverrides.RampDelay, "rd", 0, "Seconds between user/thread batches for ramp up. (15)")
+
+	// Parse the args!
 	flag.CommandLine.Parse(args)
 
-	setLogLevel(verbose, debug)
+	setLogLevel(boolVerbose, boolDebug)
 
-	//----- Parse the config file.
+	// Override defaults with args.
+	overrideConfigOpts()
+
+	//----- Parse the config file if specified.
 	if configFilePath == "" {
 		log.Warn("No config file found. - Using default values.")
 		return
@@ -159,10 +185,10 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 			}
 		}
 	}
+
+	// If a config file was loaded, override with args.
+	overrideConfigOpts()
 }
-
-
-
 
 //----- setLogLevel -----------------------------------------------------------
 // Set log level using a simplified interface for end user. See "Process
@@ -180,8 +206,62 @@ func setLogLevel( verbose, debug bool ) {
 	}
 }
 
-
-
+//----- overrideConfigOpts ----------------------------------------------------
+// Now that configs have been loaded from file (if specified), override any
+// config options that have been specified on command line.
+func overrideConfigOpts() {
+	if configOverrides.APIName != "" {
+		configurationSettings.APIName = configOverrides.APIName
+	}
+	if configOverrides.TargetHost != "" {
+		configurationSettings.TargetHost = configOverrides.TargetHost
+	}
+	if configOverrides.TargetPort != "" {
+		configurationSettings.TargetPort = configOverrides.TargetPort
+	}
+	if configOverrides.NumIterations != 0 {
+		configurationSettings.NumIterations = configOverrides.NumIterations
+	}
+	if configOverrides.AllowablePeakMemoryVariance != 0.0 {
+		configurationSettings.AllowablePeakMemoryVariance = configOverrides.AllowablePeakMemoryVariance
+	}
+	if configOverrides.AllowableServiceResponseTimeVariance != 0.0 {
+		configurationSettings.AllowableServiceResponseTimeVariance = configOverrides.AllowableServiceResponseTimeVariance
+	}
+	if configOverrides.TestCaseDir != "" {
+		configurationSettings.TestCaseDir = configOverrides.TestCaseDir
+	}
+	if configOverrides.TestSuiteDir != "" {
+		configurationSettings.TestSuiteDir = configOverrides.TestSuiteDir
+	}
+	if configOverrides.BaseStatsOutputDir != "" {
+		configurationSettings.BaseStatsOutputDir = configOverrides.BaseStatsOutputDir
+	}
+	if configOverrides.ReportOutputDir != "" {
+		configurationSettings.ReportOutputDir = configOverrides.ReportOutputDir
+	}
+	if configOverrides.ConcurrentUsers != 0 {
+		configurationSettings.ConcurrentUsers = configOverrides.ConcurrentUsers
+	}
+	if configOverrides.TestSuite != "" {
+		configurationSettings.TestSuite = configOverrides.TestSuite
+	}
+	if configOverrides.MemoryEndpoint != "" {
+		configurationSettings.MemoryEndpoint = configOverrides.MemoryEndpoint
+	}
+	if configOverrides.RequestDelay != 0 {
+		configurationSettings.RequestDelay = configOverrides.RequestDelay
+	}
+	if configOverrides.TPSFreq != 0 {
+		configurationSettings.TPSFreq = configOverrides.TPSFreq
+	}
+	if configOverrides.RampUsers != 0 {
+		configurationSettings.RampUsers = configOverrides.RampUsers
+	}
+	if configOverrides.RampDelay != 0 {
+		configurationSettings.RampDelay = configOverrides.RampDelay
+	}
+}
 
 //----- runInTrainingMode -----------------------------------------------------
 func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.TestSuite) {
@@ -334,7 +414,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 					chanQuitPkMem <- true
 				} else {
 					body, _ := ioutil.ReadAll(resp.Body)
-					defer resp.Body.Close()
+					resp.Body.Close()
 					m := new(perfTestUtils.Entry)
 					unmarshalErr := json.Unmarshal(body, m)
 					if unmarshalErr != nil {
