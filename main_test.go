@@ -124,7 +124,7 @@ func assertDefaultConfig(t *testing.T) {
 	assert.Equal(t, "./definitions/testCases", configurationSettings.TestCaseDir)
 	assert.Equal(t, "./definitions/testSuites", configurationSettings.TestSuiteDir)
 	assert.Equal(t, "./envStats", configurationSettings.BaseStatsOutputDir)
-	assert.Equal(t, "./", configurationSettings.ReportOutputDir)
+	assert.Equal(t, "./report", configurationSettings.ReportOutputDir)
 	assert.Equal(t, 1, configurationSettings.ConcurrentUsers)
 	assert.Equal(t, "", configurationSettings.TestSuite)
 	assert.Equal(t, "xml", configurationSettings.TestFileFormat)
@@ -133,6 +133,52 @@ func assertDefaultConfig(t *testing.T) {
 	assert.True(t, configurationSettings.ReBaseAll)
 	assert.True(t, configurationSettings.GBS)
 }
+
+func TestOverrideConfig(t *testing.T) {
+	configurationSettings = new(perfTestUtils.Config)
+	configurationSettings.SetDefaults()
+
+	configOverrides = new(perfTestUtils.Config)
+
+	configOverrides.APIName = "1"
+	configOverrides.TargetHost = "2"
+	configOverrides.TargetPort = "3"
+	configOverrides.NumIterations = 4
+	configOverrides.AllowablePeakMemoryVariance = 5.0
+	configOverrides.AllowableServiceResponseTimeVariance = 6.0
+	configOverrides.TestCaseDir = "7"
+	configOverrides.TestSuiteDir = "8"
+	configOverrides.BaseStatsOutputDir = "9"
+	configOverrides.ReportOutputDir = "10"
+	configOverrides.ConcurrentUsers = 11
+	configOverrides.TestSuite = "12"
+	configOverrides.MemoryEndpoint = "13"
+	configOverrides.RequestDelay = 14
+	configOverrides.TPSFreq = 15
+	configOverrides.RampUsers = 16
+	configOverrides.RampDelay = 17
+
+	overrideConfigOpts()
+
+	assert.Equal(t,"1" , configurationSettings.APIName)
+	assert.Equal(t,"2" , configurationSettings.TargetHost)
+	assert.Equal(t,"3" , configurationSettings.TargetPort)
+	assert.Equal(t,4   , configurationSettings.NumIterations)
+	assert.Equal(t,5.0 , configurationSettings.AllowablePeakMemoryVariance)
+	assert.Equal(t,6.0 , configurationSettings.AllowableServiceResponseTimeVariance)
+	assert.Equal(t,"7" , configurationSettings.TestCaseDir)
+	assert.Equal(t,"8" , configurationSettings.TestSuiteDir)
+	assert.Equal(t,"9" , configurationSettings.BaseStatsOutputDir)
+	assert.Equal(t,"10", configurationSettings.ReportOutputDir)
+	assert.Equal(t,11  , configurationSettings.ConcurrentUsers)
+	assert.Equal(t,"12", configurationSettings.TestSuite)
+	assert.Equal(t,"13", configurationSettings.MemoryEndpoint)
+	assert.Equal(t,14  , configurationSettings.RequestDelay)
+	assert.Equal(t,15  , configurationSettings.TPSFreq)
+	assert.Equal(t,16  , configurationSettings.RampUsers)
+	assert.Equal(t,17  , configurationSettings.RampDelay)
+}
+
 func TestInitConfigFileNotFound(t *testing.T) {
 	willCallOsExit := false
 	exit := func(i int) { willCallOsExit = false }
@@ -209,3 +255,4 @@ func TestRunAssertions(t *testing.T) {
 	t.Logf("%v\n", toTest)
 	assert.Equal(t, 3, len(toTest))
 }
+
