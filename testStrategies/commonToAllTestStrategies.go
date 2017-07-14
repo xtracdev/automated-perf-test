@@ -29,14 +29,11 @@ const (
 	SuiteBasedTesting   = "SuiteBased"
 )
 
-// GlobalsMaps maintains values across concurrent threads.
-type GlobalsMaps struct {
-	sync.RWMutex
-	m map[string]map[string]interface{}
-}
+// Global Mutex
+var mu sync.Mutex
 
 // GlobalsLockCounter tracks access to GlobalsMaps data across threads.
-var GlobalsLockCounter = GlobalsMaps{m: make(map[string]map[string]interface{})}
+var GlobalsMap = make(map[string]map[string]interface{})
 
 // Header appears to be currently unused.
 type Header struct {
@@ -218,7 +215,6 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 	targetHost string,
 	targetPort string,
 	uniqueTestRunID string,
-	globalsMap GlobalsMaps,
 ) int64 {
 	log.Debugf("BEGIN \"%s\" testDefinition\n-----\n%+v\n-----\nEND \"%s\" testDefinition\n",
 		testDefinition.TestName,
@@ -240,14 +236,14 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 	reqbody := "N/A" //for debug
 
 	//Retrieve requestBaseURI and perform any necessary substitution
-	requestBaseURI := substituteRequestValues(&testDefinition.BaseURI, uniqueTestRunID, globalsMap)
+	requestBaseURI := substituteRequestValues(&testDefinition.BaseURI, uniqueTestRunID)
 
 	if !testDefinition.Multipart {
 		log.Debug("Building non-Multipart request.")
 		if testDefinition.Payload != "" {
 			//Retrieve Payload and perform any necessary substitution
 			payload := testDefinition.Payload
-			newPayload := substituteRequestValues(&payload, uniqueTestRunID, globalsMap)
+			newPayload := substituteRequestValues(&payload, uniqueTestRunID,)
 			reqbody = newPayload
 			req, _ = http.NewRequest(testDefinition.HTTPMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, strings.NewReader(newPayload))
 		} else {
@@ -262,7 +258,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 			writer := multipart.NewWriter(body)
 			for _, field := range testDefinition.MultipartPayload {
 				if field.FileName == "" {
-					writer.WriteField(field.FieldName, substituteRequestValues(&field.FieldValue, uniqueTestRunID, globalsMap))
+					writer.WriteField(field.FieldName, substituteRequestValues(&field.FieldValue, uniqueTestRunID))
 				} else {
 					part, _ := writer.CreateFormFile(field.FieldName, field.FileName)
 					io.Copy(part, bytes.NewReader(field.FileContent))
@@ -280,7 +276,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 	//add headers and perform and necessary substitution
 	for k, v := range testDefinition.Headers {
 		for _, hv := range v {
-			req.Header.Add(k, substituteRequestValues(&hv, uniqueTestRunID, globalsMap))
+			req.Header.Add(k, substituteRequestValues(&hv, uniqueTestRunID))
 		}
 	}
 
@@ -324,7 +320,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 	}
 
 	contentType := detectContentType(resp.Header, body, testDefinition.ResponseContentType)
-	extractResponseValues(testDefinition.TestName, body, testDefinition.ResponseValues, uniqueTestRunID, globalsMap, contentType)
+	extractResponseValues(testDefinition.TestName, body, testDefinition.ResponseValues, uniqueTestRunID, contentType)
 
 	//Execute the PostThinkTime, if any.
 	if testDefinition.PostThinkTime > 0 {
@@ -360,13 +356,18 @@ func determineHostandPortforRequest(testDefinition *TestDefinition, configuratio
 	return targetHost, targetPort
 }
 
-func substituteRequestValues(requestBody *string, uniqueTestRunID string, globalsMap GlobalsMaps) string {
+func substituteRequestValues(requestBody *string, uniqueTestRunID string) string {
+	// Make a value copy for substitution.
 	requestPayloadCopy := *requestBody
 
-	//Get Global Properties for this test run
-	globalsMap.RLock()
-	testRunGlobals := globalsMap.m[uniqueTestRunID]
-	globalsMap.RUnlock()
+	// Lock global data structure for the duration of this function and
+	// those function that branch.
+	// TODO: Find a way to lock smaller sections. eg. how do we handle the "if GlobalsMap" statement?
+	mu.Lock()
+	defer mu.Unlock()
+
+	// Get the properties for this iteration.
+	testRunGlobals := GlobalsMap[uniqueTestRunID]
 
 	if testRunGlobals != nil {
 		r := regexp.MustCompile("{{([^}]+)}}")
@@ -459,16 +460,16 @@ func convertStoredValueToRequestFormat(storedValue interface{}, requiredIndex in
 	return requestFormattedValue
 }
 
-func extractResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string, globalsMap GlobalsMaps, contentType string) {
+func extractResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string, contentType string) {
 	// Short-circuit if call returned empty response body.
 	if string(body) == "" {
 		return
 	}
 
 	if strings.Contains(contentType, "json") {
-		extractJSONResponseValues(testCaseName, body, responseValues, uniqueTestRunID, globalsMap)
+		extractJSONResponseValues(testCaseName, body, responseValues, uniqueTestRunID)
 	} else if strings.Contains(contentType, "xml") {
-		extractXMLResponseValues(testCaseName, body, responseValues, uniqueTestRunID, globalsMap)
+		extractXMLResponseValues(testCaseName, body, responseValues, uniqueTestRunID)
 	} else {
 		log.Warn("Unsupported response content type of:", contentType)
 	}
@@ -477,17 +478,17 @@ func extractResponseValues(testCaseName string, body []byte, responseValues []Re
 //----- extractJSONResponseValues --------------------------------------------
 // Extract the response values from the JSON result based on the JMESPath
 // query provided by the user.
-func extractJSONResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string, globalsMap GlobalsMaps) {
-	//Get Global Properties for this test run
-	globalsMap.RLock()
-	testRunGlobals := globalsMap.m[uniqueTestRunID]
-	globalsMap.RUnlock()
+func extractJSONResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string) {
+	// Get Global Properties for this test run.
+	mu.Lock()
+	testRunGlobals := GlobalsMap[uniqueTestRunID]
+	mu.Unlock()
 
 	if testRunGlobals == nil {
 		testRunGlobals = make(map[string]interface{})
-		globalsMap.Lock()
-		globalsMap.m[uniqueTestRunID] = testRunGlobals
-		globalsMap.Unlock()
+		mu.Lock()
+		GlobalsMap[uniqueTestRunID] = testRunGlobals
+		mu.Unlock()
 	}
 
 	for _, propPath := range responseValues {
@@ -503,17 +504,17 @@ func extractJSONResponseValues(testCaseName string, body []byte, responseValues 
 	}
 }
 
-func extractXMLResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string, globalsMap GlobalsMaps) {
-	//Get Global Properties for this test run
-	globalsMap.RLock()
-	testRunGlobals := globalsMap.m[uniqueTestRunID]
-	globalsMap.RUnlock()
+func extractXMLResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string) {
+	// Get Global Properties for this test run.
+	mu.Lock()
+	testRunGlobals := GlobalsMap[uniqueTestRunID]
+	mu.Unlock()
 
 	if testRunGlobals == nil {
 		testRunGlobals = make(map[string]interface{})
-		globalsMap.Lock()
-		globalsMap.m[uniqueTestRunID] = testRunGlobals
-		globalsMap.Unlock()
+		mu.Lock()
+		GlobalsMap[uniqueTestRunID] = testRunGlobals
+		mu.Unlock()
 	}
 
 	for _, responseValue := range responseValues {

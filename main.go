@@ -320,18 +320,18 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 
 	// 1. Start go routine to grab memory in use.
 	// Peak memory is stored in peakMemoryAllocation variable.
-	quit := make(chan bool)
+	chanQuitPkMem := make(chan bool)
 	go func() {
 		for {
 			select {
-			case <-quit:
+			case <-chanQuitPkMem:
 				return
 			default:
 				memoryStatsUrl := "http://" + configurationSettings.TargetHost + ":" + configurationSettings.TargetPort + configurationSettings.MemoryEndpoint
 				resp, err := http.Get(memoryStatsUrl)
 				if err != nil {
 					log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error: ", err)
-					quit <- true
+					chanQuitPkMem <- true
 				} else {
 					body, _ := ioutil.ReadAll(resp.Body)
 					defer resp.Body.Close()
@@ -339,7 +339,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 					unmarshalErr := json.Unmarshal(body, m)
 					if unmarshalErr != nil {
 						log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics from endpoint: ", memoryStatsUrl, ". UnmarsahlErr: ", unmarshalErr)
-						quit <- true
+						chanQuitPkMem <- true
 					} else {
 						if m.Memstats.Alloc > *peakMemoryAllocation {
 							*peakMemoryAllocation = m.Memstats.Alloc
@@ -423,7 +423,10 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 		}
 	}
 
-	time.Sleep(time.Second * 1)
+	// Kill the peak memory thread to avoid race condition when saving metrics.
+	chanQuitPkMem <- true
+
+	// Save the peak memory metrics:
 	perfStatsForTest.PeakMemory = *peakMemoryAllocation
 	perfStatsForTest.MemoryAudit = memoryAudit
 	perfStatsForTest.TestPartitions = testPartitions

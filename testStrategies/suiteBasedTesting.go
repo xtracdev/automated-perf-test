@@ -32,7 +32,7 @@ func ExecuteTestSuiteWrapper(
 		if (i != 0) && (configSettings.RampUsers != 0) && (i%configSettings.RampUsers == 0) {
 			time.Sleep(time.Duration(configSettings.RampDelay) * time.Second)
 		}
-		go executeTestSuite(testSuiteResponseTimesChan, testSuite, configSettings, i, GlobalsLockCounter, perfStatsForTest)
+		go executeTestSuite(testSuiteResponseTimesChan, testSuite, configSettings, i, perfStatsForTest)
 		go aggregateSuiteResponseTimes(testSuiteResponseTimesChan, allServicesResponseTimesMap, &suiteWaitGroup)
 	}
 
@@ -52,7 +52,6 @@ func executeTestSuite(
 	testSuite *TestSuite,
 	configurationSettings *perfTestUtils.Config,
 	userID int,
-	globalsMap GlobalsMaps,
 	perfStatsForTest *perfTestUtils.PerfStats,
 ) {
 	log.Info("Test Suite started")
@@ -100,7 +99,7 @@ func executeTestSuite(
 			log.Info("Test case: [", testDefinition.TestName, "] UniqueRunID: [", uniqueTestRunID, "]")
 
 			targetHost, targetPort := determineHostandPortforRequest(testDefinition, configurationSettings)
-			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.RequestDelay, targetHost, targetPort, uniqueTestRunID, globalsMap)
+			responseTime := testDefinition.BuildAndSendRequest(configurationSettings.RequestDelay, targetHost, targetPort, uniqueTestRunID)
 
 			// NOTE:
 			// Upon error responseTime is set to 0. Rather than drop these
@@ -126,6 +125,7 @@ func executeTestSuite(
 			// Service-level counters:
 			// Increment ServiceTransCount.
 			// (Create the counters on the fly and increment atomically.)
+			mu.Lock()
 			if perfStatsForTest.ServiceTransCount[testDefinition.TestName] == nil {
 				perfStatsForTest.ServiceTransCount[testDefinition.TestName] = new(uint64)
 				atomic.StoreUint64(
@@ -138,12 +138,14 @@ func executeTestSuite(
 					0,
 				)
 			}
+			mu.Unlock()
 			atomic.AddUint64(
 				perfStatsForTest.ServiceTransCount[testDefinition.TestName],
 				1,
 			)
 			// Increment ServiceErrorCount.
 			if responseTime == 0 {
+				mu.Lock()
 				if perfStatsForTest.ServiceErrorCount[testDefinition.TestName] == nil {
 					perfStatsForTest.ServiceErrorCount[testDefinition.TestName] = new(uint64)
 					atomic.StoreUint64(
@@ -151,6 +153,7 @@ func executeTestSuite(
 						0,
 					)
 				}
+				mu.Unlock()
 				atomic.AddUint64(
 					perfStatsForTest.ServiceErrorCount[testDefinition.TestName],
 					1,
@@ -162,9 +165,9 @@ func executeTestSuite(
 
 		// Variables and properties for this iteration are no longer needed
 		// now that the iteration has completed.
-		globalsMap.Lock()
-		globalsMap.m[uniqueTestRunID] = nil
-		globalsMap.Unlock()
+		mu.Lock()
+		GlobalsMap[uniqueTestRunID] = nil
+		mu.Unlock()
 	}
 
 	testSuiteResponseTimesChan <- allSuiteResponseTimes
@@ -179,11 +182,13 @@ func aggregateSuiteResponseTimes(
 	perUserSuiteResponseTimes := <-testSuiteResponseTimesChan
 	for _, singleSuiteRunResponseTimes := range perUserSuiteResponseTimes {
 		for serviceName, serviceResponseTime := range singleSuiteRunResponseTimes {
+			mu.Lock()
 			if allServicesResponseTimesMap[serviceName] == nil {
 				serviceResponseSlice := make([]int64, 0)
 				allServicesResponseTimesMap[serviceName] = serviceResponseSlice
 			}
 			allServicesResponseTimesMap[serviceName] = append(allServicesResponseTimesMap[serviceName], serviceResponseTime)
+			mu.Unlock()
 		}
 	}
 	suiteWaitGroup.Done()

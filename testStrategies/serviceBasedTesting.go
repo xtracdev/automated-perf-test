@@ -18,12 +18,12 @@ func ExecuteServiceTest(testDefinition *TestDefinition, loadPerUser int, remaind
 	var wg sync.WaitGroup
 	wg.Add(configurationSettings.ConcurrentUsers)
 	for i := 0; i < configurationSettings.ConcurrentUsers; i++ {
-		go buildAndSendUserRequests(subsetOfResponseTimesChan, loadPerUser, testDefinition, configurationSettings.RequestDelay, targetHost, targetPort, GlobalsLockCounter)
+		go buildAndSendUserRequests(subsetOfResponseTimesChan, loadPerUser, testDefinition, configurationSettings.RequestDelay, targetHost, targetPort)
 		go aggregateResponseTimes(&responseTimes, subsetOfResponseTimesChan, &wg)
 	}
 	if remainder > 0 {
 		wg.Add(1)
-		go buildAndSendUserRequests(subsetOfResponseTimesChan, remainder, testDefinition, configurationSettings.RequestDelay, targetHost, targetPort, GlobalsLockCounter)
+		go buildAndSendUserRequests(subsetOfResponseTimesChan, remainder, testDefinition, configurationSettings.RequestDelay, targetHost, targetPort)
 		go aggregateResponseTimes(&responseTimes, subsetOfResponseTimesChan, &wg)
 	}
 
@@ -35,12 +35,12 @@ func ExecuteServiceTest(testDefinition *TestDefinition, loadPerUser int, remaind
 	return averageResponseTime
 }
 
-func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTimes, loadPerUser int, testDefinition *TestDefinition, delay int, targetHost string, targetPort string, globalsMap GlobalsMaps) {
+func buildAndSendUserRequests(subsetOfResponseTimesChan chan perfTestUtils.RspTimes, loadPerUser int, testDefinition *TestDefinition, delay int, targetHost string, targetPort string) {
 	responseTimes := make(perfTestUtils.RspTimes, loadPerUser)
 	loopExecutedToCompletion := true
 
 	for i := 0; i < loadPerUser; i++ {
-		responseTime := testDefinition.BuildAndSendRequest(delay, targetHost, targetPort, "", globalsMap)
+		responseTime := testDefinition.BuildAndSendRequest(delay, targetHost, targetPort, "")
 
 		if responseTime > 0 {
 			responseTimes[i] = responseTime
