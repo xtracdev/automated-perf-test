@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
-	"github.com/BurntSushi/toml"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"github.com/xtracdev/automated-perf-test/testStrategies"
@@ -123,8 +122,6 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	flag.BoolVar(&configurationSettings.GBS, "gbs", false, "Generate 'Base Statistics' for this server")
 	flag.BoolVar(&configurationSettings.ReBaseMemory, "reBaseMemory", false, "Generate new base peak memory for this server")
 	flag.BoolVar(&configurationSettings.ReBaseAll, "reBaseAll", false, "Generate new base for memory and service response times for this server")
-	flag.StringVar(&configurationSettings.ConfigFileFormat, "configFileFormat", "xml", "The format of the configuration file {xlm, toml}")
-	flag.StringVar(&configurationSettings.TestFileFormat, "testFileFormat", "xml", "The format of the test definition file {xlm, toml}")
 
 	// Config options that can be overridden from command line args.
 	configOverrides = new(perfTestUtils.Config)
@@ -171,17 +168,9 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 		if fileErr != nil {
 			log.Error("No readable config file found at path: ", configFilePath, " - Using default values.")
 		} else {
-			switch configurationSettings.ConfigFileFormat {
-			case "toml":
-				err := toml.Unmarshal(fileContent, &configurationSettings)
-				if err != nil {
-					log.Error("Failed to parse config file ", configFilePath, ". Error:", err, " - Using default values.")
-				}
-			default:
-				xmlError := xml.Unmarshal(fileContent, &configurationSettings)
-				if xmlError != nil {
-					log.Error("Failed to parse config file ", configFilePath, ". Error:", xmlError, " - Using default values.")
-				}
+			xmlError := xml.Unmarshal(fileContent, &configurationSettings)
+			if xmlError != nil {
+				log.Error("Failed to parse config file ", configFilePath, ". Error:", xmlError, " - Using default values.")
 			}
 		}
 	}
