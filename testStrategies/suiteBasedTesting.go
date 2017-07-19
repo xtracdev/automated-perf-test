@@ -78,7 +78,7 @@ func executeTestSuite(
 			skipSparse = true
 		}
 
-		for _, testDefinition := range testSuite.TestCases {
+		for _, testDefinition := range testSuite.TestDefinitions {
 			// Execute service based on weighted load:
 			if testDefinition.ExecWeight == "Infrequent" && skipInfrequent {
 				// Skip "Infrequent" items:

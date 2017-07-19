@@ -109,7 +109,7 @@ const (
 )
 
 func TestUnmarshalXmlTestSuite(t *testing.T) {
-	ts := &TestSuiteDefinition{}
+	ts := &TestSuite{}
 	err := xml.Unmarshal([]byte(xmlTestSuite), ts)
 	assert.Nil(t, err)
 	assert.Equal(t, 3, len(ts.TestCases))
@@ -142,7 +142,8 @@ func TestLoadTestDefinitionXmlErr(t *testing.T) {
 func TestLoadTestSuiteDefinitionXml(t *testing.T) {
 	config := &perfTestUtils.Config{}
 	config.SetDefaults()
-	ts, err := loadTestSuiteDefinition([]byte(xmlTestSuite))
+	ts := new(TestSuite)
+	err := ts.loadTestSuiteDefinition([]byte(xmlTestSuite))
 	assert.Nil(t, err)
 	assert.NotNil(t, ts)
 	assert.Equal(t, "testSuite", ts.Name)
@@ -160,7 +161,7 @@ func TestLoadTestSuiteDefinitionXml(t *testing.T) {
 func TestLoadTestSuiteDefinitionXmlErr(t *testing.T) {
 	config := &perfTestUtils.Config{}
 	config.SetDefaults()
-	ts, err := loadTestSuiteDefinition([]byte(`This is not XML.`))
-	assert.Nil(t, ts)
+	ts := new(TestSuite)
+	err := ts.loadTestSuiteDefinition([]byte(`This is not XML.`))
 	assert.NotNil(t, err)
 }

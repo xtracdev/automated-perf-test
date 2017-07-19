@@ -47,7 +47,7 @@ func main() {
 	//Generate a test suite based on configuration settings
 	testSuite := new(testStrategies.TestSuite)
 	testSuite.BuildTestSuite(configurationSettings)
-	numTestCases := len(testSuite.TestCases) //convenience variable
+	numTestCases := len(testSuite.TestDefinitions) //convenience variable
 
 	if checkTestReadiness {
 		readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
@@ -475,7 +475,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 
 		var index int
 		var testDefinition *testStrategies.TestDefinition
-		for index, testDefinition = range testSuite.TestCases {
+		for index, testDefinition = range testSuite.TestDefinitions {
 			log.Infof("Running Test case [%d] [Name:%s]", index, testDefinition.TestName)
 			testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: testDefinition.TestName})
 			averageResponseTime := testStrategies.ExecuteServiceTest(testDefinition, loadPerUser, remainder, configurationSettings, mode)

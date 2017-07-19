@@ -71,34 +71,23 @@ type TestDefinition struct {
 // TestSuite fields get populated from the TestSuiteDefinition after the XML
 // unmarshal is complete. (See TestDefinition above).
 type TestSuite struct {
-	XMLName      xml.Name
-	Name         string
-	TestStrategy string
-	TestCases    []*TestDefinition
+	XMLName         xml.Name   `xml:"testSuite"`
+	Name            string     `xml:"name"`
+	TestStrategy    string     `xml:"testStrategy"`
+	TestCases       []TestCase `xml:"testCases>testCase"`
+	TestDefinitions []*TestDefinition
 }
 
 // TestCase is used to encapsulate and marshal a <testCase> tag from the
 // <testSuite> XML file. This data will then be consolidated into
 // the TestSuite/TestDefinition data structure for usage.
-// TODO: Can we simplify the data structure somehow by consolidating?
 type TestCase struct {
-	Name          string `xml:",chardata"`
-	PreThinkTime  int64  `xml:"preThinkTime,attr"`
-	PostThinkTime int64  `xml:"postThinkTime,attr"`
-	ExecWeight    string `xml:"execWeight,attr"`
+	XMLName       xml.Name `xml:"testCase"`
+	Name          string   `xml:",chardata"`
+	PreThinkTime  int64    `xml:"preThinkTime,attr"`
+	PostThinkTime int64    `xml:"postThinkTime,attr"`
+	ExecWeight    string   `xml:"execWeight,attr"`
 }
-
-// TestSuiteDefinition is used to encapsulate and marshal a <testSuite> XML
-// file. (See TestCase above). This data will then be consolidated into
-// the TestSuite/TestDefinition data structure for usage.
-// TODO: Can we simplify the data structure somehow by consolidating?
-type TestSuiteDefinition struct {
-	XMLName      xml.Name   `xml:"testSuite"`
-	Name         string     `xml:"name"`
-	TestStrategy string     `xml:"testStrategy"`
-	TestCases    []TestCase `xml:"testCases>testCase"`
-}
-
 
 type multipartFormField struct {
 	FieldName   string `xml:"fieldName"`
@@ -150,17 +139,11 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 				log.Error("Failed to load test definition. Error:", err)
 				os.Exit(1)
 			}
-			ts.TestCases = append(ts.TestCases, testDefinition)
+			ts.TestDefinitions = append(ts.TestDefinitions, testDefinition)
 		}
 	} else {
 		// Flag as SuiteBased testing:
 		ts.TestStrategy = SuiteBasedTesting
-
-		// Assemble the unmarshaled XML data into a single TestSuite data structure.
-		// This bit of ugliness is necessary in order to relate the <testCase>
-		// values and tags from the <testSuite> XML together with the <testCase>
-		// values and tags from the <testDefinition> XML into a single,
-		// iterable data structure.
 
 		// Get the testSuite filename ...
 		bs, err := ioutil.ReadFile(configurationSettings.TestSuiteDir + "/" + configurationSettings.TestSuite)
@@ -169,19 +152,15 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 			os.Exit(1)
 		}
 
-		// ... and unmarshal the testSuiteDefinition.
-		testSuiteDefinition, err := loadTestSuiteDefinition(bs)
+		// ... and unmarshal the testSuite XML.
+		err = ts.loadTestSuiteDefinition(bs)
 		if err != nil {
 			log.Errorf("Failed to load the test suite: %v", err)
 			os.Exit(1)
 		}
 
-		// Populate the TestSuite data structure from the XML file.
-		ts.Name = testSuiteDefinition.Name
-		ts.TestStrategy = testSuiteDefinition.TestStrategy
-
-		// Populate ts.testCases array with test definitions.
-		for _, testCase := range testSuiteDefinition.TestCases {
+		// Populate ts.TestDefinitions array with test definitions.
+		for _, testCase := range ts.TestCases {
 			bs, err := ioutil.ReadFile(configurationSettings.TestCaseDir + "/" + testCase.Name)
 			if err != nil {
 				log.Error("Failed to read test file. Filename: ", testCase.Name, err)
@@ -193,15 +172,37 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 				log.Error("Failed to load test definition. Error:", err)
 			}
 
-			// Add the testCase attributes from the testSuiteDefinition (thinktime, etc).
+			// Add the testCase attributes to the TestDefinition (thinktime, etc).
+			// This effectively flattens the fields into TestDefinitions allowing
+			// us to ignore TestCases.
 			testDefinition.PreThinkTime = testCase.PreThinkTime
 			testDefinition.PostThinkTime = testCase.PostThinkTime
 			testDefinition.ExecWeight = testCase.ExecWeight
 
 			// Append the testDefinition to the testSuite
-			ts.TestCases = append(ts.TestCases, testDefinition)
+			ts.TestDefinitions = append(ts.TestDefinitions, testDefinition)
 		}
 	}
+}
+
+func loadTestDefinition(bs []byte) (*TestDefinition, error) {
+	td := &TestDefinition{}
+	err := xml.Unmarshal(bs, &td)
+	if err != nil {
+		log.Errorf("Error occurred loading XML testCase definition file: %v\n", err)
+		return nil, err
+	}
+	return td, nil
+}
+
+func (ts *TestSuite) loadTestSuiteDefinition(bs []byte) (error) {
+	//ts := &TestSuite{}
+	err := xml.Unmarshal(bs, ts)
+	if err != nil {
+		log.Errorf("Error occurred loading XML testSuite definition file: %v\n", err)
+		return err
+	}
+	return nil
 }
 
 // BuildAndSendRequest builds a request from the test definition, performs
@@ -527,22 +528,3 @@ func extractXMLResponseValues(testCaseName string, body []byte, responseValues [
 	}
 }
 
-func loadTestDefinition(bs []byte) (*TestDefinition, error) {
-	td := &TestDefinition{}
-	err := xml.Unmarshal(bs, &td)
-	if err != nil {
-		log.Errorf("Error occurred loading XML testCase definition file: %v\n", err)
-		return nil, err
-	}
-	return td, nil
-}
-
-func loadTestSuiteDefinition(bs []byte) (*TestSuiteDefinition, error) {
-	ts := &TestSuiteDefinition{}
-	err := xml.Unmarshal(bs, ts)
-	if err != nil {
-		log.Errorf("Error occurred loading XML testSuite definition file: %v\n", err)
-		return nil, err
-	}
-	return ts, nil
-}
