@@ -11,13 +11,13 @@ import (
 	"time"
 )
 
-//FileSystem is an interface to access os filesystem or mock it
+// FileSystem is an interface to access os filesystem or mock it
 type FileSystem interface {
 	Open(name string) (File, error)
 	Create(name string) (File, error)
 }
 
-//File is an interface to access os.File or mock it
+// File is an interface to access os.File or mock it
 type File interface {
 	Readdir(n int) (fi []os.FileInfo, err error)
 	io.WriteCloser
@@ -27,16 +27,17 @@ type File interface {
 // OsFS implements fileSystem using the local disk.
 type OsFS struct{}
 
-//Open calls os function
+// Open calls os function
 func (OsFS) Open(name string) (File, error) { return os.Open(name) }
 
-//Create calls os function
+// Create calls os function
 func (OsFS) Create(name string) (File, error) { return os.Create(name) }
 
 //=============================
 //Test run utility functions
 //=============================
-//This function reads a base perf and converts it to a base perf struct
+
+// ReadBasePerfFile reads a base perf and converts it to a base perf struct
 func ReadBasePerfFile(r io.Reader) (*BasePerfStats, error) {
 	basePerfstats := &BasePerfStats{
 		BaseServiceResponseTimes: make(map[string]int64),
@@ -56,11 +57,9 @@ func ReadBasePerfFile(r io.Reader) (*BasePerfStats, error) {
 	return basePerfstats, errorFound
 }
 
-func GetExecutionTimeDisplay(durExecTime time.Duration) string {
-	return fmt.Sprintf( "%s (%.9fs)", durExecTime.String(), durExecTime.Seconds() )
-}
-
-func IsReadyForTest(configurationSettings *Config, testSuiteName string, numTestCases int) (bool, *BasePerfStats) {
+// IsReadyForTest validates the basePerfStats file content, and verifies the
+// number of base test cases equals the number of configured test cases.
+func IsReadyForTest(configurationSettings *Config, numTestCases int) (bool, *BasePerfStats) {
 	//1) read in perf base stats
 	f, err := os.Open(configurationSettings.BaseStatsOutputDir + "/" + configurationSettings.ExecutionHost + "-" + configurationSettings.APIName + "-perfBaseStats")
 	if err != nil {
@@ -128,6 +127,9 @@ func validateBasePerfStat(basePerfstats *BasePerfStats) bool {
 //=====================
 //Calc Memory functions
 //=====================
+
+// CalcPeakMemoryVariancePercentage calculates the variance percentage between
+// the base peak memory and the recorded peak memory.
 func CalcPeakMemoryVariancePercentage(basePeakMemory uint64, peakMemory uint64) float64 {
 
 	peakMemoryVariancePercentage := float64(0)
@@ -145,16 +147,18 @@ func CalcPeakMemoryVariancePercentage(basePeakMemory uint64, peakMemory uint64) 
 	return peakMemoryVariancePercentage
 }
 
-
-//----- CalcTps --------------------------------------------------------------------------------------------------------
+// CalcTps returns the transaction per second given a time duratiuon and
+// number of iterations.
 func CalcTps(numIterations uint64, testRunTime time.Duration) float64 {
 	return float64(float64(numIterations) / testRunTime.Seconds())
 }
 
-
 //============================
 //Calc Response time functions
 //============================
+
+// CalcAverageResponseTime returns the average response time of a set of
+// recorded response time values.
 func CalcAverageResponseTime(responseTimes RspTimes, testMode int) int64 {
 	averageResponseTime := int64(0)
 
@@ -178,8 +182,10 @@ func CalcAverageResponseTime(responseTimes RspTimes, testMode int) int64 {
 	return averageResponseTime
 }
 
+// CalcAverageResponseVariancePercentage returns the variance percentage between
+// the base peak response average and the response average of a set of
+// recorded resonse time values.
 func CalcAverageResponseVariancePercentage(averageResponseTime int64, baseResponseTime int64) float64 {
-
 	responseTimeVariancePercentage := float64(0)
 
 	if baseResponseTime < averageResponseTime {
@@ -198,8 +204,10 @@ func CalcAverageResponseVariancePercentage(averageResponseTime int64, baseRespon
 //=====================================
 //Service response validation functions
 //=====================================
-func ValidateResponseStatusCode(responseStatusCode int, expectedStatusCode int, testName string) bool {
 
+// ValidateResponseStatusCode returns true if the HTTP response code matches
+// the response code contained in the test case definition. Otherwise, false.
+func ValidateResponseStatusCode(responseStatusCode int, expectedStatusCode int, testName string) bool {
 	isResponseStatusCodeValid := false
 	if responseStatusCode == expectedStatusCode {
 		isResponseStatusCodeValid = true
@@ -209,8 +217,9 @@ func ValidateResponseStatusCode(responseStatusCode int, expectedStatusCode int, 
 	return isResponseStatusCodeValid
 }
 
+// ValidateServiceResponseTime returns true if the given response time is
+// greater than zero. Otherwise, log an error and return false.
 func ValidateServiceResponseTime(responseTime int64, testName string) bool {
-
 	isResponseTimeValid := false
 	if responseTime > 0 {
 		isResponseTimeValid = true
@@ -223,21 +232,24 @@ func ValidateServiceResponseTime(responseTime int64, testName string) bool {
 //=====================================
 //Test Assertion functions
 //=====================================
-func ValidatePeakMemoryVariance(allowablePeakMemoryVariance float64, peakMemoryVariancePercentage float64) bool {
 
+// ValidatePeakMemoryVariance returns true if the given percentage is less
+// than or equal to the allowable variance contained in the config.
+func ValidatePeakMemoryVariance(allowablePeakMemoryVariance float64, peakMemoryVariancePercentage float64) bool {
 	if allowablePeakMemoryVariance >= peakMemoryVariancePercentage {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
+// ValidateAverageServiceResponseTimeVariance returns true if the given
+// percentage is less than or equal to the allowable variance contained in
+// the config.
 func ValidateAverageServiceResponseTimeVariance(allowableServiceResponseTimeVariance float64, serviceResponseTimeVariancePercentage float64) bool {
 	if allowableServiceResponseTimeVariance >= serviceResponseTimeVariancePercentage {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 //=====================================
@@ -282,13 +294,13 @@ func populateBasePerfStats(perfStatsForTest *PerfStats, basePerfstats *BasePerfS
 	}
 }
 
-func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *BasePerfStats, configurationSettings *Config, exit func(code int), fs FileSystem, testSuiteName string) {
-
+// GenerateEnvBasePerfOutputFile writes the basePerfStats file.
+func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *BasePerfStats, configurationSettings *Config, exit func(code int), fs FileSystem) {
 	//Set base performance based on training test run
 	populateBasePerfStats(perfStatsForTest, basePerfstats, configurationSettings.ReBaseMemory)
 
 	//Convert base perf stat to Json
-	basePerfstatsJson, err := json.Marshal(basePerfstats)
+	basePerfstatsJSON, err := json.Marshal(basePerfstats)
 	if err != nil {
 		log.Error("Failed to marshal to Json. Error:", err)
 		exit(1)
@@ -301,14 +313,14 @@ func GenerateEnvBasePerfOutputFile(perfStatsForTest *PerfStats, basePerfstats *B
 	}
 
 	// Write base perf stat to file.
-	file_name := configurationSettings.ExecutionHost + "-" + configurationSettings.APIName + "-perfBaseStats"
-	file, err := fs.Create(configurationSettings.BaseStatsOutputDir + "/" + file_name)
+	fileName := configurationSettings.ExecutionHost + "-" + configurationSettings.APIName + "-perfBaseStats"
+	file, err := fs.Create(configurationSettings.BaseStatsOutputDir + "/" + fileName)
 	if err != nil {
 		log.Error("Failed to create output file. Error:", err)
 		exit(1)
 	}
 	if file != nil {
 		defer file.Close()
-		file.Write(basePerfstatsJson)
+		file.Write(basePerfstatsJSON)
 	}
 }

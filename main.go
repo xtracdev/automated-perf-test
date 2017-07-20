@@ -14,8 +14,6 @@ import (
 	"time"
 )
 
-
-
 //----- Globals ------------------------------------------------------------------
 var configurationSettings *perfTestUtils.Config
 var osFileSystem = perfTestUtils.OsFS{}
@@ -28,12 +26,9 @@ var boolDebug bool
 var configOverrides *perfTestUtils.Config
 
 const (
-	TRAINING_MODE = 1
-	TESTING_MODE  = 2
+	trainingMode = 1
+	testingMode = 2
 )
-
-
-
 
 //----- main ------------------------------------------------------------------
 func main() {
@@ -50,7 +45,7 @@ func main() {
 	numTestCases := len(testSuite.TestDefinitions) //convenience variable
 
 	if checkTestReadiness {
-		readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
+		readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, numTestCases)
 		if !readyForTest {
 			log.Warn("System is not ready for testing.")
 			os.Exit(1)
@@ -65,7 +60,7 @@ func main() {
 		if configurationSettings.ReBaseAll {
 			runInTrainingMode(configurationSettings.ExecutionHost, true, testSuite)
 		} else {
-			readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
+			readyForTest, _ := perfTestUtils.IsReadyForTest(configurationSettings, numTestCases)
 			if !readyForTest {
 				runInTrainingMode(configurationSettings.ExecutionHost, false, testSuite)
 			} else {
@@ -73,13 +68,13 @@ func main() {
 			}
 		}
 	} else {
-		readyForTest, basePerfStats := perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
+		readyForTest, basePerfStats := perfTestUtils.IsReadyForTest(configurationSettings, numTestCases)
 		if readyForTest {
 			runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport, testSuite)
 		} else {
 			log.Warn("System is not ready for testing. Attempting to run training mode....")
 			runInTrainingMode(configurationSettings.ExecutionHost, false, testSuite)
-			readyForTest, basePerfStats = perfTestUtils.IsReadyForTest(configurationSettings, testSuite.Name, numTestCases)
+			readyForTest, basePerfStats = perfTestUtils.IsReadyForTest(configurationSettings, numTestCases)
 			if readyForTest {
 				runInTestingMode(basePerfStats, configurationSettings.ExecutionHost, perfTestUtils.GenerateTemplateReport, testSuite)
 			} else {
@@ -89,9 +84,6 @@ func main() {
 		}
 	}
 }
-
-
-
 
 //----- initConfig ------------------------------------------------------------
 func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int)) {
@@ -182,16 +174,16 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 //----- setLogLevel -----------------------------------------------------------
 // Set log level using a simplified interface for end user. See "Process
 // command line args" in initConfig().
-func setLogLevel( verbose, debug bool ) {
+func setLogLevel(verbose, debug bool) {
 	// Set default to WarnLevel
-	log.SetLevel( log.WarnLevel )
+	log.SetLevel(log.WarnLevel)
 
 	// Increase verbosity as set by user at command line.
 	if verbose {
-		log.SetLevel( log.InfoLevel )
+		log.SetLevel(log.InfoLevel)
 	}
 	if debug {
-		log.SetLevel( log.DebugLevel )
+		log.SetLevel(log.DebugLevel)
 	}
 }
 
@@ -261,7 +253,7 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 
 	// Initialize the performance statistics struct.
 	perfStatsForTest := &perfTestUtils.PerfStats{
-		TestTimeStart:             scenarioTimeStart,
+		TestTimeStart:        scenarioTimeStart,
 		ServiceResponseTimes: make(map[string]int64),
 		ServiceTransCount:    make(map[string]*uint64),
 		ServiceErrorCount:    make(map[string]*uint64),
@@ -284,26 +276,23 @@ func runInTrainingMode(host string, reBaseAll bool, testSuite *testStrategies.Te
 	}
 
 	//Run the test
-	runTests(perfStatsForTest, TRAINING_MODE, testSuite, scenarioTimeStart)
+	runTests(perfStatsForTest, trainingMode, testSuite, scenarioTimeStart)
 	scenarioTimeElapsed := time.Since(scenarioTimeStart)
 	perfStatsForTest.TestTimeEnd = time.Now()
 
 	//Generate base statistics output file for this training run.
-	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem, testSuite.Name)
+	perfTestUtils.GenerateEnvBasePerfOutputFile(perfStatsForTest, basePerfstats, configurationSettings, os.Exit, osFileSystem)
 
 	log.Info("Training mode completed successfully. ")
 	log.Infof("Execution Run Time [%v]", scenarioTimeElapsed)
 }
 
-
-
-
 //----- runInTestingMode ------------------------------------------------------
 func runInTestingMode(
-		basePerfstats *perfTestUtils.BasePerfStats,
-		host string,
-		frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem, string, string),
-		testSuite *testStrategies.TestSuite,
+	basePerfstats *perfTestUtils.BasePerfStats,
+	host string,
+	frg func(*perfTestUtils.BasePerfStats, *perfTestUtils.PerfStats, *perfTestUtils.Config, perfTestUtils.FileSystem, string, string),
+	testSuite *testStrategies.TestSuite,
 ) {
 	log.Info("Running Performance test in Testing mode for host ", host)
 
@@ -324,7 +313,7 @@ func runInTestingMode(
 	}
 
 	// Run the test.
-	runTests(perfStatsForTest, TESTING_MODE, testSuite, scenarioTimeStart)
+	runTests(perfStatsForTest, testingMode, testSuite, scenarioTimeStart)
 
 	// Stop the timer. See comment on scenarioTimeStart above.
 	scenarioTimeElapsed := time.Since(scenarioTimeStart)
@@ -370,9 +359,6 @@ func runInTestingMode(
 	}
 }
 
-
-
-
 //----- runTests --------------------------------------------------------------
 // This function does two things,
 // 1. Start a go routine to periodically grab the memory foot print and set the
@@ -386,7 +372,6 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 	counter := 0
 	testPartitions = append(testPartitions, perfTestUtils.TestPartition{Count: counter, TestName: "StartUp"})
 
-
 	// 1. Start go routine to grab memory in use.
 	// Peak memory is stored in peakMemoryAllocation variable.
 	chanQuitPkMem := make(chan bool)
@@ -396,10 +381,10 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 			case <-chanQuitPkMem:
 				return
 			default:
-				memoryStatsUrl := "http://" + configurationSettings.TargetHost + ":" + configurationSettings.TargetPort + configurationSettings.MemoryEndpoint
-				resp, err := http.Get(memoryStatsUrl)
+				memoryStatsURL := "http://" + configurationSettings.TargetHost + ":" + configurationSettings.TargetPort + configurationSettings.MemoryEndpoint
+				resp, err := http.Get(memoryStatsURL)
 				if err != nil {
-					log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsUrl, ". Error: ", err)
+					log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsURL, ". Error: ", err)
 					chanQuitPkMem <- true
 				} else {
 					body, _ := ioutil.ReadAll(resp.Body)
@@ -407,7 +392,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 					m := new(perfTestUtils.Entry)
 					unmarshalErr := json.Unmarshal(body, m)
 					if unmarshalErr != nil {
-						log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics from endpoint: ", memoryStatsUrl, ". UnmarsahlErr: ", unmarshalErr)
+						log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics from endpoint: ", memoryStatsURL, ". UnmarsahlErr: ", unmarshalErr)
 						chanQuitPkMem <- true
 					} else {
 						if m.Memstats.Alloc > *peakMemoryAllocation {
@@ -447,7 +432,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 		// Collate the service-level response time data.
 		for serviceName, serviceResponseTimes := range allServicesResponseTimesMap {
 			averageResponseTime := perfTestUtils.CalcAverageResponseTime(serviceResponseTimes, mode)
-			if averageResponseTime == 0 && mode == TRAINING_MODE {
+			if averageResponseTime == 0 && mode == trainingMode {
 				// If all response times average to zero, all attempts to call the
 				// service failed. In training mode, abort so the problem can be
 				// remedied. In testing mode, continue, but record the zero.
@@ -469,7 +454,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 
 		// Set the overall TransCount, which will subsequently be used to
 		// calculate OverallTPS (see runInTestingMode() above).
-		perfStatsForTest.OverAllTransCount = uint64(len( testSuite.TestCases ) * configurationSettings.NumIterations)
+		perfStatsForTest.OverAllTransCount = uint64(len(testSuite.TestCases) * configurationSettings.NumIterations)
 
 		log.Infof("ServiceBasedTesting loadPerUser=[%d] remainder=[%d]", loadPerUser, remainder)
 
@@ -483,7 +468,7 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 			if averageResponseTime > 0 {
 				perfStatsForTest.ServiceResponseTimes[testDefinition.TestName] = averageResponseTime
 			} else {
-				if mode == TRAINING_MODE {
+				if mode == trainingMode {
 					//Fail fast on training mode if any requests fail. If training fails we cannot guarantee the results.
 					log.Error("Training mode failed due to invalid response on service [Name:", testDefinition.TestName, "]")
 					os.Exit(1)
@@ -500,9 +485,6 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 	perfStatsForTest.MemoryAudit = memoryAudit
 	perfStatsForTest.TestPartitions = testPartitions
 }
-
-
-
 
 //----- runAssertions ---------------------------------------------------------
 //This function runs the assertions to ensure memory and service have not deviated past the allowed variance
@@ -532,4 +514,3 @@ func runAssertions(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTe
 	}
 	return assertionFailures
 }
-
