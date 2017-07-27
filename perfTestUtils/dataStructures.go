@@ -26,9 +26,6 @@ const (
 	defaultTPSFreq                              = 30
 	defaultRampUsers                            = 0
 	defaultRampDelay                            = 10
-
-	// Template file
-	defaultTestFileFormat = "xml"
 )
 
 // Config struct contains all values set by the config.xml file. Most, if not
@@ -62,8 +59,6 @@ type Config struct {
 
 	//Template file
 	ReportTemplateFile string `xml:"reportTemplateFile,omitempty"`
-	ConfigFileFormat   string
-	TestFileFormat     string
 }
 
 // SetDefaults initializes the Config struct.
@@ -80,7 +75,6 @@ func (c *Config) SetDefaults() {
 	c.ReportOutputDir = defaultReportOutputDir
 	c.ConcurrentUsers = defaultConcurrentUsers
 	c.TestSuite = defaultTestSuite
-	c.TestFileFormat = defaultTestFileFormat
 	c.MemoryEndpoint = defaultMemoryEndpoint
 	c.RequestDelay = defaultRequestDelay
 	c.TPSFreq = defaultTPSFreq

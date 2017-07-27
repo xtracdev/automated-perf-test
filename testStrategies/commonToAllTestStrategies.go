@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/BurntSushi/toml"
 	log "github.com/Sirupsen/logrus"
 	"github.com/jmespath/go-jmespath"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
@@ -17,9 +16,9 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
-	"strings"
 )
 
 // ServiceBasedTesting and SuiteBasedTesting are used as boolean to determine
@@ -32,10 +31,10 @@ const (
 // Global Mutex
 var mu sync.Mutex
 
-// GlobalsLockCounter tracks access to GlobalsMaps data across threads.
-var GlobalsMap = make(map[string]map[string]interface{})
+// globalsMap contains parameter substitution across concurrent threads.
+var globalsMap = make(map[string]map[string]interface{})
 
-// Header appears to be currently unused.
+// Header defines request header key/value pair.
 type Header struct {
 	Value string `xml:",chardata"`
 	Key   string `xml:"key,attr"`
@@ -44,16 +43,16 @@ type Header struct {
 // ResponseValue encapsulates the variable name (ExtractionKey) and the value
 // from the call response. Used for variable substitution between calls.
 type ResponseValue struct {
-	Value         string `xml:",chardata" toml:"value"`
-	ExtractionKey string `xml:"extractionKey,attr" toml:"extractionKey"`
+	Value         string `xml:",chardata"`
+	ExtractionKey string `xml:"extractionKey,attr"`
 }
 
-// XMLTestDefinition defines the base performance statistics.
-type XMLTestDefinition struct {
+// TestDefinition encapsulates the XML data.
+type TestDefinition struct {
 	XMLName             xml.Name             `xml:"testDefinition"`
-	TestName            string               `xml:"testName" toml:"testName"`
-	OverrideHost        string               `xml:"overrideHost" toml:"overrideHost"`
-	OverridePort        string               `xml:"overridePort" toml:"overridePort"`
+	TestName            string               `xml:"testName"`
+	OverrideHost        string               `xml:"overrideHost"`
+	OverridePort        string               `xml:"overridePort"`
 	HTTPMethod          string               `xml:"httpMethod"`
 	BaseURI             string               `xml:"baseUri"`
 	Multipart           bool                 `xml:"multipart"`
@@ -63,57 +62,37 @@ type XMLTestDefinition struct {
 	ResponseContentType string               `xml:"responseContentType"`
 	Headers             []Header             `xml:"headers>header"`
 	ResponseValues      []ResponseValue      `xml:"responseProperties>value"`
+	PreThinkTime        int64
+	PostThinkTime       int64
+	ExecWeight          string
 }
 
-// TestDefinition encapsulates the test config file.
-type TestDefinition struct {
-	TestName            string               `toml:"testName"`
-	OverrideHost        string               `toml:"overrideHost"`
-	OverridePort        string               `toml:"overridePort"`
-	HTTPMethod          string               `toml:"httpMethod"`
-	BaseURI             string               `toml:"baseUri"`
-	Multipart           bool                 `toml:"multipart"`
-	Payload             string               `toml:"payload"`
-	MultipartPayload    []multipartFormField `toml:"multipartFormField"`
-	ResponseStatusCode  int                  `toml:"responseStatusCode"`
-	ResponseContentType string               `toml:"responseContentType"`
-	Headers             http.Header          `toml:"headers"`
-	ResponseValues      []ResponseValue      `toml:"responseProperties"`
-	// Attributes defined in the testSuite:
-	PreThinkTime  int64
-	PostThinkTime int64
-	ExecWeight    string
-}
-
-// TestCase defines a load test scenario.
-type TestCase struct {
-	Name          string `xml:",chardata"`
-	PreThinkTime  int64  `xml:"preThinkTime,attr"`
-	PostThinkTime int64  `xml:"postThinkTime,attr"`
-	ExecWeight    string `xml:"execWeight,attr"`
-}
-
-// TestSuiteDefinition encapsulates a load test scenario.
-type TestSuiteDefinition struct {
-	XMLName      xml.Name   `xml:"testSuite"`
-	Name         string     `xml:"name" toml:"name"`
-	TestStrategy string     `xml:"testStrategy" toml:"testStrategy"`
-	TestCases    []TestCase `xml:"testCases>testCase" toml:"testCases"`
-}
-
-// TestSuite defines a load test scenario.
+// TestSuite fields get populated from the TestSuiteDefinition after the XML
+// unmarshal is complete. (See TestDefinition above).
 type TestSuite struct {
-	XMLName      xml.Name
-	Name         string
-	TestStrategy string
-	TestCases    []*TestDefinition
+	XMLName         xml.Name   `xml:"testSuite"`
+	Name            string     `xml:"name"`
+	TestStrategy    string     `xml:"testStrategy"`
+	TestCases       []TestCase `xml:"testCases>testCase"`
+	TestDefinitions []*TestDefinition
+}
+
+// TestCase is used to encapsulate and marshal a <testCase> tag from the
+// <testSuite> XML file. This data will then be consolidated into
+// the TestSuite/TestDefinition data structure for usage.
+type TestCase struct {
+	XMLName       xml.Name `xml:"testCase"`
+	Name          string   `xml:",chardata"`
+	PreThinkTime  int64    `xml:"preThinkTime,attr"`
+	PostThinkTime int64    `xml:"postThinkTime,attr"`
+	ExecWeight    string   `xml:"execWeight,attr"`
 }
 
 type multipartFormField struct {
-	FieldName   string `xml:"fieldName" toml:"fieldName"`
-	FieldValue  string `xml:"fieldValue" toml:"fieldValue"`
-	FileName    string `xml:"fileName" toml:"fileName"`
-	FileContent []byte `xml:"fileContent" toml:"fileContent"`
+	FieldName   string `xml:"fieldName"`
+	FieldValue  string `xml:"fieldValue"`
+	FileName    string `xml:"fileName"`
+	FileContent []byte `xml:"fileContent"`
 }
 
 // BuildTestSuite sets TestStrategy and puts together the test suite
@@ -128,7 +107,8 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 	if configurationSettings.TestSuite == "" {
 		ts.Name = "DefaultSuite"
 
-		//If no test suite has been defined, treat and all test case files as the suite
+		// If no test suite has been defined, treat and all test case files
+		// found in the TestCaseDir as the suite.
 		d, err := os.Open(configurationSettings.TestCaseDir)
 		if err != nil {
 			log.Error("Failed to open test definitions directory. Error:", err)
@@ -153,57 +133,75 @@ func (ts *TestSuite) BuildTestSuite(configurationSettings *perfTestUtils.Config)
 				continue
 			}
 
-			testDefinition, err := loadTestDefinition(bs, configurationSettings)
+			testDefinition, err := loadTestDefinition(bs)
 			if err != nil {
 				log.Error("Failed to load test definition. Error:", err)
 				os.Exit(1)
 			}
-			ts.TestCases = append(ts.TestCases, testDefinition)
+			ts.TestDefinitions = append(ts.TestDefinitions, testDefinition)
 		}
 	} else {
 		// Flag as SuiteBased testing:
 		ts.TestStrategy = SuiteBasedTesting
 
-		//If a test suite has been defined, load in all tests associated with the test suite.
+		// Get the testSuite filename ...
 		bs, err := ioutil.ReadFile(configurationSettings.TestSuiteDir + "/" + configurationSettings.TestSuite)
 		if err != nil {
 			log.Error("Failed to read test suite definition file. Filename: ", configurationSettings.TestSuiteDir+"/"+configurationSettings.TestSuite, " ", err)
 			os.Exit(1)
 		}
 
-		testSuiteDefinition, err := loadTestSuiteDefinition(bs, configurationSettings)
+		// ... and unmarshal the testSuite XML.
+		err = ts.loadTestSuiteDefinition(bs)
 		if err != nil {
 			log.Errorf("Failed to load the test suite: %v", err)
 			os.Exit(1)
 		}
 
-		// Add testSuite-level attributes to ts.
-		ts.Name = testSuiteDefinition.Name
-		ts.TestStrategy = testSuiteDefinition.TestStrategy
-
-		// Populate ts.testCases array with test definitions.
-		for _, testCase := range testSuiteDefinition.TestCases {
+		// Populate ts.TestDefinitions array with test definitions.
+		for _, testCase := range ts.TestCases {
 			bs, err := ioutil.ReadFile(configurationSettings.TestCaseDir + "/" + testCase.Name)
 			if err != nil {
 				log.Error("Failed to read test file. Filename: ", testCase.Name, err)
 				continue
 			}
 
-			testDefinition, err := loadTestDefinition(bs, configurationSettings)
+			testDefinition, err := loadTestDefinition(bs)
 			if err != nil {
 				log.Error("Failed to load test definition. Error:", err)
 			}
 
-			// Add the testCase attributes from the testSuiteDefinition (thinktime, etc).
+			// Add the testCase attributes to the TestDefinition (thinktime, etc).
+			// This effectively flattens the fields into TestDefinitions allowing
+			// us to ignore TestCases.
 			testDefinition.PreThinkTime = testCase.PreThinkTime
 			testDefinition.PostThinkTime = testCase.PostThinkTime
 			testDefinition.ExecWeight = testCase.ExecWeight
 
 			// Append the testDefinition to the testSuite
-			ts.TestCases = append(ts.TestCases, testDefinition)
+			ts.TestDefinitions = append(ts.TestDefinitions, testDefinition)
 		}
-
 	}
+}
+
+func loadTestDefinition(bs []byte) (*TestDefinition, error) {
+	td := &TestDefinition{}
+	err := xml.Unmarshal(bs, &td)
+	if err != nil {
+		log.Errorf("Error occurred loading XML testCase definition file: %v\n", err)
+		return nil, err
+	}
+	return td, nil
+}
+
+func (ts *TestSuite) loadTestSuiteDefinition(bs []byte) error {
+	//ts := &TestSuite{}
+	err := xml.Unmarshal(bs, ts)
+	if err != nil {
+		log.Errorf("Error occurred loading XML testSuite definition file: %v\n", err)
+		return err
+	}
+	return nil
 }
 
 // BuildAndSendRequest builds a request from the test definition, performs
@@ -243,7 +241,7 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 		if testDefinition.Payload != "" {
 			//Retrieve Payload and perform any necessary substitution
 			payload := testDefinition.Payload
-			newPayload := substituteRequestValues(&payload, uniqueTestRunID,)
+			newPayload := substituteRequestValues(&payload, uniqueTestRunID)
 			reqbody = newPayload
 			req, _ = http.NewRequest(testDefinition.HTTPMethod, "http://"+targetHost+":"+targetPort+requestBaseURI, strings.NewReader(newPayload))
 		} else {
@@ -273,11 +271,9 @@ func (testDefinition *TestDefinition) BuildAndSendRequest(
 		}
 	}
 
-	//add headers and perform and necessary substitution
-	for k, v := range testDefinition.Headers {
-		for _, hv := range v {
-			req.Header.Add(k, substituteRequestValues(&hv, uniqueTestRunID))
-		}
+	// Add headers and perform and necessary substitution
+	for _, header := range testDefinition.Headers {
+		req.Header.Add(header.Key, substituteRequestValues(&header.Value, uniqueTestRunID))
 	}
 
 	log.Debugf(
@@ -362,12 +358,11 @@ func substituteRequestValues(requestBody *string, uniqueTestRunID string) string
 
 	// Lock global data structure for the duration of this function and
 	// those function that branch.
-	// TODO: Find a way to lock smaller sections. eg. how do we handle the "if GlobalsMap" statement?
 	mu.Lock()
 	defer mu.Unlock()
 
 	// Get the properties for this iteration.
-	testRunGlobals := GlobalsMap[uniqueTestRunID]
+	testRunGlobals := globalsMap[uniqueTestRunID]
 
 	if testRunGlobals != nil {
 		r := regexp.MustCompile("{{([^}]+)}}")
@@ -481,13 +476,13 @@ func extractResponseValues(testCaseName string, body []byte, responseValues []Re
 func extractJSONResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string) {
 	// Get Global Properties for this test run.
 	mu.Lock()
-	testRunGlobals := GlobalsMap[uniqueTestRunID]
+	testRunGlobals := globalsMap[uniqueTestRunID]
 	mu.Unlock()
 
 	if testRunGlobals == nil {
 		testRunGlobals = make(map[string]interface{})
 		mu.Lock()
-		GlobalsMap[uniqueTestRunID] = testRunGlobals
+		globalsMap[uniqueTestRunID] = testRunGlobals
 		mu.Unlock()
 	}
 
@@ -496,7 +491,7 @@ func extractJSONResponseValues(testCaseName string, body []byte, responseValues 
 		var data interface{}
 		json.Unmarshal(body, &data)
 
-		result, _ := jmespath.Search(propPath.Value, data) //Todo handle error
+		result, _ := jmespath.Search(propPath.Value, data)
 
 		if testRunGlobals[testCaseName+"."+propPath.ExtractionKey] == nil {
 			testRunGlobals[testCaseName+"."+propPath.ExtractionKey] = result
@@ -507,13 +502,13 @@ func extractJSONResponseValues(testCaseName string, body []byte, responseValues 
 func extractXMLResponseValues(testCaseName string, body []byte, responseValues []ResponseValue, uniqueTestRunID string) {
 	// Get Global Properties for this test run.
 	mu.Lock()
-	testRunGlobals := GlobalsMap[uniqueTestRunID]
+	testRunGlobals := globalsMap[uniqueTestRunID]
 	mu.Unlock()
 
 	if testRunGlobals == nil {
 		testRunGlobals = make(map[string]interface{})
 		mu.Lock()
-		GlobalsMap[uniqueTestRunID] = testRunGlobals
+		globalsMap[uniqueTestRunID] = testRunGlobals
 		mu.Unlock()
 	}
 
@@ -529,65 +524,4 @@ func extractXMLResponseValues(testCaseName string, body []byte, responseValues [
 			testRunGlobals[testCaseName+"."+responseValue.ExtractionKey] = res[2]
 		}
 	}
-}
-
-func loadTestDefinition(bs []byte, configurationSettings *perfTestUtils.Config) (*TestDefinition, error) {
-	testDefinition := &TestDefinition{}
-	switch configurationSettings.TestFileFormat {
-	case "toml":
-		err := toml.Unmarshal(bs, testDefinition)
-		if err != nil {
-			log.Errorf("Error occurred loading TOML testCase definition file: %v\n", err)
-			return nil, err
-		}
-	default:
-		td := &XMLTestDefinition{}
-		err := xml.Unmarshal(bs, &td)
-		if err != nil {
-			log.Errorf("Error occurred loading XML testCase definition file: %v\n", err)
-			return nil, err
-		}
-		testDefinition = &TestDefinition{
-			TestName:            td.TestName,
-			OverrideHost:        td.OverrideHost,
-			OverridePort:        td.OverridePort,
-			HTTPMethod:          td.HTTPMethod,
-			BaseURI:             td.BaseURI,
-			Multipart:           td.Multipart,
-			Payload:             td.Payload,
-			MultipartPayload:    td.MultipartPayload,
-			ResponseStatusCode:  td.ResponseStatusCode,
-			ResponseContentType: td.ResponseContentType,
-			Headers:             tomlHeaders(td.Headers),
-			ResponseValues:      td.ResponseValues,
-		}
-	}
-	return testDefinition, nil
-}
-
-func tomlHeaders(headers []Header) http.Header {
-	h := make(http.Header)
-	for _, v := range headers {
-		h.Add(v.Key, v.Value)
-	}
-	return h
-}
-
-func loadTestSuiteDefinition(bs []byte, configurationSettings *perfTestUtils.Config) (*TestSuiteDefinition, error) {
-	ts := &TestSuiteDefinition{}
-	switch configurationSettings.TestFileFormat {
-	case "toml":
-		err := toml.Unmarshal(bs, ts)
-		if err != nil {
-			log.Errorf("Error occurred loading TOML testSuite definition file: %v\n", err)
-			return nil, err
-		}
-	default:
-		err := xml.Unmarshal(bs, ts)
-		if err != nil {
-			log.Errorf("Error occurred loading XML testSuite definition file: %v\n", err)
-			return nil, err
-		}
-	}
-	return ts, nil
 }
