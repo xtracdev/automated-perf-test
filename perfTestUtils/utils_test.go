@@ -200,7 +200,7 @@ func TestGenerateEnvBasePerfOutputFile(t *testing.T) {
 	willCallOsExit := false
 	exit := func(i int) { willCallOsExit = true }
 
-	GenerateEnvBasePerfOutputFile(ps, bs, &Config{ReBaseMemory: true, BaseStatsOutputDir: "env", TargetHost: "localhost"}, exit, mockedFs, "TestSuiteName")
+	GenerateEnvBasePerfOutputFile(ps, bs, &Config{ReBaseMemory: true, BaseStatsOutputDir: "env", TargetHost: "localhost"}, exit, mockedFs)
 	assert.False(t, willCallOsExit)
 }
 
@@ -230,7 +230,7 @@ func TestGenerateEnvBasePerfOutputFileFailCreate(t *testing.T) {
 	willCallOsExit := false
 	exit := func(i int) { willCallOsExit = true }
 
-	GenerateEnvBasePerfOutputFile(ps, bs, &Config{ReBaseMemory: true, BaseStatsOutputDir: "env", ExecutionHost: "FAIL"}, exit, mockedFs, "TestSuiteName")
+	GenerateEnvBasePerfOutputFile(ps, bs, &Config{ReBaseMemory: true, BaseStatsOutputDir: "env", ExecutionHost: "FAIL"}, exit, mockedFs)
 	assert.True(t, willCallOsExit)
 }
 

@@ -166,7 +166,7 @@ func executeTestSuite(
 		// Variables and properties for this iteration are no longer needed
 		// now that the iteration has completed.
 		mu.Lock()
-		GlobalsMap[uniqueTestRunID] = nil
+		globalsMap[uniqueTestRunID] = nil
 		mu.Unlock()
 	}
 
