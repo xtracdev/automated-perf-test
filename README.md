@@ -50,7 +50,8 @@ In addition the configuration parameters, command line arguments can the passed 
 | -reBaseMemory     | Run a training run which will overwrite the memory statistics only of previous training on the execution host. |
 | -reBaseAll        | Run a training run which will overwrite the all statistics of previous training on the execution host.         |
 | -reBaseAll        | Run a training run which will overwrite the all statistics of previous training on the execution host.         |
-| -testFileFormat   | The format of the test definition files, the supported formats are XML and TOML (default XML).                 |
+| -testFileFormat   | The format of the test definition files, the supported formats are XML and TOML (default XML).
+| -ui               | Retrieve the URL to navigate to to user interface mode. The URL is printed to the command line.
 
 #### Testing Strategies
 The framework supports two type of testing strategies, ServiceBased and SuiteBased. These testing strategies allow flexibility when performing performance
