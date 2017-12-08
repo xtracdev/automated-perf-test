@@ -86,7 +86,7 @@ func main() {
 }
 
 //----- initConfig ------------------------------------------------------------
-func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int)) {
+func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int)) {log.Error("Test")
 	//----- Initialize config data structure and set defaults.
 	// Note: Defaults will be overridden as needed. The user can ignore
 	// unnecessary parameters in config file and command prompt.
@@ -108,7 +108,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 
 	// Log level simplified for the end user.
 	flag.BoolVar(&boolVerbose, "v", false, "Set logging verbosity to 'info' from default of 'warn'. Use -vv for debug.")
-	flag.BoolVar(&boolDebug, "vv", false, "Set verbosity to debug.")
+	flag.BoolVar(&boolDebug, "vv", false, "Set testnhtstrhg.")
 
 	// Controls that reside in Config struct:
 	flag.BoolVar(&configurationSettings.GBS, "gbs", false, "Generate 'Base Statistics' for this server")
