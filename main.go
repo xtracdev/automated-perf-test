@@ -24,6 +24,7 @@ var checkTestReadiness bool
 var boolVerbose bool
 var boolDebug bool
 var configOverrides *perfTestUtils.Config
+var uiMode bool
 
 const (
 	trainingMode = 1
@@ -103,6 +104,9 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 
 	//----- Process command line args.
 	// Global controls outside of Config struct:
+
+	flag.BoolVar(&uiMode, "ui", false, "Get URL for User Interface")
+
 	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
 	flag.BoolVar(&checkTestReadiness, "checkTestReadiness", false, "Simple check to see if system requires training.")
 
@@ -138,10 +142,19 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	// Parse the args!
 	flag.CommandLine.Parse(args)
 
+	if uiMode == true {
+		fmt.Print("http:\\\\localhost:9191")
+		startUiMode()
+	}
+
 	setLogLevel(boolVerbose, boolDebug)
 
 	// Override defaults with args.
 	overrideConfigOpts()
+
+
+
+
 
 	//----- Parse the config file if specified.
 	if configFilePath == "" {
