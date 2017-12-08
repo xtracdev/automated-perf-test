@@ -105,6 +105,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	//----- Process command line args.
 	// Global controls outside of Config struct:
 
+	//Retrieve the URL from command line for using the user interface
 	flag.BoolVar(&uiMode, "ui", false, "Get URL for User Interface")
 
 	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
@@ -142,6 +143,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	// Parse the args!
 	flag.CommandLine.Parse(args)
 
+	// Start server for the User Interface Mode
 	if uiMode == true {
 		fmt.Print("http:\\\\localhost:9191")
 		startUiMode()
