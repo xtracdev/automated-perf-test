@@ -87,7 +87,7 @@ func main() {
 }
 
 //----- initConfig ------------------------------------------------------------
-func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int)) {log.Error("Test")
+func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int)) {
 	//----- Initialize config data structure and set defaults.
 	// Note: Defaults will be overridden as needed. The user can ignore
 	// unnecessary parameters in config file and command prompt.
@@ -144,7 +144,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	flag.CommandLine.Parse(args)
 
 	// Start server for the User Interface Mode
-	if uiMode == true {
+	if uiMode {
 		log.Print("http:\\localhost:9191")
 		startUiMode()
 	}

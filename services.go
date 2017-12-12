@@ -27,7 +27,7 @@ type Config_Struct struct {
 	ReportTemplateFile string
 }
 
-func test(rw http.ResponseWriter, req *http.Request) {
+func jsonHandler(rw http.ResponseWriter, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
 	var t Config_Struct
 	err := decoder.Decode(&t)
