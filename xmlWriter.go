@@ -5,11 +5,32 @@ import (
 "fmt"
 "os"
 "io"
+
+
 )
 
-func main() {
+func writerXml(t Config_Struct) {
 
-type Config struct {
+	ApiName := t.ApiName
+	TargetHost := t.TargetHost
+	TargetPort := t.TargetPort
+	NumIterations := t.NumIterations
+	AllowablePeakMemoryVariance := t.AllowablePeakMemoryVariance
+	AllowableServiceResponseTimeVariance := t.AllowableServiceResponseTimeVariance
+	TestCaseDir := t.TestCaseDir
+	TestSuiteDir := t.TestSuiteDir
+	BaseStatsOutputDir := t.BaseStatsOutputDir
+	ReportOutputDir := t.ReportOutputDir
+	ConcurrentUsers := t.ConcurrentUsers
+	TestSuite := t.TestSuite
+	MemoryEndpoint := t.MemoryEndpoint
+	RequestDelay := t.RequestDelay
+	TPSFreq := t.TPSFreq
+	RampUsers := t.RampUsers
+	RampDelay := t.RampDelay
+	ReportTemplateFile := t.ReportTemplateFile
+
+	type Config struct {
 XMLName xml.Name `xml:"config"`
 ApiName string `xml:"apiName"`
 TargetHost string `xml:"targetHost"`
@@ -38,12 +59,12 @@ Configs []Config
 
 v := &ConfigFiles{}
 
-v.Configs = append(v.Configs, Config{ApiName: "Xtrac API", TargetHost:"localhost", TargetPort:9191,
-	NumIterations:1000, AllowablePeakMemoryVariance:15, AllowableServiceResponseTimeVariance:15,
-	TestCaseDir:"./definitions/testCases", TestSuiteDir:"./definitions/testSuites",
-	BaseStatsOutputDir:"./envStats", ReportOutputDir:"./report",ConcurrentUsers:50,
-	TestSuite:"suiteFileName.xml",MemoryEndpoint:"/alt/debug/vars", RequestDelay:5000, TPSFreq:30,
-	RampUsers:5, RampDelay:15, ReportTemplateFile:"???",
+v.Configs = append(v.Configs, Config{ApiName:ApiName , TargetHost:TargetHost, TargetPort:TargetPort,
+	NumIterations:NumIterations, AllowablePeakMemoryVariance:AllowablePeakMemoryVariance, AllowableServiceResponseTimeVariance:AllowableServiceResponseTimeVariance,
+	TestCaseDir:TestCaseDir, TestSuiteDir:TestSuiteDir,
+	BaseStatsOutputDir:BaseStatsOutputDir, ReportOutputDir:ReportOutputDir,ConcurrentUsers:ConcurrentUsers,
+	TestSuite:TestSuite,MemoryEndpoint:MemoryEndpoint, RequestDelay:RequestDelay, TPSFreq:TPSFreq,
+	RampUsers:RampUsers, RampDelay:RampDelay, ReportTemplateFile:ReportTemplateFile,
 })
 
 filename := "ConfigFile.xml"
