@@ -113,7 +113,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 
 	// Log level simplified for the end user.
 	flag.BoolVar(&boolVerbose, "v", false, "Set logging verbosity to 'info' from default of 'warn'. Use -vv for debug.")
-	flag.BoolVar(&boolDebug, "vv", false, "Set testnhtstrhg.")
+	flag.BoolVar(&boolDebug, "vv", false, "Set verbosity to debug.")
 
 	// Controls that reside in Config struct:
 	flag.BoolVar(&configurationSettings.GBS, "gbs", false, "Generate 'Base Statistics' for this server")
@@ -145,7 +145,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 
 	// Start server for the User Interface Mode
 	if uiMode == true {
-		fmt.Print("http:\\\\localhost:9191")
+		log.Print("http:\\localhost:9191")
 		startUiMode()
 	}
 
