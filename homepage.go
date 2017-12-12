@@ -2,13 +2,17 @@ package main
 
 import (
 "net/http"
+	"github.com/go-chi/chi"
 )
 
-func startUiMode() (int) {
-	mux := http.NewServeMux()
-	mux.Handle("/", http.FileServer(http.Dir("./ui")))
-	http.ListenAndServe(":9191", mux)
-	return http.StatusOK
+func startUiMode() {
+
+	r := chi.NewRouter()
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./ui/index.html")
+	})
+
+	http.ListenAndServe(":9191", r)
 }
 
 
