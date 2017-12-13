@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/xtracdev/automated-perf-test/services"
 	"encoding/json"
 	"encoding/xml"
 	"flag"
@@ -146,7 +147,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	// Start server for the User Interface Mode
 	if uiMode {
 		log.Print("http:\\localhost:9191")
-		startUiMode()
+		services.StartUiMode()
 	}
 
 	setLogLevel(boolVerbose, boolDebug)

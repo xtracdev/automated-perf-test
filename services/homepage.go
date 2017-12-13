@@ -1,4 +1,4 @@
-package main
+package services
 
 import (
 "net/http"
@@ -8,7 +8,7 @@ import (
 const contentTypeHeader = `Content-Type`
 const htmlType = `text/html`
 
-func startUiMode() *chi.Mux{
+func StartUiMode() *chi.Mux{
 	r := chi.NewRouter()
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./ui/index.html")

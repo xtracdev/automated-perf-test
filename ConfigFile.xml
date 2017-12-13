@@ -1,6 +1,6 @@
   <ConfigFiles>
       <config>
-          <apiName>XTRAC API</apiName>
+          <apiName>XTRAC-API</apiName>
           <targetHost>localhost</targetHost>
           <targetPort>9191</targetPort>
           <numIterations>1000</numIterations>

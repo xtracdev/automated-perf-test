@@ -1,6 +1,7 @@
-package main
+package services
 
 import (
+
 	"testing"
 	"github.com/stretchr/testify/assert"
 	"net/http/httptest"
@@ -8,11 +9,11 @@ import (
 	"github.com/go-chi/chi"
 )
 
-func TestSetBaseRoute(t *testing.T) {
+func TestStartUiMode(t *testing.T) {
 
 	r := chi.NewRouter()
 
-	r.Mount("/",startUiMode())
+	r.Mount("/", StartUiMode())
 
 	assert.IsType(t, &chi.Mux{}, r)
 
@@ -22,5 +23,5 @@ func TestSetBaseRoute(t *testing.T) {
 	r.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusOK, resp.Code)
-	assert.Equal(t, htmlType, resp.Header().Get(contentTypeHeader))
+	assert.Equal(t,htmlType, resp.Header().Get(contentTypeHeader))
 }
