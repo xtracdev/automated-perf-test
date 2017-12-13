@@ -1,8 +1,8 @@
   <ConfigFiles>
       <config>
-          <apiName>xtractApi</apiName>
+          <apiName>XTRAC API</apiName>
           <targetHost>localhost</targetHost>
-          <targetPort>1191</targetPort>
+          <targetPort>9191</targetPort>
           <numIterations>1000</numIterations>
           <allowablePeakMemoryVariance>15</allowablePeakMemoryVariance>
           <allowableServiceResponseTimeVariance>15</allowableServiceResponseTimeVariance>
