@@ -26,7 +26,7 @@ type Config_Struct struct {
 	RampDelay int
 	ReportTemplateFile string
 }
-//test
+
 
 func jsonHandler(rw http.ResponseWriter, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
