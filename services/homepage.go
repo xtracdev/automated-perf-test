@@ -36,7 +36,7 @@ func getIndexPage() *chi.Mux {
 			return
 		}
 
-		htmlBytes, _ := ioutil.ReadFile(absPath)
+		htmlBytes, err := ioutil.ReadFile(absPath)
 		w.Header().Set(contentTypeHeader, htmlType)
 		w.Write([]byte(htmlBytes))
 	})
