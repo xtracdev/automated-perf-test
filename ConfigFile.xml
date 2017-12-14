@@ -1,9 +1,9 @@
   <ConfigFiles>
       <config>
-          <apiName>XTRAC-API</apiName>
+          <apiName>XTRAC-API2</apiName>
           <targetHost>localhost</targetHost>
           <targetPort>9191</targetPort>
-          <numIterations>1000</numIterations>
+          <numIterations>1001</numIterations>
           <allowablePeakMemoryVariance>15</allowablePeakMemoryVariance>
           <allowableServiceResponseTimeVariance>15</allowableServiceResponseTimeVariance>
           <testCaseDir>./definitions/testCases</testCaseDir>

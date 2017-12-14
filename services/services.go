@@ -1,5 +1,4 @@
-package main
-
+package services
 import (
 "encoding/json"
 "net/http"
