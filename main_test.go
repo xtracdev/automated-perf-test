@@ -127,23 +127,23 @@ func TestOverrideConfig(t *testing.T) {
 
 	overrideConfigOpts()
 
-	assert.Equal(t,"1" , configurationSettings.APIName)
-	assert.Equal(t,"2" , configurationSettings.TargetHost)
-	assert.Equal(t,"3" , configurationSettings.TargetPort)
-	assert.Equal(t,4   , configurationSettings.NumIterations)
-	assert.Equal(t,5.0 , configurationSettings.AllowablePeakMemoryVariance)
-	assert.Equal(t,6.0 , configurationSettings.AllowableServiceResponseTimeVariance)
-	assert.Equal(t,"7" , configurationSettings.TestCaseDir)
-	assert.Equal(t,"8" , configurationSettings.TestSuiteDir)
-	assert.Equal(t,"9" , configurationSettings.BaseStatsOutputDir)
-	assert.Equal(t,"10", configurationSettings.ReportOutputDir)
-	assert.Equal(t,11  , configurationSettings.ConcurrentUsers)
-	assert.Equal(t,"12", configurationSettings.TestSuite)
-	assert.Equal(t,"13", configurationSettings.MemoryEndpoint)
-	assert.Equal(t,14  , configurationSettings.RequestDelay)
-	assert.Equal(t,15  , configurationSettings.TPSFreq)
-	assert.Equal(t,16  , configurationSettings.RampUsers)
-	assert.Equal(t,17  , configurationSettings.RampDelay)
+	assert.Equal(t, "1", configurationSettings.APIName)
+	assert.Equal(t, "2", configurationSettings.TargetHost)
+	assert.Equal(t, "3", configurationSettings.TargetPort)
+	assert.Equal(t, 4, configurationSettings.NumIterations)
+	assert.Equal(t, 5.0, configurationSettings.AllowablePeakMemoryVariance)
+	assert.Equal(t, 6.0, configurationSettings.AllowableServiceResponseTimeVariance)
+	assert.Equal(t, "7", configurationSettings.TestCaseDir)
+	assert.Equal(t, "8", configurationSettings.TestSuiteDir)
+	assert.Equal(t, "9", configurationSettings.BaseStatsOutputDir)
+	assert.Equal(t, "10", configurationSettings.ReportOutputDir)
+	assert.Equal(t, 11, configurationSettings.ConcurrentUsers)
+	assert.Equal(t, "12", configurationSettings.TestSuite)
+	assert.Equal(t, "13", configurationSettings.MemoryEndpoint)
+	assert.Equal(t, 14, configurationSettings.RequestDelay)
+	assert.Equal(t, 15, configurationSettings.TPSFreq)
+	assert.Equal(t, 16, configurationSettings.RampUsers)
+	assert.Equal(t, 17, configurationSettings.RampDelay)
 }
 
 func TestInitConfigFileNotFound(t *testing.T) {
@@ -203,4 +203,3 @@ func TestRunAssertions(t *testing.T) {
 	t.Logf("%v\n", toTest)
 	assert.Equal(t, 3, len(toTest))
 }
-

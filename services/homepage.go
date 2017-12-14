@@ -8,6 +8,7 @@ import (
 "path/filepath"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/Sirupsen/logrus"
 )
 
 const contentTypeHeader = `Content-Type`
@@ -27,7 +28,14 @@ func getIndexPage() *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		absPath, _ := filepath.Abs("./ui/index.html")
+		absPath, err := filepath.Abs("./ui/index.html")
+
+		if err != nil {
+			logrus.Error("Unable to find homepage", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		htmlBytes, _ := ioutil.ReadFile(absPath)
 		w.Header().Set(contentTypeHeader, htmlType)
 		w.Write([]byte(htmlBytes))

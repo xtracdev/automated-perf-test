@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/xtracdev/automated-perf-test/services"
 	"encoding/json"
 	"encoding/xml"
 	"flag"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
+	"github.com/xtracdev/automated-perf-test/services"
 	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"io/ioutil"
 	"net/http"
@@ -29,7 +29,7 @@ var uiMode bool
 
 const (
 	trainingMode = 1
-	testingMode = 2
+	testingMode  = 2
 )
 
 //----- main ------------------------------------------------------------------
@@ -151,13 +151,8 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	}
 
 	setLogLevel(boolVerbose, boolDebug)
-
 	// Override defaults with args.
 	overrideConfigOpts()
-
-
-
-
 
 	//----- Parse the config file if specified.
 	if configFilePath == "" {
