@@ -13,7 +13,7 @@ func TestStartUiMode(t *testing.T) {
 
 	r := chi.NewRouter()
 
-	r.Mount("/", StartUiMode())
+	r.Mount("/", getIndexPage())
 
 	assert.IsType(t, &chi.Mux{}, r)
 
