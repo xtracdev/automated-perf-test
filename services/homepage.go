@@ -30,7 +30,7 @@ func getIndexPage() *chi.Mux {
 		w.Header().Set(contentTypeHeader, htmlType)
 		w.Write([]byte(htmlBytes))
 	})
-	router.HandleFunc("/post", jsonHandler)
+	router.HandleFunc("/configs", jsonHandler)
 
 	return router
 }
