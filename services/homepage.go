@@ -1,5 +1,3 @@
-
-
 package services
 
 import (
@@ -9,6 +7,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/Sirupsen/logrus"
+	"log"
 )
 
 const contentTypeHeader = `Content-Type`
@@ -20,7 +19,7 @@ func StartUiMode() {
 	r.Use(middleware.Recoverer)
 
 	r.Mount("/", getIndexPage())
-
+	log.Print("http:\\localhost:9191")
 	http.ListenAndServe(":9191", r)
 }
 
@@ -37,6 +36,13 @@ func getIndexPage() *chi.Mux {
 		}
 
 		htmlBytes, err := ioutil.ReadFile(absPath)
+
+		if err != nil {
+			logrus.Error("Unable to read file: ",absPath, err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		w.Header().Set(contentTypeHeader, htmlType)
 		w.Write([]byte(htmlBytes))
 	})
