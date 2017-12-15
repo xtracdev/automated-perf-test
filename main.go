@@ -7,6 +7,7 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
+	"github.com/xtracdev/automated-perf-test/services"
 	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"io/ioutil"
 	"net/http"
@@ -24,10 +25,11 @@ var checkTestReadiness bool
 var boolVerbose bool
 var boolDebug bool
 var configOverrides *perfTestUtils.Config
+var uiMode bool
 
 const (
 	trainingMode = 1
-	testingMode = 2
+	testingMode  = 2
 )
 
 //----- main ------------------------------------------------------------------
@@ -103,6 +105,10 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 
 	//----- Process command line args.
 	// Global controls outside of Config struct:
+
+	//Retrieve the URL from command line for using the user interface
+	flag.BoolVar(&uiMode, "ui", false, "Get URL for User Interface")
+
 	flag.StringVar(&configFilePath, "configFilePath", "", "The location of the configuration file.")
 	flag.BoolVar(&checkTestReadiness, "checkTestReadiness", false, "Simple check to see if system requires training.")
 
@@ -138,8 +144,12 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	// Parse the args!
 	flag.CommandLine.Parse(args)
 
-	setLogLevel(boolVerbose, boolDebug)
+	// Start server for the User Interface Mode
+	if uiMode {
+		services.StartUiMode()
+	}
 
+	setLogLevel(boolVerbose, boolDebug)
 	// Override defaults with args.
 	overrideConfigOpts()
 
