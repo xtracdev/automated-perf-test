@@ -50,12 +50,12 @@ type Config struct {
 	RampDelay                            int     `xml:"rampDelay" json:"rampDelay"`
 
 	//These value can only be set by command line arguments as they control each training and test run.
-	GBS          bool
-	ReBaseMemory bool
-	ReBaseAll    bool
+	GBS          bool `xml:"gbs,omitempty"`
+	ReBaseMemory bool `xml:"reBaseMemory,omitempty"`
+	ReBaseAll    bool `xml:"reBaseAll,omitempty"`
 
 	//This value is determined by the environment/machine on which the test is being run.
-	ExecutionHost string
+	ExecutionHost string `xml:"executionHost,omitempty"`
 
 	//Template file
 	ReportTemplateFile string `xml:"reportTemplateFile,omitempty"`

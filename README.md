@@ -51,7 +51,11 @@ In addition the configuration parameters, command line arguments can the passed 
 | -reBaseAll        | Run a training run which will overwrite the all statistics of previous training on the execution host.         |
 | -reBaseAll        | Run a training run which will overwrite the all statistics of previous training on the execution host.         |
 | -testFileFormat   | The format of the test definition files, the supported formats are XML and TOML (default XML).
+<<<<<<< HEAD
 | -ui               | Runs local server on localhost:9191 to support CRUD on configuration and test definitions in UI mode
+=======
+| -ui               | Runs local server on localhost:9191 to support CRUD on configuration and test definitions in UI mode.
+>>>>>>> f4024b89511db1b26d0815870b1901009f410f5d
 
 #### Testing Strategies
 The framework supports two type of testing strategies, ServiceBased and SuiteBased. These testing strategies allow flexibility when performing performance

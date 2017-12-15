@@ -7,12 +7,12 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
+	"github.com/xtracdev/automated-perf-test/uiServices"
 	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
-	"github.com/xtracdev/automated-perf-test/services"
 )
 
 //----- Globals ------------------------------------------------------------------
@@ -29,7 +29,7 @@ var uiMode bool
 
 const (
 	trainingMode = 1
-	testingMode = 2
+	testingMode  = 2
 )
 
 //----- main ------------------------------------------------------------------
@@ -43,6 +43,7 @@ func main() {
 
 	//Generate a test suite based on configuration settings
 	testSuite := new(testStrategies.TestSuite)
+
 	testSuite.BuildTestSuite(configurationSettings)
 	numTestCases := len(testSuite.TestDefinitions) //convenience variable
 
@@ -146,18 +147,12 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 
 	// Start server for the User Interface Mode
 	if uiMode {
-		log.Print("http:\\localhost:9191")
-		services.StartUiMode()
+		UIservices.StartUiMode()
 	}
 
 	setLogLevel(boolVerbose, boolDebug)
-
 	// Override defaults with args.
 	overrideConfigOpts()
-
-
-
-
 
 	//----- Parse the config file if specified.
 	if configFilePath == "" {
