@@ -3,12 +3,12 @@ package services
 import (
 	"encoding/json"
 	"net/http"
-
 	"bytes"
-
 	"github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
+	"os"
 )
+
 
 func configsHandler(rw http.ResponseWriter, req *http.Request) {
 	configPathDir := req.Header.Get("configPathDir")
@@ -25,6 +25,13 @@ func configsHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if FilePathExist(configPathDir)== false{
+		logrus.Error("File path does not exist", err)
+		rw.WriteHeader(http.StatusNotFound)
+		return
+
+	}
+
 	IsSuccessful := writerXml(config, configPathDir)
 
 	if IsSuccessful {
@@ -36,3 +43,14 @@ func configsHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 }
+
+// exists returns whether the given file or directory exists or not
+func FilePathExist(path string) (bool) {
+	FileExist := true
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		FileExist = false
+	}
+return FileExist
+}
+
