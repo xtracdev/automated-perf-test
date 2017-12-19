@@ -3,10 +3,10 @@ package services
 import (
 	"encoding/xml"
 
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"os"
-	"fmt"
 )
 
 func writerXml(config perfTestUtils.Config, configPathDir string) bool {

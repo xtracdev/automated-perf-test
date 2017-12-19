@@ -7,8 +7,8 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
-	"github.com/xtracdev/automated-perf-test/uiServices"
 	"github.com/xtracdev/automated-perf-test/testStrategies"
+	"github.com/xtracdev/automated-perf-test/uiServices"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -147,7 +147,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 
 	// Start server for the User Interface Mode
 	if uiMode {
-		UIservices.StartUiMode()
+		services.StartUiMode()
 	}
 
 	setLogLevel(boolVerbose, boolDebug)
