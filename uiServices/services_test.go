@@ -11,6 +11,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+
 )
 
 var (
@@ -109,10 +110,10 @@ func TestValidJsonPost(t *testing.T) {
 		t.Error(err)
 	}
 
-	if w.Code == http.StatusCreated  {
-		t.Errorf("Error. Did not succesfully post")
-	} else {
+	if w.Code != http.StatusCreated  {
 		logrus.Print("Successfully created XML File")
+	} else {
+		t.Errorf("Error. Did not succesfully post")
 	}
 }
 
@@ -132,7 +133,7 @@ func TestInvalidJsonPost(t *testing.T) {
 		t.Error(err)
 	}
 
-	if http.StatusCreated != 201 {
+	if w.Code != http.StatusBadRequest {
 		t.Errorf("Error. Did not succesfully post")
 	}
 }
@@ -178,7 +179,7 @@ func TestInvalidFileName(t *testing.T) {
 		t.Error(err)
 	}
 
-	if http.StatusCreated != 201 {
+	if w.Code != http.StatusInternalServerError {
 		t.Errorf("Error. Did not succesfully post")
 	}
 
