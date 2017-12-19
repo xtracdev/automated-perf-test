@@ -38,7 +38,7 @@ func configsHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	rw.WriteHeader(http.StatusOK)
+	rw.WriteHeader(http.StatusCreated)
 	return
 
 }

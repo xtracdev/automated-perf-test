@@ -111,9 +111,9 @@ func TestValidJsonPost(t *testing.T) {
 	}
 
 	if w.Code != http.StatusCreated  {
-		logrus.Print("Successfully created XML File")
-	} else {
 		t.Errorf("Error. Did not succesfully post")
+	} else {
+		logrus.Print("Successfully created XML File")
 	}
 }
 
