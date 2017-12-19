@@ -1,12 +1,11 @@
 package services
 
 import (
-
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"net/http/httptest"
-	"net/http"
 	"github.com/go-chi/chi"
+	"github.com/stretchr/testify/assert"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
 func TestStartUiMode(t *testing.T) {
@@ -23,5 +22,5 @@ func TestStartUiMode(t *testing.T) {
 	r.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusOK, resp.Code)
-	assert.Equal(t,htmlType, resp.Header().Get(contentTypeHeader))
+	assert.Equal(t, htmlType, resp.Header().Get(contentTypeHeader))
 }

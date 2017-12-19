@@ -1,13 +1,13 @@
 package services
 
 import (
-"net/http"
-"io/ioutil"
-"path/filepath"
+	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/Sirupsen/logrus"
+	"io/ioutil"
 	"log"
+	"net/http"
+	"path/filepath"
 )
 
 const contentTypeHeader = `Content-Type`
@@ -38,7 +38,7 @@ func getIndexPage() *chi.Mux {
 		htmlBytes, err := ioutil.ReadFile(absPath)
 
 		if err != nil {
-			logrus.Error("Unable to read file: ",absPath, err)
+			logrus.Error("Unable to read file: ", absPath, err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
