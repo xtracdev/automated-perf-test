@@ -1,11 +1,9 @@
 package services
 
 import (
-	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/xeipuuv/gojsonschema"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -20,7 +18,6 @@ func StartUiMode() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	fmt.Println(gojsonschema.KEY_ALL_OF)
 	r.Mount("/", getIndexPage())
 	log.Print("http:\\localhost:9191")
 	http.ListenAndServe(":9191", r)
