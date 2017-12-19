@@ -11,6 +11,7 @@ import (
 
 
 func configsHandler(rw http.ResponseWriter, req *http.Request) {
+
 	configPathDir := req.Header.Get("configPathDir")
 
 	config := perfTestUtils.Config{}

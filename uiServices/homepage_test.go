@@ -32,6 +32,8 @@ func TestStartUiModeWithInvalidURL(t *testing.T) {
 
 	r.Mount("/", getIndexPage())
 
+	assert.IsType(t, &chi.Mux{}, r)
+
 	resp := httptest.NewRecorder()
 
 	req, _ := http.NewRequest(http.MethodGet, "/xxx", nil)
