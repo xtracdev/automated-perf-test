@@ -10,13 +10,27 @@ import (
 	"net/http"
 	"github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
+	"github.com/stretchr/testify/assert"
 )
 
 
 var (
 	reader  io.Reader
 )
+func TestFilePathExist(t *testing.T) {
+	path :=os.Getenv("GOPATH")+"/src/github.com/xtracdev/automated-perf-test/config/"
+	actual := false
+	actual = FilePathExist(path)
+	expected := true
+	assert.Equal (t, expected, actual)
+}
 
+func TestFilePathDoesNotExist(t *testing.T) {
+	path := "C:/github.com/xxx"
+	actual := FilePathExist(path)
+	expected := false
+	assert.Equal (t, expected, actual)
+}
 
 func TestValidJsonPost(t *testing.T) {
 	r := chi.NewRouter()
