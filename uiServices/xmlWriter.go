@@ -6,11 +6,11 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"os"
+	"fmt"
 )
 
 func writerXml(config perfTestUtils.Config, configPathDir string) bool {
-
-	filename := configPathDir + config.APIName + ".xml"
+	filename := fmt.Sprintf("%s%s.xml", configPathDir, config.APIName)
 	//validate that directory exists
 	_, err := os.Stat(configPathDir)
 	if os.IsNotExist(err) {
