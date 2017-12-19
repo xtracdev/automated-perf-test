@@ -134,7 +134,7 @@ func TestInvalidJsonPost(t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest {
-		t.Errorf("Error. Did not succesfully post")
+		t.Errorf("Expected:",w.Code,"  Created XML")
 	}
 }
 
@@ -180,7 +180,7 @@ func TestInvalidFileName(t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest{
-		logrus.Println("Expected:",http.StatusBadRequest,"  Got: ",w.Code)
+		t.Errorf("Expected:",http.StatusBadRequest,"  Got: ",w.Code)
 	}
 
 }
