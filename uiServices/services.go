@@ -32,15 +32,14 @@ func configsHandler(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	IsSuccessful := writerXml(config, configPathDir)
-
-	if IsSuccessful {
-		rw.WriteHeader(http.StatusOK)
-		return
-	} else {
+	isSuccessful := writerXml(config, configPathDir)
+	if !isSuccessful {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	rw.WriteHeader(http.StatusOK)
+	return
 
 }
 

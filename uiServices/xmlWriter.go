@@ -11,12 +11,6 @@ import (
 
 func writerXml(config perfTestUtils.Config, configPathDir string) bool {
 	filename := fmt.Sprintf("%s%s.xml", configPathDir, config.APIName)
-	//validate that directory exists
-	_, err := os.Stat(configPathDir)
-	if os.IsNotExist(err) {
-		log.Error("Can't find specified path")
-		return false
-	}
 
 	configAsXml, err := xml.MarshalIndent(config, "  ", "    ")
 	if err != nil {
