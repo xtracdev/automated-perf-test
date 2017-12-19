@@ -58,7 +58,7 @@ const invalidJson = `{
        }`
 
 const invalidFilePathJson = `{
-        "apiName": "//*()()()",
+        "apiName": //*()()(),
        "targetHost": "localhost",
        "targetPort": "9191",
        "numIterations": 1000,
@@ -179,8 +179,8 @@ func TestInvalidFileName(t *testing.T) {
 		t.Error(err)
 	}
 
-	if w.Code != http.StatusInternalServerError {
-		t.Errorf("Error. Did not succesfully post")
+	if w.Code != http.StatusBadRequest{
+		logrus.Println("Expected:",http.StatusBadRequest,"  Got: ",w.Code)
 	}
 
 }
