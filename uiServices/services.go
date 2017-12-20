@@ -7,11 +7,16 @@ import (
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func configsHandler(rw http.ResponseWriter, req *http.Request) {
 
 	configPathDir := req.Header.Get("configPathDir")
+	//error check to ensure file path ends with "/"
+	if !strings.HasSuffix(configPathDir,"/"){
+		configPathDir = configPathDir+"/"
+	}
 
 	config := perfTestUtils.Config{}
 	buf := new(bytes.Buffer)

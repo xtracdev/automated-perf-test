@@ -64,7 +64,7 @@ func TestFilePathExist(t *testing.T) {
 }
 
 func TestFilePathDoesNotExist(t *testing.T) {
-	path := "C:/github.com/xxx"
+	path := "((((((("
 	actual := FilePathExist(path)
 	expected := false
 	assert.Equal(t, expected, actual)
@@ -93,6 +93,30 @@ func TestValidJsonPost(t *testing.T) {
 		t.Errorf("TestValidJsonPost. Expected:",http.StatusCreated, " Got:",w.Code,"  Error. Did not succesfully post",)
 	}
 }
+func TestFilePathEndsWIthSlash(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", getIndexPage())
+
+	reader = strings.NewReader(validJson)
+	r.HandleFunc("/configs", configsHandler)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config"
+
+	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if w.Code != http.StatusCreated  {
+		t.Errorf("TestValidJsonPost. Expected:",http.StatusCreated, " Got:",w.Code,"  Error. Did not succesfully post",)
+	}
+}
+
 
 func TestInvalidJsonPost(t *testing.T) {
 	r := chi.NewRouter()
