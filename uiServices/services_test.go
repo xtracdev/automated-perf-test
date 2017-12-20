@@ -1,7 +1,6 @@
 package services
 
 import (
-	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
@@ -11,7 +10,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-
 )
 
 var (
@@ -38,7 +36,7 @@ const validJson = `{
        }`
 
 const invalidJson = `{
-        "apiName": 0,
+        "apiName"://*()()(),
        "targetHost": 0,
        "targetPort": 0,
        "numIterations": "x",
@@ -57,25 +55,6 @@ const invalidJson = `{
        "rampDelay": 15
        }`
 
-const invalidFilePathJson = `{
-        "apiName": //*()()(),
-       "targetHost": "localhost",
-       "targetPort": "9191",
-       "numIterations": 1000,
-       "allowablePeakMemoryVariance": 30,
-       "allowableServiceResponseTimeVariance": 30,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-        "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "suiteFileName.xml",
-       "memoryEndpoint": "/alt/debug/vars",
-       "requestDelay": 5000,
-       "TPSFreq": 30,
-       "rampUsers": 5,
-       "rampDelay": 15
-       }`
 func TestFilePathExist(t *testing.T) {
 	path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config/"
 	actual := false
@@ -111,9 +90,7 @@ func TestValidJsonPost(t *testing.T) {
 	}
 
 	if w.Code != http.StatusCreated  {
-		t.Errorf("Error. Did not succesfully post")
-	} else {
-		logrus.Print("Successfully created XML File")
+		t.Errorf("TestValidJsonPost. Expected:",http.StatusCreated, " Got:",w.Code,"  Error. Did not succesfully post",)
 	}
 }
 
@@ -134,7 +111,7 @@ func TestInvalidJsonPost(t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest {
-		t.Errorf("Expected:",w.Code,"  Created XML")
+		t.Errorf("TestInvalidJsonPost.  Expected:",http.StatusBadRequest," Got:",w.Code,  "Created XML")
 	}
 }
 
@@ -143,8 +120,8 @@ func TestPostWithNoFilePath(t *testing.T) {
 	r.Mount("/", getIndexPage())
 
 	reader = strings.NewReader(validJson)
-
 	r.HandleFunc("/configs", configsHandler)
+
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
 
 	w := httptest.NewRecorder()
@@ -158,29 +135,4 @@ func TestPostWithNoFilePath(t *testing.T) {
 func TestInvalidURL(t *testing.T) {
 	pt := perfTestUtils.Config{}
 	writerXml(pt, "/path/xxx")
-}
-
-func TestInvalidFileName(t *testing.T) {
-	r := chi.NewRouter()
-	r.Mount("/", getIndexPage())
-
-	reader = strings.NewReader(invalidFilePathJson)
-
-	r.HandleFunc("/configs", configsHandler)
-	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
-
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config/"
-	request.Header.Set("configPathDir", filePath)
-
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	if w.Code != http.StatusBadRequest{
-		t.Errorf("Expected:",http.StatusBadRequest,"  Got: ",w.Code)
-	}
-
 }
