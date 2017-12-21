@@ -41,21 +41,16 @@ func configsHandler(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	isSuccessful := writerXml(config, configPathDir)
-	if !isSuccessful {
-		logrus.Println("**** !isSusscessful ****")
-		rw.WriteHeader(http.StatusInternalServerError)
+	if validdateJsonWithSchema(buf.Bytes()) == true {
+		isSuccessful := writerXml(config, configPathDir)
+		if !isSuccessful {
+			rw.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		rw.WriteHeader(http.StatusCreated)
 		return
 	}
 
-	if validdateJsonWithSchema(buf.Bytes()) == true {
-
-
-		rw.WriteHeader(http.StatusCreated)
-		return
-	}else{
-	logrus.Println("DID NOT WORK!!!")
-}
 }
 
 // exists returns whether the given file or directory exists or not
@@ -70,7 +65,6 @@ func FilePathExist(path string) bool {
 
 func validdateJsonWithSchema(config []byte) bool {
 	goPath := os.Getenv("GOPATH")
-	logrus.Println("***START****")
 	schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/schema.json")
 	documentLoader := gojsonschema.NewBytesLoader(config)
 	logrus.Print(schemaLoader)
@@ -80,17 +74,15 @@ func validdateJsonWithSchema(config []byte) bool {
 		return false
 	}
 	if result.Valid() {
-		fmt.Printf("****The document is valid*****")
+		fmt.Printf("**** The document is valid *****")
 
 		return true
 	} else {
-		logrus.Println("****The document is not valid. see errors :\n****")
+		logrus.Println("**** The document is not valid. see errors :\n ****")
 		for _, desc := range result.Errors() {
 			fmt.Printf("- %s\n", desc)
-
 			return false
 		}
-
 	}
 	return true
 
