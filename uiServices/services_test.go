@@ -113,7 +113,7 @@ func TestFilePathEndsWIthSlash(t *testing.T) {
 	}
 
 	if w.Code != http.StatusCreated  {
-		t.Errorf("TestValidJsonPost. Expected:",http.StatusCreated, " Got:",w.Code,"  Error. Did not succesfully post",)
+		t.Errorf("TestFilePathEndsWith'/'.  Expected:",http.StatusCreated, " Got:",w.Code,"  Error. Did not succesfully post",)
 	}
 }
 
