@@ -44,4 +44,6 @@
     <!-- Specify number of seconds between starting user threads batched during ramp up. -->
     <rampDelay>15</rampDelay>
 
+    <!-- Skip the Peak Memory check and the final report. (Default: false) -->
+    <skipMemCheck>true</skipMemCheck>
 </config>

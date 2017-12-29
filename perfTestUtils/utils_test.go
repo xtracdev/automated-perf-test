@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+
 var mockedFs FileSystem = mockFs{}
 
 type mockFs struct{}
@@ -235,16 +236,19 @@ func TestGenerateEnvBasePerfOutputFileFailCreate(t *testing.T) {
 }
 
 func TestValidateBasePerfStat(t *testing.T) {
+	c := &Config{}
+	c.SetDefaults()
+
 	bs := &BasePerfStats{}
-	assert.False(t, validateBasePerfStat(bs))
+	assert.False(t, validateBasePerfStat(bs, c))
 
 	bs.BaseServiceResponseTimes = map[string]int64{"service 1": 123, "service 2": -1}
-	assert.False(t, validateBasePerfStat(bs))
+	assert.False(t, validateBasePerfStat(bs, c))
 
 	bs.BaseServiceResponseTimes = map[string]int64{"service 1": 123, "service 2": 321}
 	bs.BasePeakMemory = 12
 	bs.GenerationDate = "aaa"
 	bs.ModifiedDate = "bbb"
 	bs.MemoryAudit = []uint64{1, 2, 3}
-	assert.True(t, validateBasePerfStat(bs))
+	assert.True(t, validateBasePerfStat(bs, c))
 }

@@ -140,6 +140,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	flag.IntVar(&configOverrides.TPSFreq, "tps", 0, "Delay between TPS reporting log events in sec. (30)")
 	flag.IntVar(&configOverrides.RampUsers, "ru", 0, "Number of users/threads to batch for ramp up. (0)")
 	flag.IntVar(&configOverrides.RampDelay, "rd", 0, "Seconds between user/thread batches for ramp up. (15)")
+	flag.BoolVar(&configOverrides.SkipMemCheck, "skipMemCheck", false, "Skip the Peak Memory check and the final report. (false)")
 
 	// Parse the args!
 	flag.CommandLine.Parse(args)
@@ -152,6 +153,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 	setLogLevel(boolVerbose, boolDebug)
 	// Override defaults with args.
 	overrideConfigOpts()
+
 
 	//----- Parse the config file if specified.
 	if configFilePath == "" {
@@ -251,6 +253,9 @@ func overrideConfigOpts() {
 	}
 	if configOverrides.RampDelay != 0 {
 		configurationSettings.RampDelay = configOverrides.RampDelay
+	}
+	if configOverrides.SkipMemCheck {
+		configurationSettings.SkipMemCheck = true
 	}
 }
 
@@ -384,38 +389,41 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 
 	// 1. Start go routine to grab memory in use.
 	// Peak memory is stored in peakMemoryAllocation variable.
+	// Ignore if the skipMemCheck config option has been set to true.
 	chanQuitPkMem := make(chan bool)
-	go func() {
-		for {
-			select {
-			case <-chanQuitPkMem:
-				return
-			default:
-				memoryStatsURL := "http://" + configurationSettings.TargetHost + ":" + configurationSettings.TargetPort + configurationSettings.MemoryEndpoint
-				resp, err := http.Get(memoryStatsURL)
-				if err != nil {
-					log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsURL, ". Error: ", err)
+	if !configurationSettings.SkipMemCheck {
+		go func() {
+			for {
+				select {
+				case <-chanQuitPkMem:
 					return
-				} else {
-					body, _ := ioutil.ReadAll(resp.Body)
-					resp.Body.Close()
-					m := new(perfTestUtils.Entry)
-					unmarshalErr := json.Unmarshal(body, m)
-					if unmarshalErr != nil {
-						log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics from endpoint: ", memoryStatsURL, ". UnmarsahlErr: ", unmarshalErr)
+				default:
+					memoryStatsURL := "http://" + configurationSettings.TargetHost + ":" + configurationSettings.TargetPort + configurationSettings.MemoryEndpoint
+					resp, err := http.Get(memoryStatsURL)
+					if err != nil {
+						log.Error("Memory analysis unavailable. Failed to retrieve memory Statistics from endpoint ", memoryStatsURL, ". Error: ", err)
 						return
 					} else {
-						if m.Memstats.Alloc > *peakMemoryAllocation {
-							*peakMemoryAllocation = m.Memstats.Alloc
+						body, _ := ioutil.ReadAll(resp.Body)
+						resp.Body.Close()
+						m := new(perfTestUtils.Entry)
+						unmarshalErr := json.Unmarshal(body, m)
+						if unmarshalErr != nil {
+							log.Error("Memory analysis unavailable. Failed to unmarshal memory statistics from endpoint: ", memoryStatsURL, ". UnmarsahlErr: ", unmarshalErr)
+							return
+						} else {
+							if m.Memstats.Alloc > *peakMemoryAllocation {
+								*peakMemoryAllocation = m.Memstats.Alloc
+							}
+							memoryAudit = append(memoryAudit, m.Memstats.Alloc)
+							counter++
+							time.Sleep(time.Millisecond * 200)
 						}
-						memoryAudit = append(memoryAudit, m.Memstats.Alloc)
-						counter++
-						time.Sleep(time.Millisecond * 200)
 					}
 				}
 			}
-		}
-	}()
+		}()
+	}
 
 	// Add a 1 second delay before running test case to allow the graph to get
 	// some initial memory data before test cases are executed.
@@ -490,10 +498,12 @@ func runTests(perfStatsForTest *perfTestUtils.PerfStats, mode int, testSuite *te
 	// Kill the peak memory thread to avoid race condition when saving metrics.
 	close(chanQuitPkMem)
 
-	// Save the peak memory metrics:
-	perfStatsForTest.PeakMemory = *peakMemoryAllocation
-	perfStatsForTest.MemoryAudit = memoryAudit
-	perfStatsForTest.TestPartitions = testPartitions
+	if !configurationSettings.SkipMemCheck {
+		// Save the peak memory metrics:
+		perfStatsForTest.PeakMemory = *peakMemoryAllocation
+		perfStatsForTest.MemoryAudit = memoryAudit
+		perfStatsForTest.TestPartitions = testPartitions
+	}
 }
 
 //----- runAssertions ---------------------------------------------------------
@@ -502,11 +512,13 @@ func runAssertions(basePerfstats *perfTestUtils.BasePerfStats, perfStats *perfTe
 
 	assertionFailures := make([]string, 0)
 
-	//Asserts Peak memory growth has not exceeded the allowable variance
-	peakMemoryVariancePercentage := perfTestUtils.CalcPeakMemoryVariancePercentage(basePerfstats.BasePeakMemory, perfStats.PeakMemory)
-	varianceOk := perfTestUtils.ValidatePeakMemoryVariance(configurationSettings.AllowablePeakMemoryVariance, peakMemoryVariancePercentage)
-	if !varianceOk {
-		assertionFailures = append(assertionFailures, fmt.Sprintf("Memory Failure: Peak variance exceeded by %3.2f %1s", peakMemoryVariancePercentage, "%"))
+	if ! configurationSettings.SkipMemCheck {
+		//Asserts Peak memory growth has not exceeded the allowable variance
+		peakMemoryVariancePercentage := perfTestUtils.CalcPeakMemoryVariancePercentage(basePerfstats.BasePeakMemory, perfStats.PeakMemory)
+		varianceOk := perfTestUtils.ValidatePeakMemoryVariance(configurationSettings.AllowablePeakMemoryVariance, peakMemoryVariancePercentage)
+		if !varianceOk {
+			assertionFailures = append(assertionFailures, fmt.Sprintf("Memory Failure: Peak variance exceeded by %3.2f %1s", peakMemoryVariancePercentage, "%"))
+		}
 	}
 
 	//Asserts service response times have not exceeded the allowable variance

@@ -449,6 +449,10 @@ func convertStoredValueToRequestFormat(storedValue interface{}, requiredIndex in
 		requestFormattedValue = convertStoredValueToRequestFormat(value, 0)
 	case string:
 		requestFormattedValue = string(objectType)
+	case int64:
+		requestFormattedValue = string(strconv.FormatInt( objectType, 10))
+	case float64:
+		requestFormattedValue = string(strconv.FormatFloat( objectType, 'f', 0, 64))
 	default:
 		requestFormattedValue = fmt.Sprintf("%v", objectType)
 	}

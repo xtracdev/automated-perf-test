@@ -2,10 +2,11 @@ package perfTestUtils
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"runtime"
 	"strings"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 const (
@@ -26,6 +27,7 @@ const (
 	defaultTPSFreq                              = 30
 	defaultRampUsers                            = 0
 	defaultRampDelay                            = 10
+	defaultSkipMemCheck                         = false
 )
 
 // Config struct contains all values set by the config.xml file. Most, if not
@@ -48,6 +50,7 @@ type Config struct {
 	TPSFreq                              int     `xml:"TPSFreq"`
 	RampUsers                            int     `xml:"rampUsers"`
 	RampDelay                            int     `xml:"rampDelay"`
+	SkipMemCheck                         bool    `xml:"skipMemCheck"`
 
 	//These value can only be set by command line arguments as they control each training and test run.
 	GBS          bool
@@ -80,6 +83,7 @@ func (c *Config) SetDefaults() {
 	c.TPSFreq = defaultTPSFreq
 	c.RampUsers = defaultRampUsers
 	c.RampDelay = defaultRampDelay
+	c.SkipMemCheck = defaultSkipMemCheck
 
 	c.GBS = false
 	c.ReBaseMemory = false
@@ -134,6 +138,9 @@ func (c *Config) PrintAndValidateConfig() {
 	if c.RampDelay < 1 {
 		c.RampDelay = defaultRampDelay
 	}
+	if c.SkipMemCheck != false && c.SkipMemCheck != true {
+		c.SkipMemCheck = defaultSkipMemCheck
+	}
 
 	configOutput := []byte("")
 	configOutput = append(configOutput, []byte("\n============== Configuration Settings =========\n")...)
@@ -158,6 +165,7 @@ func (c *Config) PrintAndValidateConfig() {
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "tpsFreq", c.TPSFreq, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "rampUsers", c.RampUsers, "\n"))...)
 	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90d %2s", "rampDelay", c.RampDelay, "\n"))...)
+	configOutput = append(configOutput, []byte(fmt.Sprintf("%-45s %-90t %2s", "skipMemCheck", c.SkipMemCheck, "\n"))...)
 	configOutput = append(configOutput, []byte("\n=================================================\n")...)
 	log.Info(string(configOutput))
 }

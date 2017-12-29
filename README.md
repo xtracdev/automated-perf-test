@@ -38,6 +38,7 @@ The configuration file parameters are described in the table below.
 | \<tpsFreq>                              | Specify the number of seconds between displaying the overall TPS message in log.info output.                                                |
 | \<rampUsers>                            | Specify the number of user threads to start in a batch during ramp up. Eg. Start 5 threads every 15 seconds.                                |
 | \<rampDelay>                            | Specify number of seconds between starting user threads batched during ramp up.                                                             |
+| \<skipMemCheck>                         | Skip the Peak Memory check and the Peak Memory section of the final report.                                                                 |
 
 #### Command line arguments
 In addition the configuration parameters, command line arguments can the passed in to control specifics of each individual test run. The command line arguments are described in the table below.
@@ -57,16 +58,23 @@ In addition the configuration parameters, command line arguments can the passed 
 The framework supports two type of testing strategies, ServiceBased and SuiteBased. These testing strategies allow flexibility when performing performance
 test under different conditions, for example Build pipeline mock vs Live back end load test.
 ##### ServiceBased
-This is the default testing strategy and will be used if no test suite is defined in the configuration file. In this scenario, all files in the test case dir will
-for an informal test suite. Service Based testing focuses on each service  independently of others. Memory and service response time data is gathered during the test and analysis is performed once the test is complete. Service based testing is very
-appropriate when used in conjunction with a build pipeline and mock back end. These test should run quickly to ensure fast overall run time of the pipeline. This type of testing
+This is the default testing strategy and will be used if no test suite is defined in the configuration file. In this scenario, all files in the test case dir will for an informal test suite. Service Based testing focuses on each service  independently of others. Memory and service response time data is gathered during the test and analysis is performed once the test is complete. Service based testing is very appropriate when used in conjunction with a build pipeline and mock back end. These tests should run quickly to ensure fast overall run time of the pipeline. This type of testing
 divides the load across concurrent users. Eg. For 1000 iterations per test case with 10 concurrent users, each user will perform 100 requests concurrently per test case.
 
 ##### SuiteBased
 Suite based testing is designed to simulate real load testing hitting a live back-end. Data can be passed between requests so response data from one request can be used
-in the request of another. Memory and service response time data is gathered during the test and analysis is performed once the test is complete.
-In suite based testing, the number of iteration controls the number of time the suite is run per concurrent user. Thus adding more concurrent user will increase the
+in the request of another. Memory and service response time data is gathered during the test and analysis is performed once the test is complete. In suite based testing, the number of iteration controls the number of time the suite is run per concurrent user. Thus adding more concurrent user will increase the
 testing load.
+
+### Report Template
+The report template is built using the `go-bindata` utility. You can install using the `go get` method, for example, run `go get -u github.com/jteeuwen/go-bindata/...` from any subfolder within the `automated-perf-test` project.
+
+The `go-bindata` utility is used to generate the `perfTestUtils/report_template.go` source file. This should be done using the following sequence:
+
+* From the `automated-perf-test` top-level folder, execute the command:
+	* `go-bindata -pkg perfTestUtils -o perfTestUtils/report_template.go report`
+* Build the project as usual with `go install`, then execute a test run to generate a report and check the template changes.
+
 
 ### Contributing
 

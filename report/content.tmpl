@@ -11,6 +11,7 @@
                     </tr>
                     </table>
                     </div>
+		{{if not .Config.SkipMemCheck}}
         <div class="divHeading" onclick="hideMemoryAnalysis()">
             <table class="divHeading" border="0" width="90%">
                 <tr>
@@ -79,6 +80,7 @@
              $("#LineChart").append(LineChartJS.element);
             </script>
         </div>
+		{{end}}
 
         <div class="divHeading" onclick="hideServiceAnalysis()">
             <table class="divHeading" border="0" width="90%">

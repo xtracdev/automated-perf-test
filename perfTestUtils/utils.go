@@ -73,7 +73,7 @@ func IsReadyForTest(configurationSettings *Config, numTestCases int) (bool, *Bas
 	}
 
 	//2) validate content  of base stats file
-	isBasePerfStatsValid := validateBasePerfStat(basePerfstats)
+	isBasePerfStatsValid := validateBasePerfStat(basePerfstats, configurationSettings)
 	if !isBasePerfStatsValid {
 		log.Error("Base Perf stats are not fully populated for  " + configurationSettings.ExecutionHost + ".")
 		return false, nil
@@ -96,19 +96,21 @@ func IsReadyForTest(configurationSettings *Config, numTestCases int) (bool, *Bas
 	return true, basePerfstats
 }
 
-func validateBasePerfStat(basePerfstats *BasePerfStats) bool {
+func validateBasePerfStat(basePerfstats *BasePerfStats, configurationSettings *Config) bool {
 	isBasePerfStatsValid := true
 
-	if basePerfstats.BasePeakMemory <= 0 {
-		isBasePerfStatsValid = false
+	if ! configurationSettings.SkipMemCheck {
+		if basePerfstats.BasePeakMemory <= 0 {
+			isBasePerfStatsValid = false
+		}
+		if len(basePerfstats.MemoryAudit) <= 0 {
+			isBasePerfStatsValid = false
+		}
 	}
 	if basePerfstats.GenerationDate == "" {
 		isBasePerfStatsValid = false
 	}
 	if basePerfstats.ModifiedDate == "" {
-		isBasePerfStatsValid = false
-	}
-	if len(basePerfstats.MemoryAudit) <= 0 {
 		isBasePerfStatsValid = false
 	}
 	if basePerfstats.BaseServiceResponseTimes != nil {
