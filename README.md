@@ -75,8 +75,9 @@ To contribute, you must certify you agree with the [Developer Certificate of Ori
 by signing your commits via `git -s`. To create a signature, configure your user name and email address in git.
 Sign with your real name, do not use pseudonyms or submit anonymous commits.
 
-### Custome Headers
-A custom header "configPathDir" is required for POST /configurations.
+
+### Custom Headers
+A custom header "configPathDir" is required for /configs.
 eg To save the xml file in the config folder of the application, use:
 Header name = "configPathDir", Header Value = "fullpath\to\config\directory"
 

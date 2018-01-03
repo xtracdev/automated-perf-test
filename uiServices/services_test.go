@@ -77,7 +77,6 @@ func TestValidJsonPost(t *testing.T) {
 	r.HandleFunc("/configs", configsHandler)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config/"
-
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
 	request.Header.Set("configPathDir", filePath)
 
@@ -137,7 +136,6 @@ func TestInvalidJsonPost(t *testing.T) {
 	}
 }
 
-//***This test is failing
 func TestPostWithNoFilePath(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", getIndexPage())
@@ -155,7 +153,7 @@ func TestPostWithNoFilePath(t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest {
-		t.Errorf("TestPostWithNoFilePath.  Expected:", http.StatusBadRequest, " Got:", w.Code, "Created XML")
+		t.Errorf("TestPostWithNoFilePath.  Expected:", http.StatusBadRequest, " Got:", w.Code, "Error. ")
 	}
 }
 
