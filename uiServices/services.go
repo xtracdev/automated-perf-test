@@ -3,7 +3,6 @@ package services
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/xeipuuv/gojsonschema"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
@@ -36,7 +35,7 @@ func configsHandler(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if len(configPathDir) < 1 {
+	if len(configPathDir) <= 1 {
 		logrus.Error("File path is length too short", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
