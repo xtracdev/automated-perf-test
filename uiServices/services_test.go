@@ -1,10 +1,11 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -12,9 +13,6 @@ import (
 	"testing"
 )
 
-var (
-	reader io.Reader
-)
 const validJson = `{
         "apiName": "TestConfig",
        "targetHost": "localhost",
@@ -58,6 +56,7 @@ const invalidJson = `{
 func TestFilePathExist(t *testing.T) {
 	path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config/"
 	actual := false
+	fmt.Println(path)
 	actual = FilePathExist(path)
 	expected := true
 	assert.Equal(t, expected, actual)
@@ -74,7 +73,7 @@ func TestValidJsonPost(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", getIndexPage())
 
-	reader = strings.NewReader(validJson)
+	reader := strings.NewReader(validJson)
 	r.HandleFunc("/configs", configsHandler)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config/"
@@ -89,15 +88,15 @@ func TestValidJsonPost(t *testing.T) {
 		t.Error(err)
 	}
 
-	if w.Code != http.StatusCreated  {
-		t.Errorf("TestValidJsonPost. Expected:",http.StatusCreated, " Got:",w.Code,"  Error. Did not succesfully post",)
+	if w.Code != http.StatusCreated {
+		t.Errorf("TestValidJsonPost. Expected:", http.StatusCreated, " Got:", w.Code, "  Error. Did not succesfully post")
 	}
 }
 func TestFilePathEndsWIthSlash(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", getIndexPage())
 
-	reader = strings.NewReader(validJson)
+	reader := strings.NewReader(validJson)
 	r.HandleFunc("/configs", configsHandler)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config"
@@ -112,17 +111,16 @@ func TestFilePathEndsWIthSlash(t *testing.T) {
 		t.Error(err)
 	}
 
-	if w.Code != http.StatusCreated  {
-		t.Errorf("TestFilePathEndsWith'/'.  Expected:",http.StatusCreated, " Got:",w.Code,"  Error. Did not succesfully post",)
+	if w.Code != http.StatusCreated {
+		t.Errorf("TestFilePathEndsWith'/'.  Expected:", http.StatusCreated, " Got:", w.Code, "  Error. Did not succesfully post")
 	}
 }
-
 
 func TestInvalidJsonPost(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", getIndexPage())
 
-	reader = strings.NewReader(invalidJson)
+	reader := strings.NewReader(invalidJson)
 	r.HandleFunc("/configs", configsHandler)
 
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
@@ -135,15 +133,16 @@ func TestInvalidJsonPost(t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest {
-		t.Errorf("TestInvalidJsonPost.  Expected:",http.StatusBadRequest," Got:",w.Code,  "Created XML")
+		t.Errorf("TestInvalidJsonPost.  Expected:", http.StatusBadRequest, " Got:", w.Code, "Error. Did not succesfully post ")
 	}
 }
 
+//***This test is failing
 func TestPostWithNoFilePath(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", getIndexPage())
 
-	reader = strings.NewReader(validJson)
+	reader := strings.NewReader(validJson)
 	r.HandleFunc("/configs", configsHandler)
 
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
@@ -153,6 +152,10 @@ func TestPostWithNoFilePath(t *testing.T) {
 
 	if err != nil {
 		t.Error(err)
+	}
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("TestPostWithNoFilePath.  Expected:", http.StatusBadRequest, " Got:", w.Code, "Created XML")
 	}
 }
 
