@@ -136,7 +136,7 @@ func TestInvalidJsonPost(t *testing.T) {
 	}
 }
 
-func TestPostWithNoFilePath(t *testing.T) {
+func TestWhenConfigPathDirEmpty(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", getIndexPage())
 
@@ -153,7 +153,7 @@ func TestPostWithNoFilePath(t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest {
-		t.Errorf("TestPostWithNoFilePath.  Expected:", http.StatusBadRequest, " Got:", w.Code, "Error. ")
+		t.Errorf("TestWhenConfigPathDirEmpty.  Expected:", http.StatusBadRequest, " Got:", w.Code, "Error. ConfigPathDir is Empty ")
 	}
 }
 
