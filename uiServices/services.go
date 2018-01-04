@@ -11,28 +11,29 @@ import (
 	"strings"
 )
 
-var configPathDir string
-
 func configsHandler(rw http.ResponseWriter, req *http.Request) {
-	configPathDir = req.Header.Get("configPathDir")
-
-	config := perfTestUtils.Config{}
+	configPathDir := req.Header.Get("configPathDir")
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
-	err := json.Unmarshal(buf.Bytes(), &config)
-
-	defer req.Body.Close()
-	//error check to ensure file path ends with "\"
-	if !strings.HasSuffix(configPathDir, "/") {
-
-		configPathDir = configPathDir + "/"
-	}
 
 	if !validateJsonWithSchema(buf.Bytes()) {
 		rw.WriteHeader(http.StatusBadRequest)
-
 		return
 
+	}
+
+	config := perfTestUtils.Config{}
+	err := json.Unmarshal(buf.Bytes(), &config)
+
+	if err != nil {
+		logrus.Error("Failed to unmarshall json body", err)
+
+		return
+	}
+
+	//error check to ensure file path ends with "\"
+	if !strings.HasSuffix(configPathDir, "/") {
+		configPathDir = configPathDir + "/"
 	}
 
 	if len(configPathDir) <= 1 {
@@ -42,12 +43,6 @@ func configsHandler(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if err != nil {
-		logrus.Error("Failed to unmarshall json body", err)
-
-		return
-	}
-
 	if !FilePathExist(configPathDir) {
 		logrus.Error("File path does not exist", err)
 		rw.WriteHeader(http.StatusBadRequest)
@@ -55,9 +50,12 @@ func configsHandler(rw http.ResponseWriter, req *http.Request) {
 
 	}
 	//Create file once checks are complete
-	writerXml(config, configPathDir)
+	if !writerXml(config, configPathDir) {
+
+		rw.WriteHeader(http.StatusInternalServerError)
+	}
+
 	rw.WriteHeader(http.StatusCreated)
-	return
 
 }
 
