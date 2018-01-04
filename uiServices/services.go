@@ -53,6 +53,7 @@ func configsHandler(rw http.ResponseWriter, req *http.Request) {
 	if !writerXml(config, configPathDir) {
 
 		rw.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	rw.WriteHeader(http.StatusCreated)
