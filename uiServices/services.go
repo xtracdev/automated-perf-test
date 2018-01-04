@@ -27,7 +27,7 @@ func configsHandler(rw http.ResponseWriter, req *http.Request) {
 
 	if err != nil {
 		logrus.Error("Failed to unmarshall json body", err)
-
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
