@@ -14,7 +14,7 @@ import (
 )
 
 const validJson = `{
-        "apiName": "TestConfig",
+        "apiName": "Test Config",
        "targetHost": "localhost",
        "targetPort": "9191",
        "numIterations": 1000,
