@@ -7,8 +7,8 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
-	"github.com/xtracdev/automated-perf-test/services"
 	"github.com/xtracdev/automated-perf-test/testStrategies"
+	"github.com/xtracdev/automated-perf-test/uiServices"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -43,6 +43,7 @@ func main() {
 
 	//Generate a test suite based on configuration settings
 	testSuite := new(testStrategies.TestSuite)
+
 	testSuite.BuildTestSuite(configurationSettings)
 	numTestCases := len(testSuite.TestDefinitions) //convenience variable
 

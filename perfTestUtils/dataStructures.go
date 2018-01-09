@@ -31,31 +31,31 @@ const (
 // Config struct contains all values set by the config.xml file. Most, if not
 // all, can be overridden from command line.
 type Config struct {
-	APIName                              string  `xml:"apiName"`
-	TargetHost                           string  `xml:"targetHost"`
-	TargetPort                           string  `xml:"targetPort"`
-	NumIterations                        int     `xml:"numIterations"`
-	AllowablePeakMemoryVariance          float64 `xml:"allowablePeakMemoryVariance"`
-	AllowableServiceResponseTimeVariance float64 `xml:"allowableServiceResponseTimeVariance"`
-	TestCaseDir                          string  `xml:"testCaseDir"`
-	TestSuiteDir                         string  `xml:"testSuiteDir"`
-	BaseStatsOutputDir                   string  `xml:"baseStatsOutputDir"`
-	ReportOutputDir                      string  `xml:"reportOutputDir"`
-	ConcurrentUsers                      int     `xml:"concurrentUsers"`
-	TestSuite                            string  `xml:"testSuite"`
-	MemoryEndpoint                       string  `xml:"memoryEndpoint"`
-	RequestDelay                         int     `xml:"requestDelay"`
-	TPSFreq                              int     `xml:"TPSFreq"`
-	RampUsers                            int     `xml:"rampUsers"`
-	RampDelay                            int     `xml:"rampDelay"`
+	APIName                              string  `xml:"apiName" json:"apiName"`
+	TargetHost                           string  `xml:"targetHost" json:"targetHost"`
+	TargetPort                           string  `xml:"targetPort" json:"targetPort"`
+	NumIterations                        int     `xml:"numIterations" json:"numIterations"`
+	AllowablePeakMemoryVariance          float64 `xml:"allowablePeakMemoryVariance" json:"allowablePeakMemoryVariance"`
+	AllowableServiceResponseTimeVariance float64 `xml:"allowableServiceResponseTimeVariance" json:"allowableServiceResponseTimeVariance"`
+	TestCaseDir                          string  `xml:"testCaseDir" json:"testCaseDir"`
+	TestSuiteDir                         string  `xml:"testSuiteDir" json:"testSuiteDir"`
+	BaseStatsOutputDir                   string  `xml:"baseStatsOutputDir" json:"baseStatsOutputDir"`
+	ReportOutputDir                      string  `xml:"reportOutputDir" json:"reportOutputDir"`
+	ConcurrentUsers                      int     `xml:"concurrentUsers" json:"concurrentUsers"`
+	TestSuite                            string  `xml:"testSuite" json:"testSuite"`
+	MemoryEndpoint                       string  `xml:"memoryEndpoint" json:"memoryEndpoint"`
+	RequestDelay                         int     `xml:"requestDelay" json:"requestDelay"`
+	TPSFreq                              int     `xml:"TPSFreq" json:"TPSFreq"`
+	RampUsers                            int     `xml:"rampUsers" json:"rampUsers"`
+	RampDelay                            int     `xml:"rampDelay" json:"rampDelay"`
 
 	//These value can only be set by command line arguments as they control each training and test run.
-	GBS          bool
-	ReBaseMemory bool
-	ReBaseAll    bool
+	GBS          bool `xml:"gbs,omitempty"`
+	ReBaseMemory bool `xml:"reBaseMemory,omitempty"`
+	ReBaseAll    bool `xml:"reBaseAll,omitempty"`
 
 	//This value is determined by the environment/machine on which the test is being run.
-	ExecutionHost string
+	ExecutionHost string `xml:"executionHost,omitempty"`
 
 	//Template file
 	ReportTemplateFile string `xml:"reportTemplateFile,omitempty"`

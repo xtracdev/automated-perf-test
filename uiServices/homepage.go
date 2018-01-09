@@ -8,18 +8,23 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"os"
 )
 
 const contentTypeHeader = `Content-Type`
 const htmlType = `text/html`
 
 func StartUiMode() {
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
 	r.Mount("/", getIndexPage())
+
 	log.Print("http:\\localhost:9191")
+
 	http.ListenAndServe(":9191", r)
 }
 
@@ -27,7 +32,8 @@ func getIndexPage() *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		absPath, err := filepath.Abs("./ui/index.html")
+		goPath := os.Getenv("GOPATH")
+		absPath, err := filepath.Abs(goPath + "/src/github.com/xtracdev/automated-perf-test/ui/index.html")
 
 		if err != nil {
 			logrus.Error("Unable to find homepage", err)
@@ -46,6 +52,7 @@ func getIndexPage() *chi.Mux {
 		w.Header().Set(contentTypeHeader, htmlType)
 		w.Write([]byte(htmlBytes))
 	})
+	router.HandleFunc("/configs", configsHandler)
 
 	return router
 }

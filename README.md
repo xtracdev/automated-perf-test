@@ -51,7 +51,8 @@ In addition the configuration parameters, command line arguments can the passed 
 | -reBaseAll        | Run a training run which will overwrite the all statistics of previous training on the execution host.         |
 | -reBaseAll        | Run a training run which will overwrite the all statistics of previous training on the execution host.         |
 | -testFileFormat   | The format of the test definition files, the supported formats are XML and TOML (default XML).
-| -ui               | Runs local server on localhost:9191 to support CRUD on configuration and test definitions in UI mode.
+| -ui               | Runs local server on localhost:9191 to support CRUD on configuration and test definitions in UI mode
+
 
 #### Testing Strategies
 The framework supports two type of testing strategies, ServiceBased and SuiteBased. These testing strategies allow flexibility when performing performance
@@ -74,6 +75,11 @@ To contribute, you must certify you agree with the [Developer Certificate of Ori
 by signing your commits via `git -s`. To create a signature, configure your user name and email address in git.
 Sign with your real name, do not use pseudonyms or submit anonymous commits.
 
+
+### Custom Headers
+A custom header "configPathDir" is required for /configs.
+eg To save the xml file in the config folder of the application, use:
+Header name = "configPathDir", Header Value = "fullpath\to\config\directory"
 
 In terms of workflow:
 
