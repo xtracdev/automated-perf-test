@@ -1,13 +1,14 @@
 package services
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 
 	"os"
 )
@@ -59,7 +60,7 @@ func getIndexPage() *chi.Mux {
 
 		if err != nil {
 			logrus.Error("Unable to find homepage", err)
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 

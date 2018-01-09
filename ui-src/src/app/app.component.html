@@ -1,1 +1,20 @@
-<h1>{{title}}</h1>
+<head>
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" routerLink="/configurations" ng-reflect-router-link="/configurations">Configurations</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" routerLink="/test-cases" ng-reflect-router-link="/test-cases">Test Cases</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" routerLink="/test-suites" ng-reflect-router-link="/test-suites">Test Suites</a>
+            </li>
+        </ul>
+        <router-outlet></router-outlet>
+    </div>
+</body>
