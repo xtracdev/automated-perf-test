@@ -1,69 +1,48 @@
-<html>
+<div class="row custom-row">
+  <div class="col-sm-5 custom-container jumbotron">
 
-<div class="panel-body border-box">
+    <form class="form-horizontal">
+      <fieldset>
+        <legend>SignUp</legend>
 
-  <div class="row">
-    <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color:red;">
-      <h2>config file path</h2>
-      <form action="/action_page.php">
-        <input type="file">
-      </form>
-    </div>
-  </div>
 
-  <div class="row">
-    <div class="border-box col-xs-6 col-sm-6 col-md-6 col-lg-6" style="background-color:blue;">
-      <h2>Application properties</h2>
-      <div class="row">
-        <div class="col-md-10 col-md-offset-1">
-          <form [formGroup]="formGroup" (validSubmit)="onSubmit()">
-            <div class="form-group">
-              <label class="control-label">Email</label>
-              <input type="text" class="form-control" formControlName="Email">
-            </div>
-            <div class="form-group">
-              <label class="control-label">Password</label>
-              <input type="password" class="form-control" formControlName="Password">
-            </div>
-            <button class="btn btn-default" type="button" (click)="onReset()">Reset</button>
-            <button class="btn btn-primary pull-right" type="submit">Submit</button>
-          </form>
+        <div class="form-group">
+          <label for="inputEmail">Email</label>
+          <input type="text" id="inputEmail" placeholder="Email">
         </div>
-      </div>
-    </div>
 
-    <div class="border-box col-xs-6  col-sm-6  col-md-6  col-lg-6 " style="background-color: green;">
-      <h2>Test Criteria</h2>
-      <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-          <form [formGroup]="formGroup" (validSubmit)="onSubmit()">
-            <div class="form-group">
-              <label class="control-label">Email</label>
-              <input type="text" class="form-control" formControlName="Email">
-            </div>
-            <div class="form-group">
-              <label class="control-label">Password</label>
-              <input type="password" class="form-control" formControlName="Password">
-            </div>
-            <button class="btn btn-default" type="button" (click)="onReset()">Reset</button>
-            <button class="btn btn-primary pull-right" type="submit">Submit</button>
-          </form>
+        <div class="form-group">
+          <label for="inputPassword">Password</label>
+          <input type="password" id="inputPassword" placeholder="Password">
         </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="row">
-    <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color:red;">
-      <h2>output paths</h2>
-    </div>
-  </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" placeholder="Password">
+        </div>
 
-  <div class="row">
-    <button type="button" class="btn  col-xs-offset-10 col-sm-offset-10 col-md-offset-10 col-lg-offset-10">Save</button>
+
+        <div class="form-group">
+          <label for="select">Gender</label>
+          <select id="select">
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+
+        <div class="form-group checkbox">
+          <label>
+            <input type="checkbox"> Confirm that you've read the Terms and Conditions
+          </label>
+        </div>
+
+        <div class="form-group">
+          <button type="reset" class="btn btn-default">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </fieldset>
+    </form>
   </div>
 </div>
-
-
-
-</html>

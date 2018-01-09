@@ -1,3 +1,77 @@
-<p>
-  test-cases works!
-</p>
+<html>
+
+<div class="panel-body border-box">
+
+  <div class="row">
+    <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color:red;">
+      <h2>config file path</h2>
+      <form action="/action_page.php">
+        <input type="file">
+      </form>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="border-box col-xs-6 col-sm-6 col-md-6 col-lg-6" style="background-color:blue;">
+      <h2>Application properties</h2>
+
+      <form [formGroup]="configurationsForm" (ngSubmit)="onSubmit()" novalidate>
+        <div>
+          <div>
+            <label>Application Name:
+              <input formControlName="applicationName"> </label>
+          </div>
+          <div>
+            <label>target Host:
+              <input formControlName="targetHost"> </label>
+          </div>
+          <div>
+            <label>Target Port:
+              <input formControlName="targetPort"> </label>
+          </div>
+          <div>
+            <label>Memory Endpoint:
+              <input formControlName="memoryEndpoint"> </label>
+          </div>
+        </div>
+      </form>
+
+
+    </div>
+
+    <div class="border-box col-xs-6  col-sm-6  col-md-6  col-lg-6 " style="background-color: green;">
+      <h2>Test Criteria</h2>
+      <div>
+        <label>Application Name:
+          <input formControlName="applicationName"> </label>
+      </div>
+      <div>
+        <label>target Host:
+          <input formControlName="targetHost"> </label>
+      </div>
+      <div>
+        <label>Target Port:
+          <input formControlName="targetPort"> </label>
+      </div>
+      <div>
+        <label>Memory Endpoint:
+          <input formControlName="memoryEndpoint"> </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color:red;">
+      <h2>output paths</h2>
+
+    </div>
+  </div>
+
+  <div class="row">
+    <button class="btn btn-primary pull-right" type="submit">Submit</button>
+  </div>
+</div>
+
+
+
+</html>
