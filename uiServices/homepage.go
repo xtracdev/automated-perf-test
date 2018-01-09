@@ -1,13 +1,14 @@
 package services
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 
 	"os"
 )
@@ -38,6 +39,28 @@ func getIndexPage() *chi.Mux {
 		if err != nil {
 			logrus.Error("Unable to find homepage", err)
 			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		htmlBytes, err := ioutil.ReadFile(absPath)
+
+		if err != nil {
+			logrus.Error("Unable to read file: ", absPath, err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set(contentTypeHeader, htmlType)
+		w.Write([]byte(htmlBytes))
+	})
+	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		requestUri := r.RequestURI
+		goPath := os.Getenv("GOPATH")
+		absPath, err := filepath.Abs(goPath + "/src/github.com/xtracdev/automated-perf-test/ui/" + requestUri)
+
+		if err != nil {
+			logrus.Error("Unable to find homepage", err)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 

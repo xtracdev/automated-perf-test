@@ -992,7 +992,7 @@ const (
 	PTRACE_SEIZE_DEVEL               = 0x80000000
 	PTRACE_SETFPREGS                 = 0xf
 	PTRACE_SETFPXREGS                = 0x13
-	PTRACE_SETOPTIONS                = 0x4200
+	PTRACE_SETOPTIONS                = 0x
 	PTRACE_SETREGS                   = 0xd
 	PTRACE_SETREGSET                 = 0x4205
 	PTRACE_SETSIGINFO                = 0x4203
