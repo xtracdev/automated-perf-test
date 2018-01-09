@@ -12,7 +12,7 @@ func TestStartUiModeSuccesfully(t *testing.T) {
 
 	r := chi.NewRouter()
 
-	r.Mount("/", GetIndexPage())
+	r.Mount("/", getIndexPage())
 
 	assert.IsType(t, &chi.Mux{}, r)
 
@@ -30,7 +30,7 @@ func TestStartUiModeWithInvalidURL(t *testing.T) {
 
 	r := chi.NewRouter()
 
-	r.Mount("/", GetIndexPage())
+	r.Mount("/", getIndexPage())
 
 	assert.IsType(t, &chi.Mux{}, r)
 

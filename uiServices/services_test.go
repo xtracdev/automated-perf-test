@@ -71,7 +71,7 @@ func TestFilePathDoesNotExist(t *testing.T) {
 
 func TestValidJsonPost(t *testing.T) {
 	r := chi.NewRouter()
-	r.Mount("/", GetIndexPage())
+	r.Mount("/", getIndexPage())
 
 	reader := strings.NewReader(validJson)
 	r.HandleFunc("/configs", configsHandler)
@@ -93,7 +93,7 @@ func TestValidJsonPost(t *testing.T) {
 }
 func TestFilePathEndsWIthSlash(t *testing.T) {
 	r := chi.NewRouter()
-	r.Mount("/", GetIndexPage())
+	r.Mount("/", getIndexPage())
 
 	reader := strings.NewReader(validJson)
 	r.HandleFunc("/configs", configsHandler)
@@ -117,7 +117,7 @@ func TestFilePathEndsWIthSlash(t *testing.T) {
 
 func TestInvalidJsonPost(t *testing.T) {
 	r := chi.NewRouter()
-	r.Mount("/", GetIndexPage())
+	r.Mount("/", getIndexPage())
 
 	reader := strings.NewReader(invalidJson)
 	r.HandleFunc("/configs", configsHandler)
@@ -138,7 +138,7 @@ func TestInvalidJsonPost(t *testing.T) {
 
 func TestWhenConfigPathDirEmpty(t *testing.T) {
 	r := chi.NewRouter()
-	r.Mount("/", GetIndexPage())
+	r.Mount("/", getIndexPage())
 
 	reader := strings.NewReader(validJson)
 	r.HandleFunc("/configs", configsHandler)

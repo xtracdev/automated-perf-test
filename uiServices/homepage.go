@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"path/filepath"
 
@@ -16,24 +17,19 @@ const htmlType = `text/html`
 
 func StartUiMode() {
 
-	http.ListenAndServe(":9191", GetRouter())
-}
-
-func GetRouter() *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	r.Mount("/", GetIndexPage())
+	r.Mount("/", getIndexPage())
 
-	logrus.Print("http:\\localhost:9191")
+	log.Print("http:\\localhost:9191")
 
-	return r
+	http.ListenAndServe(":9191", r)
 }
 
-func GetIndexPage() *chi.Mux {
+func getIndexPage() *chi.Mux {
 	router := chi.NewRouter()
-
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		goPath := os.Getenv("GOPATH")
 		absPath, err := filepath.Abs(goPath + "/src/github.com/xtracdev/automated-perf-test/ui/index.html")

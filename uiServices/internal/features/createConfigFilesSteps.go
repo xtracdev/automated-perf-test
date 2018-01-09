@@ -2,11 +2,14 @@ package features
 
 import (
 	. "github.com/gucumber/gucumber"
+
 	"net/http"
 	"strings"
 	"os"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/uiServices"
+
 )
 
 var httpClient *http.Client
@@ -17,7 +20,7 @@ func init() {
 	Given(`^the automated performance ui server is available`, func() {
 		httpClient = &http.Client{}
 
-		go http.ListenAndServe(":9191", services.GetRouter())
+		services.StartUiMode()
 	})
 
 	When(`^the user makes a request for (.+?) http://localhost:9191/configs with payload$`, func(method, data string) {
@@ -36,12 +39,10 @@ func init() {
 		code = resp.StatusCode
 	})
 
-	Then(`^the POST configuration service returns (.+?) HTTP status`, func(statusCode int) {
+	Then(`^the POST configuration service returns (.+?) HTTP status`, func(code int) {
 		//check the response
-		if code != statusCode {
+		if code != http.StatusCreated {
 			T.Errorf("incorrect error code")
 		}
 	})
-
-
 }
