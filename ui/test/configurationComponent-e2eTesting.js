@@ -1,5 +1,11 @@
 describe('configuration component -e2e testing', function() {
+    var goPath = os.
+    var path = require('path');
 
+
+     //filePath to config dir
+     var configFileLocation = "/config/",
+         absolutePath = path.resolve(__dirname, configFileLocation);
     //Application Properties
      var configPathDir = element(by.id("configPathDirTxt"));
      var applicationNameTxt = element(by.id('applicationNameTxt'));
@@ -32,10 +38,10 @@ describe('configuration component -e2e testing', function() {
 
   it('should create xml file through UI', function() {
     //Populate Application Properties
-    configPathDir.sendKeys("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test");
+    configPathDir.sendKeys(absolutePath);
     applicationNameTxt.sendKeys("Xtrac API");
     targetHostTxt.sendKeys("localhost");
-    targetPortTxt.sendKeys("15");
+    targetPortTxt.sendKeys("9191");
     memoryEndPointTxt.sendKeys("/alt/debug/vars");
 
     //Populate Test Criteria
@@ -59,28 +65,66 @@ describe('configuration component -e2e testing', function() {
     saveBtn.click();
 
     browser.refresh();
-    configPathDir.sendKeys("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/Xtrac API.xml");
+    configPathDir.sendKeys(absolutePath + "Xtrac API.xml");
 
     //Test expected values
     expect(applicationNameTxt.getText()).toEqual('Xtrac API');
     expect(numIterationsTxt.getText()).toEqual(1000);
-    expect(configPathDir.getText()).toEqual("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test");
+    expect(configPathDir.getText()).toEqual(absolutePath + "Xtrac API.xml");
 
 
 
   });
+  
+   it('should update xml file that already exists through UI', function() {
+      //Populate Application Properties
+      configPathDir.sendKeys(absolutePath + "config.xml");
+      applicationNameTxt.sendKeys("Xtrac API");
+      targetHostTxt.sendKeys("localhost");
+      targetPortTxt.sendKeys("9191");
+      memoryEndPointTxt.sendKeys("/alt/debug/vars");
+  
+      //Populate Test Criteria
+      numIterationsTxt.sendKeys(1100);
+      concurrentUsersTxt.sendKeys(15);
+      memoryVarianceTxt.sendKeys(15);
+      serviceVarianceTxt.sendKeys(15);
+      testSuiteTxt.sendKeys("suiteFileName.xml");
+      requestDelayTxt.sendKeys(300);
+      tpsFreqTxt.sendKeys(60);
+      rampUsersTxt.sendKeys(2);
+      rampDelayTxt.sendKeys(60);
+  
+      //Populate Output paths
+      testCaseDirTxt.sendKeys("./definitions/testCases");
+      testSuiteDirTxt.sendKeys("./definitions/testSuites");
+      baseStatsDirTxt.sendKeys("./envStats");
+      reportsDirTxt.sendKeys("./report");
+  
+      //Click Save
+      saveBtn.click();
+  
+      browser.refresh();
+      configPathDir.sendKeys(absolutePath + "config.xml");
+  
+      //Test expected values
+      expect(applicationNameTxt.getText()).toEqual('Xtrac API');
+      expect(numIterationsTxt.getText()).toEqual(1100);
 
-  it('should not enable save button if all req fields arnt filled ', function() {
+      expect(configPathDir.getText()).toEqual(absolutePath + "config.xml");
+  
+  
+  
+    });
+
+  it('should not enable save button if all req fields are not filled ', function() {
     //Populate Application Properties
-    configPathDir.sendKeys("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test");
+    configPathDir.sendKeys(absolutePath);
     applicationNameTxt.sendKeys("Xtrac API");
-
+    targetPortTxt.sendKeys("9191");
+    memoryEndPointTxt.sendKeys("/alt/debug/vars");
     //Left blank
     targetHostTxt.sendKeys(null);
-    targetPortTxt.sendKeys("15");
-    memoryEndPointTxt.sendKeys("/alt/debug/vars");
-
-
 
     //Populate Test Criteria
     numIterationsTxt.sendKeys(1000);
@@ -110,8 +154,8 @@ describe('configuration component -e2e testing', function() {
    it('should create file when memoryEndppoint field is empty ', function() {
 
        //Populate Application Properties
-       configPathDir.sendKeys("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test");
-       applicationNameTxt.sendKeys("Xtrac API");
+       configPathDir.sendKeys(absolutePath);
+       applicationNameTxt.sendKeys("XtracTest");
        targetHostTxt.sendKeys("localhost");
        targetPortTxt.sendKeys("15");
 
@@ -140,13 +184,14 @@ describe('configuration component -e2e testing', function() {
         saveBtn.click();
 
         browser.refresh();
-        configPathDir.sendKeys("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/Xtrac API.xml");
+        configPathDir.sendKeys(absolutePath + "XtracTest.xml");
 
         //Test expected values
         expect(applicationNameTxt.getText()).toEqual('Xtrac API');
         expect(numIterationsTxt.getText()).toEqual(1000);
-        expect(configPathDir.getText()).toEqual("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test");
+        expect(configPathDir.getText()).toEqual(absolutePath + "XtracTest.xml");
 
 
    });
+
    });
