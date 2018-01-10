@@ -1,5 +1,4 @@
 describe('configuration component -e2e testing', function() {
-    var goPath = os.
     var path = require('path');
 
 

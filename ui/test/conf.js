@@ -1,3 +1,3 @@
 exports.config = {
-  specs: ['spec.js']
+  specs: ['configurationComponent-e2eTesting.js']
 };
