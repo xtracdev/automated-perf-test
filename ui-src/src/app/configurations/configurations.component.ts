@@ -14,4 +14,8 @@ export class ConfigurationsComponent implements OnInit {
   onSubmit() {
     console.log(this.formGroup);
   }
+
+  isDisabled() {
+    return false;
+  }
 }

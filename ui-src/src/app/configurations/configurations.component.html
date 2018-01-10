@@ -1,114 +1,36 @@
 <html>
-
 <div class="panel-body border-box">
 
   <div class="row">
     <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color:red;">
       <legend>Config file path</legend>
-      <form action="/action_page.php">
-        <input type="file">
-      </form>
+
+
+      <label>Config File Path
+      <input #myFileSelector type="file">
+      <span *ngFor="let file of myFileSelector.files"></span>
+</label>
     </div>
   </div>
 
   <div class="row">
     <div class="border-box col-xs-6 col-sm-6 col-md-6 col-lg-6" style="background-color:blue;">
-      <section>
-        <form method="POST" action="http://localhost:9191/configs" #form>
-          <fieldset>
-            <legend>Application Properties</legend>
-            <div class="col-sm-4">
-              <div class="fileinfo">
-                <label>Application Properties &nbsp;</label>
-                <input class="form-control" type="text" id="applicationNameTxt" name="applicationNameTxt" required>
-              </div>
-              <div class="fileinfo">
-                <label>Target Host &nbsp;</label>
-                <input class="form-control" type="text" id="targetHostTxt" name="targetHostTxt" required>
-              </div>
-              <div class="fileinfo">
-                <label>Target Post &nbsp;</label>
-                <input class="form-control" type="number" id="targetPortTxt" name="targetPortTxt" required />
-              </div>
-              <div class="fileinfo">
-                <label>Memory Endpoint &nbsp;</label>
-                <input class="form-control" type="text" id="memoryEndPointTxt" name="memoryEndPointTxt" required>
-              </div>
-            </div>
-          </fieldset>
-        </form>
-      </section>
+      <app-application-properties></app-application-properties>
     </div>
 
     <div class="border-box col-xs-6  col-sm-6  col-md-6  col-lg-6 " style="background-color: green;">
-      <section>
-        <form method="POST" action="http://localhost:9191/configs" target="dummyframe" #form>
-          <fieldset>
-            <legend>Test Criteria</legend>
-            <div class="col-xs-5  col-sm-5  col-md-5  col-lg-5 ">
-              <div class="fileinfo">
-                <label>Num Iterations
-                  <input class="form-control" type="number" id="numIterationsTxt" name="numIterationsTxt" required>
-                </label>
-              </div>
-              <div class="fileinfo">
-                <label>Concurrent Users
-                  <input class="form-control" type="number" id=" concurrentUsersTxt" name=" concurrentUsersTxt" required>
-                </label>
-              </div>
-              <div class="fileinfo">
-                <label>Memory Variance (%)
-                  <input class="form-control" type="number" id="memoryVarianceTxt" name="memoryVarianceTxt" required />
-                </label>
-              </div>
-              <div class="fileinfo">
-                <label>Service Variance (%)
-                  <input class="form-control" type="number" id="serviceVarianceTxt" name="serviceVarianceTxt" required> </label>
-              </div>
-              <div class="fileinfo">
-                <label>Test Suite
-                  <input class="form-control" type="text" id="testSuiteTxt" name="testSuiteTxt" required>
-                </label>
-              </div>
-            </div>
-            <div class="col-xs-5 col-xs-offset-2 col-sm-5 col-sm-offset-2 col-md-5 col-md-offset-2  col-lg-5 col-lg-offset-2 ">
-              <div class="fileinfo">
-                <label>Request Delay (ms)
-                  <input class="form-control" type="number" id="requestDelayTxt" name="requestDelayTxt" required>
-                </label>
-              </div>
-              <div class="fileinfo">
-                <label>TPS Frequency (s)
-                  <input class="form-control" type="number" id="tpsFreqTxt" name="tpsFreqTxt" required>
-                </label>
-              </div>
-              <div class="fileinfo">
-                <label>Ramp Users
-                  <input class="form-control" type="number" id=" rampUsersTxt" name=" rampUsersTxt" required />
-                </label>
-              </div>
-              <div class="fileinfo">
-                <label>Ramp Delay (s)
-                  <input class="form-control" type="number" id="rampDelayTxt" name="rampDelayTxt" required>
-                </label>
-              </div>
-
-            </div>
-          </fieldset>
-        </form>
-      </section>
+      <app-test-criteria></app-test-criteria>
     </div>
   </div>
 
   <div class="row">
     <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color:red;">
       <legend>Output Paths</legend>
-
     </div>
   </div>
 
   <div class="row">
-    <button class="btn btn-primary pull-right" type="submit" (click)="form.submit()">Submit</button>
+    <button mat-raised-button type="submit" [disabled]="isDisabled()" (click)="form.submit()">Submit</button>
   </div>
 </div>
 

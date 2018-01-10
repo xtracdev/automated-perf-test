@@ -2,3 +2,4 @@
 main
 .idea
 /ui
+**/node_modules
