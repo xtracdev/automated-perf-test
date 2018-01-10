@@ -3,7 +3,7 @@ describe('configuration component -e2e testing', function() {
 
 
      //filePath to config dir
-     var configFileLocation = "/config/",
+     var configFileLocation = "../../config/",
          absolutePath = path.resolve(__dirname, configFileLocation);
     //Application Properties
      var configPathDir = element(by.id("configPathDirTxt"));
