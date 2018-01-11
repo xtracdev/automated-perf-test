@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func configsHandler(rw http.ResponseWriter, req *http.Request) {
+func ConfigsHandler(rw http.ResponseWriter, req *http.Request) {
 	configPathDir := req.Header.Get("configPathDir")
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
@@ -70,7 +70,7 @@ func validateJsonWithSchema(config []byte) bool {
 	goPath := os.Getenv("GOPATH")
 	schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/schema.json")
 	documentLoader := gojsonschema.NewBytesLoader(config)
-	logrus.Info(schemaLoader)
+	//logrus.Info(schemaLoader)
 	result, error := gojsonschema.Validate(schemaLoader, documentLoader)
 
 	if error != nil {

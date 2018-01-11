@@ -21,14 +21,14 @@ func StartUiMode() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	r.Mount("/", getIndexPage())
+	r.Mount("/", GetIndexPage())
 
 	log.Print("http:\\localhost:9191")
 
 	http.ListenAndServe(":9191", r)
 }
 
-func getIndexPage() *chi.Mux {
+func GetIndexPage() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		goPath := os.Getenv("GOPATH")
@@ -51,7 +51,7 @@ func getIndexPage() *chi.Mux {
 		w.Header().Set(contentTypeHeader, htmlType)
 		w.Write([]byte(htmlBytes))
 	})
-	router.HandleFunc("/configs", configsHandler)
+	router.HandleFunc("/configs", ConfigsHandler)
 
 	return router
 }
