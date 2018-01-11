@@ -56,7 +56,7 @@ describe('configuration component -e2e testing', () => {
 
   it('should not enable save button if all req fields are not filled (applicationName) ', () => {
     configPo.addData();
-    configPo.applicationName.sendKeys(null);
+    configPo.applicationName.clear();
 
 
     //Test
@@ -68,7 +68,7 @@ describe('configuration component -e2e testing', () => {
   it('should not enable save button if all req fields are not filled (targetPort) ', () => {
 
     configPo.addData();
-    configPo.targetPort.sendKeys(null);
+    configPo.targetPort.clear();
 
 
     //Test
@@ -78,7 +78,7 @@ describe('configuration component -e2e testing', () => {
   });
   it('should not enable save button if all req fields are not filled (targetHost) ', () => {
     configPo.addData();
-    configPo.targetHost.sendKeys(null);
+    configPo.targetHost.clear();
 
     //Test
     expect(configPo.saveBtn.isEnabled()).toBe(false);
@@ -90,7 +90,7 @@ describe('configuration component -e2e testing', () => {
   it('should not enable save button if all req fields are not filled (configPathDir) ', () => {
 
     configPo.addData();
-    configPo.configPathDir.sendKeys(null);
+    configPo.configPathDir.clear();
 
 
     //Test
@@ -104,7 +104,7 @@ describe('configuration component -e2e testing', () => {
 
   it('should not enable save button if all req fields are not filled (numIterations) ', () => {
     configPo.addData();
-    configPo.numIterations.sendKeys(null);
+    configPo.numIterations.clear();
 
 
     //Test
@@ -126,7 +126,7 @@ describe('configuration component -e2e testing', () => {
 
   it('should not enable save button if all req fields are not filled (memoryVariance) ', () => {
     configPo.addData();
-    configPo.memoryVariance.sendKeys(null);
+    configPo.memoryVariance.clear();
 
 
     //Test
@@ -136,7 +136,7 @@ describe('configuration component -e2e testing', () => {
   });
   it('should not enable save button if all req fields are not filled (serviceVariance) ', () => {
     configPo.addData();
-    configPo.serviceVariance.clear;
+    configPo.serviceVariance.clear();
 
 
     //Test
@@ -147,7 +147,7 @@ describe('configuration component -e2e testing', () => {
 
   it('should not enable save button if all req fields are not filled (testSuite) ', () => {
     configPo.addData();
-    configPo.testSuite.sendKeys(null);
+    configPo.testSuite.clear();
 
 
     //Test
@@ -158,7 +158,7 @@ describe('configuration component -e2e testing', () => {
 
   it('should not enable save button if all req fields are not filled (requestDelay) ', () => {
     configPo.addData();
-    configPo.requestDelay.sendKeys(null);
+    configPo.requestDelay.clear();
 
 
     //Test
@@ -171,7 +171,7 @@ describe('configuration component -e2e testing', () => {
 
   it('should not enable save button if all req fields are not filled (tpsFreq) ', () => {
     configPo.addData();
-    configPo.tpsFreq.sendKeys(null);
+    configPo.tpsFreq.clear();
 
 
     //Test
@@ -183,7 +183,7 @@ describe('configuration component -e2e testing', () => {
 
   it('should not enable save button if all req fields are not filled (tpsFreq) ', () => {
     configPo.addData();
-    configPo.tpsFreq.sendKeys(null);
+    configPo.tpsFreq.clear();
 
 
     //Test
@@ -195,7 +195,7 @@ describe('configuration component -e2e testing', () => {
 
   it('should not enable save button if all req fields are not filled (rampUsers) ', () => {
     configPo.addData();
-    configPo.rampUsers.sendKeys(null);
+    configPo.rampUsers.clear();
 
 
     //Test
@@ -207,7 +207,7 @@ describe('configuration component -e2e testing', () => {
 
   it('should not enable save button if all req fields are not filled (rampDelay) ', () => {
     configPo.addData();
-    configPo.rampDelay.sendKeys(null);
+    configPo.rampDelay.clear();
 
     //Test
     expect(configPo.saveBtn.isEnabled()).toBe(false);
@@ -221,7 +221,7 @@ describe('configuration component -e2e testing', () => {
     configPo.addData();
 
     //Populate Output paths
-    configPo.testCaseDir.sendKeys(null);
+    configPo.testCaseDir.clear();
 
 
     //Test
@@ -233,7 +233,7 @@ describe('configuration component -e2e testing', () => {
 
   it('should not enable save button if all req fields are not filled (testSuiteDirTxt) ', () => {
     configPo.addData();
-    configPo.testSuiteDir.sendKeys(null);
+    configPo.testSuiteDir.clear();
 
 
     //Test
@@ -246,7 +246,7 @@ describe('configuration component -e2e testing', () => {
 
   it('should not enable save button if all req fields are not filled (baseStatsDir) ', () => {
     configPo.addData();
-    configPo.baseStatsDir.sendKeys(null);
+    configPo.baseStatsDir.clear();
 
 
     //Test
@@ -260,7 +260,7 @@ describe('configuration component -e2e testing', () => {
   it('should not enable save button if all req fields are not filled (reportsDirTxt) ', () => {
     configPo.addData();
 
-    configPo.reportsDir.sendKeys(null);
+    configPo.reportsDir.clear();
 
     //Test
     expect(configPo.saveBtn.isEnabled()).toBe(false);
@@ -270,7 +270,7 @@ describe('configuration component -e2e testing', () => {
 
     configPo.addData();
     //Left Blank
-    configPo.memoryEndPoint.sendKeys(null);
+    configPo.memoryEndPoint.clear();
 
 
 
