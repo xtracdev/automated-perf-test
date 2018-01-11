@@ -1,17 +1,18 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { ApplicationPropertiesComponent } from './application-properties.component';
+import { ApplicationPropertiesComponent } from "./application-properties.component";
 
-describe('ApplicationPropertiesComponent', () => {
+describe("ApplicationPropertiesComponent", () => {
   let component: ApplicationPropertiesComponent;
   let fixture: ComponentFixture<ApplicationPropertiesComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ ApplicationPropertiesComponent ]
+  beforeEach(
+    async(() => {
+      TestBed.configureTestingModule({
+        declarations: [ApplicationPropertiesComponent]
+      }).compileComponents();
     })
-    .compileComponents();
-  }));
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ApplicationPropertiesComponent);
@@ -19,7 +20,7 @@ describe('ApplicationPropertiesComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

@@ -6,9 +6,9 @@ import { ApplicationPropertiesComponent } from "./application-properties/applica
 import { TestCriteriaComponent } from "./test-criteria/test-criteria.component";
 import { OutputPathsComponent } from "./output-paths/output-paths.component";
 import { FormsModule } from "@angular/forms";
-
+import { ReactiveFormsModule } from "@angular/forms";
 @NgModule({
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   exports: [ConfigurationsComponent],
   declarations: [
     ConfigurationsComponent,
@@ -16,6 +16,7 @@ import { FormsModule } from "@angular/forms";
     TestCriteriaComponent,
     OutputPathsComponent
   ],
+
   providers: []
 })
 export class ConfigurationsModule {}

@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Output, EventEmitter, Input } from "@angular/core";
 import { TestCriteria } from "../test-criteria";
 
 @Component({
@@ -7,11 +7,11 @@ import { TestCriteria } from "../test-criteria";
   styleUrls: ["./test-criteria.component.css"]
 })
 export class TestCriteriaComponent {
-  model = new TestCriteria(null, null, null, null, null, null, null, null, "");
+  @Input() testCriteria: TestCriteria;
 
-  submitted = false;
+  @Output() testCPropertiesChange = new EventEmitter<TestCriteria>();
 
-  onSubmit() {
-    this.submitted = true;
+  formChanged() {
+    this.testCPropertiesChange.emit(this.testCriteria);
   }
 }

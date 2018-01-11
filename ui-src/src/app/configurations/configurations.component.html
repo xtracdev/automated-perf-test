@@ -15,23 +15,23 @@
 
   <div class="row">
     <div class="border-box col-xs-6 col-sm-6 col-md-6 col-lg-6">
-      <app-application-properties></app-application-properties>
+      <app-application-properties [(appProperties)]="applicationProperties" (formChanged)="appPropertiesChangedHandler($event)"></app-application-properties>
     </div>
 
     <div class=" border-box col-xs-6 col-sm-6 col-md-6 col-lg-6 ">
-      <app-test-criteria></app-test-criteria>
+      <app-test-criteria [(testCriteria)]="testCrit" (formChanged)="testCriteriaChangedHandler($event)"></app-test-criteria>
     </div>
   </div>
 
   <div class="row ">
     <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
       <legend>Output Paths</legend>
-      <app-output-paths></app-output-paths>
+      <app-output-paths [(outputPaths)]="outPaths" (formChanged)="outputPathsChangedHandler($event)"></app-output-paths>
     </div>
   </div>
 
-  <div class="row ">
-    <!--  <button mat-raised-button type="submit " [disabled]="isDisabled() " (click)="form.submit() ">Submit</button>-->
+  <div class="row">
+    <button mat-raised-button type="submit" (click)="submit() ">Submit</button>
   </div>
 </div>
 

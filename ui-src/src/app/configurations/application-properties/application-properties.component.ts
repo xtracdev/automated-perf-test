@@ -1,16 +1,17 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Output, EventEmitter, Input } from "@angular/core";
 import { ApplicationProperties } from "../application-properties";
+import { FormControl, FormGroup, Validator } from "@angular/forms";
 @Component({
   selector: "app-application-properties",
   templateUrl: "./application-properties.component.html",
   styleUrls: ["./application-properties.component.css"]
 })
 export class ApplicationPropertiesComponent {
-  model = new ApplicationProperties("", "", null, "");
+  @Input() appProperties: ApplicationProperties;
 
-  submitted = false;
+  @Output() appPropertiesChange = new EventEmitter<ApplicationProperties>();
 
-  onSubmit() {
-    this.submitted = true;
+  formChanged() {
+    this.appPropertiesChange.emit(this.appProperties);
   }
 }
