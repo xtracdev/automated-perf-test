@@ -53,14 +53,21 @@ func getIndexPage() *chi.Mux {
 		w.Header().Set(contentTypeHeader, htmlType)
 		w.Write([]byte(htmlBytes))
 	})
+
 	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 		requestUri := r.RequestURI
 		goPath := os.Getenv("GOPATH")
-		absPath, err := filepath.Abs(goPath + "/src/github.com/xtracdev/automated-perf-test/ui/" + requestUri)
+		path := goPath + "/src/github.com/xtracdev/automated-perf-test/ui/index.html"
+
+		if _, err := os.Stat(goPath + "/src/github.com/xtracdev/automated-perf-test/ui/" + requestUri); err == nil {
+			path = goPath + "/src/github.com/xtracdev/automated-perf-test/ui/" + requestUri
+		}
+
+		absPath, err := filepath.Abs(path)
 
 		if err != nil {
 			logrus.Error("Unable to find homepage", err)
-			w.WriteHeader(http.StatusNotFound)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 

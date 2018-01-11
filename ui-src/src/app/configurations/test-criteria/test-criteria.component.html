@@ -1,0 +1,146 @@
+<div class="container">
+  <div [hidden]="submitted">
+    <h1>Application Properties</h1>
+    <form (ngSubmit)="onSubmit()" #heroForm="ngForm">
+      <div class="row">
+        <div class=" col-xs-6  col-sm-6  col-md-6  col-lg-6 ">
+          <div class="form-group">
+            <label for="numIterations">Num Iterations
+              <input type="number" class="form-control" id="numIterations" required [(ngModel)]="model.numIterations" name="numIterations"
+                #numIterations="ngModel">
+              <div [hidden]="numIterations.valid || numIterations.pristine" class="alert alert-danger">
+                Num Iterations is required
+              </div>
+            </label>
+          </div>
+          <div class="form-group">
+            <label for="concurrentUsers">Concurrent Users
+              <input type="number" class="form-control" id="concurrentUsers" required [(ngModel)]="model.concurrentUsers" name="concurrentUsers"
+                #concurrentUsers="ngModel">
+              <div [hidden]="concurrentUsers.valid || concurrentUsers.pristine" class="alert alert-danger">
+                Concurrent Users is required
+              </div>
+            </label>
+          </div>
+          <div class="form-group">
+            <label for="memoryVariance">Memory Variance (%)
+              <input type="number" class="form-control" id="memoryVariance" required [(ngModel)]="model.memoryVariance" name="memoryVariance"
+                #memoryVariance="ngModel">
+              <div [hidden]="memoryVariance.valid || memoryVariance.pristine" class="alert alert-danger">
+                Memory Variance is required
+              </div>
+            </label>
+          </div>
+          <div class="form-group">
+            <label for="serviceVariance">Service Variance (%)
+              <input type="number" class="form-control" id="serviceVariance" required [(ngModel)]="model.serviceVariance" name="serviceVariance"
+                #serviceVariance="ngModel">
+              <div [hidden]="serviceVariance.valid || serviceVariance.pristine" class="alert alert-danger">
+                Service Variance is required
+              </div>
+            </label>
+          </div>
+
+
+        </div>
+
+        <div class=" col-xs-6  col-sm-6  col-md-6  col-lg-6 ">
+
+          <div class="form-group">
+            <label for="requestDelay">Request Delay
+              <input type="number" class="form-control" id="requestDelay" required [(ngModel)]="model.requestDelay" name="requestDelay"
+                #requestDelay="ngModel">
+              <div [hidden]="requestDelay.valid || requestDelay.pristine" class="alert alert-danger">
+                Request Delay is required
+              </div>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="tpsFreq">TSP Frequency (s)
+              <input type="number" class="form-control" id="tpsFreq" required [(ngModel)]="model.tpsFreq" name="tpsFreq" #tpsFreq="ngModel">
+              <div [hidden]="tpsFreq.valid || tpsFreq.pristine" class="alert alert-danger">
+                TSP Frequency is required
+              </div>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="rampUsers">Ramp Users
+              <input type="number" class="form-control" id="rampUsers" required [(ngModel)]="model.rampUsers" name="rampUsers" #rampUsers="ngModel">
+              <div [hidden]="rampUsers.valid || rampUsers.pristine" class="alert alert-danger">
+                Ramp Users is required
+              </div>
+            </label>
+          </div>
+          <div class="form-group">
+            <label for="rampDelay">Ramp Delay (s)
+              <input type="number" class="form-control" id="rampDelay" required [(ngModel)]="model.rampDelay" name="rampDelay" #rampDelay="ngModel">
+              <div [hidden]="rampDelay.valid || rampDelay.pristine" class="alert alert-danger">
+                Ramp Delay is required
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="row col-xs-6  col-sm-6  col-md-6  col-lg-6 ">
+
+        <div class="form-group">
+          <label for="testSuite">Test Suites
+            <input type="text" class="form-control" id="testSuite" required [(ngModel)]="model.testSuite" name="testSuite" #testSuite="ngModel">
+            <div [hidden]="testSuite.valid || testSuite.pristine" class="alert alert-danger">
+              Test Suites is required
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-success" [disabled]="!heroForm.form.valid">Submit</button>
+
+    </form>
+  </div>
+
+  <div [hidden]="!submitted">
+    <h2>You submitted the following:</h2>
+    <div class="row">
+      <div class="col-xs-3">Num Iterations</div>
+      <div class="col-xs-9  pull-left">{{ model.numIterations }}</div>
+    </div>
+    <div class="row">
+      <div class="col-xs-3">Concurrent Users</div>
+      <div class="col-xs-9  pull-left">{{ model.concurrentUsers }}</div>
+    </div>
+    <div class="row">
+      <div class="col-xs-3">Memory Variance</div>
+      <div class="col-xs-9  pull-left">{{ model.memoryVariance }}</div>
+    </div>
+    <div class="row">
+      <div class="col-xs-3">Service Variance</div>
+      <div class="col-xs-9  pull-left">{{ model.serviceVariance}}</div>
+    </div>
+    <div class="row">
+      <div class="col-xs-3">Request Delay</div>
+      <div class="col-xs-9  pull-left">{{ model.requestDelay }}</div>
+    </div>
+    <div class="row">
+      <div class="col-xs-3">TPS Frequency</div>
+      <div class="col-xs-9  pull-left">{{ model.tpsFreq }}</div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-3">Ramp Users</div>
+      <div class="col-xs-9  pull-left">{{ model.rampUsers }}</div>
+    </div>
+    <div class="row">
+      <div class="col-xs-3">Ramp Delay</div>
+      <div class="col-xs-9  pull-left">{{ model.rampDelay }}</div>
+    </div>
+    <div class="row">
+      <div class="col-xs-3">Test Suite</div>
+      <div class="col-xs-9  pull-left">{{ model.testSuite}}</div>
+    </div>
+
+    <br>
+    <button class="btn btn-primary" (click)="submitted=false">Edit</button>
+  </div>
+</div>
