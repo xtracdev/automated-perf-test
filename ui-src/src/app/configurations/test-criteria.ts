@@ -1,13 +1,13 @@
 export class TestCriteria {
   constructor(
-    public numIterationsTxt: number,
-    public concurrentUsersTxt: number,
-    public memoryVarianceTxt: number,
-    public serviceVarianceTxt: number,
-    public requestDelayTxt: number,
-    public tpsFreqTxt: number,
-    public rampUsersTxt: number,
-    public rampDelayTxt: number,
-    public testSuiteTxt: string
+    public numIterations: number,
+    public concurrentUsers: number,
+    public memoryVariance: number,
+    public serviceVariance: number,
+    public requestDelay: number,
+    public tpsFreq: number,
+    public rampUsers: number,
+    public rampDelay: number,
+    public testSuite: string
   ) {}
 }

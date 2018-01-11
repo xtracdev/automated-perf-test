@@ -2,35 +2,36 @@
 <div class="panel-body border-box">
 
   <div class="row">
-    <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color:red;">
+    <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12">
       <legend>Config file path</legend>
 
 
       <label>Config File Path
-      <input #myFileSelector type="file">
-      <span *ngFor="let file of myFileSelector.files"></span>
-</label>
+        <input #myFileSelector type="file">
+        <span *ngFor="let file of myFileSelector.files"></span>
+      </label>
     </div>
   </div>
 
   <div class="row">
-    <div class="border-box col-xs-6 col-sm-6 col-md-6 col-lg-6" style="background-color:blue;">
+    <div class="border-box col-xs-6 col-sm-6 col-md-6 col-lg-6">
       <app-application-properties></app-application-properties>
     </div>
 
-    <div class="border-box col-xs-6  col-sm-6  col-md-6  col-lg-6 " style="background-color: green;">
+    <div class=" border-box col-xs-6 col-sm-6 col-md-6 col-lg-6 ">
       <app-test-criteria></app-test-criteria>
     </div>
   </div>
 
-  <div class="row">
-    <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color:red;">
+  <div class="row ">
+    <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
       <legend>Output Paths</legend>
+      <app-output-paths></app-output-paths>
     </div>
   </div>
 
-  <div class="row">
-    <button mat-raised-button type="submit" [disabled]="isDisabled()" (click)="form.submit()">Submit</button>
+  <div class="row ">
+    <!--  <button mat-raised-button type="submit " [disabled]="isDisabled() " (click)="form.submit() ">Submit</button>-->
   </div>
 </div>
 

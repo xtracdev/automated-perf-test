@@ -7,7 +7,7 @@ import { TestCriteria } from "../test-criteria";
   styleUrls: ["./test-criteria.component.css"]
 })
 export class TestCriteriaComponent {
-  model = new TestCriteria(0, 0, 0, 0, 0, 0, 0, 0, "");
+  model = new TestCriteria(null, null, null, null, null, null, null, null, "");
 
   submitted = false;
 

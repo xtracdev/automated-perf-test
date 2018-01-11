@@ -6,7 +6,7 @@ import { ApplicationProperties } from "../application-properties";
   styleUrls: ["./application-properties.component.css"]
 })
 export class ApplicationPropertiesComponent {
-  model = new ApplicationProperties("", "", 0, "");
+  model = new ApplicationProperties("", "", null, "");
 
   submitted = false;
 
