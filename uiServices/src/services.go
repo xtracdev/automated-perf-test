@@ -11,12 +11,19 @@ import (
 	"strings"
 )
 
-func ConfigsHandler(rw http.ResponseWriter, req *http.Request) {
+func ConfigCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
+}
+
+func postConfigs(rw http.ResponseWriter, req *http.Request) {
 	configPathDir := req.Header.Get("configPathDir")
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
 	if !validateJsonWithSchema(buf.Bytes()) {
+		logrus.Error("Json schema is invalid")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 
@@ -74,6 +81,7 @@ func validateJsonWithSchema(config []byte) bool {
 	result, error := gojsonschema.Validate(schemaLoader, documentLoader)
 
 	if error != nil {
+		logrus.Error(error)
 		return false
 	}
 	if result.Valid() {
