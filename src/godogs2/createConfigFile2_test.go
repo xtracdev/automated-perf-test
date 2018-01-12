@@ -12,7 +12,7 @@ import (
 	"strings"
 	"os"
 	"github.com/prometheus/common/log"
-	"github.com/xtracdev/automated-perf-test/uiServices/src"
+	"github.com/xtracdev/automated-perf-test/uiServices"
 )
 
 // valid json file

@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"os"
 	"time"
-	"github.com/xtracdev/automated-perf-test/uiServices/src"
+	"github.com/xtracdev/automated-perf-test/uiServices"
 )
 
 //----- Globals ------------------------------------------------------------------
