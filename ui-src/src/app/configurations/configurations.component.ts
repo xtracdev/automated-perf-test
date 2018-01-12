@@ -6,8 +6,6 @@ import { Component, OnInit } from "@angular/core";
   styleUrls: ["./configurations.component.css"]
 })
 export class ConfigurationsComponent {
-  title = "the Angular JSON Schema Form<br> Bootstrap 4 Seed App";
-
   exampleSchema = {
     type: "object",
     required: [

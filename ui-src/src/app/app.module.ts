@@ -5,15 +5,18 @@ import { AppComponent } from "./app.component";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TestCasesComponent } from "./test-cases/test-cases.component";
 import { TestSuitesComponent } from "./test-suites/test-suites.component";
-import { MatButtonModule, MatCheckboxModule } from "@angular/material";
 import { AppRoutingModule } from "./app-routing.module";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { NgBootstrapFormValidationModule } from "ng-bootstrap-form-validation";
-import { ConfigurationsModule } from "./configurations/configurations.module";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
-
+import { ConfigurationsComponent } from "./configurations/configurations.component";
+import { MatButtonModule, MatCheckboxModule } from "@angular/material";
 @NgModule({
-  declarations: [AppComponent, TestCasesComponent, TestSuitesComponent],
+  declarations: [
+    AppComponent,
+    TestCasesComponent,
+    TestSuitesComponent,
+    ConfigurationsComponent
+  ],
   imports: [
     JsonSchemaFormModule,
     NoopAnimationsModule,
@@ -22,8 +25,7 @@ import { JsonSchemaFormModule } from "angular2-json-schema-form";
     BrowserAnimationsModule,
     MatButtonModule,
     MatCheckboxModule,
-    AppRoutingModule,
-    ConfigurationsModule
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
