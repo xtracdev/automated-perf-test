@@ -1,21 +1,12 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
-
+import { HttpModule } from "@angular/http";
 import { ConfigurationsComponent } from "./configurations.component";
-import { ApplicationPropertiesComponent } from "./application-properties/application-properties.component";
-import { TestCriteriaComponent } from "./test-criteria/test-criteria.component";
-import { OutputPathsComponent } from "./output-paths/output-paths.component";
-import { FormsModule } from "@angular/forms";
-import { ReactiveFormsModule } from "@angular/forms";
+
 @NgModule({
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, HttpModule],
   exports: [ConfigurationsComponent],
-  declarations: [
-    ConfigurationsComponent,
-    ApplicationPropertiesComponent,
-    TestCriteriaComponent,
-    OutputPathsComponent
-  ],
+  declarations: [ConfigurationsComponent],
 
   providers: []
 })
