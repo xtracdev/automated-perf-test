@@ -11,8 +11,8 @@ import (
 	"io"
 	"strings"
 	"os"
-	"github.com/prometheus/common/log"
 	"github.com/xtracdev/automated-perf-test/uiServices"
+	"github.com/Sirupsen/logrus"
 )
 
 // valid json file
@@ -81,7 +81,7 @@ func (a *apiFeature) theResponseBodyShouldBeEmpty() error {
 	bodyBytes, err := ioutil.ReadAll(a.resp.Body)
 
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		return err
 	}
 
