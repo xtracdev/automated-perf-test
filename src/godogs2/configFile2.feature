@@ -42,3 +42,10 @@ Feature: Create Configuration File
 
   Scenario: Unsuccessful creation of config file (invalid URL)
     When I send "POST" request to "/xxx"
+    Then the response code should be 404
+    And the response should match json:
+      """
+      {
+       "error": "URL Not Found"
+      }
+      """

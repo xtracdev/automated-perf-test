@@ -11,7 +11,7 @@ import (
 	"net/http/httptest"
 )
 // valid json file
-const validJson = `{
+const ValidJson = `{
         "apiName": "GodogConfig",
        "targetHost": "localhost",
        "targetPort": "9191",
@@ -37,41 +37,47 @@ func main() {
 	services.StartUiMode()
 }
 
-func createFile(w http.ResponseWriter, r *http.Request) {
+func createFile(w http.ResponseWriter, r *http.Request, endpoint string) {
 	// ensure only POST methods are accepted
 	if r.Method != "POST" {
 		// handle any other method calls
-		HandleInvalidHttpRequest(w, "Method not allowed", http.StatusMethodNotAllowed)
+		createResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	// valid config file object/structure and initial values
-	data := struct {
-		TPSFreq                              int     `xml:"TPSFreq" json:"TPSFreq"`
-		AllowablePeakMemoryVariance          float64 `xml:"allowablePeakMemoryVariance" json:"allowablePeakMemoryVariance"`
-		AllowableServiceResponseTimeVariance float64 `xml:"allowableServiceResponseTimeVariance" json:"allowableServiceResponseTimeVariance"`
-		APIName                              string  `xml:"apiName" json:"apiName"`
-		BaseStatsOutputDir                   string  `xml:"baseStatsOutputDir" json:"baseStatsOutputDir"`
-		ConcurrentUsers                      int     `xml:"concurrentUsers" json:"concurrentUsers"`
-		MemoryEndpoint                       string  `xml:"memoryEndpoint" json:"memoryEndpoint"`
-		NumIterations                        int     `xml:"numIterations" json:"numIterations"`
-		RampDelay                            int     `xml:"rampDelay" json:"rampDelay"`
-		RampUsers                            int     `xml:"rampUsers" json:"rampUsers"`
-		ReportOutputDir                      string  `xml:"reportOutputDir" json:"reportOutputDir"`
-		RequestDelay                         int     `xml:"requestDelay" json:"requestDelay"`
-		TargetHost                           string  `xml:"targetHost" json:"targetHost"`
-		TargetPort                           string  `xml:"targetPort" json:"targetPort"`
-		TestCaseDir                          string  `xml:"testCaseDir" json:"testCaseDir"`
-		TestSuite                            string  `xml:"testSuite" json:"testSuite"`
-		TestSuiteDir                         string  `xml:"testSuiteDir" json:"testSuiteDir"`
-	}{30, 30,30,"GodogConfig","./envStats",50, "/alt/debug/vars",1000,15, 5,"./report",5000,"localhost","9191","./definitions/testCases","suiteFileName.xml", "./definitions/testSuites"}
+	if endpoint == "/configs" {
+		// valid config file object/structure and initial values
+		Data := struct {
+			TPSFreq                              int     `xml:"TPSFreq" json:"TPSFreq"`
+			AllowablePeakMemoryVariance          float64 `xml:"allowablePeakMemoryVariance" json:"allowablePeakMemoryVariance"`
+			AllowableServiceResponseTimeVariance float64 `xml:"allowableServiceResponseTimeVariance" json:"allowableServiceResponseTimeVariance"`
+			APIName                              string  `xml:"apiName" json:"apiName"`
+			BaseStatsOutputDir                   string  `xml:"baseStatsOutputDir" json:"baseStatsOutputDir"`
+			ConcurrentUsers                      int     `xml:"concurrentUsers" json:"concurrentUsers"`
+			MemoryEndpoint                       string  `xml:"memoryEndpoint" json:"memoryEndpoint"`
+			NumIterations                        int     `xml:"numIterations" json:"numIterations"`
+			RampDelay                            int     `xml:"rampDelay" json:"rampDelay"`
+			RampUsers                            int     `xml:"rampUsers" json:"rampUsers"`
+			ReportOutputDir                      string  `xml:"reportOutputDir" json:"reportOutputDir"`
+			RequestDelay                         int     `xml:"requestDelay" json:"requestDelay"`
+			TargetHost                           string  `xml:"targetHost" json:"targetHost"`
+			TargetPort                           string  `xml:"targetPort" json:"targetPort"`
+			TestCaseDir                          string  `xml:"testCaseDir" json:"testCaseDir"`
+			TestSuite                            string  `xml:"testSuite" json:"testSuite"`
+			TestSuiteDir                         string  `xml:"testSuiteDir" json:"testSuiteDir"`
+		}{30, 30, 30, "GodogConfig", "./envStats", 50, "/alt/debug/vars", 1000, 15, 5, "./report", 5000, "localhost", "9191", "./definitions/testCases", "suiteFileName.xml", "./definitions/testSuites"}
 
-	// method to create file if data is valid
-	createNewFile(w, data)
+		// method to create file if data is valid
+		createNewFile(w, Data)
+	}	else {
+		// handle invalid URL
+		createResponse(w, "URL Not Found", http.StatusNotFound)
+		return
+}
 }
 
 
 // fail writes a json response with error msg and status header
-func HandleInvalidHttpRequest(w http.ResponseWriter, msg string, status int) {
+func createResponse(w http.ResponseWriter, msg string, status int) {
 
 	// json object to be output if http method not POST
 	data := struct {
@@ -91,7 +97,7 @@ func createNewFile(w http.ResponseWriter, data interface{}) {
 	r.Mount("/", services.GetIndexPage())
 
 	// read json
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(ValidJson)
 	r.HandleFunc("/configs", services.ConfigsHandler)
 
 	// create filepath
@@ -108,7 +114,7 @@ func createNewFile(w http.ResponseWriter, data interface{}) {
 	//error handling
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		HandleInvalidHttpRequest(w, "Internal Server Error", 500)
+		createResponse(w, "Internal Server Error", 500)
 		return
 	}
 
@@ -121,7 +127,7 @@ func createNewFile(w http.ResponseWriter, data interface{}) {
 	// error handling
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		HandleInvalidHttpRequest(w, "Internal Server Error", 500)
+		createResponse(w, "Internal Server Error", 500)
 		return
 	}
 }

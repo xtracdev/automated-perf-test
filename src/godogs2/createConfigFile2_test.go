@@ -20,6 +20,9 @@ func (a *apiFeature) resetResponse(interface{}) {
 	a.resp = httptest.NewRecorder()
 }
 
+func NotFound()int{
+	return 404
+}
 
 // This functions does the "WHEN" clause in feature file eg When I send "POST" request to "/configs"
 func (a *apiFeature) iSendrequestTo(method, endpoint string) (err error) {
@@ -42,10 +45,10 @@ func (a *apiFeature) iSendrequestTo(method, endpoint string) (err error) {
 	switch endpoint {
 	case "/configs":
 		// create file if user uses this endpoint
-		createFile(a.resp, req)
+		createFile(a.resp, req, "/configs")
 	default:
 		// default is set to be error as there are only some set paths
-		err = fmt.Errorf("unknown endpoint: %s", endpoint)
+		createFile(a.resp, req, "")
 	}
 	return
 }
