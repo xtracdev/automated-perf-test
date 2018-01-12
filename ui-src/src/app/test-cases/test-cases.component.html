@@ -13,7 +13,7 @@
         <div class="col-md-2"></div>
         <div class="col-sm-12 col-md-8">
             <h2>Here is a form to help you start:</h2>
-            <json-schema-form [schema]="exampleSchema" [data]="exampleData" framework="bootstrap-4" (onSubmit)="exampleOnSubmitFn($event)">
+            <json-schema-form [schema]="exampleSchema" framework="bootstrap-4" (onSubmit)="exampleOnSubmitFn($event)">
             </json-schema-form>
             <h4>Submitted data:</h4>
             <pre *ngIf="!displayData">(none)</pre>
