@@ -92,7 +92,15 @@ func (a *apiFeature) theResponseBodyShouldBeEmpty() error {
 }
 
 func (a *apiFeature) theConfigFileWasCreated() error {
-	//TODO parse created config file and check it has been created correctly
+	path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/GodogConfig.xml"
+
+	fileExists := services.FilePathExist(path)
+
+
+	if (!fileExists){
+		return fmt.Errorf("File Does Not Exist")
+	}
+	logrus.Println("File Exists")
 	return nil
 }
 
