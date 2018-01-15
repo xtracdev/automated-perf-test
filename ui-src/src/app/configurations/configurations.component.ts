@@ -1,4 +1,6 @@
 import { Component, OnInit } from "@angular/core";
+import { HttpModule } from "@angular/http";
+import { Http } from "@angular/http";
 
 @Component({
   selector: "app-configurations",
@@ -8,48 +10,75 @@ import { Component, OnInit } from "@angular/core";
 export class ConfigurationsComponent {
   exampleSchema = {
     type: "object",
+    properties: {
+      applicationName: { type: "string" },
+      targetHost: { type: "string" },
+      targetPort: {
+        type: "string",
+        minimum: 1,
+        maximum: 65535
+      },
+      memoryEndpoint: { type: "string" },
+      numIterations: { type: "integer", minimum: 0 },
+      concurrentUsers: { type: "integer", minimum: 0 },
+      memoryVariance: {
+        type: "number",
+        minimum: 0,
+        maximum: 100
+      },
+      serviceVariance: {
+        type: "number",
+        minimum: 0,
+        maximum: 100
+      },
+      testSuite: {
+        type: "string",
+        enum: ["Default-1", "Default-2", "Default-3"]
+      },
+      requestDelay: { type: "integer", minimum: 0 },
+      tpsFrequency: { type: "integer", minimum: 0 },
+      rampUsers: { type: "integer", minimum: 0 },
+      rampDelay: { type: "integer", minimum: 0 },
+      testCaseDirectory: { type: "string" },
+      testSuiteDirectory: { type: "string" },
+      baseStatsOutputDirectory: { type: "string" },
+      reportOutputDirectory: { type: "string" }
+    },
     required: [
-      "apiName",
+      "applicationName",
       "targetHost",
       "targetPort",
-      "allowablePeakMemoryVariance",
       "numIterations",
-      "allowableServiceResponseTimeVariance",
-      "testCaseDir",
-      "testSuiteDir",
-      "baseStatsOutputDir",
-      "reportOutputDir",
       "concurrentUsers",
+      "memoryVariance",
+      "serviceVariance",
       "testSuite",
       "requestDelay",
-      "TPSFreq",
+      "tpsFrequency",
       "rampUsers",
-      "rampDelay"
-    ],
-    properties: {
-      apiName: { type: "string" },
-      targetHost: { type: "string" },
-      targetPort: { type: "string" },
-      numIterations: { type: "integer", minimum: 0 },
-      allowablePeakMemoryVariance: { type: "number", minimum: 0 },
-      allowableServiceResponseTimeVariance: { type: "number", minimum: 0 },
-      testCaseDir: { type: "string" },
-      testSuiteDir: { type: "string" },
-      baseStatsOutputDir: { type: "string" },
-      reportOutputDir: { type: "string" },
-      concurrentUsers: { type: "integer", minimum: 0 },
-      testSuite: { type: "string" },
-      memoryEndpoint: { type: "string" },
-      requestDelay: { type: "integer", minimum: 0 },
-      TPSFreq: { type: "integer", minimum: 0 },
-      rampUsers: { type: "integer", minimum: 0 },
-      rampDelay: { type: "integer", minimum: 0 }
-    }
+      "rampDelay",
+      "testCaseDirectory",
+      "testSuiteDirectory",
+      "baseStatsOutputDirectory",
+      "reportOutputDirectory"
+    ]
   };
 
+  exampleData = {
+    allowablePeakMemoryVariance: 15,
+    allowableServiceResponseTimeVariance: 15
+  };
+
+  layout: [
+    {
+      type: "flex";
+      "flex-flow": "row wrap";
+      items: ["applicationName", "targetPort"];
+    }
+  ];
   displayData: any = null;
 
   exampleOnSubmitFn(formData) {
-    this.displayData = formData;
+    //  this.displayData = formData;
   }
 }
