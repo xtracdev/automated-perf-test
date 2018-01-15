@@ -6,9 +6,10 @@ Feature: Create Configuration File
   Scenario: Successful creation of config file
     Given the automated performance ui server is available
     When I send "POST" request to "/configs" with a body
+    And the header configsDirPath is "/uiServices/test/GodogConfig.xml"
     Then the response code should be 201
     And the response body should be empty
-    And the config file was created
+    And the config file was created at location defined by configsPathDir
 
   Scenario: Try to create config file with "PUT" request
     When I send "PUT" request to "/configs"

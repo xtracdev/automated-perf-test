@@ -5,16 +5,16 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
-	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 )
 
 const validJson = `{
-        "apiName": "TestConfig",
+        "apiName": "ServiceTestConfig",
        "targetHost": "localhost",
        "targetPort": "9191",
        "numIterations": 1000,
@@ -54,7 +54,7 @@ const invalidJson = `{
        }`
 
 func TestFilePathExist(t *testing.T) {
-	path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config/"
+	path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	actual := false
 	fmt.Println(path)
 	actual = FilePathExist(path)
@@ -74,9 +74,9 @@ func TestValidJsonPost(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	reader := strings.NewReader(validJson)
-	r.HandleFunc("/configs", ConfigsHandler)
+	r.HandleFunc("/configs", postConfigs)
 
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config/"
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
 	request.Header.Set("configPathDir", filePath)
 
@@ -96,9 +96,9 @@ func TestFilePathEndsWIthSlash(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	reader := strings.NewReader(validJson)
-	r.HandleFunc("/configs", ConfigsHandler)
+	r.HandleFunc("/configs", postConfigs)
 
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config"
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
 	request.Header.Set("configPathDir", filePath)
@@ -120,7 +120,7 @@ func TestInvalidJsonPost(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	reader := strings.NewReader(invalidJson)
-	r.HandleFunc("/configs", ConfigsHandler)
+	r.HandleFunc("/configs", postConfigs)
 
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
 
@@ -141,7 +141,7 @@ func TestWhenConfigPathDirEmpty(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	reader := strings.NewReader(validJson)
-	r.HandleFunc("/configs", ConfigsHandler)
+	r.HandleFunc("/configs", postConfigs)
 
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
 
