@@ -49,7 +49,7 @@ export class ConfigurationsComponent {
     },
     required: [
       "apiName",
-      "targetPort",
+      "targetHost",
       "targetPort",
       "numIterations",
       "concurrentUsers",
@@ -135,6 +135,7 @@ export class ConfigurationsComponent {
 
   onSubmit(configData) {
     this.automatedUIServices.createJsonFile(configData);
+    //alert("Json saved");
   }
   onCancel() {
     this.formData = undefined;
