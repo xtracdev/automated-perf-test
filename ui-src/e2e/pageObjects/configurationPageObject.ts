@@ -95,7 +95,7 @@ class configurationPageObject {
     }
 
     addData(){
-        this.setConfigPath();
+       // this.setConfigPath();
         this.setApplicationName();
         this.setTargetHost();
         this.setTargetPort();
