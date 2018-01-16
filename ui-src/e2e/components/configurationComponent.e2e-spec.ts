@@ -39,7 +39,7 @@ describe('configuration component -e2e testing', () => {
         expect(configPo.label.get(0).getText()).toEqual('Api Name' + ' *')
         expect(configPo.label.get(1).getText()).toEqual('Target Host' + ' *')
         expect(configPo.label.get(2).getText()).toEqual('Target Port' + ' *')
-        expect(configPo.label.get(3).getText()).toEqual('Memory Endpoint' + ' *')
+        expect(configPo.label.get(3).getText()).toEqual('Memory Endpoint')
         expect(configPo.label.get(4).getText()).toEqual('Num Iterations' + ' *')
         expect(configPo.label.get(5).getText()).toEqual('Concurrent Users' + ' *')
         expect(configPo.label.get(6).getText()).toEqual('Allowable Peak Memory Variance' + ' *')
@@ -47,8 +47,8 @@ describe('configuration component -e2e testing', () => {
         expect(configPo.label.get(8).getText()).toEqual('Test Suite' + ' *')
         expect(configPo.label.get(9).getText()).toEqual('Request Delay' + ' *')
         expect(configPo.label.get(10).getText()).toEqual('TPSFreq' + ' *')
-        expect(configPo.label.get(11).getText()).toEqual('Test Suite' + ' *')
-        expect(configPo.label.get(12).getText()).toEqual('Ramp Delay')
+        expect(configPo.label.get(11).getText()).toEqual('Ramp Users' + ' *')
+        expect(configPo.label.get(12).getText()).toEqual('Ramp Delay' + ' *')
         expect(configPo.label.get(13).getText()).toEqual('Test Case Dir' + ' *')
         expect(configPo.label.get(14).getText()).toEqual('Test Suite Dir' + ' *')
         expect(configPo.label.get(15).getText()).toEqual('Base Stats Output Dir' + ' *')
@@ -91,7 +91,7 @@ describe('configuration component -e2e testing', () => {
 
     it('should check required label appears when required input is blank(targetPort)', () => {
 
-        configPo.targetPort.sendKeys("x");
+        configPo.targetPort.sendKeys(1);
         configPo.targetPort.sendKeys(Key.BACK_SPACE);
         expect(configPo.required.getText()).toContain('This field is required.');
 
@@ -338,6 +338,16 @@ describe('configuration component -e2e testing', () => {
 
     });
 
+    
+    it('should show that string cannot be entered into a integer field(targetHost)', () => {
+        
+                configPo.targetHost.sendKeys("x");
+                expect(configPo.rampDelay.getAttribute('value')).toEqual('')
+        
+        
+        
+            });
+
 
 
     it('should check that e is not accepted in interger field(numIterations)', () => {
@@ -420,15 +430,121 @@ describe('configuration component -e2e testing', () => {
 
     });
 
+    it('should check that label appears if negative number is enter to integer field(numIterations)', () => {
+
+        configPo.numIterations.sendKeys(-1);
+        expect(configPo.required.getText()).toEqual('Must be 0 or more');
 
 
 
+    });
+
+
+    it('should check that label appears if negative number is enter to integer field(concurrentUsers)', () => {
+
+        configPo.concurrentUsers.sendKeys(-1);
+        expect(configPo.required.getText()).toEqual('Must be 0 or more');
 
 
 
+    });
+
+
+    it('should check that label appears if negative number is enter to integer field(memoryVariance)', () => {
+
+        configPo.memoryVariance.sendKeys(-1);
+        expect(configPo.required.getText()).toEqual('Must be 0 or more');
 
 
 
+    });
+
+
+    it('should check that label appears if negative number is enter to integer field(serviveVariance)', () => {
+
+        configPo.serviceVariance.sendKeys(-1);
+        expect(configPo.required.getText()).toEqual('Must be 0 or more');
+
+
+
+    });
+
+
+    it('should check that label appears if negative number is enter to integer field(requestDelay)', () => {
+
+        configPo.requestDelay.sendKeys(-1);
+        expect(configPo.required.getText()).toEqual('Must be 0 or more');
+
+
+
+    });
+
+    it('should check that label appears if negative number is enter to integer field(tpsFreq)', () => {
+
+        configPo.tpsFreq.sendKeys(-1);
+        expect(configPo.required.getText()).toEqual('Must be 0 or more');
+
+
+
+    });
+
+    it('should check that label appears if negative number is enter to integer field(rampUsers)', () => {
+
+        configPo.rampUsers.sendKeys(-1);
+        expect(configPo.required.getText()).toEqual('Must be 0 or more');
+
+
+
+    });
+
+
+
+    it('should check that label appears if negative number is enter to integer field(rampDelay)', () => {
+
+        configPo.rampDelay.sendKeys(-1);
+        expect(configPo.required.getText()).toEqual('Must be 0 or more');
+
+
+
+    });
+
+    it('should check that label appears if negative number is enter to integer field(targetPort)', () => {
+
+        configPo.targetPort.sendKeys(-1);
+        expect(configPo.required.getText()).toEqual('Must be 1 or more');
+
+
+
+    });
+
+
+    it('should check that label appears if value exceeds maximum(memoryVariance)', () => {
+
+        configPo.memoryVariance.sendKeys(101);
+        expect(configPo.required.getText()).toEqual('Must be 100 or less');
+
+
+
+    });
+
+
+    it('should check that label appears if value exceeds maximum(serviceVariance)', () => {
+
+        configPo.serviceVariance.sendKeys(101);
+        expect(configPo.required.getText()).toEqual('Must be 100 or less');
+
+
+
+    });
+
+    it('should check that label appears if value exceeds maximum(targetPort)', () => {
+
+        configPo.targetPort.sendKeys(65536);
+        expect(configPo.required.getText()).toEqual('Must be 65535 or less');
+
+
+
+    });
 
 
 

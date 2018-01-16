@@ -17,7 +17,7 @@ export class ConfigurationsComponent {
       apiName: { type: "string" },
       targetHost: { type: "string" },
       targetPort: {
-        type: "string",
+        type: "number",
         minimum: 1,
         maximum: 65535
       },
