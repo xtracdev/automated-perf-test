@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { HttpModule } from "@angular/http";
 import { Http } from "@angular/http";
+import { PostService } from "../post.service";
 
 @Component({
   selector: "app-configurations",
@@ -77,8 +78,10 @@ export class ConfigurationsComponent {
     }
   ];
   displayData: any = null;
+  constructor(private postService: PostService) {}
 
-  exampleOnSubmitFn(formData) {
-    //  this.displayData = formData;
+  exampleOnSubmitFn(form) {
+    // this.displayData = form;
+    this.postService.addConfig(form);
   }
 }

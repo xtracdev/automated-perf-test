@@ -11,13 +11,14 @@ import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ConfigurationsComponent } from "./configurations/configurations.component";
 import { MatButtonModule, MatCheckboxModule } from "@angular/material";
 import { HttpModule } from "@angular/http";
+import { PostService } from "./post.service";
+import { HttpClientModule, HttpClient } from "@angular/common/http";
 
 @NgModule({
   declarations: [
     AppComponent,
     TestCasesComponent,
     TestSuitesComponent,
-
     ConfigurationsComponent
   ],
   imports: [
@@ -29,9 +30,10 @@ import { HttpModule } from "@angular/http";
     BrowserAnimationsModule,
     MatButtonModule,
     MatCheckboxModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [PostService],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

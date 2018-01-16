@@ -16,7 +16,7 @@ const httpOptions = {
 export class PostService {
   constructor(private http: HttpClient) {}
 
-  private url = "http://localhost:9191/configs ";
+  private url = "http://localhost:9191/configs";
 
   addConfig(form: FormData): void {
     console.log(form);
