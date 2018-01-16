@@ -8,32 +8,60 @@ import { Component, OnInit } from "@angular/core";
 export class ConfigurationsComponent {
   exampleSchema = {
     "type": "object",
-    "required": ["applicationName", "targetHost","configFilePath" ,"targetPort", "memoryVariance",
-      "numIterations", "serviceVariance", "testCaseDirectory",
-      "testSuiteDirectory", "baseStatsDirectory", "reportDirectory", "concurrentUsers",
-      "testSuite", "requestDelay", "tpsFrequency", "rampUsers", "rampDelay"],
-    "properties":
-      {
-        "configFilePath": {"type": "string" },
-        "applicationName": { "type": "string" },
-        "targetHost": { "type": "string" },
-        "targetPort": { "type": "string" },
-        "numIterations": { "type": "integer", "minimum": 0 },
-        "memoryVariance": { "type": "number", "minimum": 0 },
-        "serviceVariance": { "type": "number", "minimum": 0 },
-        "testCaseDirectory": { "type": "string" },
-        "testSuiteDirectory": { "type": "string" },
-        "baseStatsDirectory": { "type": "string" },
-        "reportDirectory": { "type": "string" },
-        "concurrentUsers": { "type": "integer", "minimum": 0 },
-        "testSuite": { "type": "string" },
-        "memoryEndpoint": { "type": "string" },
-        "requestDelay": { "type": "integer", "minimum": 0 },
-        "tpsFrequency": { "type": "integer", "minimum": 0 },
-        "rampUsers": { "type": "integer", "minimum": 0 },
-        "rampDelay": { "type": "integer", "minimum": 0 }
-      }
+    "required": [
+      "apiName",
+      "targetHost",
+      "targetPort",
+      "numIterations",
+      "concurrentUsers",
+      "allowablePeakMemoryVariance",
+      "allowableServiceResponseTimeVariance",
+      "testSuite",
+      "requestDelay",
+      "TPSFreq",
+      "rampUsers",
+      "rampDelay",
+      "testCaseDir",
+      "testSuiteDir",
+      "baseStatsOutputDir",
+      "reportOutputDir"
+    ],
+    "properties": {
+      "apiName": { "type": "string" },
+      "targetHost": { "type": "string" },
+      " targetPort": {
+        "type": "string",
+        "minimum": 1,
+        "maximum": 65535
+      },
+      "memoryEndpoint": { "type": "string" },
+      "numIterations": { "type": "integer", "minimum": 0 },
+      "concurrentUsers": { "type": "integer", "minimum": 0 },
+      "allowablePeakMemoryVariance": {
+        " type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      "allowableServiceResponseTimeVariance": {
+        "type": "integer",
+        "minimum": 0,
+        " maximum": 100
+      },
+      "testSuite": {
+        "type": "string",
+        "enum": ["Default-1", "Default-2", "Default-3"]
+      },
+      "requestDelay": { "type": "integer", "minimum": 0 },
+      "TPSFreq": { "type": "integer", "minimum": 0 },
+      "rampUsers": { "type": "integer", "minimum": 0 },
+      "rampDelay": { "type": "integer", "minimum": 0 },
+      "testCaseDir": { "type": "string" },
+      "testSuiteDir": { "type": "string" },
+      "baseStatsOutputDir": { "type": "string" },
+      "reportOutputDir": { "type": "string" }
+    }
   };
+  
 
   displayData: any = null;
 
