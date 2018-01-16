@@ -49,7 +49,7 @@ export class ConfigurationsComponent {
     },
     required: [
       "apiName",
-      "targetHost",
+      "targetPort",
       "targetPort",
       "numIterations",
       "concurrentUsers",
@@ -72,13 +72,64 @@ export class ConfigurationsComponent {
     allowableServiceResponseTimeVariance: 15
   };
 
-  // layout = [
-  //   {
-  //     type: "flex",
-  //     "flex-flow": "row wrap",
-  //     items: ["apiName", "targetPort"]
-  //   }
-  // ];
+  layout = [
+    {
+      type: "flex",
+      "flex-flow": "row wrap",
+      items: [
+        "apiName",
+        "numIterations",
+        {
+          key: "requestDelay",
+          title: "Request Delay (ms)"
+        }
+      ]
+    },
+    {
+      type: "flex",
+      "flex-flow": "row wrap",
+      items: [
+        "targetHost",
+        "concurrentUsers",
+        {
+          key: "TPSFreq",
+          title: "TPS Frequency (s)"
+        }
+      ]
+    },
+    {
+      type: "flex",
+      "flex-flow": "row wrap",
+      items: [
+        "targetPort",
+        {
+          key: "allowablePeakMemoryVariance",
+          title: "Memory Variance (%)"
+        },
+        "rampUsers"
+      ]
+    },
+    {
+      type: "flex",
+      "flex-flow": "row wrap",
+      items: [
+        "memoryEndpoint",
+        {
+          key: "allowableServiceResponseTimeVariance",
+          title: "Service Variance (%)"
+        },
+        {
+          key: "rampDelay",
+          title: "Ramp Delay (s)"
+        }
+      ]
+    },
+    { key: "testSuite" },
+    { key: "testCaseDir", title: "Test Case Directory" },
+    { key: "testSuiteDir", title: "Test Suites Directory" },
+    { key: "baseStatsOutputDir", title: "Base Stats Output Directory" },
+    { key: "reportOutputDir", title: "Report Output Directory" }
+  ];
 
   constructor(private automatedUIServices: AutomatedUIServices) {}
 
