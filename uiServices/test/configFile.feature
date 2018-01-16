@@ -5,11 +5,32 @@ Feature: Create Configuration File
 
   Scenario: Successful creation of config file
     Given the automated performance ui server is available
-    When I send "POST" request to "/configs" with a body
+    When I send "POST" request to "/configs" with a body:
+         """
+      {
+       "apiName": "GodogConfig",
+       "targetHost": "localhost",
+       "targetPort":"9191",
+       "memoryEndpoint": "/alt/debug/vars",
+       "numIterations": 1000,
+       "allowablePeakMemoryVariance": 30,
+       "allowableServiceResponseTimeVariance": 30,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+       "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 50,
+       "testSuite": "suiteFileName.xml",
+       "requestDelay": 5000,
+       "TPSFreq": 30,
+       "rampUsers": 5,
+       "rampDelay": 15
+      }
+      """
     And the header configsDirPath is "/uiServices/test/GodogConfig.xml"
     Then the response code should be 201
     And the response body should be empty
-    And the config file was created at location defined by configsPathDir with data:
+    And the config file was created at location defined by configsPathDir with parameters:
           """
       {
        "apiName": "GodogConfig",

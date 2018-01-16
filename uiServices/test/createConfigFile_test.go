@@ -18,26 +18,6 @@ import (
 	"reflect"
 )
 
-const validJsonConfig = `{
-        "apiName": "GodogConfig",
-       "targetHost": "localhost",
-       "targetPort": "9191",
-       "numIterations": 1000,
-       "allowablePeakMemoryVariance": 30,
-       "allowableServiceResponseTimeVariance": 30,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-        "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "suiteFileName.xml",
-       "memoryEndpoint": "/alt/debug/vars",
-       "requestDelay": 5000,
-       "TPSFreq": 30,
-       "rampUsers": 5,
-       "rampDelay": 15
-       }`
-
 type apiFeature struct {
 	resp   *http.Response
 	client *http.Client
@@ -96,7 +76,7 @@ func theHeaderConfigsDirPathIs(path string) error{
 	return nil
 }
 
-func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDirWithData() error {
+func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDirWithParameters(body *gherkin.DocString) error {
 	configsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/GodogConfig.xml"
 
 	fileExists := services.FilePathExist(configsPathDir)
@@ -106,16 +86,16 @@ func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDirWit
 	}
 
 	logrus.Println("File Exists")
-	if !IsValidXml(){
+	if !IsValidXml(body.Content){
 		return fmt.Errorf("File is not a valid XML file")
 	}
 	logrus.Println("File is a valid XML file")
 	return nil
 }
 
-func (a *apiFeature) iSendRequestToWithABody(method, endpoint string) error {
+func (a *apiFeature) iSendRequestToWithABody(method, endpoint string, body *gherkin.DocString) error {
 
-	response, err := makeRequest(a.client, method, endpoint, validJsonConfig)
+	response, err := makeRequest(a.client, method, endpoint, body.Content)
 	if err != nil {
 		return err
 	}
@@ -159,9 +139,9 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^the header configsDirPath is "([^"]*)"$`, theHeaderConfigsDirPathIs)
 	s.Step(`^the response should match json:$`, api.theResponseShouldMatchJSON)
 	s.Step(`^the response body should be empty$`, api.theResponseBodyShouldBeEmpty)
-	s.Step(`^the config file was created at location defined by configsPathDir with data:$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDirWithData)
+	s.Step(`^the config file was created at location defined by configsPathDir with parameters:$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDirWithParameters)
 	s.Step(`^the automated performance ui server is available$`, theAutomatedPerformanceUiServerIsAvailable)
-	s.Step(`^I send "([^"]*)" request to "([^"]*)" with a body$`, api.iSendRequestToWithABody)
+	s.Step(`^I send "([^"]*)" request to "([^"]*)" with a body:$`, api.iSendRequestToWithABody)
 }
 
 func theAutomatedPerformanceUiServerIsAvailable() error {
@@ -169,7 +149,7 @@ func theAutomatedPerformanceUiServerIsAvailable() error {
 	return nil
 }
 
-func IsValidXml() bool{
+func IsValidXml(config string) bool{
 	file, err := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/GodogConfig.xml")
 	if err != nil {
 		fmt.Println(err)
@@ -189,7 +169,7 @@ func IsValidXml() bool{
 		return false
 	}
 
-	bytes, err:= []byte(validJsonConfig),err
+	bytes, err:= []byte(config),err
 	json.Unmarshal(bytes, &expectedConfig)
 	if err != nil{
 		logrus.Println("Cannot Unmarshall into JSON")
