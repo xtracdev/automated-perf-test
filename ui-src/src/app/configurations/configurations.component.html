@@ -1,39 +1,16 @@
-<html>
-<div class="panel-body border-box">
+<!--The content below is only a placeholder and can be replaced.-->
+<div class="container">
 
-  <div class="row">
-    <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color:red;">
-      <legend>Config file path</legend>
-
-
-      <label>Config File Path
-      <input #myFileSelector type="file">
-      <span *ngFor="let file of myFileSelector.files"></span>
-</label>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-sm-12 col-md-8">
+            <h2>Example form</h2>
+            <json-schema-form [schema]="exampleSchema" framework="bootstrap-4" (onSubmit)="exampleOnSubmitFn($event)">
+            </json-schema-form>
+            <h4>Submitted data:</h4>
+            <pre *ngIf="!displayData">(none)</pre>
+            <pre *ngIf="displayData">{{displayData | json}}</pre>
+        </div>
+        <div class="col-md-2"></div>
     </div>
-  </div>
-
-  <div class="row">
-    <div class="border-box col-xs-6 col-sm-6 col-md-6 col-lg-6" style="background-color:blue;">
-      <app-application-properties></app-application-properties>
-    </div>
-
-    <div class="border-box col-xs-6  col-sm-6  col-md-6  col-lg-6 " style="background-color: green;">
-      <app-test-criteria></app-test-criteria>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="border-box col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color:red;">
-      <legend>Output Paths</legend>
-    </div>
-  </div>
-
-  <div class="row">
-    <button mat-raised-button type="submit" [disabled]="isDisabled()" (click)="form.submit()">Submit</button>
-  </div>
 </div>
-
-
-
-</html>

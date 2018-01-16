@@ -3,32 +3,37 @@ import { read } from "fs";
 var path = require('path');
 class configurationPageObject {
 
-    configPathDir = $('.configPathDir');
-    applicationName = $('applicationName');
-    targetHost = $('targetHost');
-    targetPort = $('targetPort');
-    memoryEndPoint = $('memoryEndPoint');
-    saveBtn = $('saveBtn');
-    numIterations = $('numIterations');
-    concurrentUsers = $('concurrentUsers');
-    memoryVariance = $('memoryVariance');
-    serviceVariance = $('serviceVariance');
-    testSuite = $('testSuite');
-    requestDelay = $('requestDelay');
-    tpsFreq = $('tpsFreq');
-    rampUsers = $('rampUsers');
-    rampDelay = $('.ramDelay')
-    testCaseDir = $('testCaseDir');
-    testSuiteDir = $('testSuiteDir');
-    baseStatsDir = $('baseStatsDir');
-    reportsDir = $('reportsDir');
-
-    configFileLocation = "../../config/"
+    configFilePath = element(by.name('configFilePath'));
+    applicationName = element(by.name('applicationName'));s
+    targetHost = element(by.name('targetHost'));
+    targetPort = element(by.name('targetPort'));
+    memoryEndpoint = element(by.name('memoryEndpoint'));
+    submitBtn = $('submit-widget');
+    numIterations = element(by.name('numIterations'));
+    concurrentUsers = element(by.name('concurrentUsers'));
+    memoryVariance = element(by.name('memoryVariance'));
+    serviceVariance = element(by.name('serviceVariance'));
+    testSuite = element(by.name('testSuite'));
+    requestDelay = element(by.name('requestDelay'));
+    tpsFreq =element(by.name('tpsFrequency'));
+    rampUsers = element(by.name('rampUsers'));
+    rampDelay = element(by.name('rampDelay'));
+    testCaseDir =element(by.name('testCaseDirectory'));
+    testSuiteDir =element(by.name('testSuiteDirectory'));
+    baseStatsDir = element(by.name('baseStatsDirectory'));
+    reportsDir = element(by.name('reportDirectory'));
+    
+    label = $('json-schema-form').$$('label');
+    required = element(by.className('help-block'));
+   
+    configFileLocation = "../../../config/"
     absolutePath = path.resolve(__dirname, this.configFileLocation);
-
+    
+   
+    
     
     setConfigPath() {
-        return this.configPathDir.sendKeys(this.absolutePath)
+         return this.configFilePath.sendKeys(this.absolutePath)
 
     }
 
@@ -42,7 +47,7 @@ class configurationPageObject {
         return this.targetPort.sendKeys("9191")
     }
     setMemoryEndpoint() {
-        return this.memoryEndPoint.sendKeys("/alt/debug/vars")
+        return this.memoryEndpoint.sendKeys("/alt/debug/vars")
 
     }
     setConcurrentUsers() {
