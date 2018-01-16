@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { HttpModule } from "@angular/http";
 import { Http } from "@angular/http";
-import { PostService } from "../post.service";
+import { AutomatedUIService, Data } from "../automated-ui-service";
 
 @Component({
   selector: "app-configurations",
@@ -9,6 +9,8 @@ import { PostService } from "../post.service";
   styleUrls: ["./configurations.component.css"]
 })
 export class ConfigurationsComponent {
+  public formData: Data;
+
   exampleSchema = {
     type: "object",
     properties: {
@@ -70,17 +72,19 @@ export class ConfigurationsComponent {
     allowableServiceResponseTimeVariance: 15
   };
 
-  layout: [
-    {
-      type: "flex";
-      "flex-flow": "row wrap";
-      items: ["applicationName", "targetPort"];
-    }
-  ];
+  // layout = [
+  //   {
+  //     type: "flex",
+  //     "flex-flow": "row wrap",
+  //     items: ["apiName", "targetPort"]
+  //   }
+  // ];
+  constructor(private automatedUIService: AutomatedUIService) {}
 
-  constructor(private postService: PostService) {}
-
-  exampleOnSubmitFn(form) {
-    this.postService.addConfig(form);
+  onSubmit(configData: Data) {
+    this.automatedUIService.addConfig(configData);
+  }
+  onCancel() {
+    this.formData = new Data();
   }
 }

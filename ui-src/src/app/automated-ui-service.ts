@@ -16,15 +16,34 @@ const httpOptions = {
 };
 
 @Injectable()
-export class PostService {
+export class AutomatedUIService {
   constructor(private http: HttpClient) {}
 
   private url = "http://localhost:9191/configs";
 
-  addConfig(form: FormData): void {
+  addConfig(form: Data): void {
     console.log("Form", form);
     this.http.post(this.url, form, httpOptions).subscribe(data => {
       console.log(data);
     });
   }
+}
+
+export class Data {
+  apiName: string;
+  targetHost: string;
+  targetPort: number;
+  numIterations: number;
+  concurrentUsers: number;
+  allowablePeakMemoryVariance: number;
+  allowableServiceResponseTimeVariance: number;
+  testSuite: string;
+  requestDelay: number;
+  TPSFreq: number;
+  rampUsers: number;
+  rampDelay: number;
+  testCaseDir: string;
+  testSuiteDir: string;
+  baseStatsOutputDir: string;
+  reportOutputDir: string;
 }

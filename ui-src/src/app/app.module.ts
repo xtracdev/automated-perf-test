@@ -11,7 +11,7 @@ import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ConfigurationsComponent } from "./configurations/configurations.component";
 import { MatButtonModule, MatCheckboxModule } from "@angular/material";
 import { HttpModule } from "@angular/http";
-import { PostService } from "./post.service";
+import { AutomatedUIService } from "./automated-ui-service";
 import { HttpClientModule, HttpClient } from "@angular/common/http";
 
 @NgModule({
@@ -33,7 +33,7 @@ import { HttpClientModule, HttpClient } from "@angular/common/http";
     AppRoutingModule,
     HttpClientModule
   ],
-  providers: [PostService],
+  providers: [AutomatedUIService],
   bootstrap: [AppComponent]
 })
 export class AppModule {}
