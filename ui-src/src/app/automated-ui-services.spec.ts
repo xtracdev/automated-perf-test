@@ -1,17 +1,17 @@
 import { TestBed, inject } from "@angular/core/testing";
 
-import { PostService } from "./post.service";
+import { AutomatedUIServices } from "./automated-ui-services";
 
 describe("PostService", () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [PostService]
+      providers: [AutomatedUIServices]
     });
   });
 
   it(
     "should be created",
-    inject([PostService], (service: PostService) => {
+    inject([AutomatedUIServices], (service: AutomatedUIServices) => {
       expect(service).toBeTruthy();
     })
   );
