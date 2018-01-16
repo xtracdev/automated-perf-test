@@ -179,41 +179,42 @@ func IsValidXml() bool{
 	defer file.Close()
 	logrus.Println("Successfully Opened XML file")
 
-	var xmlConfig perfTestUtils.Config
-	var jsonConfig perfTestUtils.Config
+	var actualConfig perfTestUtils.Config
+	var expectedConfig perfTestUtils.Config
 
 	byteValue, err := ioutil.ReadAll(file)
-
-	xml.Unmarshal(byteValue, &xmlConfig)
+	xml.Unmarshal(byteValue, &actualConfig)
 	if err != nil{
-		logrus.Println("Cannot Unmarshall File into XML type")
+		logrus.Println("Cannot Unmarshall into XML")
 		return false
 	}
 
-
-	bytes:= []byte(validJsonConfig)
-	json.Unmarshal(bytes, &jsonConfig)
-
-	fmt.Println(reflect.DeepEqual(&jsonConfig,&xmlConfig))
+	bytes, err:= []byte(validJsonConfig),err
+	json.Unmarshal(bytes, &expectedConfig)
+	if err != nil{
+		logrus.Println("Cannot Unmarshall into JSON")
+		return false
+	}
 
 	if
-	xmlConfig.APIName != jsonConfig.APIName ||
-	xmlConfig.AllowablePeakMemoryVariance != jsonConfig.AllowablePeakMemoryVariance ||
-	xmlConfig.TargetHost != jsonConfig.TargetHost ||
-	xmlConfig.TargetPort != jsonConfig.TargetPort ||
-	xmlConfig.MemoryEndpoint != jsonConfig.MemoryEndpoint ||
-	xmlConfig.AllowablePeakMemoryVariance != jsonConfig.AllowablePeakMemoryVariance ||
-	xmlConfig.AllowableServiceResponseTimeVariance != jsonConfig.AllowableServiceResponseTimeVariance ||
-	xmlConfig.TestCaseDir != jsonConfig.TestCaseDir ||
-	xmlConfig.TestSuiteDir != jsonConfig.TestSuiteDir ||
-	xmlConfig.BaseStatsOutputDir != jsonConfig.BaseStatsOutputDir ||
-	xmlConfig.ReportOutputDir != jsonConfig.ReportOutputDir ||
-	xmlConfig.ConcurrentUsers != jsonConfig.ConcurrentUsers ||
-	xmlConfig.TestSuite != jsonConfig.TestSuite ||
-	xmlConfig.RequestDelay != jsonConfig.RequestDelay ||
-	xmlConfig.TPSFreq != jsonConfig.TPSFreq ||
-	xmlConfig.RampUsers != jsonConfig.RampUsers ||
-	xmlConfig.RampDelay != jsonConfig.RampDelay{
+	!reflect.DeepEqual(&expectedConfig,&actualConfig) ||
+	actualConfig.APIName != expectedConfig.APIName ||
+	actualConfig.AllowablePeakMemoryVariance != expectedConfig.AllowablePeakMemoryVariance ||
+	actualConfig.TargetHost != expectedConfig.TargetHost ||
+	actualConfig.TargetPort != expectedConfig.TargetPort ||
+	actualConfig.MemoryEndpoint != expectedConfig.MemoryEndpoint ||
+	actualConfig.AllowablePeakMemoryVariance != expectedConfig.AllowablePeakMemoryVariance ||
+	actualConfig.AllowableServiceResponseTimeVariance != expectedConfig.AllowableServiceResponseTimeVariance ||
+	actualConfig.TestCaseDir != expectedConfig.TestCaseDir ||
+	actualConfig.TestSuiteDir != expectedConfig.TestSuiteDir ||
+	actualConfig.BaseStatsOutputDir != expectedConfig.BaseStatsOutputDir ||
+	actualConfig.ReportOutputDir != expectedConfig.ReportOutputDir ||
+	actualConfig.ConcurrentUsers != expectedConfig.ConcurrentUsers ||
+	actualConfig.TestSuite != expectedConfig.TestSuite ||
+	actualConfig.RequestDelay != expectedConfig.RequestDelay ||
+	actualConfig.TPSFreq != expectedConfig.TPSFreq ||
+	actualConfig.RampUsers != expectedConfig.RampUsers ||
+	actualConfig.RampDelay != expectedConfig.RampDelay{
 		logrus.Println("Error: Values Not Equal")
 		return false
 	}
