@@ -77,11 +77,10 @@ export class ConfigurationsComponent {
       items: ["applicationName", "targetPort"];
     }
   ];
-  displayData: any = null;
+
   constructor(private postService: PostService) {}
 
   exampleOnSubmitFn(form) {
-    // this.displayData = form;
     this.postService.addConfig(form);
   }
 }

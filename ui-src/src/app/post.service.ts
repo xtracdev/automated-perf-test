@@ -10,6 +10,8 @@ const httpOptions = {
     "Content-Type": "application/json",
     configPathDir:
       "C:/Users/a615194/go/src/github.com/xtracdev/automated-perf-test/config/"
+    //this will be changed to whatever the person has selected for
+    // their config file path in the form.
   })
 };
 
@@ -20,7 +22,7 @@ export class PostService {
   private url = "http://localhost:9191/configs";
 
   addConfig(form: FormData): void {
-    console.log("HEHE, form", form);
+    console.log("Form", form);
     this.http.post(this.url, form, httpOptions).subscribe(data => {
       console.log(data);
     });

@@ -4,7 +4,5 @@
 
     <json-schema-form [schema]="exampleSchema" framework="bootstrap-4" (onSubmit)="exampleOnSubmitFn($event)">
     </json-schema-form>
-    <h4>Submitted data:</h4>
-    <pre *ngIf="!displayData">(none)</pre>
-    <pre *ngIf="displayData">{{displayData | json}}</pre>
+
 </div>
