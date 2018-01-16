@@ -9,7 +9,28 @@ Feature: Create Configuration File
     And the header configsDirPath is "/uiServices/test/GodogConfig.xml"
     Then the response code should be 201
     And the response body should be empty
-    And the config file was created at location defined by configsPathDir
+    And the config file was created at location defined by configsPathDir with data:
+          """
+      {
+       "apiName": "GodogConfig",
+       "targetHost": "localhost",
+       "targetPort":"9191",
+       "memoryEndpoint": "/alt/debug/vars",
+       "numIterations": 1000,
+       "allowablePeakMemoryVariance": 30,
+       "allowableServiceResponseTimeVariance": 30,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+       "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 50,
+       "testSuite": "suiteFileName.xml",
+       "requestDelay": 5000,
+       "TPSFreq": 30,
+       "rampUsers": 5,
+       "rampDelay": 15
+      }
+      """
 
   Scenario: Try to create config file with "PUT" request
     When I send "PUT" request to "/configs"

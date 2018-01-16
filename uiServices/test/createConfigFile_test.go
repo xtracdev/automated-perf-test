@@ -13,27 +13,10 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/uiServices/src"
 	"encoding/xml"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
+	"encoding/json"
+	"reflect"
 )
-
-type Config struct {
-	APIName                              string  `xml:"apiName"`
-	TargetHost                           string  `xml:"targetHost"`
-	TargetPort                           string  `xml:"targetPort"`
-	NumIterations                        int     `xml:"numIterations"`
-	AllowablePeakMemoryVariance          float64 `xml:"allowablePeakMemoryVariance"`
-	AllowableServiceResponseTimeVariance float64 `xml:"allowableServiceResponseTimeVariance"`
-	TestCaseDir                          string  `xml:"testCaseDir"`
-	TestSuiteDir                         string  `xml:"testSuiteDir"`
-	BaseStatsOutputDir                   string  `xml:"baseStatsOutputDir"`
-	ReportOutputDir                      string  `xml:"reportOutputDir"`
-	ConcurrentUsers                      int     `xml:"concurrentUsers"`
-	TestSuite                            string  `xml:"testSuite"`
-	MemoryEndpoint                       string  `xml:"memoryEndpoint"`
-	RequestDelay                         int     `xml:"requestDelay"`
-	TPSFreq                              int     `xml:"TPSFreq"`
-	RampUsers                            int     `xml:"rampUsers"`
-	RampDelay                            int     `xml:"rampDelay"`
-}
 
 const validJsonConfig = `{
         "apiName": "GodogConfig",
@@ -113,7 +96,7 @@ func theHeaderConfigsDirPathIs(path string) error{
 	return nil
 }
 
-func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() error {
+func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDirWithData() error {
 	configsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/GodogConfig.xml"
 
 	fileExists := services.FilePathExist(configsPathDir)
@@ -123,7 +106,10 @@ func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() 
 	}
 
 	logrus.Println("File Exists")
-	checkXmlValidity()
+	if !IsValidXml(){
+		return fmt.Errorf("File is not a valid XML file")
+	}
+	logrus.Println("File is a valid XML file")
 	return nil
 }
 
@@ -173,7 +159,7 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^the header configsDirPath is "([^"]*)"$`, theHeaderConfigsDirPathIs)
 	s.Step(`^the response should match json:$`, api.theResponseShouldMatchJSON)
 	s.Step(`^the response body should be empty$`, api.theResponseBodyShouldBeEmpty)
-	s.Step(`^the config file was created at location defined by configsPathDir$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir)
+	s.Step(`^the config file was created at location defined by configsPathDir with data:$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDirWithData)
 	s.Step(`^the automated performance ui server is available$`, theAutomatedPerformanceUiServerIsAvailable)
 	s.Step(`^I send "([^"]*)" request to "([^"]*)" with a body$`, api.iSendRequestToWithABody)
 }
@@ -183,44 +169,53 @@ func theAutomatedPerformanceUiServerIsAvailable() error {
 	return nil
 }
 
-func checkXmlValidity() error{
-	//Open xmlFile
-	xmlFile, err := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/GodogConfig.xml")
-
-	// handle error if can't open file
+func IsValidXml() bool{
+	file, err := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/GodogConfig.xml")
 	if err != nil {
 		fmt.Println(err)
-		return err
+		return false
 	}
 
+	defer file.Close()
 	logrus.Println("Successfully Opened XML file")
 
-	byteValue, _ := ioutil.ReadAll(xmlFile)
-	var config Config
+	var xmlConfig perfTestUtils.Config
+	var jsonConfig perfTestUtils.Config
 
-	// unmarshal our byteArray into 'config' struct
-	xml.Unmarshal(byteValue, &config)
+	byteValue, err := ioutil.ReadAll(file)
 
-		logrus.Println("File is valid XML file.")
-		fmt.Println("<ApiName>", config.APIName, "</ApiName>")
-		fmt.Println("<TargetHost>", config.TargetHost, "</TargetHost>")
-		fmt.Println("<TargetPort>", config.TargetPort, "</TargetPort>")
-		fmt.Println("<NumIterations>", config.NumIterations, "</NumIterations>")
-		fmt.Println("<AllowablePeakMemoryVariance>", config.AllowablePeakMemoryVariance, "</AllowablePeakMemoryVariance>")
-		fmt.Println("<AllowableServiceResTimeVariance>", config.AllowableServiceResponseTimeVariance, "</AllowableServiceResTimeVariance>")
-		fmt.Println("<TestCaseDir>", config.TestCaseDir, "</TestCaseDir>")
-		fmt.Println("<TestSuiteDir>", config.TestSuiteDir, "</TestSuiteDir>")
-		fmt.Println("<BaseStatsOutputDir>", config.BaseStatsOutputDir, "</BaseStatsOutputDir>")
-		fmt.Println("<ReportOutputDir>", config.ReportOutputDir, "</ReportOutputDir>")
-		fmt.Println("<ConcurrentUsers>", config.ConcurrentUsers, "</ConcurrentUsers>")
-		fmt.Println("<TestSuite>", config.TestSuite, "</TestSuite>")
-		fmt.Println("<MemoryEndpoint>", config.MemoryEndpoint, "</MemoryEndpoint>")
-		fmt.Println("<RequestDelay>", config.RequestDelay, "</RequestDelay>")
-		fmt.Println("<TPSFreq>", config.TPSFreq, "</TPSFreq>")
-		fmt.Println("<RampUsers>", config.RampUsers, "</RampUsers>")
-		fmt.Println("<RampDelay>", config.RampDelay, "</RampDelay>")
+	xml.Unmarshal(byteValue, &xmlConfig)
+	if err != nil{
+		logrus.Println("Cannot Unmarshall File into XML type")
+		return false
+	}
 
-	xmlFile.Close()
 
-	return nil
+	bytes:= []byte(validJsonConfig)
+	json.Unmarshal(bytes, &jsonConfig)
+
+	fmt.Println(reflect.DeepEqual(&jsonConfig,&xmlConfig))
+
+	if
+	xmlConfig.APIName != jsonConfig.APIName ||
+	xmlConfig.AllowablePeakMemoryVariance != jsonConfig.AllowablePeakMemoryVariance ||
+	xmlConfig.TargetHost != jsonConfig.TargetHost ||
+	xmlConfig.TargetPort != jsonConfig.TargetPort ||
+	xmlConfig.MemoryEndpoint != jsonConfig.MemoryEndpoint ||
+	xmlConfig.AllowablePeakMemoryVariance != jsonConfig.AllowablePeakMemoryVariance ||
+	xmlConfig.AllowableServiceResponseTimeVariance != jsonConfig.AllowableServiceResponseTimeVariance ||
+	xmlConfig.TestCaseDir != jsonConfig.TestCaseDir ||
+	xmlConfig.TestSuiteDir != jsonConfig.TestSuiteDir ||
+	xmlConfig.BaseStatsOutputDir != jsonConfig.BaseStatsOutputDir ||
+	xmlConfig.ReportOutputDir != jsonConfig.ReportOutputDir ||
+	xmlConfig.ConcurrentUsers != jsonConfig.ConcurrentUsers ||
+	xmlConfig.TestSuite != jsonConfig.TestSuite ||
+	xmlConfig.RequestDelay != jsonConfig.RequestDelay ||
+	xmlConfig.TPSFreq != jsonConfig.TPSFreq ||
+	xmlConfig.RampUsers != jsonConfig.RampUsers ||
+	xmlConfig.RampDelay != jsonConfig.RampDelay{
+		logrus.Println("Error: Values Not Equal")
+		return false
+	}
+	return true
 }
