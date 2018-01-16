@@ -7,6 +7,7 @@ import { Headers } from "@angular/http/src/headers";
 
 const httpOptions = {
   headers: new HttpHeaders({
+    "Content-Type": "application/json",
     configPathDir:
       "C:/Users/a615194/go/src/github.com/xtracdev/automated-perf-test/config/"
   })
@@ -19,7 +20,9 @@ export class PostService {
   private url = "http://localhost:9191/configs";
 
   addConfig(form: FormData): void {
-    console.log(form);
-    this.http.post<FormData>(this.url, form, httpOptions);
+    console.log("HEHE, form", form);
+    this.http.post(this.url, form, httpOptions).subscribe(data => {
+      console.log(data);
+    });
   }
 }

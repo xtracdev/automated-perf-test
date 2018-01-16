@@ -12,7 +12,7 @@ export class ConfigurationsComponent {
   exampleSchema = {
     type: "object",
     properties: {
-      applicationName: { type: "string" },
+      apiName: { type: "string" },
       targetHost: { type: "string" },
       targetPort: {
         type: "string",
@@ -22,12 +22,12 @@ export class ConfigurationsComponent {
       memoryEndpoint: { type: "string" },
       numIterations: { type: "integer", minimum: 0 },
       concurrentUsers: { type: "integer", minimum: 0 },
-      memoryVariance: {
+      allowablePeakMemoryVariance: {
         type: "number",
         minimum: 0,
         maximum: 100
       },
-      serviceVariance: {
+      allowableServiceResponseTimeVariance: {
         type: "number",
         minimum: 0,
         maximum: 100
@@ -37,31 +37,31 @@ export class ConfigurationsComponent {
         enum: ["Default-1", "Default-2", "Default-3"]
       },
       requestDelay: { type: "integer", minimum: 0 },
-      tpsFrequency: { type: "integer", minimum: 0 },
+      TPSFreq: { type: "integer", minimum: 0 },
       rampUsers: { type: "integer", minimum: 0 },
       rampDelay: { type: "integer", minimum: 0 },
-      testCaseDirectory: { type: "string" },
-      testSuiteDirectory: { type: "string" },
-      baseStatsOutputDirectory: { type: "string" },
-      reportOutputDirectory: { type: "string" }
+      testCaseDir: { type: "string" },
+      testSuiteDir: { type: "string" },
+      baseStatsOutputDir: { type: "string" },
+      reportOutputDir: { type: "string" }
     },
     required: [
-      "applicationName",
+      "apiName",
       "targetHost",
       "targetPort",
       "numIterations",
       "concurrentUsers",
-      "memoryVariance",
-      "serviceVariance",
+      "allowablePeakMemoryVariance",
+      "allowableServiceResponseTimeVariance",
       "testSuite",
       "requestDelay",
-      "tpsFrequency",
+      "TPSFreq",
       "rampUsers",
       "rampDelay",
-      "testCaseDirectory",
-      "testSuiteDirectory",
-      "baseStatsOutputDirectory",
-      "reportOutputDirectory"
+      "testCaseDir",
+      "testSuiteDir",
+      "baseStatsOutputDir",
+      "reportOutputDir"
     ]
   };
 
