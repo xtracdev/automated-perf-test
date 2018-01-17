@@ -4,6 +4,7 @@ import { Http } from "@angular/http";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ConfigurationsComponent } from "./configurations/configurations.component";
 import { Headers } from "@angular/http/src/headers";
+import { Observable } from "rxjs/Observable";
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -19,29 +20,15 @@ export class AutomatedUIServices {
 
   private url = "http://localhost:9191/configs";
 
-  createJsonFile(configData: Data): void {
-    console.log("Form", configData);
-    this.http.post(this.url, configData, httpOptions).subscribe(data => {
-      console.log(data);
-    });
-  }
-}
+  // createJsonFile(configData: Data): Observable<any> {
+  //   console.log("Form", configData);
+  //   return this.http.post(this.url, configData, httpOptions);
+  // }
 
-export class Data {
-  apiName: string;
-  targetHost: string;
-  targetPort: number;
-  numIterations: number;
-  concurrentUsers: number;
-  allowablePeakMemoryVariance: number;
-  allowableServiceResponseTimeVariance: number;
-  testSuite: string;
-  requestDelay: number;
-  TPSFreq: number;
-  rampUsers: number;
-  rampDelay: number;
-  testCaseDir: string;
-  testSuiteDir: string;
-  baseStatsOutputDir: string;
-  reportOutputDir: string;
+  createJsonFile(configData): void {
+    console.log("Form", configData);
+    this.http
+      .post(this.url, configData, httpOptions)
+      .subscribe(data => console.log(data));
+  }
 }

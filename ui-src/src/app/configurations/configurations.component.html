@@ -1,6 +1,5 @@
 <div class="container">
-    <json-schema-form [schema]="exampleSchema" [(data)]="formData" [(data)]="exampleData" [layout]="layout" framework="bootstrap-4"
-        (onSubmit)="onSubmit($event)">
+    <json-schema-form [schema]="exampleSchema" [(data)]="formData" [layout]="layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
     <button class="btn btn-primary" (click)="onCancel()">Cancel</button>
 </div>

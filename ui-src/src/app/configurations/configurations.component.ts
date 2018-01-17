@@ -1,15 +1,15 @@
 import { Component, OnInit } from "@angular/core";
 import { HttpModule } from "@angular/http";
 import { Http } from "@angular/http";
-import { AutomatedUIServices, Data } from "../automated-ui-services";
+import { AutomatedUIServices } from "../automated-ui-services";
 
 @Component({
   selector: "app-configurations",
   templateUrl: "./configurations.component.html",
   styleUrls: ["./configurations.component.css"]
 })
-export class ConfigurationsComponent {
-  public formData: Data;
+export class ConfigurationsComponent implements OnInit {
+  formData = {};
 
   exampleSchema = {
     type: "object",
@@ -133,11 +133,18 @@ export class ConfigurationsComponent {
 
   constructor(private automatedUIServices: AutomatedUIServices) {}
 
-  onSubmit(configData: Data) {
+  ngOnInit() {
+    this.formData = {
+      allowablePeakMemoryVariance: 15,
+      allowableServiceResponseTimeVariance: 15
+    };
+  }
+
+  onSubmit(configData) {
     this.automatedUIServices.createJsonFile(configData);
-    //alert("Json saved");
+    // .subscribe(data => console.log(data));
   }
   onCancel() {
-    this.formData = new Data();
+    this.formData = {};
   }
 }
