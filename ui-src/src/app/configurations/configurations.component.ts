@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { HttpModule } from "@angular/http";
 import { Http } from "@angular/http";
-import { AutomatedUIServices } from "../automated-ui-services";
+import { AutomatedUIServices, Data } from "../automated-ui-services";
 
 @Component({
   selector: "app-configurations",
@@ -9,7 +9,7 @@ import { AutomatedUIServices } from "../automated-ui-services";
   styleUrls: ["./configurations.component.css"]
 })
 export class ConfigurationsComponent {
-  public formData: any;
+  public formData: Data;
 
   exampleSchema = {
     type: "object",
@@ -133,11 +133,11 @@ export class ConfigurationsComponent {
 
   constructor(private automatedUIServices: AutomatedUIServices) {}
 
-  onSubmit(configData) {
+  onSubmit(configData: Data) {
     this.automatedUIServices.createJsonFile(configData);
     //alert("Json saved");
   }
   onCancel() {
-    this.formData = undefined;
+    this.formData = new Data();
   }
 }
