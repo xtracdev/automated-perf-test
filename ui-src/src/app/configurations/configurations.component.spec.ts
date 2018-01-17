@@ -1,6 +1,10 @@
 import { async, ComponentFixture, TestBed } from "@angular/core/testing";
-
+import { Component, OnInit } from "@angular/core";
+import { Http } from "@angular/http";
+import { AutomatedUIServices } from "../automated-ui-services";
 import { ConfigurationsComponent } from "./configurations.component";
+import { JsonSchemaFormModule } from "angular2-json-schema-form";
+import { HttpClientModule, HttpClient } from "@angular/common/http";
 
 describe("ConfigurationsComponent", () => {
   let component: ConfigurationsComponent;
@@ -9,7 +13,9 @@ describe("ConfigurationsComponent", () => {
   beforeEach(
     async(() => {
       TestBed.configureTestingModule({
-        declarations: [ConfigurationsComponent]
+        providers: [AutomatedUIServices],
+        declarations: [ConfigurationsComponent],
+        imports: [JsonSchemaFormModule, HttpClientModule]
       }).compileComponents();
     })
   );

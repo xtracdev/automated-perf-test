@@ -1,10 +1,16 @@
 import { TestBed, inject } from "@angular/core/testing";
-
+import { HttpClientModule } from "@angular/common/http";
 import { AutomatedUIServices } from "./automated-ui-services";
+import {
+  HttpClientTestingModule,
+  HttpTestingController
+} from "@angular/common/http/testing";
+import { MOCKDATA } from "./mockData";
 
 describe("AutomatedUIServices", () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [HttpClientModule, HttpClientTestingModule],
       providers: [AutomatedUIServices]
     });
   });
@@ -15,32 +21,26 @@ describe("AutomatedUIServices", () => {
       expect(service).toBeTruthy();
     })
   );
+  it(
+    "should be defined",
+    inject(
+      [AutomatedUIServices, HttpTestingController],
+      (service: AutomatedUIServices, httpMock: HttpTestingController) => {
+        service.createJsonFile({}).subscribe(res => {
+          expect(res).toBeDefined();
+        });
+      }
+    )
+  );
+  it(
+    "should be not defined",
+    inject(
+      [AutomatedUIServices, HttpTestingController],
+      (service: AutomatedUIServices, httpMock: HttpTestingController) => {
+        service.createJsonFile({}).subscribe(res => {
+          expect(res).toBeUndefined();
+        });
+      }
+    )
+  );
 });
-// it("should create Json", createJsonFile => {
-//   expect(createJsonFile).toBe("hello");
-// });
-
-//   describe("Hello world", () => {
-//     it("says hello", () => {
-//       expect("hello").toEqual("hello");
-//     });
-//});
-
-// export class MockData {
-//   apiName: "UnitTest";
-//   targetHost: "UnitTest";
-//   targetPort: "UnitTest";
-//   numIterations: 1;
-//   concurrentUsers: 1;
-//   allowablePeakMemoryVariance: 1;
-//   allowableServiceResponseTimeVariance: 1;
-//   testSuite: "UnitTest";
-//   requestDelay: 1;
-//   TPSFreq: 1;
-//   rampUsers: 1;
-//   rampDelay: 1;
-//   testCaseDir: "UnitTest";
-//   testSuiteDir: "UnitTest";
-//   baseStatsOutputDir: "UnitTest";
-//   reportOutputDir: "UnitTest";
-// }

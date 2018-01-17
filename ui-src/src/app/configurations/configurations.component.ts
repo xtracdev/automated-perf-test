@@ -1,8 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { HttpModule } from "@angular/http";
 import { Http } from "@angular/http";
 import { AutomatedUIServices } from "../automated-ui-services";
-
+import { JsonSchemaFormModule } from "angular2-json-schema-form";
 @Component({
   selector: "app-configurations",
   templateUrl: "./configurations.component.html",
@@ -141,8 +140,9 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onSubmit(configData) {
-    this.automatedUIServices.createJsonFile(configData);
-    // .subscribe(data => console.log(data));
+    this.automatedUIServices
+      .createJsonFile(configData)
+      .subscribe(data => console.log(data));
   }
   onCancel() {
     this.formData = {};

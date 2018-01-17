@@ -20,15 +20,15 @@ export class AutomatedUIServices {
 
   private url = "http://localhost:9191/configs";
 
-  // createJsonFile(configData: Data): Observable<any> {
-  //   console.log("Form", configData);
-  //   return this.http.post(this.url, configData, httpOptions);
-  // }
-
-  createJsonFile(configData): void {
+  createJsonFile(configData): Observable<any> {
     console.log("Form", configData);
-    this.http
-      .post(this.url, configData, httpOptions)
-      .subscribe(data => console.log(data));
+    return this.http.post(this.url, configData, httpOptions);
   }
+
+  //createJsonFile(configData): void {
+  // console.log("Form", configData);
+  // this.http
+  // .post(this.url, configData, httpOptions)
+  // .subscribe(data => console.log(data));
+  // }
 }
