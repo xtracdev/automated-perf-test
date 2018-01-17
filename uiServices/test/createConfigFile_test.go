@@ -21,6 +21,7 @@ import (
 type apiFeature struct {
 	resp   *http.Response
 	client *http.Client
+	requestbody string
 }
 
 func (a *apiFeature) resetResponse() {
@@ -76,7 +77,7 @@ func theHeaderConfigsDirPathIs(path string) error{
 	return nil
 }
 
-func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDirWithParameters(body *gherkin.DocString) error {
+func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() error {
 	configsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/GodogConfig.xml"
 
 	fileExists := services.FilePathExist(configsPathDir)
@@ -86,7 +87,7 @@ func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDirWit
 	}
 
 	logrus.Println("File Exists")
-	if !IsValidXml(body.Content){
+	if !IsValidXml(a.requestbody){
 		return fmt.Errorf("File is not a valid XML file")
 	}
 	logrus.Println("File is a valid XML file")
@@ -96,6 +97,7 @@ func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDirWit
 func (a *apiFeature) iSendRequestToWithABody(method, endpoint string, body *gherkin.DocString) error {
 
 	response, err := makeRequest(a.client, method, endpoint, body.Content)
+	a.requestbody = body.Content
 	if err != nil {
 		return err
 	}
@@ -139,7 +141,7 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^the header configsDirPath is "([^"]*)"$`, theHeaderConfigsDirPathIs)
 	s.Step(`^the response should match json:$`, api.theResponseShouldMatchJSON)
 	s.Step(`^the response body should be empty$`, api.theResponseBodyShouldBeEmpty)
-	s.Step(`^the config file was created at location defined by configsPathDir with parameters:$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDirWithParameters)
+	s.Step(`^the config file was created at location defined by configsPathDir$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir)
 	s.Step(`^the automated performance ui server is available$`, theAutomatedPerformanceUiServerIsAvailable)
 	s.Step(`^I send "([^"]*)" request to "([^"]*)" with a body:$`, api.iSendRequestToWithABody)
 }
@@ -176,26 +178,9 @@ func IsValidXml(config string) bool{
 		return false
 	}
 
-	if
-	!reflect.DeepEqual(&expectedConfig,&actualConfig) ||
-	actualConfig.APIName != expectedConfig.APIName ||
-	actualConfig.AllowablePeakMemoryVariance != expectedConfig.AllowablePeakMemoryVariance ||
-	actualConfig.TargetHost != expectedConfig.TargetHost ||
-	actualConfig.TargetPort != expectedConfig.TargetPort ||
-	actualConfig.MemoryEndpoint != expectedConfig.MemoryEndpoint ||
-	actualConfig.AllowablePeakMemoryVariance != expectedConfig.AllowablePeakMemoryVariance ||
-	actualConfig.AllowableServiceResponseTimeVariance != expectedConfig.AllowableServiceResponseTimeVariance ||
-	actualConfig.TestCaseDir != expectedConfig.TestCaseDir ||
-	actualConfig.TestSuiteDir != expectedConfig.TestSuiteDir ||
-	actualConfig.BaseStatsOutputDir != expectedConfig.BaseStatsOutputDir ||
-	actualConfig.ReportOutputDir != expectedConfig.ReportOutputDir ||
-	actualConfig.ConcurrentUsers != expectedConfig.ConcurrentUsers ||
-	actualConfig.TestSuite != expectedConfig.TestSuite ||
-	actualConfig.RequestDelay != expectedConfig.RequestDelay ||
-	actualConfig.TPSFreq != expectedConfig.TPSFreq ||
-	actualConfig.RampUsers != expectedConfig.RampUsers ||
-	actualConfig.RampDelay != expectedConfig.RampDelay{
+	if !reflect.DeepEqual(&expectedConfig,&actualConfig) {
 		logrus.Println("Error: Values Not Equal")
+		logrus.Println("Expected :", expectedConfig," ,but actual was :", actualConfig)
 		return false
 	}
 	return true

@@ -77,7 +77,6 @@ func validateJsonWithSchema(config []byte) bool {
 	goPath := os.Getenv("GOPATH")
 	schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/schema.json")
 	documentLoader := gojsonschema.NewBytesLoader(config)
-	//logrus.Info(schemaLoader)
 	result, error := gojsonschema.Validate(schemaLoader, documentLoader)
 
 	if error != nil {
