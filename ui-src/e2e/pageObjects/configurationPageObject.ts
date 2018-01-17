@@ -1,6 +1,7 @@
 import { browser, element, by, By, $, $$, ExpectedConditions } from "protractor"
 import { read } from "fs";
 var path = require('path');
+const configFileLocation = "../../../config/"
 class configurationPageObject {
 
     configFilePath = element(by.name('configFilePath'));
@@ -15,25 +16,24 @@ class configurationPageObject {
     serviceVariance = element(by.name('allowableServiceResponseTimeVariance'));
     testSuite = element(by.name('testSuite'));
     requestDelay = element(by.name('requestDelay'));
-    tpsFreq =element(by.name('TPSFreq'));
+    tpsFreq = element(by.name('TPSFreq'));
     rampUsers = element(by.name('rampUsers'));
     rampDelay = element(by.name('rampDelay'));
-    testCaseDir =element(by.name('testCaseDir'));
-    testSuiteDir =element(by.name('testSuiteDir'));
+    testCaseDir = element(by.name('testCaseDir'));
+    testSuiteDir = element(by.name('testSuiteDir'));
     baseStatsDir = element(by.name('baseStatsOutputDir'));
     reportsDir = element(by.name('reportOutputDir'));
-    
-    label = $('json-schema-form').$$('label');
-    required = element(by.className('help-block'));
-   
-    configFileLocation = "../../../config/"
-    absolutePath = path.resolve(__dirname, this.configFileLocation);
-    
-   
-    
-    
+
+    labels = $('json-schema-form').$$('label');
+    required = $$('p');
+
+    absolutePath = path.resolve(__dirname, configFileLocation);
+
+
+
+
     setConfigPath() {
-         return this.configFilePath.sendKeys(this.absolutePath)
+        return this.configFilePath.sendKeys(this.absolutePath)
 
     }
 
@@ -74,7 +74,7 @@ class configurationPageObject {
     setRampUsers() {
         return this.rampUsers.sendKeys(2)
     }
-    setRampDelay(){
+    setRampDelay() {
         return this.rampDelay.sendKeys(60)
     }
     setTPSfreq() {
@@ -94,8 +94,8 @@ class configurationPageObject {
         return this.reportsDir.sendKeys("./report")
     }
 
-    addData(){
-       // this.setConfigPath();
+    addData() {
+        // this.setConfigPath();
         this.setApplicationName();
         this.setTargetHost();
         this.setTargetPort();
@@ -113,6 +113,25 @@ class configurationPageObject {
         this.setTestSuiteDir();
         this.setBaseStatsDir();
         this.setReportDir();
+    }
+
+    checkRequired() {
+        this.applicationName.sendKeys("x"); 
+        this.targetHost.sendKeys("x");
+        this.targetPort.sendKeys(1);
+        this.numIterations.sendKeys(1);
+        this.concurrentUsers.sendKeys(1);
+        this.memoryVariance.sendKeys(1);
+        this.serviceVariance.sendKeys(1);
+        this.requestDelay.sendKeys(1);
+        this.tpsFreq.sendKeys(1);
+        this.rampUsers.sendKeys(1);
+        this.rampDelay.sendKeys(1);
+        this.testCaseDir.sendKeys("x");
+        this.testSuiteDir.sendKeys("x");
+        this.baseStatsDir.sendKeys("x");
+        this.reportsDir.sendKeys("x");
+
     }
 
 }

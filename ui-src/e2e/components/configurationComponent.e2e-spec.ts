@@ -1,552 +1,171 @@
 import { browser, element, by, By, $, $$, ExpectedConditions, protractor, Key } from "protractor"
 import { read } from "fs";
 import { Input } from "@angular/core/src/metadata/directives";
+var since = require('jasmine2-custom-message');
+
 
 import configurationPageObject = require('../pageObjects/configurationPageObject');
-var configPo: configurationPageObject = new configurationPageObject();
-var path = require('path');
+var configPO: configurationPageObject = new configurationPageObject();
 
-
-
-
-
-
-
-describe('configuration component -e2e testing', () => {
+describe('configuration component', () => {
     beforeEach(() => {
-        browser.get("http://localhost:49155/configurations");
+        browser.get("/configurations");
 
     });
 
+    it('should check that all text box names are correct', () => {
 
-    //this test is failing cannot click button 
-    //     it('should succesfully add all values inputted', () => {
-
-    //         configPo.addData();
-
-    //         browser.wait(protractor.ExpectedConditions.alertIsPresent(), 5000);
-    //         configPo.submitBtn.click();
-    // ;
-    //         expect(configPo.configFilePath.getAttribute('value')).toEqual('C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/config');
-
-
-    //     });
-
-    it('should check that all labels are correct', () => {
-
-        configPo.addData();
-        // expect(configPo.label.get(0).getText()).toEqual('Config File Path' + ' *')
-        expect(configPo.label.get(0).getText()).toEqual('Api Name' + ' *')
-        expect(configPo.label.get(1).getText()).toEqual('Target Host' + ' *')
-        expect(configPo.label.get(2).getText()).toEqual('Target Port' + ' *')
-        expect(configPo.label.get(3).getText()).toEqual('Memory Endpoint')
-        expect(configPo.label.get(4).getText()).toEqual('Num Iterations' + ' *')
-        expect(configPo.label.get(5).getText()).toEqual('Concurrent Users' + ' *')
-        expect(configPo.label.get(6).getText()).toEqual('Allowable Peak Memory Variance' + ' *')
-        expect(configPo.label.get(7).getText()).toEqual('Allowable Service Response Time Variance ' + ' *')
-        expect(configPo.label.get(8).getText()).toEqual('Test Suite' + ' *')
-        expect(configPo.label.get(9).getText()).toEqual('Request Delay' + ' *')
-        expect(configPo.label.get(10).getText()).toEqual('TPSFreq' + ' *')
-        expect(configPo.label.get(11).getText()).toEqual('Ramp Users' + ' *')
-        expect(configPo.label.get(12).getText()).toEqual('Ramp Delay' + ' *')
-        expect(configPo.label.get(13).getText()).toEqual('Test Case Dir' + ' *')
-        expect(configPo.label.get(14).getText()).toEqual('Test Suite Dir' + ' *')
-        expect(configPo.label.get(15).getText()).toEqual('Base Stats Output Dir' + ' *')
-        expect(configPo.label.get(16).getText()).toEqual('Report Output Dir' + ' *')
+        configPO.addData();
+        expect(configPO.labels.get(0).getText()).toContain('Api Name')
+        expect(configPO.labels.get(1).getText()).toContain('Target Host')
+        expect(configPO.labels.get(2).getText()).toContain('Target Port')
+        expect(configPO.labels.get(3).getText()).toContain('Memory Endpoint')
+        expect(configPO.labels.get(4).getText()).toContain('Num Iterations')
+        expect(configPO.labels.get(5).getText()).toContain('Concurrent Users')
+        expect(configPO.labels.get(6).getText()).toContain('Allowable Peak Memory Variance')
+        expect(configPO.labels.get(7).getText()).toContain('Allowable Service Response Time Variance')
+        expect(configPO.labels.get(8).getText()).toContain('Test Suite')
+        expect(configPO.labels.get(9).getText()).toContain('Request Delay')
+        expect(configPO.labels.get(10).getText()).toContain('TPSFreq')
+        expect(configPO.labels.get(11).getText()).toContain('Ramp Users')
+        expect(configPO.labels.get(12).getText()).toContain('Ramp Delay')
+        expect(configPO.labels.get(13).getText()).toContain('Test Case Dir')
+        expect(configPO.labels.get(14).getText()).toContain('Test Suite Dir')
+        expect(configPO.labels.get(15).getText()).toContain('Base Stats Output Dir')
+        expect(configPO.labels.get(16).getText()).toContain('Report Output Dir')
 
 
 
     });
 
 
-    // it('should check required label appears when required input is blank(configFilePath)', () => {
+    it('should check required warning appears when required input is blank', () => {
 
-    //     configPo.configFilePath.sendKeys("x");
-    //     configPo.configFilePath.sendKeys(Key.BACK_SPACE);
-    //     expect(configPo.required.getText()).toContain('This field is required.');
+        configPO.checkRequired();
+        configPO.applicationName.sendKeys(Key.BACK_SPACE);
+        configPO.targetHost.sendKeys(Key.BACK_SPACE);
+        configPO.targetPort.sendKeys(Key.BACK_SPACE);
+        configPO.numIterations.sendKeys(Key.BACK_SPACE);
+        configPO.concurrentUsers.sendKeys(Key.BACK_SPACE);
+        configPO.memoryVariance.sendKeys(Key.BACK_SPACE);
+        configPO.serviceVariance.sendKeys(Key.BACK_SPACE);
+        configPO.requestDelay.sendKeys(Key.BACK_SPACE);
+        configPO.tpsFreq.sendKeys(Key.BACK_SPACE);
+        configPO.rampUsers.sendKeys(Key.BACK_SPACE);
+        configPO.rampDelay.sendKeys(Key.BACK_SPACE);
+        configPO.testCaseDir.sendKeys(Key.BACK_SPACE);
+        configPO.testSuiteDir.sendKeys(Key.BACK_SPACE);
+        configPO.baseStatsDir.sendKeys(Key.BACK_SPACE);
+        configPO.reportsDir.sendKeys(Key.BACK_SPACE);
 
-
-
-    // });
-
-    it('should check required label appears when required input is blank(appliceationName)', () => {
-
-        configPo.applicationName.sendKeys('x')
-        configPo.applicationName.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-    it('should check required label appears when required input is blank(targetHost)', () => {
-
-        configPo.targetHost.sendKeys("x");
-        configPo.targetHost.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-    it('should check required label appears when required input is blank(targetPort)', () => {
-
-        configPo.targetPort.sendKeys(1);
-        configPo.targetPort.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-    it('should check required label appears when required input is blank(numIterations)', () => {
-
-        configPo.numIterations.sendKeys(1);
-        configPo.numIterations.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-    it('should check required label appears when required input is blank(memoryVariance)', () => {
-
-        configPo.memoryVariance.sendKeys(1);
-        configPo.memoryVariance.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
+        since('(apiName) #{actual} =/= #{expected}').expect(configPO.required.get(0).getText()).toContain('This field is required.');
+        since('(targetHost) #{actual} =/= #{expected}').expect(configPO.required.get(1).getText()).toContain('This field is required.');
+        since('(targetPort) #{actual} =/= #{expected}').expect(configPO.required.get(2).getText()).toContain('This field is required.');
+        since('(numIterations) #{actual} =/= #{expected}').expect(configPO.required.get(3).getText()).toContain('This field is required.');
+        since('(concurrentUsers) #{actual} =/= #{expected}').expect(configPO.required.get(4).getText()).toContain('This field is required.');
+        since('(memoryVariance) #{actual} =/= #{expected}').expect(configPO.required.get(5).getText()).toContain('This field is required.');
+        since('(serviceVariance) #{actual} =/= #{expected}').expect(configPO.required.get(6).getText()).toContain('This field is required.');
+        since('(requestDelay) #{actual} =/= #{expected}').expect(configPO.required.get(7).getText()).toContain('This field is required.');
+        since('(tpsFreq) #{actual} =/= #{expected}').expect(configPO.required.get(8).getText()).toContain('This field is required.');
+        since('(rampUsers) #{actual} =/= #{expected}').expect(configPO.required.get(9).getText()).toContain('This field is required.');
+        since('(rampDelay) #{actual} =/= #{expected}').expect(configPO.required.get(10).getText()).toContain('This field is required.');
+        since('(testCaseDir) #{actual} =/= #{expected}').expect(configPO.required.get(11).getText()).toContain('This field is required.');
+        since('(testSuiteDir) #{actual} =/= #{expected}').expect(configPO.required.get(12).getText()).toContain('This field is required.');
+        since('(baseStatsDir) #{actual} =/= #{expected}').expect(configPO.required.get(13).getText()).toContain('This field is required.');
+        since('(reportsDir) #{actual} =/= #{expected}').expect(configPO.required.get(14).getText()).toContain('This field is required.');
 
     });
 
 
-    it('should check required label appears when required input is blank(serviceVariance)', () => {
-
-        configPo.serviceVariance.sendKeys(1);
-        configPo.serviceVariance.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
 
 
+    it('should show that string cannot be entered into a integer field', () => {
+        configPO.targetPort.sendKeys("x");
+        configPO.numIterations.sendKeys("x");
+        configPO.concurrentUsers.sendKeys("x");
+        configPO.memoryVariance.sendKeys("x");
+        configPO.serviceVariance.sendKeys("x");
+        configPO.requestDelay.sendKeys("x");
+        configPO.tpsFreq.sendKeys("x");
+        configPO.rampUsers.sendKeys("x");
+        configPO.rampDelay.sendKeys("x");
 
-    });
-
-
-    it('should check required label appears when required input is blank(serviceVariance)', () => {
-
-        configPo.serviceVariance.sendKeys(1);
-        configPo.serviceVariance.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-    it('should check required label appears when required input is blank(testCaseDirectory)', () => {
-
-        configPo.testCaseDir.sendKeys(1);
-        configPo.testCaseDir.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
+        expect(configPO.numIterations.getAttribute('value')).toEqual('');
+        expect(configPO.memoryVariance.getAttribute('value')).toEqual('');
+        expect(configPO.serviceVariance.getAttribute('value')).toEqual('');
+        expect(configPO.concurrentUsers.getAttribute('value')).toEqual('');
+        expect(configPO.requestDelay.getAttribute('value')).toEqual('');
+        expect(configPO.tpsFreq.getAttribute('value')).toEqual('');
+        expect(configPO.tpsFreq.getAttribute('value')).toEqual('');
+        expect(configPO.rampDelay.getAttribute('value')).toEqual('');
+        expect(configPO.rampUsers.getAttribute('value')).toEqual('');
 
     });
 
-    it('should check required label appears when required input is blank(testSuiteDirectory)', () => {
+    it('should check that e is not accepted in interger field', () => {
+        configPO.targetPort.sendKeys("e");
+        configPO.numIterations.sendKeys("e");
+        configPO.concurrentUsers.sendKeys("e");
+        configPO.memoryVariance.sendKeys("e");
+        configPO.serviceVariance.sendKeys("e");
+        configPO.requestDelay.sendKeys("e");
+        configPO.tpsFreq.sendKeys("e");
+        configPO.rampUsers.sendKeys("e");
+        configPO.rampDelay.sendKeys("e");
 
-        configPo.testSuiteDir.sendKeys(1);
-        configPo.testSuiteDir.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
+
+        since('(numIterations) #{actual} =/= #{expected}').expect(configPO.required.get(0).getText()).toContain('This field is required.');
+        since('(concurrentUsers) #{actual} =/= #{expected}').expect(configPO.required.get(1).getText()).toContain('This field is required.');
+        since('(memoryVariance) #{actual} =/= #{expected}').expect(configPO.required.get(2).getText()).toContain('This field is required.');
+        since('(serviceVariance) #{actual} =/= #{expected}').expect(configPO.required.get(3).getText()).toContain('This field is required.');
+        since('(requestDelay) #{actual} =/= #{expected}').expect(configPO.required.get(4).getText()).toContain('This field is required.');
+        since('(tpsFreq) #{actual} =/= #{expected}').expect(configPO.required.get(5).getText()).toContain('This field is required.');
+        since('(rampUsers) #{actual} =/= #{expected}').expect(configPO.required.get(6).getText()).toContain('This field is required.');
+        since('(rampDelay) #{actual} =/= #{expected}').expect(configPO.required.get(7).getText()).toContain('This field is required.');
 
 
 
     });
 
 
-    it('should check required label appears when required input is blank(baseStatsDirectory)', () => {
-
-        configPo.baseStatsDir.sendKeys(1);
-        configPo.baseStatsDir.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-
-
-    it('should check required label appears when required input is blank(reportDirectory)', () => {
-
-        configPo.reportsDir.sendKeys(1);
-        configPo.reportsDir.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
+    it('should check that warning appears if negative number is enter to integer field', () => {
+        configPO.numIterations.sendKeys(-1);
+        configPO.concurrentUsers.sendKeys(-1);
+        configPO.memoryVariance.sendKeys(-1);
+        configPO.serviceVariance.sendKeys(-1);
+        configPO.requestDelay.sendKeys(-1);
+        configPO.tpsFreq.sendKeys(-1);
+        configPO.rampUsers.sendKeys(-1);
+        configPO.rampDelay.sendKeys(-1);
 
 
+        since('(numIterations) #{actual} =/= #{expected}').expect(configPO.required.get(0).getText()).toContain('Must be 0 or more');
+        since('(concurrentUsers) #{actual} =/= #{expected}').expect(configPO.required.get(1).getText()).toContain('Must be 0 or more');
+        since('(memoryVariance) #{actual} =/= #{expected}').expect(configPO.required.get(2).getText()).toContain('Must be 0 or more');
+        since('(serviceVariance) #{actual} =/= #{expected}').expect(configPO.required.get(3).getText()).toContain('Must be 0 or more');
+        since('(requestDelay) #{actual} =/= #{expected}').expect(configPO.required.get(4).getText()).toContain('Must be 0 or more');
+        since('(tpsFreq) #{actual} =/= #{expected}').expect(configPO.required.get(5).getText()).toContain('Must be 0 or more');
+        since('(rampUsers) #{actual} =/= #{expected}').expect(configPO.required.get(6).getText()).toContain('Must be 0 or more');
+        since('(rampDelay) #{actual} =/= #{expected}').expect(configPO.required.get(7).getText()).toContain('Must be 0 or more');
 
-    });
-
-    it('should check required label appears when required input is blank(concurrentUsers)', () => {
-
-        configPo.concurrentUsers.sendKeys(1);
-        configPo.concurrentUsers.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
 
 
 
     });
 
 
-
-    // it('should check required label appears when required input is blank(testSuite)', () => {
-
-    //     configPo.testSuite.sendKeys(1);
-    //     configPo.testSuite.sendKeys(Key.BACK_SPACE);
-    //     expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    // });
-
-
-
-    it('should check required label appears when required input is blank(requestDelay)', () => {
-
-        configPo.requestDelay.sendKeys(1);
-        configPo.requestDelay.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
+    it('should check that warning appears if value exceeds maximum', () => {
+        configPO.memoryVariance.sendKeys(101);
+        configPO.serviceVariance.sendKeys(101);
+        since('(memoryVariance) #{actual} =/= #{expected}').expect(configPO.required.get(0).getText()).toEqual('Must be 100 or less');
+        since('(serviceVariance) #{actual} =/= #{expected}').expect(configPO.required.get(1).getText()).toEqual('Must be 100 or less');
 
 
 
     });
-
-
-    it('should check required label appears when required input is blank(tpsFrequency)', () => {
-
-        configPo.tpsFreq.sendKeys(1);
-        configPo.tpsFreq.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-
-    it('should check required label appears when required input is blank(rampUsers)', () => {
-
-        configPo.rampUsers.sendKeys(1);
-        configPo.rampUsers.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-
-
-    it('should check required label appears when required input is blank(rampDelay)', () => {
-
-        configPo.rampDelay.sendKeys(1);
-        configPo.rampDelay.sendKeys(Key.BACK_SPACE);
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-
-    it('should show that string cannot be entered into a integer field(numIterations)', () => {
-
-        configPo.numIterations.sendKeys("x");
-        expect(configPo.numIterations.getAttribute('value')).toEqual('')
-
-
-
-    });
-
-
-    it('should show that string cannot be entered into a integer field(memoryVariance)', () => {
-
-        configPo.memoryVariance.sendKeys("x");
-        expect(configPo.memoryVariance.getAttribute('value')).toEqual('')
-
-
-
-    });
-
-    it('should show that string cannot be entered into a integer field(serviceVariance)', () => {
-
-        configPo.serviceVariance.sendKeys("x");
-        expect(configPo.serviceVariance.getAttribute('value')).toEqual('')
-
-
-
-    });
-
-
-    it('should show that string cannot be entered into a integer field(concurrentUsers)', () => {
-
-        configPo.concurrentUsers.sendKeys("x");
-        expect(configPo.concurrentUsers.getAttribute('value')).toEqual('')
-
-
-
-    });
-
-    it('should show that string cannot be entered into a integer field(requestDelay)', () => {
-
-        configPo.requestDelay.sendKeys("x");
-        expect(configPo.requestDelay.getAttribute('value')).toEqual('')
-
-
-
-    });
-
-
-    it('should show that string cannot be entered into a integer field(requestDelay)', () => {
-
-        configPo.requestDelay.sendKeys("x");
-        expect(configPo.requestDelay.getAttribute('value')).toEqual('')
-
-
-
-    });
-
-    it('should show that string cannot be entered into a integer field(tpsFreq)', () => {
-
-        configPo.tpsFreq.sendKeys("x");
-        expect(configPo.tpsFreq.getAttribute('value')).toEqual('')
-
-
-
-    });
-
-
-    it('should show that string cannot be entered into a integer field(rampUsers)', () => {
-
-        configPo.tpsFreq.sendKeys("x");
-        expect(configPo.tpsFreq.getAttribute('value')).toEqual('')
-
-
-
-    });
-
-
-    it('should show that string cannot be entered into a integer field(rampDelay)', () => {
-
-        configPo.rampDelay.sendKeys("x");
-        expect(configPo.rampDelay.getAttribute('value')).toEqual('')
-
-
-
-    });
-
-    
-    it('should show that string cannot be entered into a integer field(targetHost)', () => {
-        
-                configPo.targetHost.sendKeys("x");
-                expect(configPo.rampDelay.getAttribute('value')).toEqual('')
-        
-        
-        
-            });
-
-
-
-    it('should check that e is not accepted in interger field(numIterations)', () => {
-
-        configPo.numIterations.sendKeys('e');
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-
-
-    it('should check that e is not accepted in interger field(concurrentUsers)', () => {
-
-        configPo.concurrentUsers.sendKeys('e');
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-
-    it('should check that e is not accepted in interger field(memoryVariance)', () => {
-
-        configPo.memoryVariance.sendKeys('e');
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-
-
-    it('should check that e is not accepted in interger field(serviceVariance)', () => {
-
-        configPo.serviceVariance.sendKeys('e');
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-
-
-    it('should check that e is not accepted in interger field(requestDelay)', () => {
-
-        configPo.memoryVariance.sendKeys('e');
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-
-    it('should check that e is not accepted in interger field(tpsFreq)', () => {
-
-        configPo.tpsFreq.sendKeys('e');
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-    it('should check that e is not accepted in interger field(rampUsers)', () => {
-
-        configPo.rampUsers.sendKeys('e');
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-    it('should check that e is not accepted in interger field(rampDelay)', () => {
-
-        configPo.rampDelay.sendKeys('e');
-        expect(configPo.required.getText()).toContain('This field is required.');
-
-
-
-    });
-
-    it('should check that label appears if negative number is enter to integer field(numIterations)', () => {
-
-        configPo.numIterations.sendKeys(-1);
-        expect(configPo.required.getText()).toEqual('Must be 0 or more');
-
-
-
-    });
-
-
-    it('should check that label appears if negative number is enter to integer field(concurrentUsers)', () => {
-
-        configPo.concurrentUsers.sendKeys(-1);
-        expect(configPo.required.getText()).toEqual('Must be 0 or more');
-
-
-
-    });
-
-
-    it('should check that label appears if negative number is enter to integer field(memoryVariance)', () => {
-
-        configPo.memoryVariance.sendKeys(-1);
-        expect(configPo.required.getText()).toEqual('Must be 0 or more');
-
-
-
-    });
-
-
-    it('should check that label appears if negative number is enter to integer field(serviveVariance)', () => {
-
-        configPo.serviceVariance.sendKeys(-1);
-        expect(configPo.required.getText()).toEqual('Must be 0 or more');
-
-
-
-    });
-
-
-    it('should check that label appears if negative number is enter to integer field(requestDelay)', () => {
-
-        configPo.requestDelay.sendKeys(-1);
-        expect(configPo.required.getText()).toEqual('Must be 0 or more');
-
-
-
-    });
-
-    it('should check that label appears if negative number is enter to integer field(tpsFreq)', () => {
-
-        configPo.tpsFreq.sendKeys(-1);
-        expect(configPo.required.getText()).toEqual('Must be 0 or more');
-
-
-
-    });
-
-    it('should check that label appears if negative number is enter to integer field(rampUsers)', () => {
-
-        configPo.rampUsers.sendKeys(-1);
-        expect(configPo.required.getText()).toEqual('Must be 0 or more');
-
-
-
-    });
-
-
-
-    it('should check that label appears if negative number is enter to integer field(rampDelay)', () => {
-
-        configPo.rampDelay.sendKeys(-1);
-        expect(configPo.required.getText()).toEqual('Must be 0 or more');
-
-
-
-    });
-
-    it('should check that label appears if negative number is enter to integer field(targetPort)', () => {
-
-        configPo.targetPort.sendKeys(-1);
-        expect(configPo.required.getText()).toEqual('Must be 1 or more');
-
-
-
-    });
-
-
-    it('should check that label appears if value exceeds maximum(memoryVariance)', () => {
-
-        configPo.memoryVariance.sendKeys(101);
-        expect(configPo.required.getText()).toEqual('Must be 100 or less');
-
-
-
-    });
-
-
-    it('should check that label appears if value exceeds maximum(serviceVariance)', () => {
-
-        configPo.serviceVariance.sendKeys(101);
-        expect(configPo.required.getText()).toEqual('Must be 100 or less');
-
-
-
-    });
-
-    it('should check that label appears if value exceeds maximum(targetPort)', () => {
-
-        configPo.targetPort.sendKeys(65536);
-        expect(configPo.required.getText()).toEqual('Must be 65535 or less');
-
-
-
-    });
-
-
-
 });
+
+
+
+
 
