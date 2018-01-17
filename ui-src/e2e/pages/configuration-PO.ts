@@ -14,7 +14,7 @@ class configurationPageObject {
     concurrentUsers = element(by.name('concurrentUsers'));
     memoryVariance = element(by.name('allowablePeakMemoryVariance'));
     serviceVariance = element(by.name('allowableServiceResponseTimeVariance'));
-    testSuite = element.all(by.name('testSuite')).$$('options');
+    testSuite = element(by.name('testSuite')).$$('option');
     requestDelay = element(by.name('requestDelay'));
     tpsFreq = element(by.name('TPSFreq'));
     rampUsers = element(by.name('rampUsers'));
@@ -64,7 +64,8 @@ class configurationPageObject {
         return this.memoryVariance.sendKeys(15)
     }
     setTestSuite() {
-        return this.testSuite.get(1).click();
+        return this.testSuite.get(0).click();
+           
     }
 
     setRequestDelay() {
@@ -95,7 +96,6 @@ class configurationPageObject {
     }
 
     addData() {
-        // this.setConfigPath();
         this.setApplicationName();
         this.setTargetHost();
         this.setTargetPort();
@@ -104,6 +104,7 @@ class configurationPageObject {
         this.setNumberIterations();
         this.setMemoryVariance();
         this.setServiceVariance();
+        this.testSuite.click();
         this.setTestSuite();
         this.setRequestDelay();
         this.setTPSfreq();
