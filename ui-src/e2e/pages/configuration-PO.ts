@@ -1,4 +1,4 @@
-import { browser, element, by, By, $, $$, ExpectedConditions } from "protractor"
+import { browser, element, by, By, $, $$, ExpectedConditions, Key } from "protractor"
 import { read } from "fs";
 var path = require('path');
 const configFileLocation = "../../../config/"
@@ -9,12 +9,12 @@ class configurationPageObject {
     targetHost = element(by.name('targetHost'));
     targetPort = element(by.name('targetPort'));
     memoryEndpoint = element(by.name('memoryEndpoint'));
-    submitBtn = element(by.tagName('submit-widget'));
+    submitBtn = element(by.className('btn'));
     numIterations = element(by.name('numIterations'));
     concurrentUsers = element(by.name('concurrentUsers'));
     memoryVariance = element(by.name('allowablePeakMemoryVariance'));
     serviceVariance = element(by.name('allowableServiceResponseTimeVariance'));
-    testSuite = element(by.name('testSuite'));
+    testSuite = element.all(by.name('testSuite')).$$('options');
     requestDelay = element(by.name('requestDelay'));
     tpsFreq = element(by.name('TPSFreq'));
     rampUsers = element(by.name('rampUsers'));
@@ -64,7 +64,7 @@ class configurationPageObject {
         return this.memoryVariance.sendKeys(15)
     }
     setTestSuite() {
-        return this.testSuite.sendKeys("suiteFileName.xml")
+        return this.testSuite.get(1).click();
     }
 
     setRequestDelay() {
@@ -131,6 +131,12 @@ class configurationPageObject {
         this.testSuiteDir.sendKeys("x");
         this.baseStatsDir.sendKeys("x");
         this.reportsDir.sendKeys("x");
+
+    }
+
+    backSpaceByField(fieldName:string) {
+        element(by.name(fieldName)).sendKeys(Key.BACK_SPACE);
+
 
     }
 

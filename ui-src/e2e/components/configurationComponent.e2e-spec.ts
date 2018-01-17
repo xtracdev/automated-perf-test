@@ -9,7 +9,17 @@ var configPO: configurationPageObject = new configurationPageObject();
 
 describe('configuration component', () => {
     beforeEach(() => {
-        browser.get("/configurations");
+        browser.get("/configurations", 1000);
+
+    });
+
+
+    it('should check that all text box names are correct', () => {
+
+        configPO.addData();
+        configPO.submitBtn.click();
+
+
 
     });
 
@@ -56,7 +66,7 @@ describe('configuration component', () => {
         configPO.testCaseDir.sendKeys(Key.BACK_SPACE);
         configPO.testSuiteDir.sendKeys(Key.BACK_SPACE);
         configPO.baseStatsDir.sendKeys(Key.BACK_SPACE);
-        configPO.reportsDir.sendKeys(Key.BACK_SPACE);
+        configPO.backSpaceByField('reportsDir');
 
         since('(apiName) #{actual} =/= #{expected}').expect(configPO.required.get(0).getText()).toContain('This field is required.');
         since('(targetHost) #{actual} =/= #{expected}').expect(configPO.required.get(1).getText()).toContain('This field is required.');
