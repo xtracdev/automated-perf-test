@@ -8,8 +8,8 @@ import { AutomatedUIServices } from "../automated-ui-services";
   templateUrl: "./configurations.component.html",
   styleUrls: ["./configurations.component.css"]
 })
-export class ConfigurationsComponent {
-  public formData: any;
+export class ConfigurationsComponent implements OnInit {
+  formData = {};
 
   exampleSchema = {
     type: "object",
@@ -73,20 +73,79 @@ export class ConfigurationsComponent {
   };
   
 
-  // layout = [
-  //   {
-  //     type: "flex",
-  //     "flex-flow": "row wrap",
-  //     items: ["apiName", "targetPort"]
-  //   }
-  // ];
+  layout = [
+    {
+      type: "flex",
+      "flex-flow": "row wrap",
+      items: [
+        "apiName",
+        "numIterations",
+        {
+          key: "requestDelay",
+          title: "Request Delay (ms)"
+        }
+      ]
+    },
+    {
+      type: "flex",
+      "flex-flow": "row wrap",
+      items: [
+        "targetHost",
+        "concurrentUsers",
+        {
+          key: "TPSFreq",
+          title: "TPS Frequency (s)"
+        }
+      ]
+    },
+    {
+      type: "flex",
+      "flex-flow": "row wrap",
+      items: [
+        "targetPort",
+        {
+          key: "allowablePeakMemoryVariance",
+          title: "Memory Variance (%)"
+        },
+        "rampUsers"
+      ]
+    },
+    {
+      type: "flex",
+      "flex-flow": "row wrap",
+      items: [
+        "memoryEndpoint",
+        {
+          key: "allowableServiceResponseTimeVariance",
+          title: "Service Variance (%)"
+        },
+        {
+          key: "rampDelay",
+          title: "Ramp Delay (s)"
+        }
+      ]
+    },
+    { key: "testSuite" },
+    { key: "testCaseDir", title: "Test Case Directory" },
+    { key: "testSuiteDir", title: "Test Suites Directory" },
+    { key: "baseStatsOutputDir", title: "Base Stats Output Directory" },
+    { key: "reportOutputDir", title: "Report Output Directory" }
+  ];
 
   constructor(private automatedUIServices: AutomatedUIServices) {}
 
+  ngOnInit() {
+    this.formData = {
+      allowablePeakMemoryVariance: 15,
+      allowableServiceResponseTimeVariance: 15
+    };
+  }
+
   onSubmit(configData) {
     this.automatedUIServices.createJsonFile(configData);
+    // .subscribe(data => console.log(data));
   }
   onCancel() {
-    this.formData = undefined;
+    this.formData = {};
   }
 }
