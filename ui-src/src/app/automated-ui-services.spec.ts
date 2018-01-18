@@ -21,6 +21,11 @@ describe("AutomatedUIServices", () => {
       expect(service).toBeTruthy();
     })
   );
+
+  it('should have the correct URL', inject([AutomatedUIServices], (service: AutomatedUIServices) => {
+    expect(service.createJsonFile).toBe('http://localhost:8080/dashboard/models');
+  }));
+
   // it(
   //   "should be defined",
   //   inject(

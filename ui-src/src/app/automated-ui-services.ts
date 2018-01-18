@@ -10,7 +10,7 @@ const httpOptions = {
   headers: new HttpHeaders({
     "Content-Type": "application/json",
     configPathDir:
-      "C:/Users/a615194/go/src/github.com/xtracdev/automated-perf-test/config/"
+      "C:/Users/a615047/go/src/github.com/xtracdev/automated-perf-test/config/"
   })
 };
 
