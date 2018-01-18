@@ -15,15 +15,17 @@ import {ToastModule} from 'ng2-toastr/ng2-toastr';
 var since = require("jasmine2-custom-message");
 
 import configurationPageObject = require("../pages/configuration-PO");
+import { Browser } from "selenium-webdriver";
 var configPO: configurationPageObject = new configurationPageObject();
 
 describe("configuration component", () => {
   beforeEach(() => {
-    browser.get("/configurations");
+    browser.get("/configurations",90000000000000);
   });
 
   it("should create xml file", () => {
     configPO.addData();
+    browser.waitForAngular();
     configPO.submitBtn.click();
     expect(configPO.toastrMessage.getText()).toContain('Success!');
   });
@@ -61,7 +63,6 @@ describe("configuration component", () => {
   });
 
   it("should check that all text box names are correct", () => {
-    configPO.addData();
     expect(configPO.labels.get(0).getText()).toContain("Api Name");
     expect(configPO.labels.get(1).getText()).toContain("Num Iterations");
     expect(configPO.labels.get(2).getText()).toContain("Request Delay (ms)");

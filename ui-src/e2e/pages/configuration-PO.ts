@@ -17,7 +17,7 @@ class configurationPageObject {
   targetHost = element(by.name("targetHost"));
   targetPort = element(by.name("targetPort"));
   memoryEndpoint = element(by.name("memoryEndpoint"));
-  submitBtn = element(by.className("btn"));
+  submitBtn = element(by.className('btn'));
   cancelBtn = element(by.cssContainingText("btn", "Cancel"));
   numIterations = element(by.name("numIterations"));
   concurrentUsers = element(by.name("concurrentUsers"));
@@ -33,7 +33,7 @@ class configurationPageObject {
   baseStatsDir = element(by.name("baseStatsOutputDir"));
   reportsDir = element(by.name("reportOutputDir"));
 
-  toastrMessage = element(by.className("toast-title"));
+  toastrMessage = element(by.className('toast-title'));
   labels = $("json-schema-form").$$("label");
   required = $$("p");
 
@@ -54,6 +54,13 @@ class configurationPageObject {
   }
   setMemoryEndpoint() {
     return this.memoryEndpoint.sendKeys("/alt/debug/vars");
+  }
+
+  setMemoryVariance(){
+    return this.memoryVariance.sendKeys(Key.BACK_SPACE);
+  }
+  setServiceVariance(){
+    return this.serviceVariance.sendKeys(Key.BACK_SPACE);
   }
   setConcurrentUsers() {
     return this.concurrentUsers.sendKeys(10);
@@ -99,6 +106,8 @@ class configurationPageObject {
     this.setMemoryEndpoint();
     this.setConcurrentUsers();
     this.setNumberIterations();
+    this.setMemoryVariance();
+    this.setServiceVariance();
     //used to activate dropdown
     this.testSuite.click();
     this.setTestSuite();
@@ -110,6 +119,7 @@ class configurationPageObject {
     this.setTestSuiteDir();
     this.setBaseStatsDir();
     this.setReportDir();
+    
   }
 
   checkRequired() {
