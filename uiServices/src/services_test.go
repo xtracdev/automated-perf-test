@@ -25,7 +25,7 @@ const validJson = `{
         "baseStatsOutputDir": "./envStats",
        "reportOutputDir": "./report",
        "concurrentUsers": 50,
-       "testSuite": "suiteFileName.xml",
+       "testSuite": "Default-1",
        "memoryEndpoint": "/alt/debug/vars",
        "requestDelay": 5000,
        "TPSFreq": 30,

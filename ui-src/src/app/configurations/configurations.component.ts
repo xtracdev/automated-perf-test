@@ -2,6 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { Http } from "@angular/http";
 import { AutomatedUIServices } from "../automated-ui-services";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
+import { ToastsManager } from "ng2-toastr/ng2-toastr"
+import {ToastOptions} from "ng2-toastr/src/toast-options"
 @Component({
   selector: "app-configurations",
   templateUrl: "./configurations.component.html",
@@ -9,6 +11,7 @@ import { JsonSchemaFormModule } from "angular2-json-schema-form";
 })
 export class ConfigurationsComponent implements OnInit {
   formData = {};
+  constructor(private automatedUIServices: AutomatedUIServices, private toastr: ToastsManager, private test: ToastOptions ) { }
 
   exampleSchema = {
     type: "object",
@@ -66,10 +69,12 @@ export class ConfigurationsComponent implements OnInit {
     ]
   };
 
+
   exampleData = {
     allowablePeakMemoryVariance: 15,
     allowableServiceResponseTimeVariance: 15
   };
+  
 
   layout = [
     {
@@ -130,7 +135,7 @@ export class ConfigurationsComponent implements OnInit {
     { key: "reportOutputDir", title: "Report Output Directory" }
   ];
 
-  constructor(private automatedUIServices: AutomatedUIServices) {}
+
 
   ngOnInit() {
     this.formData = {
@@ -145,6 +150,7 @@ export class ConfigurationsComponent implements OnInit {
       .subscribe(data => console.log(data));
   }
   onCancel() {
+    console.log("gfsjgfsdj");
     this.formData = {};
   }
 }
