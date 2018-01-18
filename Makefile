@@ -9,7 +9,7 @@ dev: test
 prod: test
 	go build
 	cd ${GOPATH}/src/github.com/xtracdev/automated-perf-test/ui-src && \
-		ng build -- prod
+		ng build --prod
 	./automated-perf-test -ui
 
 test:
