@@ -11,6 +11,7 @@ import {
 } from "protractor";
 import { read } from "fs";
 import { Input } from "@angular/core/src/metadata/directives";
+import {ToastModule} from 'ng2-toastr/ng2-toastr';
 var since = require("jasmine2-custom-message");
 
 import configurationPageObject = require("../pages/configuration-PO");
@@ -18,12 +19,45 @@ var configPO: configurationPageObject = new configurationPageObject();
 
 describe("configuration component", () => {
   beforeEach(() => {
-    browser.get("/configurations", 1000);
+    browser.get("/configurations");
   });
 
-  it("should check that all text box names are correct", () => {
+  it("should create xml file", () => {
     configPO.addData();
     configPO.submitBtn.click();
+    expect(configPO.toastrMessage.getText()).toContain('Success!');
+  });
+
+
+  it("should show submit button is disabled when required data is blank", () => {
+    //used to clear default data in this test
+    configPO.checkRequired();
+    expect(configPO.submitBtn.isEnabled()).toBe(false);
+  });
+  
+
+  it('should check cancel button clears all fields', () =>{
+    configPO.addData();
+   
+    expect(configPO.applicationName.getAttribute("value")).toEqual("");
+    expect(configPO.targetHost.getAttribute("value")).toEqual("");
+    expect(configPO.targetPort.getAttribute("value")).toEqual("");
+    expect(configPO.memoryEndpoint.getAttribute("value")).toEqual("");
+    expect(configPO.testSuite.getAttribute("value")).toEqual("");
+    expect(configPO.testCaseDir.getAttribute("value")).toEqual("");
+    expect(configPO.testSuiteDir.getAttribute("value")).toEqual("");
+    expect(configPO.baseStatsDir.getAttribute("value")).toEqual("");
+    expect(configPO.reportsDir.getAttribute("value")).toEqual("");
+    expect(configPO.numIterations.getAttribute("value")).toEqual("");
+    expect(configPO.memoryVariance.getAttribute("value")).toEqual("");
+    expect(configPO.serviceVariance.getAttribute("value")).toEqual("");
+    expect(configPO.concurrentUsers.getAttribute("value")).toEqual("");
+    expect(configPO.requestDelay.getAttribute("value")).toEqual("");
+    expect(configPO.tpsFreq.getAttribute("value")).toEqual("");
+    expect(configPO.tpsFreq.getAttribute("value")).toEqual("");
+    expect(configPO.rampDelay.getAttribute("value")).toEqual("");
+    expect(configPO.rampUsers.getAttribute("value")).toEqual("");
+
   });
 
   it("should check that all text box names are correct", () => {
@@ -50,22 +84,6 @@ describe("configuration component", () => {
   it('should check required warning appears when required input is blank', () => {
 
       configPO.checkRequired();
-      configPO.backSpaceByField('apiName');
-      configPO.backSpaceByField('numIterations');
-      configPO.backSpaceByField('requestDelay');
-      configPO.backSpaceByField('targetHost');
-      configPO.backSpaceByField('targetHost');
-      configPO.backSpaceByField('allowablePeakMemoryVariance');
-      configPO.backSpaceByField('allowableServiceResponseTimeVariance');
-      configPO.backSpaceByField('requestDelay');
-      configPO.backSpaceByField('TPSFreq');
-      configPO.backSpaceByField('rampUsers');
-      configPO.backSpaceByField('rampDelay');
-      configPO.backSpaceByField('testCaseDir');
-      configPO.backSpaceByField('testSuiteDir');
-      configPO.backSpaceByField('baseStatsOutputDir')
-      configPO.backSpaceByField('reportOutputDir');
-
       since('(apiName) #{actual} =/= #{expected}').expect(configPO.required.get(0).getText()).toContain('This field is required.');
       since('(targetHost) #{actual} =/= #{expected}').expect(configPO.required.get(1).getText()).toContain('This field is required.');
       since('(targetPort) #{actual} =/= #{expected}').expect(configPO.required.get(2).getText()).toContain('This field is required.');
@@ -85,19 +103,7 @@ describe("configuration component", () => {
   });
 
   it("should show that string cannot be entered into a integer field", () => {
-    configPO.targetPort.sendKeys("x");
-    configPO.numIterations.sendKeys("x");
-    configPO.concurrentUsers.sendKeys("x");
-    configPO.memoryVariance.sendKeys(Key.BACK_SPACE);
-    configPO.memoryVariance.sendKeys(Key.BACK_SPACE);
-    configPO.serviceVariance.sendKeys(Key.BACK_SPACE);
-    configPO.serviceVariance.sendKeys(Key.BACK_SPACE);
-    configPO.requestDelay.sendKeys("x");
-    configPO.tpsFreq.sendKeys("x");
-    configPO.rampUsers.sendKeys("x");
-    configPO.rampDelay.sendKeys("x");
-    
-
+    configPO.checkForStrings();
     expect(configPO.numIterations.getAttribute("value")).toEqual("");
     expect(configPO.memoryVariance.getAttribute("value")).toEqual("");
     expect(configPO.serviceVariance.getAttribute("value")).toEqual("");
@@ -109,54 +115,37 @@ describe("configuration component", () => {
     expect(configPO.rampUsers.getAttribute("value")).toEqual("");
   });
 
-  // it('should check that e is not accepted in interger field', () => {
-  //     configPO.targetPort.sendKeys("e");
-  //     configPO.numIterations.sendKeys("e");
-  //     configPO.concurrentUsers.sendKeys("e");
-  //     configPO.memoryVariance.sendKeys("e");
-  //     configPO.serviceVariance.sendKeys("e");
-  //     configPO.requestDelay.sendKeys("e");
-  //     configPO.tpsFreq.sendKeys("e");
-  //     configPO.rampUsers.sendKeys("e");
-  //     configPO.rampDelay.sendKeys("e");
+  it('should check that e is not accepted in interger field', () => {
+      configPO.checkE();
+      since('(numIterations) #{actual} =/= #{expected}').expect(configPO.required.get(0).getText()).toContain('This field is required.');
+      since('(concurrentUsers) #{actual} =/= #{expected}').expect(configPO.required.get(1).getText()).toContain('This field is required.');
+      since('(memoryVariance) #{actual} =/= #{expected}').expect(configPO.required.get(2).getText()).toContain('This field is required.');
+      since('(serviceVariance) #{actual} =/= #{expected}').expect(configPO.required.get(3).getText()).toContain('This field is required.');
+      since('(requestDelay) #{actual} =/= #{expected}').expect(configPO.required.get(4).getText()).toContain('This field is required.');
+      since('(tpsFreq) #{actual} =/= #{expected}').expect(configPO.required.get(5).getText()).toContain('This field is required.');
+      since('(rampUsers) #{actual} =/= #{expected}').expect(configPO.required.get(6).getText()).toContain('This field is required.');
+      since('(rampDelay) #{actual} =/= #{expected}').expect(configPO.required.get(7).getText()).toContain('This field is required.');
 
-  //     since('(numIterations) #{actual} =/= #{expected}').expect(configPO.required.get(0).getText()).toContain('This field is required.');
-  //     since('(concurrentUsers) #{actual} =/= #{expected}').expect(configPO.required.get(1).getText()).toContain('This field is required.');
-  //     since('(memoryVariance) #{actual} =/= #{expected}').expect(configPO.required.get(2).getText()).toContain('This field is required.');
-  //     since('(serviceVariance) #{actual} =/= #{expected}').expect(configPO.required.get(3).getText()).toContain('This field is required.');
-  //     since('(requestDelay) #{actual} =/= #{expected}').expect(configPO.required.get(4).getText()).toContain('This field is required.');
-  //     since('(tpsFreq) #{actual} =/= #{expected}').expect(configPO.required.get(5).getText()).toContain('This field is required.');
-  //     since('(rampUsers) #{actual} =/= #{expected}').expect(configPO.required.get(6).getText()).toContain('This field is required.');
-  //     since('(rampDelay) #{actual} =/= #{expected}').expect(configPO.required.get(7).getText()).toContain('This field is required.');
+  });
 
-  // });
+  it('should check that warning appears if negative number is enter to integer field', () => {
+      configPO.checkNegativeValues();   
+      since('(numIterations) #{actual} =/= #{expected}').expect(configPO.required.get(0).getText()).toContain('Must be 1 or more');
+      since('(requestDelay) #{actual} =/= #{expected}').expect(configPO.required.get(1).getText()).toContain('Must be 1 or more');
+      since('(concurrentUsers) #{actual} =/= #{expected}').expect(configPO.required.get(2).getText()).toContain('Must be 1 or more');
+      since('(tpsFreq) #{actual} =/= #{expected}').expect(configPO.required.get(3).getText()).toContain('Must be 1 or more');
+      since('(memoryVariance) #{actual} =/= #{expected}').expect(configPO.required.get(4).getText()).toContain('Must be 0 or more');
+      since('(rampUsers) #{actual} =/= #{expected}').expect(configPO.required.get(5).getText()).toContain('Must be 1 or more');
+      since('(serviceVariance) #{actual} =/= #{expected}').expect(configPO.required.get(6).getText()).toContain('Must be 0 or more');
+      since('(rampDelay) #{actual} =/= #{expected}').expect(configPO.required.get(7).getText()).toContain('Must be 0 or more');
 
-  // it('should check that warning appears if negative number is enter to integer field', () => {
-  //     configPO.numIterations.sendKeys(-1);
-  //     configPO.concurrentUsers.sendKeys(-1);
-  //     configPO.memoryVariance.sendKeys(-1);
-  //     configPO.serviceVariance.sendKeys(-1);
-  //     configPO.requestDelay.sendKeys(-1);
-  //     configPO.tpsFreq.sendKeys(-1);
-  //     configPO.rampUsers.sendKeys(-1);
-  //     configPO.rampDelay.sendKeys(-1);
+  });
 
-  //     since('(numIterations) #{actual} =/= #{expected}').expect(configPO.required.get(0).getText()).toContain('Must be 0 or more');
-  //     since('(concurrentUsers) #{actual} =/= #{expected}').expect(configPO.required.get(1).getText()).toContain('Must be 0 or more');
-  //     since('(memoryVariance) #{actual} =/= #{expected}').expect(configPO.required.get(2).getText()).toContain('Must be 0 or more');
-  //     since('(serviceVariance) #{actual} =/= #{expected}').expect(configPO.required.get(3).getText()).toContain('Must be 0 or more');
-  //     since('(requestDelay) #{actual} =/= #{expected}').expect(configPO.required.get(4).getText()).toContain('Must be 0 or more');
-  //     since('(tpsFreq) #{actual} =/= #{expected}').expect(configPO.required.get(5).getText()).toContain('Must be 0 or more');
-  //     since('(rampUsers) #{actual} =/= #{expected}').expect(configPO.required.get(6).getText()).toContain('Must be 0 or more');
-  //     since('(rampDelay) #{actual} =/= #{expected}').expect(configPO.required.get(7).getText()).toContain('Must be 0 or more');
+  it('should check that warning appears if value exceeds maximum', () => {
+      configPO.memoryVariance.sendKeys(101);
+      configPO.serviceVariance.sendKeys(101);
+      since('(memoryVariance) #{actual} =/= #{expected}').expect(configPO.required.get(0).getText()).toEqual('Must be 100 or less');
+      since('(serviceVariance) #{actual} =/= #{expected}').expect(configPO.required.get(1).getText()).toEqual('Must be 100 or less');
 
-  // });
-
-  // it('should check that warning appears if value exceeds maximum', () => {
-  //     configPO.memoryVariance.sendKeys(101);
-  //     configPO.serviceVariance.sendKeys(101);
-  //     since('(memoryVariance) #{actual} =/= #{expected}').expect(configPO.required.get(0).getText()).toEqual('Must be 100 or less');
-  //     since('(serviceVariance) #{actual} =/= #{expected}').expect(configPO.required.get(1).getText()).toEqual('Must be 100 or less');
-
-  // });
+  });
 });

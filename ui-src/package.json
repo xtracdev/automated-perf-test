@@ -24,6 +24,7 @@
     "@angular/platform-browser": "^5.0.0",
     "@angular/platform-browser-dynamic": "^5.0.0",
     "@angular/router": "^5.0.0",
+    "angular-toastr": "^2.1.1",
     "angular2-json-schema-form": "^0.6.0-alpha.7",
     "bootstrap": "^3.3.7",
     "core-js": "^2.4.1",
@@ -31,7 +32,9 @@
     "jasmine2-custom-message": "^0.8.4",
     "ng-bootstrap-form-validation": "^2.0.0",
     "ng2-fileupload": "0.0.7",
+    "ng2-toastr": "^4.1.2",
     "rxjs": "^5.5.2",
+    "toastr": "^2.1.4",
     "zone.js": "^0.8.14"
   },
   "devDependencies": {

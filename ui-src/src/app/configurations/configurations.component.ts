@@ -2,6 +2,9 @@ import { Component, OnInit } from "@angular/core";
 import { HttpModule } from "@angular/http";
 import { Http } from "@angular/http";
 import { AutomatedUIServices } from "../automated-ui-services";
+import { ToastsManager } from 'ng2-toastr/ng2-toastr';
+import { ToastOptions } from "ng2-toastr/src/toast-options";
+
 
 @Component({
   selector: "app-configurations",
@@ -10,6 +13,7 @@ import { AutomatedUIServices } from "../automated-ui-services";
 })
 export class ConfigurationsComponent implements OnInit {
   formData = {};
+  constructor(private automatedUIServices: AutomatedUIServices, private toastr: ToastsManager, private test: ToastOptions ) { }
 
   exampleSchema = {
     type: "object",
@@ -17,13 +21,13 @@ export class ConfigurationsComponent implements OnInit {
       apiName: { type: "string" },
       targetHost: { type: "string" },
       targetPort: {
-        type: "number",
+        type: "string",
         minimum: 1,
         maximum: 65535
       },
       memoryEndpoint: { type: "string" },
-      numIterations: { type: "integer", minimum: 0 },
-      concurrentUsers: { type: "integer", minimum: 0 },
+      numIterations: { type: "integer", minimum: 1 },
+      concurrentUsers: { type: "integer", minimum: 1 },
       allowablePeakMemoryVariance: {
         type: "number",
         minimum: 0,
@@ -38,9 +42,9 @@ export class ConfigurationsComponent implements OnInit {
         type: "string",
         enum: ["Default-1", "Default-2", "Default-3"]
       },
-      requestDelay: { type: "integer", minimum: 0 },
-      TPSFreq: { type: "integer", minimum: 0 },
-      rampUsers: { type: "integer", minimum: 0 },
+      requestDelay: { type: "integer", minimum: 1 },
+      TPSFreq: { type: "integer", minimum: 1 },
+      rampUsers: { type: "integer", minimum: 1 },
       rampDelay: { type: "integer", minimum: 0 },
       testCaseDir: { type: "string" },
       testSuiteDir: { type: "string" },
@@ -66,6 +70,7 @@ export class ConfigurationsComponent implements OnInit {
       "reportOutputDir"
     ]
   };
+
 
   exampleData = {
     allowablePeakMemoryVariance: 15,
@@ -132,7 +137,7 @@ export class ConfigurationsComponent implements OnInit {
     { key: "reportOutputDir", title: "Report Output Directory" }
   ];
 
-  constructor(private automatedUIServices: AutomatedUIServices) {}
+
 
   ngOnInit() {
     this.formData = {
@@ -142,10 +147,11 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onSubmit(configData) {
+    this.toastr.success('You are awesome!', 'Success!');
     this.automatedUIServices.createJsonFile(configData);
-    // .subscribe(data => console.log(data));
   }
   onCancel() {
+    console.log("gfsjgfsdj");
     this.formData = {};
   }
 }

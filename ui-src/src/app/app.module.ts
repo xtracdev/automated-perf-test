@@ -10,9 +10,10 @@ import { NgBootstrapFormValidationModule } from "ng-bootstrap-form-validation";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ConfigurationsComponent } from "./configurations/configurations.component";
 import { MatButtonModule, MatCheckboxModule } from "@angular/material";
-
+import {ToastModule} from 'ng2-toastr/ng2-toastr';
 import { AutomatedUIServices } from "./automated-ui-services";
 import { HttpClientModule, HttpClient } from "@angular/common/http";
+import { FormsModule } from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -22,7 +23,9 @@ import { HttpClientModule, HttpClient } from "@angular/common/http";
     ConfigurationsComponent
   ],
   imports: [
+    FormsModule,
     JsonSchemaFormModule,
+    ToastModule.forRoot(),
     NoopAnimationsModule,
     BrowserModule,
     NgBootstrapFormValidationModule.forRoot(),
