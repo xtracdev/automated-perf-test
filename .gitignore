@@ -1,3 +1,5 @@
 *.bak
 main
 .idea
+ui/
+**/node_modules

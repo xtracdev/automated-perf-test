@@ -20,7 +20,7 @@ Feature: Create Configuration File
        "baseStatsOutputDir": "./envStats",
        "reportOutputDir": "./report",
        "concurrentUsers": 50,
-       "testSuite": "suiteFileName.xml",
+       "testSuite": "Default-3",
        "requestDelay": 5000,
        "TPSFreq": 30,
        "rampUsers": 5,
