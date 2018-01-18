@@ -21,8 +21,8 @@ export class ConfigurationsComponent implements OnInit {
         maximum: 65535
       },
       memoryEndpoint: { type: "string" },
-      numIterations: { type: "integer", minimum: 0 },
-      concurrentUsers: { type: "integer", minimum: 0 },
+      numIterations: { type: "integer", minimum: 1 },
+      concurrentUsers: { type: "integer", minimum: 1 },
       allowablePeakMemoryVariance: {
         type: "number",
         minimum: 0,
@@ -37,9 +37,9 @@ export class ConfigurationsComponent implements OnInit {
         type: "string",
         enum: ["Default-1", "Default-2", "Default-3"]
       },
-      requestDelay: { type: "integer", minimum: 0 },
-      TPSFreq: { type: "integer", minimum: 0 },
-      rampUsers: { type: "integer", minimum: 0 },
+      requestDelay: { type: "integer", minimum: 1 },
+      TPSFreq: { type: "integer", minimum: 1 },
+      rampUsers: { type: "integer", minimum: 1 },
       rampDelay: { type: "integer", minimum: 0 },
       testCaseDir: { type: "string" },
       testSuiteDir: { type: "string" },

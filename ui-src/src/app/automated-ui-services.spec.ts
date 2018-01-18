@@ -21,26 +21,37 @@ describe("AutomatedUIServices", () => {
       expect(service).toBeTruthy();
     })
   );
+  // it(
+  //   "should be defined",
+  //   inject(
+  //     [AutomatedUIServices, HttpTestingController],
+  //     (service: AutomatedUIServices, httpMock: HttpTestingController) => {
+  //       service.createJsonFile(configData).subscribe(logs => {
+  //         expect(spyOn(logs)).toEqual("Created JSON file");
+  //       });
+  //     }
+  //   )
+  // );
   it(
     "should be defined",
     inject(
       [AutomatedUIServices, HttpTestingController],
       (service: AutomatedUIServices, httpMock: HttpTestingController) => {
-        service.createJsonFile({}).subscribe(res => {
-          expect(res).toBeDefined();
-        });
-      }
-    )
-  );
-  it(
-    "should be not defined",
-    inject(
-      [AutomatedUIServices, HttpTestingController],
-      (service: AutomatedUIServices, httpMock: HttpTestingController) => {
-        service.createJsonFile({}).subscribe(res => {
+        service.createJsonFile(MOCKDATA).subscribe(res => {
           expect(res).toBeUndefined();
         });
       }
     )
   );
+  // it(
+  //   "should be defined",
+  //   inject(
+  //     [AutomatedUIServices, HttpTestingController],
+  //     (service: AutomatedUIServices, httpMock: HttpTestingController) => {
+  //       service.createJsonFile(configData).subscribe(res => {
+  //         expect(logs).toBeUndefined();
+  //       });
+  //     }
+  //   )
+  // );
 });
