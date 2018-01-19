@@ -1,8 +1,26 @@
 {
 	"ImportPath": "github.com/xtracdev/automated-perf-test",
 	"GoVersion": "go1.9",
-	"GodepVersion": "v79",
+	"GodepVersion": "v74",
+	"Packages": [
+		"./..."
+	],
 	"Deps": [
+		{
+			"ImportPath": "github.com/DATA-DOG/godog",
+			"Comment": "v0.7.4-6-g6dc6dcc",
+			"Rev": "6dc6dccbf87d4a692a7beb0850685e4e05d25243"
+		},
+		{
+			"ImportPath": "github.com/DATA-DOG/godog/colors",
+			"Comment": "v0.7.4-6-g6dc6dcc",
+			"Rev": "6dc6dccbf87d4a692a7beb0850685e4e05d25243"
+		},
+		{
+			"ImportPath": "github.com/DATA-DOG/godog/gherkin",
+			"Comment": "v0.7.4-6-g6dc6dcc",
+			"Rev": "6dc6dccbf87d4a692a7beb0850685e4e05d25243"
+		},
 		{
 			"ImportPath": "github.com/Sirupsen/logrus",
 			"Comment": "v0.9.0",
@@ -51,6 +69,16 @@
 		{
 			"ImportPath": "golang.org/x/sys/unix",
 			"Rev": "50c6bc5e4292a1d4e65c6e9be5f53be28bcbe28e"
+		},
+		{
+			"ImportPath": "gopkg.in/airbrake/gobrake.v2",
+			"Comment": "v2.0.8",
+			"Rev": "5d77bd50d083834501349f8be70197b26963674d"
+		},
+		{
+			"ImportPath": "gopkg.in/gemnasium/logrus-airbrake-hook.v2",
+			"Comment": "v2.1.1",
+			"Rev": "bfee1239d796830ca346767650cce5ba90d58c57"
 		}
 	]
 }
