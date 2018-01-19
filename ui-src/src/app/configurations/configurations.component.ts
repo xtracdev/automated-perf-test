@@ -144,10 +144,9 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onSubmit(configData) {
-    this.toastr.success("Your data has been save!", "Success!");
     this.automatedUIServices
       .createJsonFile(configData)
-      .subscribe(data => console.log(data));
+      .subscribe(data => this.toastr.success("Your data has been save!", "Success!"));
   }
   onCancel() {
     console.log("gfsjgfsdj");
