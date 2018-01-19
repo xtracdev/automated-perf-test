@@ -21,7 +21,6 @@ export class AutomatedUIServices {
   private url = "http://localhost:9191/configs";
 
   createJsonFile(configData): Observable<any> {
-    console.log("Form", configData);
     return this.http.post(this.url, configData, httpOptions);
   }
 }

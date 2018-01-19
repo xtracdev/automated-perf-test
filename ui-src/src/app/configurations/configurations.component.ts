@@ -150,7 +150,6 @@ export class ConfigurationsComponent implements OnInit {
       .subscribe(data => console.log(data));
   }
   onCancel() {
-    console.log("gfsjgfsdj");
     this.formData = {};
   }
 }
