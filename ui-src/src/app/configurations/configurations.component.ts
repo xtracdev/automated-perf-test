@@ -2,8 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { Http } from "@angular/http";
 import { AutomatedUIServices } from "../automated-ui-services";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
-import { ToastsManager } from "ng2-toastr/ng2-toastr"
-import {ToastOptions} from "ng2-toastr/src/toast-options"
+import { ToastsManager } from "ng2-toastr/ng2-toastr";
+import { ToastOptions } from "ng2-toastr/src/toast-options";
 @Component({
   selector: "app-configurations",
   templateUrl: "./configurations.component.html",
@@ -11,7 +11,10 @@ import {ToastOptions} from "ng2-toastr/src/toast-options"
 })
 export class ConfigurationsComponent implements OnInit {
   formData = {};
-  constructor(private automatedUIServices: AutomatedUIServices, private toastr: ToastsManager, private test: ToastOptions ) { }
+  constructor(
+    private automatedUIServices: AutomatedUIServices,
+    private toastr: ToastsManager
+  ) {}
 
   exampleSchema = {
     type: "object",
@@ -69,12 +72,10 @@ export class ConfigurationsComponent implements OnInit {
     ]
   };
 
-
   exampleData = {
     allowablePeakMemoryVariance: 15,
     allowableServiceResponseTimeVariance: 15
   };
-  
 
   layout = [
     {
@@ -135,8 +136,6 @@ export class ConfigurationsComponent implements OnInit {
     { key: "reportOutputDir", title: "Report Output Directory" }
   ];
 
-
-
   ngOnInit() {
     this.formData = {
       allowablePeakMemoryVariance: 15,
@@ -145,12 +144,12 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onSubmit(configData) {
+    this.toastr.success("Your data has been save!", "Success!");
     this.automatedUIServices
       .createJsonFile(configData)
       .subscribe(data => console.log(data));
   }
   onCancel() {
-    console.log("gfsjgfsdj");
     this.formData = {};
   }
 }

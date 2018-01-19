@@ -39,6 +39,13 @@ The configuration file parameters are described in the table below.
 | \<rampUsers>                            | Specify the number of user threads to start in a batch during ramp up. Eg. Start 5 threads every 15 seconds.                                |
 | \<rampDelay>                            | Specify number of seconds between starting user threads batched during ramp up.                                                             |
 
+
+#### Initial Set up
+The user should navigate to the ui-src directory and run the following commands:
+ - npm install
+ - npm run build  --> This generates the ui folder which contains the index.html file
+
+
 #### Command line arguments
 In addition the configuration parameters, command line arguments can the passed in to control specifics of each individual test run. The command line arguments are described in the table below.
 
@@ -52,7 +59,6 @@ In addition the configuration parameters, command line arguments can the passed 
 | -reBaseAll        | Run a training run which will overwrite the all statistics of previous training on the execution host.         |
 | -testFileFormat   | The format of the test definition files, the supported formats are XML and TOML (default XML).
 | -ui               | Runs local server on localhost:9191 to support CRUD on configuration and test definitions in UI mode
-
 
 #### Testing Strategies
 The framework supports two type of testing strategies, ServiceBased and SuiteBased. These testing strategies allow flexibility when performing performance
