@@ -22,6 +22,7 @@ type apiFeature struct {
 	resp   *http.Response
 	client *http.Client
 	requestbody string
+	header string
 }
 
 func (a *apiFeature) resetResponse() {
@@ -67,9 +68,10 @@ func (a *apiFeature) theResponseBodyShouldBeEmpty() error {
 	return nil
 }
 
-func theHeaderConfigsDirPathIs(path string) error{
+func (a *apiFeature) theHeaderConfigsDirPathIs(path string) error{
+	a.header = path
 	expectedConfigsPathDir :=os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/GodogConfig.xml"
-	actualConfigsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + path
+	actualConfigsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.header
 
 	if expectedConfigsPathDir != actualConfigsPathDir{
 		return fmt.Errorf("Error: expected response code to be: "+expectedConfigsPathDir+" but actual is: "+actualConfigsPathDir)
@@ -78,7 +80,7 @@ func theHeaderConfigsDirPathIs(path string) error{
 }
 
 func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() error {
-	configsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/GodogConfig.xml"
+	configsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test"+a.header
 
 	fileExists := services.FilePathExist(configsPathDir)
 
@@ -87,7 +89,7 @@ func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() 
 	}
 
 	logrus.Println("File Exists")
-	if !IsValidXml(a.requestbody){
+	if !IsValidXml(a.requestbody, a.header){
 		return fmt.Errorf("File is not a valid XML file")
 	}
 	logrus.Println("File is a valid XML file")
@@ -138,7 +140,7 @@ func FeatureContext(s *godog.Suite) {
 
 	s.Step(`^I send "(GET|POST|PUT|DELETE)" request to "([^"]*)"$`, api.iSendrequestTo)
 	s.Step(`^the response code should be (\d+)$`, api.theResponseCodeShouldBe)
-	s.Step(`^the header configsDirPath is "([^"]*)"$`, theHeaderConfigsDirPathIs)
+	s.Step(`^the header configsDirPath is "([^"]*)"$`, api.theHeaderConfigsDirPathIs)
 	s.Step(`^the response should match json:$`, api.theResponseShouldMatchJSON)
 	s.Step(`^the response body should be empty$`, api.theResponseBodyShouldBeEmpty)
 	s.Step(`^the config file was created at location defined by configsPathDir$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir)
@@ -151,8 +153,8 @@ func theAutomatedPerformanceUiServerIsAvailable() error {
 	return nil
 }
 
-func IsValidXml(config string) bool{
-	file, err := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/GodogConfig.xml")
+func  IsValidXml(config string, header string) bool{
+	file, err := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test"+header)
 	if err != nil {
 		fmt.Println(err)
 		return false
