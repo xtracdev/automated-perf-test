@@ -1,6 +1,6 @@
 
-import { Component, OnInit, ViewContainerRef } from "@angular/core";
-import { ToastsManager } from "ng2-toastr/ng2-toastr";
+import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 
 @Component({
   selector: "app-root",

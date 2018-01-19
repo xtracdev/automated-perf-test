@@ -149,7 +149,6 @@ export class ConfigurationsComponent implements OnInit {
       .subscribe(data => this.toastr.success("Your data has been save!", "Success!"));
   }
   onCancel() {
-    console.log("gfsjgfsdj");
     this.formData = {};
   }
 }
