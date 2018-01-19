@@ -9,9 +9,9 @@ import {
   Key
 } from "protractor";
 import { read } from "fs";
-var path = require("path");
+const path = require("path");
 const configFileLocation = "../../../config/";
-class configurationPageObject {
+class ConfigurationPageObject {
   configFilePath = element(by.name("configFilePath"));
   applicationName = element(by.name("apiName"));
   targetHost = element(by.name("targetHost"));
@@ -99,7 +99,7 @@ class configurationPageObject {
     this.setMemoryEndpoint();
     this.setConcurrentUsers();
     this.setNumberIterations();
-    //used to activate dropdown
+    // used to activate dropdown
     this.testSuite.click();
     this.setTestSuite();
     this.setRequestDelay();
@@ -132,7 +132,7 @@ class configurationPageObject {
     this.concurrentUsers.sendKeys(Key.BACK_SPACE);
     this.targetHost.sendKeys(Key.BACK_SPACE);
     this.targetPort.sendKeys(Key.BACK_SPACE);
-    //Clear default data in these fields
+    // Clear default data in these fields
     this.memoryVariance.sendKeys(Key.BACK_SPACE);
     this.memoryVariance.sendKeys(Key.BACK_SPACE);
     this.serviceVariance.sendKeys(Key.BACK_SPACE);
@@ -160,12 +160,11 @@ class configurationPageObject {
   checkNegativeValues() {
     this.numIterations.sendKeys(-1);
     this.concurrentUsers.sendKeys(-1);
-    //Clear default data in these fields
+    // Clear default data in these fields
     this.memoryVariance.sendKeys(Key.BACK_SPACE);
     this.memoryVariance.sendKeys(Key.BACK_SPACE);
     this.serviceVariance.sendKeys(Key.BACK_SPACE);
     this.serviceVariance.sendKeys(Key.BACK_SPACE);
-    
     this.memoryVariance.sendKeys(-1);
     this.serviceVariance.sendKeys(-1);
     this.requestDelay.sendKeys(-1);
@@ -174,7 +173,7 @@ class configurationPageObject {
     this.rampDelay.sendKeys(-1);
   }
 
-  checkForStrings(){
+  checkForStrings() {
     this.targetPort.sendKeys("x");
     this.numIterations.sendKeys("x");
     this.concurrentUsers.sendKeys("x");
@@ -188,4 +187,4 @@ class configurationPageObject {
     this.rampDelay.sendKeys("x");
   }
 }
-export = configurationPageObject;
+export = ConfigurationPageObject;
