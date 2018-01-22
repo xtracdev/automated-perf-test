@@ -1,4 +1,9 @@
 <div class="container">
+
+    <div>
+        <label>Config File Path &nbsp;</label>
+        <input class="form-control" type="text" id="config">
+    </div>
     <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
     <button class="btn btn-primary" (click)="onCancel()">Cancel</button>

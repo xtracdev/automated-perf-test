@@ -20,5 +20,4 @@ describe("AutomatedUIServices", () => {
       expect(service).toBeTruthy();
     })
   );
-
 });
