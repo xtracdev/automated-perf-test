@@ -91,3 +91,13 @@ for more significant functionality.
 4. Run golint on each file you change before committing your changes.
 5. Make sure all the tests pass before committing your changes.
 6. Commit your changes and issue a pull request.
+
+
+### UI
+
+#### UI dependencies
+
+* Golang https://golang.org/doc/install
+* Node https://nodejs.org/en/download/
+* npm
+* Angular CLI npm install -g @angular/cli
