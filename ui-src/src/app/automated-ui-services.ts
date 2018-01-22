@@ -5,13 +5,12 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ConfigurationsComponent } from "./configurations/configurations.component";
 import { Headers } from "@angular/http/src/headers";
 import { Observable } from "rxjs/Observable";
-import { environment } from "../environments/environment.prod";
 
 const httpOptions = {
   headers: new HttpHeaders({
     "Content-Type": "application/json",
     configPathDir:
-      "C:/Users/a615194/go/src/github.com/xtracdev/automated-perf-test/config/"
+      "C:/Users/a586754/go/src/github.com/xtracdev/automated-perf-test/config/"
   })
 };
 
@@ -19,9 +18,9 @@ const httpOptions = {
 export class AutomatedUIServices {
   constructor(private http: HttpClient) {}
 
-  //  private url = "http://localhost:9191/configs";
+   private url = "http://localhost:9191/configs";
 
   postConfig$(configData): Observable<any> {
-    return this.http.post(environment.url, configData, httpOptions);
+    return this.http.post(this.url, configData, httpOptions);
   }
 }
