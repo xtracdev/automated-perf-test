@@ -56,10 +56,6 @@ func GetIndexPage() *chi.Mux {
         w.Write([]byte(htmlBytes))
     })
 
-    router.Mount("/configs", routeConfigs())
-
-    return router
-
     router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
         requestUri := r.RequestURI
         goPath := os.Getenv("GOPATH")
