@@ -16,7 +16,7 @@ export class ConfigurationsComponent implements OnInit {
     private toastr: ToastsManager
   ) {}
 
-  exampleSchema = {
+  configSchema = {
     type: "object",
     properties: {
       apiName: { type: "string" },
@@ -144,9 +144,14 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onSubmit(configData) {
-    this.automatedUIServices
-      .createJsonFile(configData)
-      .subscribe(data => this.toastr.success("Your data has been save!", "Success!"));
+    this.automatedUIServices.createJsonFile(configData).subscribe(
+      data => {
+        this.toastr.success("Your data has been save!", "Success!");
+      },
+      error => {
+        this.toastr.error("Failed to save data, Check Command Line!");
+      }
+    );
   }
   onCancel() {
     this.formData = {};

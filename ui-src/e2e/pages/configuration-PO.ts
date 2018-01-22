@@ -35,7 +35,7 @@ class ConfigurationPageObject {
 
   toastrMessage = element(by.className("toast-title"));
   labels = $("json-schema-form").$$("label");
-  required = $$("p");
+  requiredFields = $$("p");
 
   absolutePath = path.resolve(__dirname, configFileLocation);
 
@@ -112,7 +112,7 @@ class ConfigurationPageObject {
     this.setReportDir();
   }
 
-  checkRequired() {
+  checkRequiredFields() {
     this.applicationName.sendKeys("x");
     this.targetHost.sendKeys("x");
     this.targetPort.sendKeys(1);

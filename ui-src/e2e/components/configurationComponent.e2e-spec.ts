@@ -28,9 +28,9 @@ describe("configuration component", () => {
     expect(configPO.toastrMessage.getText()).toContain("Success!");
   });
 
-  it("should show submit button is disabled when required data is blank", () => {
+  it("should show submit button is disabled when requiredFields data is blank", () => {
     // used to clear default data in this test
-    configPO.checkRequired();
+    configPO.checkRequiredFields();
     expect(configPO.submitBtn.isEnabled()).toBe(false);
   });
 
@@ -61,53 +61,53 @@ describe("configuration component", () => {
     );
   });
 
-  it("should check required warning appears when required input is blank", () => {
-    configPO.checkRequired();
+  it("should check requiredFields warning appears when requiredFields input is blank", () => {
+    configPO.checkRequiredFields();
     since("(apiName) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(0).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(0).getText())
+      .toContain("This field is requiredFields.");
     since("(targetHost) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(1).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(1).getText())
+      .toContain("This field is requiredFields.");
     since("(targetPort) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(2).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(2).getText())
+      .toContain("This field is requiredFields.");
     since("(numIterations) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(3).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(3).getText())
+      .toContain("This field is requiredFields.");
     since("(concurrentUsers) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(4).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(4).getText())
+      .toContain("This field is requiredFields.");
     since("(memoryVariance) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(5).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(5).getText())
+      .toContain("This field is requiredFields.");
     since("(serviceVariance) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(6).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(6).getText())
+      .toContain("This field is requiredFields.");
     since("(requestDelay) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(7).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(7).getText())
+      .toContain("This field is requiredFields.");
     since("(tpsFreq) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(8).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(8).getText())
+      .toContain("This field is requiredFields.");
     since("(rampUsers) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(9).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(9).getText())
+      .toContain("This field is requiredFields.");
     since("(rampDelay) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(10).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(10).getText())
+      .toContain("This field is requiredFields.");
     since("(testCaseDir) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(11).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(11).getText())
+      .toContain("This field is requiredFields.");
     since("(testSuiteDir) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(12).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(12).getText())
+      .toContain("This field is requiredFields.");
     since("(baseStatsDir) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(13).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(13).getText())
+      .toContain("This field is requiredFields.");
     since("(reportsDir) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(14).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(14).getText())
+      .toContain("This field is requiredFields.");
   });
 
   it("should show that string cannot be entered into a integer field", () => {
@@ -126,56 +126,56 @@ describe("configuration component", () => {
   it("should check that e is not accepted in interger field", () => {
     configPO.checkE();
     since("(numIterations) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(0).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(0).getText())
+      .toContain("This field is requiredFields.");
     since("(concurrentUsers) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(1).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(1).getText())
+      .toContain("This field is requiredFields.");
     since("(memoryVariance) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(2).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(2).getText())
+      .toContain("This field is requiredFields.");
     since("(serviceVariance) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(3).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(3).getText())
+      .toContain("This field is requiredFields.");
     since("(requestDelay) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(4).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(4).getText())
+      .toContain("This field is requiredFields.");
     since("(tpsFreq) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(5).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(5).getText())
+      .toContain("This field is requiredFields.");
     since("(rampUsers) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(6).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(6).getText())
+      .toContain("This field is requiredFields.");
     since("(rampDelay) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(7).getText())
-      .toContain("This field is required.");
+      .expect(configPO.requiredFields.get(7).getText())
+      .toContain("This field is requiredFields.");
   });
 
   it("should check that warning appears if negative number is enter to integer field", () => {
     configPO.checkNegativeValues();
     since("(numIterations) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(0).getText())
+      .expect(configPO.requiredFields.get(0).getText())
       .toContain("Must be 1 or more");
     since("(requestDelay) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(1).getText())
+      .expect(configPO.requiredFields.get(1).getText())
       .toContain("Must be 1 or more");
     since("(concurrentUsers) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(2).getText())
+      .expect(configPO.requiredFields.get(2).getText())
       .toContain("Must be 1 or more");
     since("(tpsFreq) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(3).getText())
+      .expect(configPO.requiredFields.get(3).getText())
       .toContain("Must be 1 or more");
     since("(memoryVariance) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(4).getText())
+      .expect(configPO.requiredFields.get(4).getText())
       .toContain("Must be 0 or more");
     since("(rampUsers) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(5).getText())
+      .expect(configPO.requiredFields.get(5).getText())
       .toContain("Must be 1 or more");
     since("(serviceVariance) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(6).getText())
+      .expect(configPO.requiredFields.get(6).getText())
       .toContain("Must be 0 or more");
     since("(rampDelay) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(7).getText())
+      .expect(configPO.requiredFields.get(7).getText())
       .toContain("Must be 0 or more");
   });
 
@@ -183,10 +183,10 @@ describe("configuration component", () => {
     configPO.memoryVariance.sendKeys(101);
     configPO.serviceVariance.sendKeys(101);
     since("(memoryVariance) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(0).getText())
+      .expect(configPO.requiredFields.get(0).getText())
       .toEqual("Must be 100 or less");
     since("(serviceVariance) #{actual} =/= #{expected}")
-      .expect(configPO.required.get(1).getText())
+      .expect(configPO.requiredFields.get(1).getText())
       .toEqual("Must be 100 or less");
   });
 });
