@@ -144,7 +144,7 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onSubmit(configData) {
-    this.automatedUIServices.createJsonFile(configData).subscribe(
+    this.automatedUIServices.postConfig$(configData).subscribe(
       data => {
         this.toastr.success("Your data has been save!", "Success!");
       },

@@ -5,7 +5,6 @@ import {
   HttpClientTestingModule,
   HttpTestingController
 } from "@angular/common/http/testing";
-import { MOCKDATA } from "./mockData";
 
 describe("AutomatedUIServices", () => {
   beforeEach(() => {
@@ -21,5 +20,4 @@ describe("AutomatedUIServices", () => {
       expect(service).toBeTruthy();
     })
   );
-
 });
