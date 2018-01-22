@@ -12,7 +12,7 @@ func TestStartUiModeSuccesfully(t *testing.T) {
 
 	r := chi.NewRouter()
 
-	r.Mount("/", getIndexPage())
+	r.Mount("/", GetIndexPage())
 
 	assert.IsType(t, &chi.Mux{}, r)
 
@@ -30,7 +30,7 @@ func TestStartUiModeWithInvalidURL(t *testing.T) {
 
 	r := chi.NewRouter()
 
-	r.Mount("/", getIndexPage())
+	r.Mount("/", GetIndexPage())
 
 	assert.IsType(t, &chi.Mux{}, r)
 
@@ -40,4 +40,22 @@ func TestStartUiModeWithInvalidURL(t *testing.T) {
 	r.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
+
+func TestStartUiModeWithResource(t *testing.T) {
+
+	r := chi.NewRouter()
+
+	r.Mount("/", GetIndexPage())
+
+	assert.IsType(t, &chi.Mux{}, r)
+
+	resp := httptest.NewRecorder()
+
+	req, _ := http.NewRequest(http.MethodGet, "/index.html", nil)
+	r.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, htmlType, resp.Header().Get(contentTypeHeader))
+
 }
