@@ -44,9 +44,9 @@ Feature: Create Configuration File
     When I send "DELETE" request to "/configs"
     Then the response code should be 405
 
-  Scenario: Unsuccessful creation of config file (invalid URL)
-    When I send "POST" request to "/xxx"
-    Then the response code should be 405
+  Scenario: Unsuccessful retrieval of config file (invalid URL)
+    When I send "GET" request to "/xxx"
+    Then the response code should be 404
 
   Scenario: Unsuccessful creation of config file (Missing required field)
     Given the automated performance ui server is available
