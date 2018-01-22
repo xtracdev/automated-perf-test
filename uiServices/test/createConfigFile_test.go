@@ -31,7 +31,7 @@ func (a *apiFeature) resetResponse() {
 }
 
 func (a *apiFeature) iSendrequestTo(method, endpoint string) (err error) {
-	response, err := makeRequest(a.client, method, endpoint, "")
+	response, err := makeRequest(a.client, method, endpoint, "","")
 	if err != nil {
 		return err
 	}
@@ -70,11 +70,10 @@ func (a *apiFeature) theResponseBodyShouldBeEmpty() error {
 
 func (a *apiFeature) theHeaderConfigsDirPathIs(path string) error{
 	a.header = path
-	expectedConfigsPathDir :=os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/GodogConfig.xml"
-	actualConfigsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.header
 
-	if expectedConfigsPathDir != actualConfigsPathDir{
-		return fmt.Errorf("Error: expected response code to be: "+expectedConfigsPathDir+" but actual is: "+actualConfigsPathDir)
+	if path == ""{
+		fmt.Println("Error: No Header Defined")
+		return nil
 	}
 	return nil
 }
@@ -97,8 +96,7 @@ func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() 
 }
 
 func (a *apiFeature) iSendRequestToWithABody(method, endpoint string, body *gherkin.DocString) error {
-
-	response, err := makeRequest(a.client, method, endpoint, body.Content)
+	response, err := makeRequest(a.client, method, endpoint, body.Content, a.header)
 	a.requestbody = body.Content
 	if err != nil {
 		return err
@@ -107,16 +105,20 @@ func (a *apiFeature) iSendRequestToWithABody(method, endpoint string, body *gher
 	return nil
 }
 
-func makeRequest(client *http.Client, method, endpoint, body string) (*http.Response, error) {
+func makeRequest(client *http.Client, method, endpoint, body string, header string) (*http.Response, error) {
 
 	var reqBody io.Reader
 	if body != "" {
 		reqBody = strings.NewReader(body)
 	}
 
-	req, err := http.NewRequest(method, "http://localhost:9191"+endpoint, reqBody)
-	req.Header.Set("configPathDir", fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/",os.Getenv("GOPATH")))
+	req, err := http.NewRequest(method, "http://localhost:9191" + endpoint, reqBody)
 
+	if header == "" {
+		req.Header.Set("configPathDir", "")
+	}else {
+		req.Header.Set("configPathDir", fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+	}
 	if err != nil {
 		return nil, err
 	}
