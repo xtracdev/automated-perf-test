@@ -1,16 +1,17 @@
 // Protractor configuration file, see link for more information
 // https://github.com/angular/protractor/blob/master/lib/config.ts
-
 const { SpecReporter } = require("jasmine-spec-reporter");
 
 exports.config = {
   allScriptsTimeout: 11000,
   specs: ["./e2e/**/*.e2e-spec.ts"],
   capabilities: {
-    browserName: "chrome"
+    browserName: "chrome",
+    
+    
   },
   directConnect: true,
-  baseUrl: "http://localhost:4200/",
+  baseUrl: "http://localhost:9191/",
   framework: "jasmine",
   jasmineNodeOpts: {
     showColors: true,

@@ -65,49 +65,49 @@ describe("configuration component", () => {
     configPO.checkRequiredFields();
     since("(apiName) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(0).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(targetHost) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(1).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(targetPort) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(2).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(numIterations) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(3).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(concurrentUsers) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(4).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(memoryVariance) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(5).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(serviceVariance) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(6).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(requestDelay) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(7).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(tpsFreq) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(8).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(rampUsers) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(9).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(rampDelay) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(10).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(testCaseDir) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(11).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(testSuiteDir) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(12).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(baseStatsDir) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(13).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(reportsDir) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(14).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
   });
 
   it("should show that string cannot be entered into a integer field", () => {
@@ -124,31 +124,31 @@ describe("configuration component", () => {
   });
 
   it("should check that e is not accepted in interger field", () => {
-    configPO.checkE();
+    configPO.checkEisNotAccepted();
     since("(numIterations) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(0).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(concurrentUsers) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(1).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(memoryVariance) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(2).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(serviceVariance) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(3).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(requestDelay) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(4).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(tpsFreq) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(5).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(rampUsers) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(6).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
     since("(rampDelay) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(7).getText())
-      .toContain("This field is requiredFields.");
+      .toContain("This field is required.");
   });
 
   it("should check that warning appears if negative number is enter to integer field", () => {

@@ -147,7 +147,7 @@ class ConfigurationPageObject {
     this.baseStatsDir.sendKeys(Key.BACK_SPACE);
     this.reportsDir.sendKeys(Key.BACK_SPACE);
   }
-  checkE() {
+  checkEisNotAccepted() {
     this.numIterations.sendKeys("e");
     this.concurrentUsers.sendKeys("e");
     this.memoryVariance.sendKeys("e");
