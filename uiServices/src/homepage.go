@@ -1,99 +1,104 @@
 package services
 
 import (
-    "io/ioutil"
-    "net/http"
-    "path/filepath"
-    "github.com/Sirupsen/logrus"
-    "github.com/go-chi/chi"
-    "github.com/go-chi/chi/middleware"
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"io/ioutil"
+	"net/http"
+	"path/filepath"
 
-    "os"
+	"os"
 )
 
 const contentTypeHeader = `Content-Type`
 const htmlType = `text/html`
 
-
 func StartUiMode() {
-    http.ListenAndServe(":9191", GetRouter())
+	http.ListenAndServe(":9191", GetRouter())
 }
 
 func GetRouter() *chi.Mux {
-    r := chi.NewRouter()
-    r.Use(middleware.Logger)
-    r.Use(middleware.Recoverer)
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
-    r.Mount("/", GetIndexPage())
+	r.Mount("/", GetIndexPage())
 
-    logrus.Print("http:\\localhost:9191")
+	logrus.Print("http://localhost:9191")
 
-    return r
+	return r
 }
 
 func GetIndexPage() *chi.Mux {
-    router := chi.NewRouter()
+	router := chi.NewRouter()
 
-    router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-        goPath := os.Getenv("GOPATH")
-        absPath, err := filepath.Abs(goPath + "/src/github.com/xtracdev/automated-perf-test/ui/index.html")
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 
-        if err != nil {
-            logrus.Error("Unable to find homepage", err)
-            w.WriteHeader(http.StatusInternalServerError)
-            return
-        }
+		goPath := os.Getenv("GOPATH")
+		absPath, err := filepath.Abs(goPath + "/src/github.com/xtracdev/automated-perf-test/ui/index.html")
 
-        htmlBytes, err := ioutil.ReadFile(absPath)
+		if err != nil {
+			logrus.Error("Unable to find homepage", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-        if err != nil {
-            logrus.Error("Unable to read file: ", absPath, err)
-            w.WriteHeader(http.StatusInternalServerError)
-            return
-        }
+		htmlBytes, err := ioutil.ReadFile(absPath)
 
-        w.Header().Set(contentTypeHeader, htmlType)
-        w.Write([]byte(htmlBytes))
-    })
+		if err != nil {
+			logrus.Error("Unable to read file: ", absPath, err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-    router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
-        requestUri := r.RequestURI
-        goPath := os.Getenv("GOPATH")
-        path := goPath + "/src/github.com/xtracdev/automated-perf-test/ui/index.html"
+		w.Header().Set(contentTypeHeader, htmlType)
+		w.Write([]byte(htmlBytes))
+		return
+	})
 
-        if _, err := os.Stat(goPath + "/src/github.com/xtracdev/automated-perf-test/ui/" + requestUri); err == nil {
-            path = goPath + "/src/github.com/xtracdev/automated-perf-test/ui/" + requestUri
-        }
+	router.Mount("/configs", routeConfigs())
 
-        absPath, err := filepath.Abs(path)
+	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 
-        if err != nil {
-            logrus.Error("Unable to find homepage", err)
-            w.WriteHeader(http.StatusInternalServerError)
-            return
-        }
+		resourceUrl := r.URL.String()
 
-        htmlBytes, err := ioutil.ReadFile(absPath)
+		path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/ui/" + resourceUrl
 
-        if err != nil {
-            logrus.Error("Unable to read file: ", absPath, err)
-            w.WriteHeader(http.StatusInternalServerError)
-            return
-        }
+		absPath, err := filepath.Abs(path)
 
-        w.Header().Set(contentTypeHeader, htmlType)
-        w.Write([]byte(htmlBytes))
-    })
-    router.Mount("/configs", routeConfigs())
+		if err != nil {
+			logrus.Error("Unable to get absolute path", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-    return router
+		if _, err := os.Stat(absPath); os.IsNotExist(err) {
+			logrus.Error("Resource cannot be found", err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		htmlBytes, err := ioutil.ReadFile(absPath)
+
+		if err != nil {
+			logrus.Error("Unable to read file: ", absPath, err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set(contentTypeHeader, htmlType)
+		w.Write([]byte(htmlBytes))
+		return
+	})
+
+	return router
 }
 
 func routeConfigs() http.Handler {
-    router := chi.NewRouter()
-    router.Use(ConfigCtx)
-    router.Post("/", postConfigs)
+	router := chi.NewRouter()
+	router.Use(ConfigCtx)
+	router.Post("/", postConfigs)
 
-    return router
+	return router
 }
-
