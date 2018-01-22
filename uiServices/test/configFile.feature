@@ -47,3 +47,30 @@ Feature: Create Configuration File
   Scenario: Unsuccessful creation of config file (invalid URL)
     When I send "POST" request to "/xxx"
     Then the response code should be 404
+
+  Scenario: Unsuccessful creation of config file (Missing required field)
+    Given the automated performance ui server is available
+    When I send "POST" request to "/configs" with a body:
+         """
+      {
+       "apiName": "GodogConfig2",
+       "targetHost": "localhost",
+       "targetPort":"9191",
+       "memoryEndpoint": "/alt/debug/vars",
+       "numIterations": 1000,
+       "allowablePeakMemoryVariance": 30,
+       "allowableServiceResponseTimeVariance": 30,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+       "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 50,
+       "testSuite": "",
+       "requestDelay": 5000,
+       "TPSFreq": 30,
+       "rampUsers": 5,
+       "rampDelay": 15
+      }
+      """
+    And the header configsDirPath is "/uiServices/test/GodogConfig.xml"
+    Then the response code should be 400
