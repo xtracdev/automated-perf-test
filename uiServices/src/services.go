@@ -13,6 +13,7 @@ import (
     "fmt"
     "encoding/xml"
     "io/ioutil"
+    "log"
 )
 
 func ConfigCtx(next http.Handler) http.Handler {
@@ -122,7 +123,7 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
         return
     }
 
-    configJson, err := json.Marshal(config)
+    configJson, err := json.MarshalIndent(config,"","")
     if err != nil {
         logrus.Println("Cannot Marshall")
         return
@@ -130,5 +131,13 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
 
     rw.WriteHeader(http.StatusOK)
     fmt.Println(string(configJson))
+    _ = ioutil.WriteFile("config.json", configJson, 0644)
+
+
+    f, err := os.OpenFile(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config/config.json", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0660)
+    if err != nil {
+        log.Fatal(err)
+    }
+    f.Write(configJson)
 
 }
