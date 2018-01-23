@@ -11,6 +11,7 @@ import { ToastOptions } from "ng2-toastr/src/toast-options";
 })
 export class ConfigurationsComponent implements OnInit {
   formData = {};
+  configPath = "";
   constructor(
     private automatedUIServices: AutomatedUIServices,
     private toastr: ToastsManager
@@ -137,6 +138,7 @@ export class ConfigurationsComponent implements OnInit {
   ];
 
   ngOnInit() {
+    // this.configPath = " ";
     this.formData = {
       allowablePeakMemoryVariance: 15,
       allowableServiceResponseTimeVariance: 15
@@ -144,7 +146,7 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onSubmit(configData) {
-    this.automatedUIServices.postConfig$(configData).subscribe(
+    this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
       data => {
         this.toastr.success("Your data has been save!", "Success!");
       },
@@ -154,6 +156,6 @@ export class ConfigurationsComponent implements OnInit {
     );
   }
   onCancel() {
-    this.formData = {};
+    this.formData = undefined;
   }
 }

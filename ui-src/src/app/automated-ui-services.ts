@@ -6,21 +6,21 @@ import { ConfigurationsComponent } from "./configurations/configurations.compone
 import { Headers } from "@angular/http/src/headers";
 import { Observable } from "rxjs/Observable";
 
-const httpOptions = {
-  headers: new HttpHeaders({
-    "Content-Type": "application/json",
-    configPathDir:
-      "C:/Users/a586754/go/src/github.com/xtracdev/automated-perf-test/config/"
-  })
-};
-
 @Injectable()
 export class AutomatedUIServices {
   constructor(private http: HttpClient) {}
 
-   private url = "http://localhost:9191/configs";
+  private url = "http://localhost:9191/configs";
 
-  postConfig$(configData): Observable<any> {
-    return this.http.post(this.url, configData, httpOptions);
+  private httpOptions = {
+    headers: new HttpHeaders({
+      "Content-Type": "application/json"
+      // "C:/Users/a615194/go/src/github.com/xtracdev/automated-perf-test/config/"
+    })
+  };
+
+  postConfig$(configData, configPath): Observable<any> {
+    this.httpOptions.headers.append("configPathDir", "configPath");
+    return this.http.post(this.url, configData, this.httpOptions);
   }
 }
