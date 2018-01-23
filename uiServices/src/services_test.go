@@ -161,3 +161,28 @@ func TestInvalidURL(t *testing.T) {
 	pt := perfTestUtils.Config{}
 	writerXml(pt, "/path/xxx")
 }
+
+
+func TestGet(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	r.HandleFunc("/configs", getConfigs)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/frank.xml"
+	request, err := http.NewRequest(http.MethodGet, "/configs", nil)
+
+	request.Header.Set("configPathDir", filePath)
+	request.Header.Get("configPathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if w.Code != http.StatusOK {
+		t.Errorf("TestValidJsonPost. Expected:", http.StatusOK, " Got:", w.Code, "  Error. Did not succesfully post")
+	}
+}

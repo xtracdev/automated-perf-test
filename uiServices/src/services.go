@@ -10,6 +10,9 @@ import (
     "github.com/Sirupsen/logrus"
     "github.com/xeipuuv/gojsonschema"
     "github.com/xtracdev/automated-perf-test/perfTestUtils"
+    "fmt"
+    "encoding/xml"
+    "io/ioutil"
 )
 
 func ConfigCtx(next http.Handler) http.Handler {
@@ -96,5 +99,36 @@ func validateJsonWithSchema(config []byte) bool {
         }
     }
     return true
+
+}
+
+func getConfigs(rw http.ResponseWriter, req *http.Request){
+
+    file, err := os.Open(req.Header.Get("configPathDir"))
+    if err != nil {
+        fmt.Println(err)
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    defer file.Close()
+
+    var config perfTestUtils.Config
+
+    byteValue, err := ioutil.ReadAll(file)
+    xml.Unmarshal(byteValue, &config)
+    if err != nil{
+        logrus.Println("Cannot Unmarshall")
+        return
+    }
+
+    configJson, err := json.Marshal(config)
+    if err != nil {
+        logrus.Println("Cannot Marshall")
+        return
+    }
+
+    rw.WriteHeader(http.StatusOK)
+    fmt.Println(string(configJson))
 
 }
