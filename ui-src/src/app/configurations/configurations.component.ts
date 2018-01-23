@@ -138,14 +138,13 @@ export class ConfigurationsComponent implements OnInit {
   ];
 
   ngOnInit() {
-    // this.configPath = " ";
     this.formData = {
       allowablePeakMemoryVariance: 15,
       allowableServiceResponseTimeVariance: 15
     };
   }
 
-  onSubmit(configData) {
+  onSubmit(configData, configPath) {
     this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
       data => {
         this.toastr.success("Your data has been save!", "Success!");
@@ -155,6 +154,7 @@ export class ConfigurationsComponent implements OnInit {
       }
     );
   }
+
   onCancel() {
     this.formData = undefined;
   }
