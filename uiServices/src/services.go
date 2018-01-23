@@ -13,7 +13,6 @@ import (
     "fmt"
     "encoding/xml"
     "io/ioutil"
-    "log"
 )
 
 func ConfigCtx(next http.Handler) http.Handler {
@@ -104,18 +103,34 @@ func validateJsonWithSchema(config []byte) bool {
 }
 
 func getConfigs(rw http.ResponseWriter, req *http.Request){
+    //assign header variables
+    configPathDir := req.Header.Get("configPathDir")
+    filename := req.Header.Get("filename")
 
-    file, err := os.Open(req.Header.Get("configPathDir"))
-    if err != nil {
-        fmt.Println(err)
+    // add a "/" if path does not have one (otherwise GET is unsuccessful)
+    if !strings.HasSuffix(configPathDir, "/"){
+        configPathDir = configPathDir + "/"
+    }
+    //open file and handle errors
+    file, err := os.Open(configPathDir + filename)
+    //Handle Missing Header Path
+    if len(configPathDir) <= 1{
         rw.WriteHeader(http.StatusBadRequest)
+        logrus.Println("No Header Path Found")
+        return
+    }
+    //filename error
+    if err != nil {
+        logrus.Println("Configuration Name Not Found: "+configPathDir + filename)
+        rw.WriteHeader(http.StatusNotFound)
         return
     }
 
     defer file.Close()
-
+    //config struct
     var config perfTestUtils.Config
 
+    //read bytes from xml file
     byteValue, err := ioutil.ReadAll(file)
     xml.Unmarshal(byteValue, &config)
     if err != nil{
@@ -123,21 +138,15 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
         return
     }
 
+    //marshall config file into json
     configJson, err := json.MarshalIndent(config,"","")
     if err != nil {
         logrus.Println("Cannot Marshall")
         return
     }
 
+    //response
     rw.WriteHeader(http.StatusOK)
     fmt.Println(string(configJson))
-    _ = ioutil.WriteFile("config.json", configJson, 0644)
-
-
-    f, err := os.OpenFile(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config/config.json", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0660)
-    if err != nil {
-        log.Fatal(err)
-    }
-    f.Write(configJson)
 
 }

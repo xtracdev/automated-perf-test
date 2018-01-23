@@ -163,17 +163,21 @@ func TestInvalidURL(t *testing.T) {
 }
 
 
-func TestGet(t *testing.T) {
+func TestSuccessfulGet(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
 	r.HandleFunc("/configs", getConfigs)
 
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/frank.xml"
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	filename := "frank.xml"
 	request, err := http.NewRequest(http.MethodGet, "/configs", nil)
 
 	request.Header.Set("configPathDir", filePath)
 	request.Header.Get("configPathDir")
+
+	request.Header.Set("filename", filename)
+	request.Header.Get("filename")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -183,6 +187,92 @@ func TestGet(t *testing.T) {
 	}
 
 	if w.Code != http.StatusOK {
-		t.Errorf("TestValidJsonPost. Expected:", http.StatusOK, " Got:", w.Code, "  Error. Did not succesfully post")
+		t.Errorf("TestSuccessfulGET. Expected:", http.StatusOK, " Got:", w.Code, "  Error. Did not succesfully get")
 	}
 }
+
+func TestSuccessfulGetPathWihoutSlash(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	r.HandleFunc("/configs", getConfigs)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+	filename := "frank.xml"
+	request, err := http.NewRequest(http.MethodGet, "/configs", nil)
+
+	request.Header.Set("configPathDir", filePath)
+	request.Header.Get("configPathDir")
+
+	request.Header.Set("filename", filename)
+	request.Header.Get("filename")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Test Get Path ends with backslash. Expected:", http.StatusOK, " Got:", w.Code, "  Error. Did not succesfully get")
+	}
+}
+
+func TestGetNoHeaderPath(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	r.HandleFunc("/configs", getConfigs)
+
+	filePath := ""
+	filename := "frank.xml"
+	request, err := http.NewRequest(http.MethodGet, "/configs", nil)
+
+	request.Header.Set("configPathDir", filePath)
+	request.Header.Get("configPathDir")
+
+	request.Header.Set("filename", filename)
+	request.Header.Get("filename")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Test No-Header-Get. Expected:", http.StatusBadRequest, " Got:", w.Code)
+	}
+}
+
+func TestGetFileNotFound(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	r.HandleFunc("/configs", getConfigs)
+
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	filename := "file.jpg"
+	request, err := http.NewRequest(http.MethodGet, "/configs", nil)
+
+	request.Header.Set("configPathDir", filePath)
+	request.Header.Get("configPathDir")
+
+	request.Header.Set("filename", filename)
+	request.Header.Get("filename")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Test File Not Found. Expected:", http.StatusNotFound, " Got:", w.Code)
+	}
+}
+
