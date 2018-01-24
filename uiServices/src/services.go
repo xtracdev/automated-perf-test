@@ -150,3 +150,71 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
     fmt.Println(string(configJson))
 
 }
+
+func putConfigs(rw http.ResponseWriter, req *http.Request) {
+    configPathDir := req.Header.Get("configPathDir")
+    buf := new(bytes.Buffer)
+    buf.ReadFrom(req.Body)
+
+    if !validateJsonWithSchema(buf.Bytes()) {
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+
+    }
+
+    config := perfTestUtils.Config{}
+    err := json.Unmarshal(buf.Bytes(), &config)
+
+    if err != nil {
+        logrus.Error("Failed to unmarshall json body", err)
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    if !strings.HasSuffix(configPathDir, "/") {
+        configPathDir = configPathDir + "/"
+    }
+
+    if len(configPathDir) <= 1 {
+        logrus.Error("File path Not Found", err)
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+
+    }
+
+    if !FilePathExist(configPathDir) {
+        logrus.Error("File path does not exist", err)
+        rw.WriteHeader(http.StatusConflict)
+        return
+
+    }
+
+    if config.APIName == ""||
+    config.AllowablePeakMemoryVariance ==0||
+    config.AllowableServiceResponseTimeVariance==0 ||
+    config.TargetHost =="" ||
+    config.TargetPort =="" ||
+    config.NumIterations==0 ||
+    config.TestCaseDir=="" ||
+    config.TestSuiteDir==""||
+    config.BaseStatsOutputDir==""||
+    config.ReportOutputDir==""||
+    config.ConcurrentUsers==0||
+    config.TestSuite==""||
+    config.RequestDelay==0||
+    config.TPSFreq==0||
+    config.RampDelay==0||
+    config.RampUsers==0{
+        logrus.Println("Error: Missing Required Field(s)")
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    if !writerXml(config, configPathDir) {
+        rw.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    rw.WriteHeader(http.StatusNoContent)
+
+}

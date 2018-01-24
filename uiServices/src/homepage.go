@@ -100,6 +100,7 @@ func routeConfigs() http.Handler {
 	router.Use(ConfigCtx)
 	router.Post("/", postConfigs)
 	router.Get("/", getConfigs)
+	router.Put("/", putConfigs)
 
 	return router
 }

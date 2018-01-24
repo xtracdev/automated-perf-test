@@ -33,6 +33,26 @@ const validJson = `{
        "rampDelay": 15
        }`
 
+const validUpdatedJson = `{
+        "apiName": "ServiceTestConfig",
+       "targetHost": "localhost",
+       "targetPort": "9999",
+       "numIterations": 9999,
+       "allowablePeakMemoryVariance": 50,
+       "allowableServiceResponseTimeVariance": 50,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+        "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 100,
+       "testSuite": "Default-1",
+       "memoryEndpoint": "/alt/debug/vars",
+       "requestDelay": 2000,
+       "TPSFreq": 50,
+       "rampUsers": 10,
+       "rampDelay": 55
+       }`
+
 const invalidJson = `{
         "apiName"://*()()(),
        "targetHost": 0,
@@ -276,3 +296,30 @@ func TestGetFileNotFound(t *testing.T) {
 	}
 }
 
+
+
+func TestSuccessfulPut(t *testing.T) {
+	//run all tests together or you must run Test Successul POST method first to create file to update
+
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validUpdatedJson)
+	r.HandleFunc("/configs", putConfigs)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodPut, "/configs", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if w.Code != http.StatusNoContent {
+		t.Errorf("TestValidJsonPut. Expected:", http.StatusNoContent, " Got:", w.Code, "  Error. Did not succesfully update")
+	}
+
+}
