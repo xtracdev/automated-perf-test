@@ -13,6 +13,7 @@ import (
     "fmt"
     "encoding/xml"
     "io/ioutil"
+    "github.com/go-chi/chi"
 )
 
 func ConfigCtx(next http.Handler) http.Handler {
@@ -103,34 +104,32 @@ func validateJsonWithSchema(config []byte) bool {
 }
 
 func getConfigs(rw http.ResponseWriter, req *http.Request){
-    //assign header variables
-    configPathDir := req.Header.Get("configPathDir")
-    filename := req.Header.Get("filename")
 
-    // add a "/" if path does not have one (otherwise GET is unsuccessful)
+    configPathDir := req.Header.Get("configPathDir")
+    configName := chi.URLParam(req, "configName")
+
     if !strings.HasSuffix(configPathDir, "/"){
         configPathDir = configPathDir + "/"
     }
-    //open file and handle errors
-    file, err := os.Open(configPathDir + filename)
-    //Handle Missing Header Path
+
+    file, err := os.Open(configPathDir + configName)
+
     if len(configPathDir) <= 1{
         rw.WriteHeader(http.StatusBadRequest)
         logrus.Println("No Header Path Found")
         return
     }
-    //filename error
+
     if err != nil {
-        logrus.Println("Configuration Name Not Found: "+configPathDir + filename)
+        logrus.Println("Configuration Name Not Found: "+configPathDir + configName)
         rw.WriteHeader(http.StatusNotFound)
         return
     }
 
     defer file.Close()
-    //config struct
+
     var config perfTestUtils.Config
 
-    //read bytes from xml file
     byteValue, err := ioutil.ReadAll(file)
     xml.Unmarshal(byteValue, &config)
     if err != nil{
@@ -138,14 +137,12 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
         return
     }
 
-    //marshall config file into json
     configJson, err := json.MarshalIndent(config,"","")
     if err != nil {
         logrus.Println("Cannot Marshall")
         return
     }
 
-    //response
     rw.WriteHeader(http.StatusOK)
     fmt.Println(string(configJson))
 

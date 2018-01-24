@@ -37,10 +37,11 @@ Feature: Create Configuration File
     Then the response code should be 405
 
   Scenario: Try to retrieve config file with "GET" request
+    Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header configsDirPath is "/uiServices/test/"
     And the file name is "GodogConfig.xml"
-    When I send a "GET" request to "/configs"
+    When I send a "GET" request to "/configs/GodogConfig.xml"
     Then the response code should be 200
     And the response body should match json:
     """

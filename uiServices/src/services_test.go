@@ -167,19 +167,25 @@ func TestSuccessfulGet(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	r.HandleFunc("/configs", getConfigs)
+	// create file to GET
+	reader := strings.NewReader(validJson)
+	r.HandleFunc("/configs", postConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
-	filename := "frank.xml"
-	request, err := http.NewRequest(http.MethodGet, "/configs", nil)
+	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	//prepare GET request
+	filePath = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err = http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig.xml", nil)
 
 	request.Header.Set("configPathDir", filePath)
 	request.Header.Get("configPathDir")
 
-	request.Header.Set("filename", filename)
-	request.Header.Get("filename")
-
-	w := httptest.NewRecorder()
+	w = httptest.NewRecorder()
 	r.ServeHTTP(w, request)
 
 	if err != nil {
@@ -196,16 +202,12 @@ func TestSuccessfulGetPathWihoutSlash(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	r.HandleFunc("/configs", getConfigs)
-
+	//no slash at end of filepath header
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
-	filename := "frank.xml"
-	request, err := http.NewRequest(http.MethodGet, "/configs", nil)
+	request, err := http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig.xml", nil)
 
 	request.Header.Set("configPathDir", filePath)
 	request.Header.Get("configPathDir")
-
-	request.Header.Set("filename", filename)
-	request.Header.Get("filename")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -226,14 +228,10 @@ func TestGetNoHeaderPath(t *testing.T) {
 	r.HandleFunc("/configs", getConfigs)
 
 	filePath := ""
-	filename := "frank.xml"
-	request, err := http.NewRequest(http.MethodGet, "/configs", nil)
+	request, err := http.NewRequest(http.MethodGet, "/configs/serviceTestConfig.xml", nil)
 
 	request.Header.Set("configPathDir", filePath)
 	request.Header.Get("configPathDir")
-
-	request.Header.Set("filename", filename)
-	request.Header.Get("filename")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -255,14 +253,10 @@ func TestGetFileNotFound(t *testing.T) {
 
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
-	filename := "file.jpg"
-	request, err := http.NewRequest(http.MethodGet, "/configs", nil)
+	request, err := http.NewRequest(http.MethodGet, "/configs/xxx.java", nil)
 
 	request.Header.Set("configPathDir", filePath)
 	request.Header.Get("configPathDir")
-
-	request.Header.Set("filename", filename)
-	request.Header.Get("filename")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -275,4 +269,3 @@ func TestGetFileNotFound(t *testing.T) {
 		t.Errorf("Test File Not Found. Expected:", http.StatusNotFound, " Got:", w.Code)
 	}
 }
-

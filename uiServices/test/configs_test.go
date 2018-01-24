@@ -185,6 +185,7 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^I send "([^"]*)" request to "([^"]*)" with a body:$`, api.iSendRequestToWithABody)
 	s.Step(`^the file name is "([^"]*)"$`, api.theFileNameis)
 	s.Step(`^I send a "([^"]*)" request to "([^"]*)"$`, api.iSendARequestTo)
+	s.Step(`^the config file "([^"]*)" exists at "([^"]*)"$`, theConfigFileExistsAt)
 }
 
 func theAutomatedPerformanceUiServerIsAvailable() error {
@@ -250,7 +251,6 @@ func makeGetRequest(client *http.Client, method, endpoint string, filename strin
 		if err != nil {
 		return nil, err
 		}
-		req.Header.Set("filename",filename )
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -259,3 +259,12 @@ func makeGetRequest(client *http.Client, method, endpoint string, filename strin
 
 	return resp, nil
 }
+
+func theConfigFileExistsAt(filename, path string)error{
+	_, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test"+path+filename)
+	if err != nil{
+		fmt.Println("Error. File Not Found at location : "+path +filename)
+		return nil
+	}
+	return nil
+	}
