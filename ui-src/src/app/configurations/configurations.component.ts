@@ -6,7 +6,6 @@ import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import { ToastOptions } from "ng2-toastr/src/toast-options";
 import { Observable } from "rxjs/Observable";
 import "rxjs/add/operator/map";
-import { headersToString } from "selenium-webdriver/http";
 @Component({
   selector: "app-configurations",
   templateUrl: "./configurations.component.html",
