@@ -44,7 +44,7 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
     }
 
     if len(configPathDir) <= 1 {
-        logrus.Error("File path is length too short", err)
+       logrus.Error("File path is length too short", err)
         rw.WriteHeader(http.StatusBadRequest)
         return
 
@@ -75,7 +75,7 @@ func FilePathExist(path string) bool {
 
 func validateJsonWithSchema(config []byte) bool {
     goPath := os.Getenv("GOPATH")
-    schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/schema.json")
+    schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/schema.json")
     documentLoader := gojsonschema.NewBytesLoader(config)
     logrus.Info(schemaLoader)
     result, error := gojsonschema.Validate(schemaLoader, documentLoader)
@@ -98,3 +98,5 @@ func validateJsonWithSchema(config []byte) bool {
     return true
 
 }
+
+
