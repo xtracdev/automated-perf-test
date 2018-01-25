@@ -144,7 +144,7 @@ export class ConfigurationsComponent implements OnInit {
     };
   }
 
-  onSubmit(configData, configPath) {
+  onSubmit(configData) {
     this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
       data => {
         this.toastr.success("Your data has been save!", "Success!");
@@ -156,6 +156,7 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onCancel() {
+    this.configPath = "";
     this.formData = undefined;
   }
 }
