@@ -50,43 +50,19 @@ describe("configuration component", () => {
     expect(configPO.labels.get(11).getText()).toContain("Ramp Delay (s)");
     expect(configPO.labels.get(12).getText()).toContain("Test Suite");
     expect(configPO.labels.get(13).getText()).toContain("Test Case Directory");
-    expect(configPO.labels.get(14).getText()).toContain(
-      "Test Suites Directory"
-    );
-  });
-  it("should check for file", () => {
-    configPO.configFilePath.sendKeys(configPO.absolutePath + "config.xml");
-    expect(configPO.applicationName.getAttribute("value")).toEqual("Xtrac API");
-    expect(configPO.targetHost.getAttribute("value")).toEqual("localhost");
-    expect(configPO.targetPort.getAttribute("value")).toEqual("8080");
-    expect(configPO.numIterations.getAttribute("value")).toEqual(1000);
-    expect(configPO.concurrentUsers.getAttribute("value")).toEqual(50);
-    expect(configPO.memoryVariance.getAttribute("value")).toEqual(15);
-    expect(configPO.serviceVariance.getAttribute("value")).toEqual(15);
-    expect(configPO.testSuite.getAttribute("value")).toEqual(
-      "suiteFileName.xml"
-    );
-    expect(configPO.requestDelay.getAttribute("value")).toEqual(5000);
-    expect(configPO.tpsFreq.getAttribute("value")).toEqual(30);
-    expect(configPO.rampUsers.getAttribute("value")).toEqual(5);
-    expect(configPO.rampDelay.getAttribute("value")).toEqual(15);
-    expect(configPO.testCaseDir.getAttribute("value")).toEqual(
-      "./definitions/testCases"
-    );
-    expect(configPO.testSuiteDir.getAttribute("value")).toEqual(
-      "./definitions/testSuites"
-    );
-    expect(configPO.baseStatsDir.getAttribute("value")).toEqual("./envStats");
-    expect(configPO.reportsDir.getAttribute("value")).toEqual("./report");
+    expect(configPO.labels.get(14).getText()).toContain("Test Suites Directory")
+     
   });
 
-  it("should check if Config ", () => {
+  it("should throw error when file path does not exist", () => {
     configPO.addData();
-    configPO.configFilePath.sendKeys("!!!!!!!");
-    expect(configPO.toastrMessage.getText()).toContain(
-      "Check the Command Line!"
-    );
+    configPO.configFilePath.sendKeys("!!!!!!!!!");
+    configPO.submitBtn.click();
+    expect(configPO.toastrMessage.getText()).toContain("Check the Command Line!");
+
   });
+
+   
   it("should check requiredFields warning appears when requiredFields input is blank", () => {
     configPO.checkRequiredFields();
     since("(apiName) #{actual} =/= #{expected}")
