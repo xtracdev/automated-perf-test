@@ -6,11 +6,9 @@ import (
     "net/http"
     "os"
     "strings"
-
     "github.com/Sirupsen/logrus"
     "github.com/xeipuuv/gojsonschema"
     "github.com/xtracdev/automated-perf-test/perfTestUtils"
-    "fmt"
     "encoding/xml"
     "io/ioutil"
     "github.com/go-chi/chi"
@@ -21,7 +19,6 @@ func ConfigCtx(next http.Handler) http.Handler {
         next.ServeHTTP(w, r)
     })
 }
-
 func postConfigs(rw http.ResponseWriter, req *http.Request) {
     configPathDir := req.Header.Get("configPathDir")
     buf := new(bytes.Buffer)
@@ -30,7 +27,6 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
     if !validateJsonWithSchema(buf.Bytes()) {
         rw.WriteHeader(http.StatusBadRequest)
         return
-
     }
 
     config := perfTestUtils.Config{}
@@ -42,7 +38,6 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
         return
     }
 
-    //error check to ensure file path ends with "\"
     if !strings.HasSuffix(configPathDir, "/") {
         configPathDir = configPathDir + "/"
     }
@@ -68,10 +63,8 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
     }
 
     rw.WriteHeader(http.StatusCreated)
-
 }
 
-// exists returns whether the given file or directory exists or not
 func FilePathExist(path string) bool {
     _, err := os.Stat(path)
     return !os.IsNotExist(err)
@@ -100,7 +93,6 @@ func validateJsonWithSchema(config []byte) bool {
         }
     }
     return true
-
 }
 
 func getConfigs(rw http.ResponseWriter, req *http.Request){
@@ -112,7 +104,7 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
         configPathDir = configPathDir + "/"
     }
 
-    file, err := os.Open(configPathDir + configName)
+    file, err := os.Open(configPathDir + configName + ".xml")
 
     if len(configPathDir) <= 1{
         rw.WriteHeader(http.StatusBadRequest)
@@ -144,6 +136,7 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
     }
 
     rw.WriteHeader(http.StatusOK)
-    fmt.Println(string(configJson))
+    rw.Write(configJson)
+    logrus.Println(string(configJson))
 
 }

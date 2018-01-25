@@ -110,6 +110,7 @@ func (a *apiFeature) theHeaderConfigsDirPathIs(path string) error{
 		fmt.Println("Error: No Header Defined")
 		return nil
 	}
+	fmt.Println(path)
 	return nil
 }
 
@@ -234,7 +235,7 @@ func (a *apiFeature) theFileNameis(filename string)error {
 }
 
 func (a *apiFeature) iSendARequestTo(method, endpoint string) error {
-	response, err := makeGetRequest(a.client, method, endpoint, a.filename)
+	response, err := makeGetRequest(a.client, method, endpoint, a.filename, a.header)
 	if err != nil {
 		return err
 	}
@@ -243,11 +244,15 @@ func (a *apiFeature) iSendARequestTo(method, endpoint string) error {
 	return nil
 }
 
-func makeGetRequest(client *http.Client, method, endpoint string, filename string) (*http.Response, error) {
+func makeGetRequest(client *http.Client, method, endpoint string, filename string, header string) (*http.Response, error) {
 
 	req, err := http.NewRequest(method, "http://localhost:9191" + endpoint,nil)
 
+	if header == ""{
+		req.Header.Set("configPathDir", "")
+	}else{
 		req.Header.Set("configPathDir", fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+	}
 		if err != nil {
 		return nil, err
 		}

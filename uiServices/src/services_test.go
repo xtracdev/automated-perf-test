@@ -33,6 +33,26 @@ const validJson = `{
        "rampDelay": 15
        }`
 
+const invalidJsonMissingField = `{
+        "apiName": "ServiceTestConfig",
+       "targetHost": "localhost",
+       "targetPort": "9191",
+       "numIterations": 1000,
+       "allowablePeakMemoryVariance": 30,
+       "allowableServiceResponseTimeVariance": 30,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+        "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 50,
+       "testSuite": "",
+       "memoryEndpoint": "/alt/debug/vars",
+       "requestDelay": 5000,
+       "TPSFreq": 30,
+       "rampUsers": 5,
+       "rampDelay": 15
+       }`
+
 const invalidJson = `{
         "apiName"://*()()(),
        "targetHost": 0,
@@ -69,6 +89,29 @@ func TestFilePathDoesNotExist(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func TestInvalidJsonPostMissingRequiredField(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(invalidJsonMissingField)
+	r.HandleFunc("/configs", postConfigs)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("TestValidJsonPost. Expected:", http.StatusBadRequest, " Got:", w.Code, "  Error. Did not succesfully post")
+	}
+}
+
 func TestValidJsonPost(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -89,6 +132,52 @@ func TestValidJsonPost(t *testing.T) {
 
 	if w.Code != http.StatusCreated {
 		t.Errorf("TestValidJsonPost. Expected:", http.StatusCreated, " Got:", w.Code, "  Error. Did not succesfully post")
+	}
+}
+
+func TestPostWithInvalidHeader (t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validJson)
+	r.HandleFunc("/configs", postConfigs)
+
+	filePath := "xxxxxx"
+	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("TestValidJsonPost. Expected:", http.StatusBadRequest ," Got:", w.Code, "  Error. Did not succesfully post")
+	}
+}
+
+func TestInternalServerErrorwithPost (t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validJson)
+	r.HandleFunc("/configs", postConfigs)
+
+	filePath := "``¬¬``|"
+	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("TestValidJsonPost. Expected:", http.StatusInternalServerError ," Got:", w.Code, "  Error. Did not succesfully post")
 	}
 }
 func TestFilePathEndsWIthSlash(t *testing.T) {
@@ -180,7 +269,7 @@ func TestSuccessfulGet(t *testing.T) {
 
 	//prepare GET request
 	filePath = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
-	request, err = http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig.xml", nil)
+	request, err = http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig", nil)
 
 	request.Header.Set("configPathDir", filePath)
 	request.Header.Get("configPathDir")
@@ -204,7 +293,7 @@ func TestSuccessfulGetPathWihoutSlash(t *testing.T) {
 	r.HandleFunc("/configs", getConfigs)
 	//no slash at end of filepath header
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
-	request, err := http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig.xml", nil)
+	request, err := http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig", nil)
 
 	request.Header.Set("configPathDir", filePath)
 	request.Header.Get("configPathDir")
@@ -228,7 +317,7 @@ func TestGetNoHeaderPath(t *testing.T) {
 	r.HandleFunc("/configs", getConfigs)
 
 	filePath := ""
-	request, err := http.NewRequest(http.MethodGet, "/configs/serviceTestConfig.xml", nil)
+	request, err := http.NewRequest(http.MethodGet, "/configs/serviceTestConfig", nil)
 
 	request.Header.Set("configPathDir", filePath)
 	request.Header.Get("configPathDir")
