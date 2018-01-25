@@ -150,7 +150,7 @@ export class ConfigurationsComponent implements OnInit {
         this.toastr.success("Your data has been save!", "Success!");
       },
       error => {
-        this.toastr.error("Failed to save data, Check the Command Line!");
+        this.toastr.error("Failed to save data", "Check the Command Line!");
       }
     );
   }
