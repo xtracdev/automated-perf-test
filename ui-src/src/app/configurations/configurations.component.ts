@@ -4,6 +4,7 @@ import { AutomatedUIServices } from "../automated-ui-services";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import { ToastOptions } from "ng2-toastr/src/toast-options";
+import "rxjs/add/operator/map";
 @Component({
   selector: "app-configurations",
   templateUrl: "./configurations.component.html",
@@ -12,6 +13,7 @@ import { ToastOptions } from "ng2-toastr/src/toast-options";
 export class ConfigurationsComponent implements OnInit {
   formData = {};
   configPath = "";
+
   constructor(
     private automatedUIServices: AutomatedUIServices,
     private toastr: ToastsManager
@@ -143,18 +145,42 @@ export class ConfigurationsComponent implements OnInit {
       allowableServiceResponseTimeVariance: 15
     };
   }
+  // onSubmit(configData) {
+  //   this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
+  //     data => {
+  //       this.toastr.success("Your data has been save!", "Success!");
+  //     },
+  //     error => {
+  //       this.toastr.error("Failed to save data", "Check the Command Line!");
+  //     }
+  //   );
+  // }
 
   onSubmit(configData) {
-    this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
-      data => {
-        this.toastr.success("Your data has been save!", "Success!");
-      },
-      error => {
-        this.toastr.error("Failed to save data", "Check the Command Line!");
-      }
-    );
+    this.automatedUIServices
+      .postConfig$(configData, this.configPath)
+      .map(res => {
+        // If request fails, throw an Error that will be caught
+        if (res.status === 400) {
+          throw this.toastr.error("Failed to save data", "File Not Found!");
+        } else {
+          // If everything went fine, return the response
+          return this.automatedUIServices
+            .postConfig$(configData, this.configPath)
+            .subscribe(
+              data => {
+                this.toastr.success("Your data has been save!", "Success!");
+              },
+              error => {
+                this.toastr.error(
+                  "Failed to save data",
+                  "Check the Command Line!"
+                );
+              }
+            );
+        }
+      });
   }
-
   onCancel() {
     this.configPath = "";
     this.formData = undefined;
