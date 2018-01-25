@@ -145,42 +145,22 @@ export class ConfigurationsComponent implements OnInit {
       allowableServiceResponseTimeVariance: 15
     };
   }
-  // onSubmit(configData) {
-  //   this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
-  //     data => {
-  //       this.toastr.success("Your data has been save!", "Success!");
-  //     },
-  //     error => {
-  //       this.toastr.error("Failed to save data", "Check the Command Line!");
-  //     }
-  //   );
-  // }
 
   onSubmit(configData) {
-    this.automatedUIServices
-      .postConfig$(configData, this.configPath)
-      .map(res => {
-        // If request fails, throw an Error that will be caught
-        if (res.status === 400) {
-          throw this.toastr.error("Failed to save data", "File Not Found!");
-        } else {
-          // If everything went fine, return the response
-          return this.automatedUIServices
-            .postConfig$(configData, this.configPath)
-            .subscribe(
-              data => {
-                this.toastr.success("Your data has been save!", "Success!");
-              },
-              error => {
-                this.toastr.error(
-                  "Failed to save data",
-                  "Check the Command Line!"
-                );
-              }
-            );
+    this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
+      data => {
+        this.toastr.success("Your data has been save!", "Success!");
+      },
+      error => {
+        if (error.status === 500) {
+          return this.toastr.error("Internal Server Error!", "Error!");
+        } else if (error.status === 400) {
+          return this.toastr.error("Directory Not found!", "Error!");
         }
-      });
+      }
+    );
   }
+
   onCancel() {
     this.configPath = "";
     this.formData = undefined;

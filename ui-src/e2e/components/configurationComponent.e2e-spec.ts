@@ -50,19 +50,18 @@ describe("configuration component", () => {
     expect(configPO.labels.get(11).getText()).toContain("Ramp Delay (s)");
     expect(configPO.labels.get(12).getText()).toContain("Test Suite");
     expect(configPO.labels.get(13).getText()).toContain("Test Case Directory");
-    expect(configPO.labels.get(14).getText()).toContain("Test Suites Directory")
-     
+    expect(configPO.labels.get(14).getText()).toContain(
+      "Test Suites Directory"
+    );
   });
 
   it("should throw error when file path does not exist", () => {
     configPO.addData();
     configPO.configFilePath.sendKeys("!!!!!!!!!");
     configPO.submitBtn.click();
-    expect(configPO.toastrMessage.getText()).toContain("Check the Command Line!");
-
+    expect(configPO.toastrMessage.getText()).toContain("Directory Not found!");
   });
 
-   
   it("should check requiredFields warning appears when requiredFields input is blank", () => {
     configPO.checkRequiredFields();
     since("(apiName) #{actual} =/= #{expected}")
