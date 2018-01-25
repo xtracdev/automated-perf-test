@@ -54,13 +54,6 @@ describe("configuration component", () => {
      
   });
 
-  
-  it("should show submit button is disabled when requiredFields data is blank", () => {
-    // used to clear default data in this test
-    configPO.checkRequiredFields();
-    expect(configPO.submitBtn.isEnabled()).toBe(false);
-  });
-
   it("should throw error when file path does not exist", () => {
     configPO.addData();
     configPO.configFilePath.sendKeys("!!!!!!!!!");
