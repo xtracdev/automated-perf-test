@@ -57,7 +57,7 @@ describe("configuration component", () => {
 
   it("should throw error when file path does not exist", () => {
     configPO.addData();
-    configPO.configFilePath.sendKeys("!!!!!!!!!");
+    configPO.configFilePath.sendKeys("/path/to/bad/location");
     configPO.submitBtn.click();
     expect(configPO.toastrMessage.getText()).toContain("Directory Not found!");
   });
