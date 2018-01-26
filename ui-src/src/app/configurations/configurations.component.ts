@@ -12,8 +12,8 @@ import "rxjs/add/operator/map";
 })
 export class ConfigurationsComponent implements OnInit {
   formData = {};
-  configPath = "";
-  xmlFileName = "";
+  configPath = undefined;
+  xmlFileName = undefined;
 
   constructor(
     private automatedUIServices: AutomatedUIServices,
@@ -162,16 +162,20 @@ export class ConfigurationsComponent implements OnInit {
       },
       error => {
         if (error.status === 500) {
-          return this.toastr.error("Internal Server Error!", "Error!");
+          return this.toastr.error(
+            "Internal Server Error!",
+            "An error occurred"
+          );
         } else if (error.status === 400) {
-          return this.toastr.error("Directory Not found!", "Error!");
+          return this.toastr.error("Directory Not found!", "An error occurred");
         }
       }
     );
   }
 
   onCancel() {
-    this.configPath = "";
+    this.configPath = undefined;
+    this.xmlFileName = undefined;
     this.formData = undefined;
   }
 
@@ -185,9 +189,12 @@ export class ConfigurationsComponent implements OnInit {
         },
         error => {
           if (error.status === 404) {
-            return this.toastr.error("File Not Found", "Error!");
+            return this.toastr.error("File Not Found", "An error occurred");
           } else if (error.status === 400) {
-            return this.toastr.error("Invalid Config File Path", "Error!");
+            return this.toastr.error(
+              "Invalid Config File Path",
+              "An error occurred"
+            );
           }
         }
       );
