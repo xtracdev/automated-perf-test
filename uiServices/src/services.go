@@ -6,10 +6,13 @@ import (
     "net/http"
     "os"
     "strings"
-
     "github.com/Sirupsen/logrus"
     "github.com/xeipuuv/gojsonschema"
     "github.com/xtracdev/automated-perf-test/perfTestUtils"
+    "encoding/xml"
+    "io/ioutil"
+    "github.com/go-chi/chi"
+    "fmt"
 )
 
 func ConfigCtx(next http.Handler) http.Handler {
@@ -17,7 +20,6 @@ func ConfigCtx(next http.Handler) http.Handler {
         next.ServeHTTP(w, r)
     })
 }
-
 func postConfigs(rw http.ResponseWriter, req *http.Request) {
     configPathDir := req.Header.Get("configPathDir")
     buf := new(bytes.Buffer)
@@ -26,7 +28,6 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
     if !validateJsonWithSchema(buf.Bytes()) {
         rw.WriteHeader(http.StatusBadRequest)
         return
-
     }
 
     config := perfTestUtils.Config{}
@@ -38,7 +39,6 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
         return
     }
 
-    //error check to ensure file path ends with "\"
     if !strings.HasSuffix(configPathDir, "/") {
         configPathDir = configPathDir + "/"
     }
@@ -64,10 +64,8 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
     }
 
     rw.WriteHeader(http.StatusCreated)
-
 }
 
-// exists returns whether the given file or directory exists or not
 func FilePathExist(path string) bool {
     _, err := os.Stat(path)
     return !os.IsNotExist(err)
@@ -96,5 +94,61 @@ func validateJsonWithSchema(config []byte) bool {
         }
     }
     return true
+}
+
+func getConfigs(rw http.ResponseWriter, req *http.Request){
+
+    configPathDir := req.Header.Get("configPathDir")
+    configName := chi.URLParam(req, "configName")
+
+    if !strings.HasSuffix(configPathDir, "/"){
+        configPathDir = configPathDir + "/"
+    }
+
+    file, err := os.Open(fmt.Sprintf("%s%s.xml", configPathDir, configName))
+    if len(configPathDir) <= 1{
+        rw.WriteHeader(http.StatusBadRequest)
+        logrus.Error("No Header Path Found")
+        return
+    }
+    if err != nil {
+        logrus.Error("Configuration Name Not Found: "+configPathDir + configName)
+        rw.WriteHeader(http.StatusNotFound)
+        return
+    }
+    defer file.Close()
+
+    if err != nil {
+        logrus.Error("Configuration Name Not Found: "+configPathDir + configName)
+        rw.WriteHeader(http.StatusNotFound)
+        return
+    }
+
+    var config perfTestUtils.Config
+
+    byteValue, err := ioutil.ReadAll(file)
+    if err != nil{
+        rw.WriteHeader(http.StatusInternalServerError)
+        logrus.Error("Cannot Read File")
+        return
+    }
+
+    xml.Unmarshal(byteValue, &config)
+    if err != nil{
+        rw.WriteHeader(http.StatusInternalServerError)
+        logrus.Error("Cannot Unmarshall")
+        return
+    }
+
+    configJson, err := json.MarshalIndent(config,"","")
+    if err != nil {
+        rw.WriteHeader(http.StatusInternalServerError)
+        logrus.Error("Cannot Marshall")
+        return
+    }
+
+    rw.WriteHeader(http.StatusOK)
+    rw.Write(configJson)
+    logrus.Println(string(configJson))
 
 }

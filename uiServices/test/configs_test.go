@@ -16,13 +16,16 @@ import (
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"encoding/json"
 	"reflect"
+	"net/http/httptest"
 )
 
 type apiFeature struct {
+	res *httptest.ResponseRecorder
 	resp   *http.Response
 	client *http.Client
 	requestbody string
 	header string
+	filename string
 }
 
 func (a *apiFeature) resetResponse() {
@@ -31,7 +34,7 @@ func (a *apiFeature) resetResponse() {
 }
 
 func (a *apiFeature) iSendrequestTo(method, endpoint string) (err error) {
-	response, err := makeRequest(a.client, method, endpoint, "","")
+	response, err := makePostRequest(a.client, method, endpoint, "","")
 	if err != nil {
 		return err
 	}
@@ -47,8 +50,40 @@ func (a *apiFeature) theResponseCodeShouldBe(code int) error {
 	return nil
 }
 
-//not currently needed for POST request. Will be needed for GET request in future sprints
-func (a *apiFeature) theResponseShouldMatchJSON(body *gherkin.DocString) (err error) {
+func (a *apiFeature) theResponseBodyShouldMatchJSON(body *gherkin.DocString) (err error) {
+	var expectedConfig perfTestUtils.Config
+	var actualConfig perfTestUtils.Config
+
+	expectedJson := `"""
+	{
+		"apiName": "GodogConfig",
+	"targetHost": "localhost",
+	"targetPort":"9191",
+	"memoryEndpoint": "/alt/debug/vars",
+	"numIterations": 1000,
+	"allowablePeakMemoryVariance": 30,
+	"allowableServiceResponseTimeVariance": 30,
+	"testCaseDir": "./definitions/testCases",
+	"testSuiteDir": "./definitions/testSuites",
+	"baseStatsOutputDir": "./envStats",
+	"reportOutputDir": "./report",
+	"concurrentUsers": 50,
+	"testSuite": "Default-3",
+	"requestDelay": 5000,
+	"TPSFreq": 30,
+	"rampUsers": 5,
+	"rampDelay": 15
+	}
+	"""`
+
+	json.Unmarshal([]byte (body.Content), &actualConfig)
+	json.Unmarshal([]byte (expectedJson), &expectedConfig)
+
+	if !reflect.DeepEqual(&expectedConfig,&actualConfig) {
+		fmt.Errorf("Expected :", expectedConfig," ,but actual was :", actualConfig)
+		return
+	}
+
 	return nil
 }
 
@@ -75,6 +110,7 @@ func (a *apiFeature) theHeaderConfigsDirPathIs(path string) error{
 		fmt.Println("Error: No Header Defined")
 		return nil
 	}
+	fmt.Println(path)
 	return nil
 }
 
@@ -96,7 +132,7 @@ func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() 
 }
 
 func (a *apiFeature) iSendRequestToWithABody(method, endpoint string, body *gherkin.DocString) error {
-	response, err := makeRequest(a.client, method, endpoint, body.Content, a.header)
+	response, err := makePostRequest(a.client, method, endpoint, body.Content, a.header)
 	a.requestbody = body.Content
 	if err != nil {
 		return err
@@ -105,7 +141,7 @@ func (a *apiFeature) iSendRequestToWithABody(method, endpoint string, body *gher
 	return nil
 }
 
-func makeRequest(client *http.Client, method, endpoint, body string, header string) (*http.Response, error) {
+func makePostRequest(client *http.Client, method, endpoint, body string, header string) (*http.Response, error) {
 
 	var reqBody io.Reader
 	if body != "" {
@@ -143,11 +179,14 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^I send "(GET|POST|PUT|DELETE)" request to "([^"]*)"$`, api.iSendrequestTo)
 	s.Step(`^the response code should be (\d+)$`, api.theResponseCodeShouldBe)
 	s.Step(`^the header configsDirPath is "([^"]*)"$`, api.theHeaderConfigsDirPathIs)
-	s.Step(`^the response should match json:$`, api.theResponseShouldMatchJSON)
+	s.Step(`^the response body should match json:$`, api.theResponseBodyShouldMatchJSON)
 	s.Step(`^the response body should be empty$`, api.theResponseBodyShouldBeEmpty)
 	s.Step(`^the config file was created at location defined by configsPathDir$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir)
 	s.Step(`^the automated performance ui server is available$`, theAutomatedPerformanceUiServerIsAvailable)
 	s.Step(`^I send "([^"]*)" request to "([^"]*)" with a body:$`, api.iSendRequestToWithABody)
+	s.Step(`^the file name is "([^"]*)"$`, api.theFileNameis)
+	s.Step(`^I send a "([^"]*)" request to "([^"]*)"$`, api.iSendARequestTo)
+	s.Step(`^the config file "([^"]*)" exists at "([^"]*)"$`, theConfigFileExistsAt)
 }
 
 func theAutomatedPerformanceUiServerIsAvailable() error {
@@ -189,3 +228,48 @@ func  IsValidXml(config string, header string) bool{
 	}
 	return true
 }
+
+func (a *apiFeature) theFileNameis(filename string)error {
+	a.filename = filename
+	return nil
+}
+
+func (a *apiFeature) iSendARequestTo(method, endpoint string) error {
+	response, err := makeGetRequest(a.client, method, endpoint, a.filename, a.header)
+	if err != nil {
+		return err
+	}
+
+	a.resp = response
+	return nil
+}
+
+func makeGetRequest(client *http.Client, method, endpoint string, filename string, header string) (*http.Response, error) {
+
+	req, err := http.NewRequest(method, "http://localhost:9191" + endpoint,nil)
+
+	if header == ""{
+		req.Header.Set("configPathDir", "")
+	}else{
+		req.Header.Set("configPathDir", fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+	}
+		if err != nil {
+		return nil, err
+		}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func theConfigFileExistsAt(filename, path string)error{
+	_, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test"+path+filename)
+	if err != nil{
+		fmt.Println("Error. File Not Found at location : "+path +filename)
+		return nil
+	}
+	return nil
+	}
