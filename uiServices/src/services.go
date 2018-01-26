@@ -133,7 +133,7 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
         return
     }
 
-    xml.Unmarshal(byteValue, &config)
+    err = xml.Unmarshal(byteValue, &config)
     if err != nil{
         rw.WriteHeader(http.StatusInternalServerError)
         logrus.Error("Cannot Unmarshall")
