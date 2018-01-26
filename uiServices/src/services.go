@@ -139,7 +139,7 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
         logrus.Error("Cannot Unmarshall")
         return
     }
-
+ 
     configJson, err := json.MarshalIndent(config,"","")
     if err != nil {
         rw.WriteHeader(http.StatusInternalServerError)
