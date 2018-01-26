@@ -159,6 +159,7 @@ class ConfigurationPageObject {
     this.rampDelay.sendKeys("e");
   }
   checkNegativeValues() {
+    this.applicationName.sendKeys(1);
     this.numIterations.sendKeys(-1);
     this.concurrentUsers.sendKeys(-1);
     // Clear default data in these fields

@@ -181,6 +181,7 @@ describe("configuration component", () => {
   });
 
   it("should check that warning appears if value exceeds maximum", () => {
+    configPO.applicationName.sendKeys(101);
     configPO.memoryVariance.sendKeys(101);
     configPO.serviceVariance.sendKeys(101);
     since("(memoryVariance) #{actual} =/= #{expected}")
