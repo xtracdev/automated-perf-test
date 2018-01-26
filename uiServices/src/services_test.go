@@ -158,28 +158,6 @@ func TestPostWithInvalidHeader (t *testing.T) {
 	}
 }
 
-func TestInternalServerErrorwithPost (t *testing.T) {
-	r := chi.NewRouter()
-	r.Mount("/", GetIndexPage())
-
-	reader := strings.NewReader(validJson)
-	r.HandleFunc("/configs", postConfigs)
-
-	filePath := "``¬¬``|"
-	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
-	request.Header.Set("configPathDir", filePath)
-
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	if w.Code != http.StatusInternalServerError {
-		t.Errorf("TestValidJsonPost. Expected:", http.StatusInternalServerError ," Got:", w.Code, "  Error. Did not succesfully post")
-	}
-}
 func TestFilePathEndsWIthSlash(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())

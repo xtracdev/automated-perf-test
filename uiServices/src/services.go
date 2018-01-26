@@ -12,6 +12,7 @@ import (
     "encoding/xml"
     "io/ioutil"
     "github.com/go-chi/chi"
+    "fmt"
 )
 
 func ConfigCtx(next http.Handler) http.Handler {
@@ -104,34 +105,45 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
         configPathDir = configPathDir + "/"
     }
 
-    file, err := os.Open(configPathDir + configName + ".xml")
-
+    file, err := os.Open(fmt.Sprintf("%s%s.xml", configPathDir, configName))
     if len(configPathDir) <= 1{
         rw.WriteHeader(http.StatusBadRequest)
-        logrus.Println("No Header Path Found")
+        logrus.Error("No Header Path Found")
         return
     }
+    if err != nil {
+        logrus.Error("Configuration Name Not Found: "+configPathDir + configName)
+        rw.WriteHeader(http.StatusNotFound)
+        return
+    }
+    defer file.Close()
 
     if err != nil {
-        logrus.Println("Configuration Name Not Found: "+configPathDir + configName)
+        logrus.Error("Configuration Name Not Found: "+configPathDir + configName)
         rw.WriteHeader(http.StatusNotFound)
         return
     }
 
-    defer file.Close()
-
     var config perfTestUtils.Config
 
     byteValue, err := ioutil.ReadAll(file)
+    if err != nil{
+        rw.WriteHeader(http.StatusInternalServerError)
+        logrus.Error("Cannot Read File")
+        return
+    }
+
     xml.Unmarshal(byteValue, &config)
     if err != nil{
-        logrus.Println("Cannot Unmarshall")
+        rw.WriteHeader(http.StatusInternalServerError)
+        logrus.Error("Cannot Unmarshall")
         return
     }
 
     configJson, err := json.MarshalIndent(config,"","")
     if err != nil {
-        logrus.Println("Cannot Marshall")
+        rw.WriteHeader(http.StatusInternalServerError)
+        logrus.Error("Cannot Marshall")
         return
     }
 
