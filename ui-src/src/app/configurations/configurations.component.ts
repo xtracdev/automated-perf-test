@@ -165,4 +165,6 @@ export class ConfigurationsComponent implements OnInit {
     this.configPath = "";
     this.formData = undefined;
   }
+
+  onGetFile() {}
 }
