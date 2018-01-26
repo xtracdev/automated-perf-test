@@ -13,6 +13,7 @@ import "rxjs/add/operator/map";
 export class ConfigurationsComponent implements OnInit {
   formData = {};
   configPath = "";
+  xmlFileName = "";
 
   constructor(
     private automatedUIServices: AutomatedUIServices,
@@ -166,5 +167,20 @@ export class ConfigurationsComponent implements OnInit {
     this.formData = undefined;
   }
 
-  onGetFile() {}
+  onGetFile() {
+    this.automatedUIServices
+      .getConfig$(this.configPath, this.xmlFileName)
+      .subscribe(
+        data => {
+          this.toastr.success("Success!");
+        },
+        error => {
+          if (error.status === 404) {
+            return this.toastr.error("File Not Found", "Error!");
+          } else if (error.status === 400) {
+            return this.toastr.error("Invalid Config File Path", "Error!");
+          }
+        }
+      );
+  }
 }

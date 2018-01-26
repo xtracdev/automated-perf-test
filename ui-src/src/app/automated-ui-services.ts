@@ -11,7 +11,8 @@ import { NgModel } from "@angular/forms/src/directives/ng_model";
 export class AutomatedUIServices {
   constructor(private http: HttpClient) {}
 
-  private url = "http://localhost:9191/configs";
+  private postUrl = "http://localhost:9191/configs";
+  private getUrl = "http://localhost:9191/configs/+xmlFileName";
 
   postConfig$(configData, configPath): Observable<any> {
     let headers = new HttpHeaders();
@@ -23,6 +24,17 @@ export class AutomatedUIServices {
     };
 
     httpOptions.headers.append("configPathDir", configPath);
-    return this.http.post(this.url, configData, httpOptions);
+    return this.http.post(this.postUrl, configData, httpOptions);
+  }
+  getConfig$(configPath, xmlFileName): Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set("Content-Type", "application/json;");
+    headers = headers.set("configPathDir", configPath);
+
+    const httpOptions = {
+      headers: headers
+    };
+    httpOptions.headers.append("configPathDir", configPath);
+    return this.http.get(this.getUrl, httpOptions);
   }
 }
