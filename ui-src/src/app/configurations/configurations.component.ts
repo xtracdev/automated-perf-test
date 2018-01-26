@@ -87,7 +87,9 @@ export class ConfigurationsComponent implements OnInit {
       "flex-flow": "row wrap",
       items: [
         "apiName",
+        { md: 4 },
         "numIterations",
+        { md: 4 },
         {
           key: "requestDelay",
           title: "Request Delay (ms)"
@@ -99,7 +101,9 @@ export class ConfigurationsComponent implements OnInit {
       "flex-flow": "row wrap",
       items: [
         "targetHost",
+        { md: 4 },
         "concurrentUsers",
+        { md: 4 },
         {
           key: "TPSFreq",
           title: "TPS Frequency (s)"
@@ -111,10 +115,12 @@ export class ConfigurationsComponent implements OnInit {
       "flex-flow": "row wrap",
       items: [
         "targetPort",
+        { md: 4 },
         {
           key: "allowablePeakMemoryVariance",
           title: "Memory Variance (%)"
         },
+        { md: 4 },
         "rampUsers"
       ]
     },
@@ -123,10 +129,12 @@ export class ConfigurationsComponent implements OnInit {
       "flex-flow": "row wrap",
       items: [
         "memoryEndpoint",
+        { md: 4 },
         {
           key: "allowableServiceResponseTimeVariance",
           title: "Service Variance (%)"
         },
+        { md: 4 },
         {
           key: "rampDelay",
           title: "Ramp Delay (s)"
@@ -172,6 +180,7 @@ export class ConfigurationsComponent implements OnInit {
       .getConfig$(this.configPath, this.xmlFileName)
       .subscribe(
         data => {
+          this.formData = data;
           this.toastr.success("Success!");
         },
         error => {
