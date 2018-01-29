@@ -18,9 +18,6 @@ export class AutomatedUIServices {
     headers = headers.set("Content-Type", "application/json;");
     headers = headers.append("configPathDir", configPath);
 
-    const httpOptions = {
-      headers: headers
-    };
-    return this.http.post(environment.postUrl, configData, httpOptions);
+    return this.http.post(environment.postUrl, configData, {headers});
   }
 }
