@@ -187,6 +187,8 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^the file name is "([^"]*)"$`, api.theFileNameis)
 	s.Step(`^I send a "([^"]*)" request to "([^"]*)"$`, api.iSendARequestTo)
 	s.Step(`^the config file "([^"]*)" exists at "([^"]*)"$`, theConfigFileExistsAt)
+	s.Step(`^I send "([^"]*)" request to "([^"]*)" with body:$`, api.iSendRequestToWithBody)
+	s.Step(`^the updated file should match json:$`, api.theUpdatedFileShouldMatchJSON)
 }
 
 func theAutomatedPerformanceUiServerIsAvailable() error {
@@ -265,6 +267,7 @@ func makeGetRequest(client *http.Client, method, endpoint string, filename strin
 	return resp, nil
 }
 
+
 func theConfigFileExistsAt(filename, path string)error{
 	_, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test"+path+filename)
 	if err != nil{
@@ -273,3 +276,76 @@ func theConfigFileExistsAt(filename, path string)error{
 	}
 	return nil
 	}
+
+func (a *apiFeature) iSendRequestToWithBody(method, endpoint string, body *gherkin.DocString) error {
+	response, err := makePutRequest(a.client, method, endpoint, body.Content, a.header)
+	a.requestbody = body.Content
+	if err != nil {
+		return err
+	}
+	a.resp = response
+	return nil
+}
+
+func makePutRequest(client *http.Client, method, endpoint, body string, header string) (*http.Response, error) {
+
+	var reqBody io.Reader
+	if body != "" {
+		reqBody = strings.NewReader(body)
+	}
+
+	req, err := http.NewRequest(method, "http://localhost:9191" + endpoint, reqBody)
+
+	if header == "" {
+		req.Header.Set("configPathDir", "")
+	}else {
+		req.Header.Set("configPathDir", fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (a *apiFeature) theUpdatedFileShouldMatchJSON(body *gherkin.DocString) (err error) {
+	var expectedConfig perfTestUtils.Config
+	var actualConfig perfTestUtils.Config
+
+	expectedJson := `"""
+	{
+	"apiName": "GodogConfig",
+	"targetHost": "localhost2",
+	"targetPort":"1001",
+	"memoryEndpoint": "/alt/debug/vars",
+	"numIterations": 4000,
+	"allowablePeakMemoryVariance": 50,
+	"allowableServiceResponseTimeVariance": 50,
+	"testCaseDir": "./definitions/testCases",
+	"testSuiteDir": "./definitions/testSuites",
+	"baseStatsOutputDir": "./envStats",
+	"reportOutputDir": "./report",
+	"concurrentUsers": 50,
+	"testSuite": "Default-3",
+	"requestDelay": 1000,
+	"TPSFreq": 10,
+	"rampUsers": 10,
+	"rampDelay": 10
+	}
+	"""`
+
+	json.Unmarshal([]byte (body.Content), &actualConfig)
+	json.Unmarshal([]byte (expectedJson), &expectedConfig)
+
+	if !reflect.DeepEqual(&expectedConfig,&actualConfig) {
+		fmt.Errorf("Expected :", expectedConfig," ,but actual was :", actualConfig)
+		return
+	}
+
+	return nil
+}
