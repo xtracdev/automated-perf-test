@@ -216,4 +216,40 @@ export class ConfigurationsComponent implements OnInit {
         }
       );
   }
+  onUpdate() {
+    this.automatedUIServices
+    .putConfig$(this.configPath, this.xmlFileName)
+    .subscribe(
+      data => {
+        this.formData = data;
+        this.toastr.success("Success!");
+      },
+      error => {
+        switch (error.status) {
+          case 404: {
+            this.toastr.error("File Not Found", "An Error Occured!");
+            break;
+          }
+          case 409: {
+            this.toastr.error("Directory Not found!", "An Error Occurred!");
+            break;
+          }
+          case 400: {
+            this.toastr.error("Bad Request!", "An Error Occurred!");
+            break;
+          }
+          case 500: {
+            this.toastr.error("Internal Server Error!");
+            break;
+          }
+          default: {
+            this.toastr.error(
+              "Your Data was Not Retreived",
+              "An Error Occurred!"
+            );
+          }
+        }
+      }
+    );
+}
 }

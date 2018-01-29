@@ -26,5 +26,12 @@ export class AutomatedUIServices {
 
     return this.http.get(environment.getUrl + xmlFileName, {headers});
   }
+  putConfig$(configPath, xmlFileName): Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set("Content-Type", "application/json;");
+    headers = headers.append("configPathDir", configPath);
+
+    return this.http.put(environment.getUrl + xmlFileName, {headers});
+  }
 }
 
