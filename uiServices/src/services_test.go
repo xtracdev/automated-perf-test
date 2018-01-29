@@ -33,12 +33,12 @@ const validJson = `{
        "rampDelay": 15
        }`
 
-const invalidJsonMissingField = `{
-        "apiName": "ServiceTestConfig",
+const invalidJsonMissingFields = `{
+        "apiName": "ServiceTestConfi",
        "targetHost": "localhost",
        "targetPort": "9191",
        "numIterations": 1000,
-       "allowablePeakMemoryVariance": 30,
+       "allowablePeakMemoryVariance": -1,
        "allowableServiceResponseTimeVariance": 30,
        "testCaseDir": "./definitions/testCases",
        "testSuiteDir": "./definitions/testSuites",
@@ -50,7 +50,7 @@ const invalidJsonMissingField = `{
        "requestDelay": 5000,
        "TPSFreq": 30,
        "rampUsers": 5,
-       "rampDelay": 15
+       "rampDelay": 0
        }`
 
 const invalidJson = `{
@@ -93,7 +93,7 @@ func TestInvalidJsonPostMissingRequiredField(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(invalidJsonMissingField)
+	reader := strings.NewReader(invalidJsonMissingFields)
 	r.HandleFunc("/configs", postConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
@@ -336,3 +336,192 @@ func TestGetFileNotFound(t *testing.T) {
 		t.Errorf("Test File Not Found. Expected:", http.StatusNotFound, " Got:", w.Code)
 	}
 }
+
+func TestValidJsonPut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validJson)
+	r.HandleFunc("/configs", putConfigs)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusNoContent, "Did Not successfully Update")
+}
+
+func TestMissingFieldPut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(invalidJsonMissingFields)
+	r.HandleFunc("/configs", putConfigs)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusBadRequest, "Sucessfully updated. Field Should be missing so update shouldn't occur")
+}
+
+func TestInvalidJsonPut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(invalidJson)
+	r.HandleFunc("/configs", putConfigs)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusBadRequest, "Sucessfully updated. Field data type should have been incorrect so update should occur")
+}
+
+func TestInvalidUrlPut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validJson)
+	r.HandleFunc("/configs", putConfigs)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodPut, "/configs/xxx", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusConflict, "Sucessfully updated. Should have have worked using /configs/xxx")
+}
+
+func TestNoUrlPut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validJson)
+	r.HandleFunc("/configs", putConfigs)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodPut, "", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusNotFound, "Sucessfully updated. Should not have worked with no URL")
+}
+
+func TestSuccessfulPutWithNoPathSlash(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validJson)
+	r.HandleFunc("/configs", putConfigs)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusNoContent, "Did not update. Should have added '/' to path")
+}
+func TestNoPathPut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validJson)
+	r.HandleFunc("/configs", putConfigs)
+
+	filePath := ""
+	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusBadRequest, "Successfully updated. Should not have worked due to no filepath")
+}
+
+func TestNoFileNamePut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validJson)
+	r.HandleFunc("/configs", putConfigs)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+	request, err := http.NewRequest(http.MethodPut, "/configs", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusNotFound, "Successfully updated. Should not have worked due to no file name given")
+}
+
+func TestPut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validJson)
+	r.HandleFunc("/configs", putConfigs)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+	request, err := http.NewRequest(http.MethodPut, "/configs", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusNotFound, "Successfully updated. Should not have worked due to no file name given")
+}
+

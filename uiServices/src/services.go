@@ -139,7 +139,7 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
         logrus.Error("Cannot Unmarshall")
         return
     }
-
+ 
     configJson, err := json.MarshalIndent(config,"","")
     if err != nil {
         rw.WriteHeader(http.StatusInternalServerError)
@@ -151,4 +151,84 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
     rw.Write(configJson)
     logrus.Println(string(configJson))
 
+}
+
+func putConfigs(rw http.ResponseWriter, req *http.Request) {
+    path := req.Header.Get("configPathDir")
+
+    if !strings.HasSuffix(path, "/") {
+        path = path + "/"
+    }
+
+    if len(path) <= 1 {
+        logrus.Error("No Path Entered")
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    configName := chi.URLParam(req, "configName")
+
+    if len(configName) <= 1 {
+        logrus.Error("No File Name Entered")
+        rw.WriteHeader(http.StatusNotFound)
+        return
+
+    }
+
+    configPathDir := fmt.Sprintf("%s%s.xml", path, configName)
+    buf := new(bytes.Buffer)
+    buf.ReadFrom(req.Body)
+
+    if !validateJsonWithSchema(buf.Bytes()) {
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    config := perfTestUtils.Config{}
+    err := json.Unmarshal(buf.Bytes(), &config)
+    if err != nil {
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    if !FilePathExist(configPathDir) {
+        logrus.Error("File path does not exist", err)
+        rw.WriteHeader(http.StatusConflict)
+        return
+
+    }
+
+    if configName != config.APIName {
+        logrus.Error("Api Name must match File Name")
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+    }
+    //cannot have update with invalid or empty values
+    if config.APIName == "" ||
+    config.AllowablePeakMemoryVariance < 0 ||
+    config.AllowableServiceResponseTimeVariance < 0 ||
+    config.TargetHost == "" ||
+    config.TargetPort == "" ||
+    config.NumIterations < 0 ||
+    config.TestCaseDir == "" ||
+    config.TestSuiteDir == "" ||
+    config.BaseStatsOutputDir == "" ||
+    config.ReportOutputDir == "" ||
+    config.ConcurrentUsers < 0 ||
+    config.TestSuite == "" ||
+    config.RequestDelay < 0 ||
+    config.TPSFreq < 0 ||
+    config.RampDelay < 0 ||
+    config.RampUsers < 0 {
+        logrus.Println("Error: Missing Required Field(s)")
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    if !writerXml(config, path) {
+        rw.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    rw.WriteHeader(http.StatusNoContent)
 }
