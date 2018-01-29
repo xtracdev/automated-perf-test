@@ -157,7 +157,7 @@ export class ConfigurationsComponent implements OnInit {
                           break;
                       }
                       case 400: {
-                       this.toastr.error("Directory Not found!", "An error occurred");
+                       this.toastr.error("Some of the fields do not conform to the schema", "An error occurred");
                           break;
                       }
                       default: {
