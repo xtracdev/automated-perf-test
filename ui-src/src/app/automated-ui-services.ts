@@ -8,7 +8,6 @@ import { Observable } from "rxjs/Observable";
 import { NgModel } from "@angular/forms/src/directives/ng_model";
 import { environment } from "../environments/environment.prod";
 
-
 @Injectable()
 export class AutomatedUIServices {
   constructor(private http: HttpClient) {}
@@ -17,7 +16,7 @@ export class AutomatedUIServices {
   postConfig$(configData, configPath): Observable<any> {
     let headers = new HttpHeaders();
     headers = headers.set("Content-Type", "application/json;");
-    headers = headers.set("configPathDir", configPath);
+    headers = headers.append("configPathDir", configPath);
 
     const httpOptions = {
       headers: headers
