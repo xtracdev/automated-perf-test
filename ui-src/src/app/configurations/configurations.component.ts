@@ -153,7 +153,7 @@ export class ConfigurationsComponent implements OnInit {
       },
       error => { switch (error.status) {
         case 500: {
-          this.toastr.error ("Internal Server Error!");
+          this.toastr.error ("An error has occurred. Check the logs.");
                           break;
                       }
                       case 400: {
