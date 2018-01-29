@@ -151,15 +151,19 @@ export class ConfigurationsComponent implements OnInit {
       data => {
         this.toastr.success("Your data has been save!", "Success!");
       },
-      error => {
-        if (error.status === 500) {
-          return this.toastr.error(
-            "Internal Server Error!",
-            "An error occurred"
-          );
-        } else if (error.status === 400) {
-          return this.toastr.error("Directory Not found!", "An error occurred");
-        }
+      error => { switch (error.status) {
+        case 500: {
+          this.toastr.error ("Internal Server Error!");
+                          break;
+                      }
+                      case 400: {
+                       this.toastr.error("Directory Not found!", "An error occurred");
+                          break;
+                      }
+                      default: {
+                        this.toastr.error("Your data did not save.", "An error occurred");
+                                    }
+                    }
       }
     );
   }
