@@ -9,10 +9,10 @@
             <input class="form-control" type="string" [(ngModel)]="xmlFileName" id="xmlFileName" required>
         </div>
 
-        <button class="fileButton btn1 btn-primary pull-right" id="btnGet" (click)="onGetFile()">Get File</button>
- 
+        <button class="fileButton btn1 btn-primary1 pull-right" id="btnGet" (click)="onGetFile()">Get File</button>
+
     </div>
     <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
     <button class="btn btn-primary" (click)="onCancel()">Cancel</button>
-</div> 
+</div>
