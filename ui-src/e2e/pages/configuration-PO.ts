@@ -11,8 +11,11 @@ import {
 import { read } from "fs";
 const path = require("path");
 const configFileLocation = "../../../config/";
+
 class ConfigurationPageObject {
   configFilePath = element(by.id("configPath"));
+  getBtn = element(by.id("btnGet"));
+  xmlFileName = element(by.id("xmlFileName"));
   applicationName = element(by.name("apiName"));
   targetHost = element(by.name("targetHost"));
   targetPort = element(by.name("targetPort"));
@@ -159,7 +162,6 @@ class ConfigurationPageObject {
     this.rampDelay.sendKeys("e");
   }
   checkNegativeValues() {
-    this.applicationName.sendKeys(1);
     this.numIterations.sendKeys(-1);
     this.concurrentUsers.sendKeys(-1);
     // Clear default data in these fields

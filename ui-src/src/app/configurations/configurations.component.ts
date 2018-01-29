@@ -161,13 +161,18 @@ export class ConfigurationsComponent implements OnInit {
         this.toastr.success("Your data has been save!", "Success!");
       },
       error => {
-        if (error.status === 500) {
-          return this.toastr.error(
-            "Internal Server Error!",
-            "An error occurred"
-          );
-        } else if (error.status === 400) {
-          return this.toastr.error("Directory Not found!", "An error occurred");
+        switch (error.status) {
+          case 500: {
+            this.toastr.error("Internal Server Error!");
+            break;
+          }
+          case 400: {
+            this.toastr.error("Directory Not found!", "An Error Occurred!");
+            break;
+          }
+          default: {
+            this.toastr.error("Your data did not save.", "An Error Occurred!");
+          }
         }
       }
     );
@@ -188,13 +193,25 @@ export class ConfigurationsComponent implements OnInit {
           this.toastr.success("Success!");
         },
         error => {
-          if (error.status === 404) {
-            return this.toastr.error("File Not Found", "An error occurred");
-          } else if (error.status === 400) {
-            return this.toastr.error(
-              "Invalid Config File Path",
-              "An error occurred"
-            );
+          switch (error.status) {
+            case 404: {
+              this.toastr.error("File Not Found", "An Error Occured!");
+              break;
+            }
+            case 400: {
+              this.toastr.error("Directory Not found!", "An Error Occurred!");
+              break;
+            }
+            case 500: {
+              this.toastr.error("Internal Server Error!");
+              break;
+            }
+            default: {
+              this.toastr.error(
+                "Your Data was Not Retreived",
+                "An Error Occurred!"
+              );
+            }
           }
         }
       );

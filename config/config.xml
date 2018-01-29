@@ -18,12 +18,12 @@
     <concurrentUsers>50</concurrentUsers>
 
     <!-- Directory location for test cases. -->
-    <testCasesDir>./definitions/testCases</testCasesDir>
+    <testCaseDir>./definitions/testCases</testCaseDir>
     <!-- Directory location for test suites. -->
     <testSuiteDir>./definitions/testSuites</testSuiteDir>
 
     <!-- Name of the test suite XML file. Remove this property for service-base strategy. -->
-    <testSuite>suiteFileName.xml</testSuite>
+    <testSuite>Default-1</testSuite>
 
     <!-- Output locations for generated files -->
     <baseStatsOutputDir>./envStats</baseStatsOutputDir>

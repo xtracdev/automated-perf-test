@@ -6,13 +6,11 @@ import { ConfigurationsComponent } from "./configurations/configurations.compone
 import { Headers } from "@angular/http/src/headers";
 import { Observable } from "rxjs/Observable";
 import { NgModel } from "@angular/forms/src/directives/ng_model";
+import { environment } from "../environments/environment.prod";
 
 @Injectable()
 export class AutomatedUIServices {
   constructor(private http: HttpClient) {}
-
-  private url = "http://localhost:9191/configs";
-  private getUrl = "http://localhost:9191/configs/";
 
   postConfig$(configData, configPath): Observable<any> {
     let headers = new HttpHeaders();
@@ -23,8 +21,7 @@ export class AutomatedUIServices {
       headers: headers
     };
 
-    httpOptions.headers.append("configPathDir", configPath);
-    return this.http.post(this.url, configData, httpOptions);
+    return this.http.post(environment.postUrl, configData, httpOptions);
   }
   getConfig$(configPath, xmlFileName): Observable<any> {
     let headers = new HttpHeaders();
@@ -35,6 +32,6 @@ export class AutomatedUIServices {
       headers: headers
     };
     httpOptions.headers.append("configPathDir", configPath);
-    return this.http.get(this.getUrl + xmlFileName, httpOptions);
+    return this.http.get(environment.getUrl + xmlFileName, httpOptions);
   }
 }
