@@ -163,11 +163,11 @@ export class ConfigurationsComponent implements OnInit {
       error => {
         switch (error.status) {
           case 500: {
-            this.toastr.error("Internal Server Error!");
+            this.toastr.error("An error has occurred. Check the logs.");
             break;
           }
           case 400: {
-            this.toastr.error("Directory Not found!", "An Error Occurred!");
+            this.toastr.error("Some of the fields do not conform to the schema.", "An Error Occurred!");
             break;
           }
           default: {

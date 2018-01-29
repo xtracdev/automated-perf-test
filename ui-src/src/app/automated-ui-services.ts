@@ -5,7 +5,6 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ConfigurationsComponent } from "./configurations/configurations.component";
 import { Headers } from "@angular/http/src/headers";
 import { Observable } from "rxjs/Observable";
-import { NgModel } from "@angular/forms/src/directives/ng_model";
 import { environment } from "../environments/environment.prod";
 
 @Injectable()
