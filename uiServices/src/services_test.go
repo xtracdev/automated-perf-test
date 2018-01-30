@@ -119,7 +119,7 @@ func TestValidJsonPost(t *testing.T) {
 	reader := strings.NewReader(validJson)
 	r.HandleFunc("/configs", postConfigs)
 
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
 	request.Header.Set("configPathDir", filePath)
 
@@ -158,7 +158,7 @@ func TestPostWithInvalidHeader (t *testing.T) {
 	}
 }
 
-func TestFilePathEndsWIthSlash(t *testing.T) {
+func TestPostWhenFileExists(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
@@ -177,8 +177,8 @@ func TestFilePathEndsWIthSlash(t *testing.T) {
 		t.Error(err)
 	}
 
-	if w.Code != http.StatusCreated {
-		t.Errorf("TestFilePathEndsWith'/'.  Expected:", http.StatusCreated, " Got:", w.Code, "  Error. Did not succesfully post")
+	if w.Code != http.StatusConflict {
+		t.Errorf("TestPostWhenFileExists.  Expected:", http.StatusConflict ," Got:", w.Code, "  Created File But shoyld not have")
 	}
 }
 
