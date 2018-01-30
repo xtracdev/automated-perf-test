@@ -16,21 +16,21 @@ export class AutomatedUIServices {
     headers = headers.set("Content-Type", "application/json;");
     headers = headers.append("configPathDir", configPath);
 
-    return this.http.post(environment.postUrl, configData, {headers});
+    return this.http.post(environment.apiBaseUrl + "configs", configData, {headers});
   }
   getConfig$(configPath, xmlFileName): Observable<any> {
     let headers = new HttpHeaders();
     headers = headers.set("Content-Type", "application/json;");
     headers = headers.append("configPathDir", configPath);
 
-    return this.http.get(environment.getUrl + xmlFileName, {headers});
+    return this.http.get(environment.apiBaseUrl + "configs/" + xmlFileName, {headers});
   }
   putConfig$(configData,configPath, xmlFileName): Observable<any> {
     let headers = new HttpHeaders();
     headers = headers.set("Content-Type", "application/json;");
     headers = headers.append("configPathDir", configPath);
 
-    return this.http.put(environment.getUrl + xmlFileName, configData, {headers});
+    return this.http.put(environment.apiBaseUrl + "configs/" + xmlFileName, configData, {headers});
   }
 }
 

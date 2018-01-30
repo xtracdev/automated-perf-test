@@ -1,47 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<config>
-    <!-- Provide a name to the API under test to be used for report generation. -->
-    <apiName>Xtrac API</apiName>
-
-    <!-- Target API under test. -->
-    <targetHost>localhost</targetHost>
-    <targetPort>8080</targetPort>
-
-    <!-- Allowed variance as a percentage over base values. -->
-    <allowablePeakMemoryVariance>15</allowablePeakMemoryVariance>
-    <allowableServiceResponseTimeVariance>15</allowableServiceResponseTimeVariance>
-
-    <!-- The number of times each test case will be executed. Controls the run time length of the test run. -->
-    <numIterations>1000</numIterations>
-
-    <!-- Specify the number of threads across which to spread the load. Controls overall TPS. -->
-    <concurrentUsers>50</concurrentUsers>
-
-    <!-- Directory location for test cases. -->
-    <testCaseDir>./definitions/testCases</testCaseDir>
-    <!-- Directory location for test suites. -->
-    <testSuiteDir>./definitions/testSuites</testSuiteDir>
-
-    <!-- Name of the test suite XML file. Remove this property for service-base strategy. -->
-    <testSuite>Default-1</testSuite>
-
-    <!-- Output locations for generated files -->
-    <baseStatsOutputDir>./envStats</baseStatsOutputDir>
-    <reportOutputDir>./report</reportOutputDir>
-
-    <!-- Override "/debug/vars" as the endpoint call for memory metrics. -->
-    <memoryEndpoint>/alt/debug/vars</memoryEndpoint>
-
-    <!-- Add a random delay between all requests specified in milliseconds. -->
-    <requestDelay>5000</requestDelay>
-
-    <!-- Specify the number of seconds between displaying the overall TPS message in log.info output. -->
-    <TPSFreq>30</TPSFreq>
-
-    <!-- Specify the number of user threads to start in a batch during ramp up. eg. Start 5 threads every 15 seconds. -->
-    <rampUsers>5</rampUsers>
-
-    <!-- Specify number of seconds between starting user threads batched during ramp up. -->
-    <rampDelay>15</rampDelay>
-
-</config>
+  <Config>
+      <apiName>config</apiName>
+      <targetHost>localhost</targetHost>
+      <targetPort>8080</targetPort>
+      <numIterations>1000</numIterations>
+      <allowablePeakMemoryVariance>15</allowablePeakMemoryVariance>
+      <allowableServiceResponseTimeVariance>15</allowableServiceResponseTimeVariance>
+      <testCaseDir>./definitions/testCases</testCaseDir>
+      <testSuiteDir>./definitions/testSuites</testSuiteDir>
+      <baseStatsOutputDir>./envStats</baseStatsOutputDir>
+      <reportOutputDir>./report</reportOutputDir>
+      <concurrentUsers>50</concurrentUsers>
+      <testSuite>Default-1</testSuite>
+      <memoryEndpoint>/alt/debug/vars</memoryEndpoint>
+      <requestDelay>5066</requestDelay>
+      <TPSFreq>30</TPSFreq>
+      <rampUsers>5</rampUsers>
+      <rampDelay>15</rampDelay>
+  </Config>

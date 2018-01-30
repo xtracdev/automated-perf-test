@@ -167,7 +167,7 @@ export class ConfigurationsComponent implements OnInit {
             break;
           }
           case 400: {
-            this.toastr.error("Some of the fields do not conform to the schema.", "An Error Occurred!");
+            this.toastr.error("Some of the fields do not conform to the schema", "An Error Occurred!");
             break;
           }
           default: {
