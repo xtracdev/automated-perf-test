@@ -166,6 +166,10 @@ export class ConfigurationsComponent implements OnInit {
             this.toastr.error("An error has occurred. Check the logs.");
             break;
           }
+          case 409: {
+            this.toastr.error("File Already Exists!", "An Error Occurred!");
+            break;
+          }
           case 400: {
             this.toastr.error("Some of the fields do not conform to the schema", "An Error Occurred!");
             break;
