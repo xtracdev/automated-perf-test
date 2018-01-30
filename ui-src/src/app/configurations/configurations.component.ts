@@ -4,6 +4,7 @@ import { AutomatedUIServices } from "../automated-ui-services";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import { ToastOptions } from "ng2-toastr/src/toast-options";
+import "rxjs/add/operator/map";
 @Component({
   selector: "app-configurations",
   templateUrl: "./configurations.component.html",
@@ -11,6 +12,9 @@ import { ToastOptions } from "ng2-toastr/src/toast-options";
 })
 export class ConfigurationsComponent implements OnInit {
   formData = {};
+  configPath = undefined;
+  xmlFileName = undefined;
+
   constructor(
     private automatedUIServices: AutomatedUIServices,
     private toastr: ToastsManager
@@ -83,7 +87,9 @@ export class ConfigurationsComponent implements OnInit {
       "flex-flow": "row wrap",
       items: [
         "apiName",
+        { md: 4 },
         "numIterations",
+        { md: 4 },
         {
           key: "requestDelay",
           title: "Request Delay (ms)"
@@ -95,7 +101,9 @@ export class ConfigurationsComponent implements OnInit {
       "flex-flow": "row wrap",
       items: [
         "targetHost",
+        { md: 4 },
         "concurrentUsers",
+        { md: 4 },
         {
           key: "TPSFreq",
           title: "TPS Frequency (s)"
@@ -107,10 +115,12 @@ export class ConfigurationsComponent implements OnInit {
       "flex-flow": "row wrap",
       items: [
         "targetPort",
+        { md: 4 },
         {
           key: "allowablePeakMemoryVariance",
           title: "Memory Variance (%)"
         },
+        { md: 4 },
         "rampUsers"
       ]
     },
@@ -119,10 +129,12 @@ export class ConfigurationsComponent implements OnInit {
       "flex-flow": "row wrap",
       items: [
         "memoryEndpoint",
+        { md: 4 },
         {
           key: "allowableServiceResponseTimeVariance",
           title: "Service Variance (%)"
         },
+        { md: 4 },
         {
           key: "rampDelay",
           title: "Ramp Delay (s)"
@@ -144,16 +156,99 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onSubmit(configData) {
-    this.automatedUIServices.postConfig$(configData).subscribe(
+    this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
       data => {
         this.toastr.success("Your data has been save!", "Success!");
       },
       error => {
-        this.toastr.error("Failed to save data, Check the Command Line!");
+        switch (error.status) {
+          case 500: {
+            this.toastr.error("An error has occurred. Check the logs.");
+            break;
+          }
+          case 400: {
+            this.toastr.error("Some of the fields do not conform to the schema", "An Error Occurred!");
+            break;
+          }
+          default: {
+            this.toastr.error("Your data did not save.", "An Error Occurred!");
+          }
+        }
       }
     );
   }
+
   onCancel() {
-    this.formData = {};
+    this.configPath = undefined;
+    this.xmlFileName = undefined;
+    this.formData = undefined;
   }
+
+  onGetFile() {
+    this.automatedUIServices
+      .getConfig$(this.configPath, this.xmlFileName)
+      .subscribe(
+        data => {
+          this.formData = data;
+          this.toastr.success("Success!");
+        },
+        error => {
+          switch (error.status) {
+            case 404: {
+              this.toastr.error("File Not Found", "An Error Occured!");
+              break;
+            }
+            case 400: {
+              this.toastr.error("Directory Not found!", "An Error Occurred!");
+              break;
+            }
+            case 500: {
+              this.toastr.error("Internal Server Error!");
+              break;
+            }
+            default: {
+              this.toastr.error(
+                "Your Data was Not Retreived",
+                "An Error Occurred!"
+              );
+            }
+          }
+        }
+      );
+  }
+  onUpdate(configData) {
+    this.automatedUIServices
+    .putConfig$(this.formData, this.configPath, this.xmlFileName)
+    .subscribe(
+      data => {
+        this.toastr.success("Success!"); 
+      },
+      error => {
+        switch (error.status) {
+          case 404: {
+            this.toastr.error("File Not Found", "An Error Occured!");
+            break;
+          }
+          case 409: {
+            this.toastr.error("Directory Not found!", "An Error Occurred!");
+            break;
+          }
+          case 400: {
+            this.toastr.error("Bad Request!", "An Error Occurred!");
+            break;
+          }
+          case 500: {
+            this.toastr.error("Internal Server Error!");
+            break;
+          }
+          default: {
+            this.toastr.error(
+              "Your Data was Not Retreived",
+              "An Error Occurred!"
+            );
+          }
+        }
+      }
+    );
+}
 }

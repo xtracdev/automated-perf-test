@@ -1,10 +1,19 @@
 <div class="container">
+    <div class="row">
+        <div class=" column col-xs-8 col-sm-8 col-md-8 col-lg-8 ">
+            <label>Config File Path *</label>
+            <input class="form-control" type="string" [(ngModel)]="configPath" id="config-path" required>
+        </div>
+        <div class=" column col-xs-4 col-sm-4 col-md-4 col-lg-4 ">
+            <label>Xml File Name *</label>
+            <input class="form-control" type="string" [(ngModel)]="xmlFileName" id="xml-file-name" required>
+        </div>
 
-    <div>
-        <label>Config File Path &nbsp;</label>
-        <input class="form-control" type="text" id="config">
+        <button class="fileButton btn1 btn-primary1 pull-right" id="btn-get" (click)="onGetFile()">Get File</button>
+
     </div>
     <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
+    <button class="btn btn-primary1"  (click)="onUpdate()">Update</button>
     <button class="btn btn-primary" (click)="onCancel()">Cancel</button>
 </div>

@@ -53,12 +53,13 @@ describe("configuration component", () => {
     expect(configPO.labels.get(14).getText()).toContain(
       "Test Suites Directory"
     );
-    expect(configPO.labels.get(15).getText()).toContain(
-      "Base Stats Output Directory"
-    );
-    expect(configPO.labels.get(16).getText()).toContain(
-      "Report Output Director"
-    );
+  });
+
+  it("should throw error when file path does not exist", () => {
+    configPO.addData();
+    configPO.configFilePath.sendKeys("/path/to/bad/location");
+    configPO.submitBtn.click();
+    expect(configPO.toastrMessage.getText()).toContain("An Error Occured!");
   });
 
   it("should check requiredFields warning appears when requiredFields input is blank", () => {
@@ -188,5 +189,31 @@ describe("configuration component", () => {
     since("(serviceVariance) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(1).getText())
       .toEqual("Must be 100 or less");
+  });
+
+  it("should values of existing file are ", () => {
+    configPO.configFilePath.sendKeys(configPO.absolutePath);
+    configPO.xmlFileName.sendKeys("config");
+    configPO.getBtn.click();
+    expect(configPO.applicationName.getAttribute("value")).toEqual("Xtrac API");
+    expect(configPO.targetHost.getAttribute("value")).toEqual("localhost");
+    expect(configPO.targetPort.getAttribute("value")).toEqual("8080");
+    expect(configPO.testSuite.getAttribute("value")).toEqual("Default-1");
+    expect(configPO.testCaseDir.getAttribute("value")).toEqual(
+      "./definitions/testCases"
+    );
+    expect(configPO.baseStatsDir.getAttribute("value")).toEqual("./envStats");
+    expect(configPO.memoryEndpoint.getAttribute("value")).toEqual(
+      "/alt/debug/vars"
+    );
+    expect(configPO.reportsDir.getAttribute("value")).toEqual("./report");
+    expect(configPO.numIterations.getAttribute("value")).toEqual("1000");
+    expect(configPO.memoryVariance.getAttribute("value")).toEqual("15");
+    expect(configPO.serviceVariance.getAttribute("value")).toEqual("15");
+    expect(configPO.concurrentUsers.getAttribute("value")).toEqual("");
+    expect(configPO.requestDelay.getAttribute("value")).toEqual("5000");
+    expect(configPO.tpsFreq.getAttribute("value")).toEqual("30");
+    expect(configPO.rampDelay.getAttribute("value")).toEqual("15");
+    expect(configPO.rampUsers.getAttribute("value")).toEqual("5");
   });
 });

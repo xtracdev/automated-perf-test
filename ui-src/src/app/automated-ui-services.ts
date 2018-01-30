@@ -5,22 +5,32 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ConfigurationsComponent } from "./configurations/configurations.component";
 import { Headers } from "@angular/http/src/headers";
 import { Observable } from "rxjs/Observable";
-
-const httpOptions = {
-  headers: new HttpHeaders({
-    "Content-Type": "application/json",
-    configPathDir:
-      "C:/Users/a586754/go/src/github.com/xtracdev/automated-perf-test/config/"
-  })
-};
+import { environment } from "../environments/environment.prod";
 
 @Injectable()
 export class AutomatedUIServices {
   constructor(private http: HttpClient) {}
 
-   private url = "http://localhost:9191/configs";
+  postConfig$(configData, configPath): Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set("Content-Type", "application/json;");
+    headers = headers.append("configPathDir", configPath);
 
-  postConfig$(configData): Observable<any> {
-    return this.http.post(this.url, configData, httpOptions);
+    return this.http.post(environment.apiBaseUrl + "configs", configData, {headers});
+  }
+  getConfig$(configPath, xmlFileName): Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set("Content-Type", "application/json;");
+    headers = headers.append("configPathDir", configPath);
+
+    return this.http.get(environment.apiBaseUrl + "configs/" + xmlFileName, {headers});
+  }
+  putConfig$(configData,configPath, xmlFileName): Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set("Content-Type", "application/json;");
+    headers = headers.append("configPathDir", configPath);
+
+    return this.http.put(environment.apiBaseUrl + "configs/" + xmlFileName, configData, {headers});
   }
 }
+
