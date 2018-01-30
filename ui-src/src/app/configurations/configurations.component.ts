@@ -167,7 +167,7 @@ export class ConfigurationsComponent implements OnInit {
             break;
           }
           case 400: {
-            this.toastr.error("Some of the fields do not conform to the schema.", "An Error Occurred!");
+            this.toastr.error("Some of the fields do not conform to the schema", "An Error Occurred!");
             break;
           }
           default: {
@@ -216,13 +216,12 @@ export class ConfigurationsComponent implements OnInit {
         }
       );
   }
-  onUpdate() {
+  onUpdate(configData) {
     this.automatedUIServices
-    .putConfig$(this.configPath, this.xmlFileName)
+    .putConfig$(this.formData, this.configPath, this.xmlFileName)
     .subscribe(
       data => {
-        this.formData = data;
-        this.toastr.success("Success!");
+        this.toastr.success("Success!"); 
       },
       error => {
         switch (error.status) {
