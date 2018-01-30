@@ -16,6 +16,10 @@ import (
     "github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
+                /*****************************************************
+		*************  CONFIG SERVICES **********************
+		****************************************************/
+
 
 func ConfigCtx(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -242,6 +246,10 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
     rw.WriteHeader(http.StatusNoContent)
 }
 
+                /*****************************************************
+		*************  TESTSUITE SERVICES ********************
+		****************************************************/
+
 
 func TestSuiteCtx(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -250,7 +258,6 @@ func TestSuiteCtx(next http.Handler) http.Handler {
 
 }
 
-
 func postTestSuites(rw http.ResponseWriter, req *http.Request) {
     configPathDir := req.Header.Get("configPathDir")
     buf := new(bytes.Buffer)
@@ -258,6 +265,11 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
     testSuite := testStrategies.TestSuite{}
     err := json.Unmarshal(buf.Bytes(), &testSuite)
+
+    if !validateTestSuiteJsonWithSchema(buf.Bytes()) {
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+    }
 
     if err != nil {
         logrus.Error("Failed to unmarshall json body", err)
@@ -289,4 +301,29 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
     }
 
     rw.WriteHeader(http.StatusCreated)
+}
+
+func validateTestSuiteJsonWithSchema(testSuite []byte) bool {
+    goPath := os.Getenv("GOPATH")
+    schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/testSuite_schema.json")
+    documentLoader := gojsonschema.NewBytesLoader(testSuite)
+    logrus.Info(schemaLoader)
+    result, error := gojsonschema.Validate(schemaLoader, documentLoader)
+
+    if error != nil {
+        return false
+    }
+    if result.Valid() {
+        logrus.Info("**** The TestSuite document is valid *****")
+
+        return true
+    }
+    if !result.Valid() {
+        logrus.Error("**** The TestSuite document is not valid. see errors :")
+        for _, desc := range result.Errors() {
+            logrus.Error("- ", desc)
+            return false
+        }
+    }
+    return true
 }

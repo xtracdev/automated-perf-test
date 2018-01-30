@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "required": [
+    "name",
+    "testStrategy",
+    "testCases"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "testStrategy": {
+      "type": "string"
+    }
+  }
+}
