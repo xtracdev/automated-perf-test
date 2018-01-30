@@ -58,6 +58,7 @@ func GetIndexPage() *chi.Mux {
 	})
 
 	router.Mount("/configs", routeConfigs())
+	router.Mount("/test-suites", routeTestSuites())
 
 	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 
@@ -101,6 +102,14 @@ func routeConfigs() http.Handler {
 	router.Post("/", postConfigs)
 	router.Get("/{configName}", getConfigs)
 	router.Put("/{configName}", putConfigs)
+
+	return router
+}
+
+func routeTestSuites() http.Handler {
+	router := chi.NewRouter()
+	router.Use(TestSuiteCtx)
+	router.Post("/", postTestSuites)
 
 	return router
 }

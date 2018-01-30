@@ -13,7 +13,9 @@ import (
     "io/ioutil"
     "github.com/go-chi/chi"
     "fmt"
+    "github.com/xtracdev/automated-perf-test/testStrategies"
 )
+
 
 func ConfigCtx(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -231,4 +233,53 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
     }
 
     rw.WriteHeader(http.StatusNoContent)
+}
+
+
+func TestSuiteCtx(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        next.ServeHTTP(w, r)
+    })
+
+}
+
+
+func postTestSuites(rw http.ResponseWriter, req *http.Request) {
+    configPathDir := req.Header.Get("configPathDir")
+    buf := new(bytes.Buffer)
+    buf.ReadFrom(req.Body)
+
+    testSuite := testStrategies.TestSuite{}
+    err := json.Unmarshal(buf.Bytes(), &testSuite)
+
+    if err != nil {
+        logrus.Error("Failed to unmarshall json body", err)
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    if !strings.HasSuffix(configPathDir, "/") {
+        configPathDir = configPathDir + "/"
+    }
+
+    if len(configPathDir) <= 1 {
+        logrus.Error("File path is length too short", err)
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+
+    }
+
+    if !FilePathExist(configPathDir) {
+        logrus.Error("File path does not exist", err)
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+
+    }
+    //Create file once checks are complete
+    if !testSuiteWriterXml(testSuite, configPathDir) {
+        rw.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    rw.WriteHeader(http.StatusCreated)
 }
