@@ -11,12 +11,12 @@
 
         
         <div class="column col-xs-1 col-sm-1 col-md-1 col-lg-1 ">
-            <button class="btn1 btn-primary1 pull-right" ng-class="{'diabled-class': !PayoutEnabled}"  [disabled]="!xmlFileName" id="btn-get" (click)="onGetFile()">Get File</button>
+            <button class="button btn-secondary pull-right" ng-class="{'diabled-class': !PayoutEnabled}"  [disabled]="!xmlFileName" id="btn-get" (click)="onGetFile()">Get File</button>
         </div>
 
     </div>
     <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
-    <button class="btn btn-primary1" [disabled]="!xmlFileName" (click)="onUpdate()">Update</button>
+    <button class="btn btn-primary" [disabled]="!xmlFileName" (click)="onUpdate(formData)">Update</button>
     <button class="btn btn-primary" (click)="onCancel()">Cancel</button>
 </div>
