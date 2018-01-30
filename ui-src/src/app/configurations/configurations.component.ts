@@ -216,13 +216,12 @@ export class ConfigurationsComponent implements OnInit {
         }
       );
   }
-  onUpdate() {
+  onUpdate(configData) {
     this.automatedUIServices
-    .putConfig$(this.configPath, this.xmlFileName)
+    .putConfig$(this.formData, this.configPath, this.xmlFileName)
     .subscribe(
       data => {
-        this.formData = data;
-        this.toastr.success("Success!");
+        this.toastr.success("Success!"); 
       },
       error => {
         switch (error.status) {

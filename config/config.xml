@@ -36,7 +36,7 @@
     <requestDelay>5000</requestDelay>
 
     <!-- Specify the number of seconds between displaying the overall TPS message in log.info output. -->
-    <tpsFreq>30</tpsFreq>
+    <TPSFreq>30</TPSFreq>
 
     <!-- Specify the number of user threads to start in a batch during ramp up. eg. Start 5 threads every 15 seconds. -->
     <rampUsers>5</rampUsers>
