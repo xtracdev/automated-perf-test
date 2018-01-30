@@ -1,6 +1,6 @@
 <div class="container">
     <div class="row">
-        <div class=" column col-xs-8 col-sm-8 col-md-8 col-lg-8 ">
+        <div class=" column col-xs-7 col-sm-7 col-md-7 col-lg-7 ">
             <label>Config File Path *</label>
             <input class="form-control" type="string" [(ngModel)]="configPath" id="configPath" required>
         </div>
@@ -8,8 +8,10 @@
             <label>Xml File Name *</label>
             <input class="form-control" type="string" [(ngModel)]="xmlFileName" id="xmlFileName" required>
         </div>
+        <div class="column col-xs-1 col-sm-1 col-md-1 col-lg-1 ">
+            <button class="fileButton btn1 btn-primary1 pull-right" id="btnGet" (click)="onGetFile()">Get File</button>
+        </div>
 
-        <button class="fileButton btn1 btn-primary1 pull-right" id="btnGet" (click)="onGetFile()">Get File</button>
 
     </div>
     <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
