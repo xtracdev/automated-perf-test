@@ -230,7 +230,7 @@ export class ConfigurationsComponent implements OnInit {
             break;
           }
           case 409: {
-            this.toastr.error("Directory Not found!", "An Error Occurred!");
+            this.toastr.error("File Must be Specified!", "An Error Occurred!");
             break;
           }
           case 400: {
@@ -243,7 +243,7 @@ export class ConfigurationsComponent implements OnInit {
           }
           default: {
             this.toastr.error(
-              "Your Data was Not Retreived",
+              "File Was Not Updated!",
               "An Error Occurred!"
             );
           }

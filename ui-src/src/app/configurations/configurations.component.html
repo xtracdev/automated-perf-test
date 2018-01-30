@@ -9,11 +9,11 @@
             <input class="form-control" type="string" [(ngModel)]="xmlFileName" id="xml-file-name" required>
         </div>
 
-        <button class="fileButton btn1 btn-primary1 pull-right" id="btn-get" (click)="onGetFile()">Get File</button>
+        <button class="btn1 btn-primary1 pull-right" ng-class="{'diabled-class': !PayoutEnabled}"  [disabled]="!xmlFileName" id="btn-get" (click)="onGetFile()">Get File</button>
 
     </div>
     <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
-    <button class="btn btn-primary1"  (click)="onUpdate()">Update</button>
+    <button class="btn btn-primary1" [disabled]="!xmlFileName">Update</button>
     <button class="btn btn-primary" (click)="onCancel()">Cancel</button>
 </div>
