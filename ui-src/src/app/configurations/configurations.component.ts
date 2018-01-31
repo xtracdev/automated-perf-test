@@ -155,27 +155,31 @@ export class ConfigurationsComponent implements OnInit {
     };
   }
 
+  toastrMsg(msg1, msg2){
+    this.toastr.error(msg1, msg2);
+  }
+
   onSubmit(configData) {
     this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
       data => {
-        this.toastr.success("Your data has been save!", "Success!");
+        this.toastrMsg("Your Data has been Save!", "Success!");
       },
       error => {
         switch (error.status) {
           case 500: {
-            this.toastr.error("An error has occurred. Check the logs.");
+            this.toastrMsg("An Error has Occurred!", "Check the logs!");
             break;
           }
           case 409: {
-            this.toastr.error("File Already Exists!", "An Error Occurred!");
+            this.toastrMsg("File Already Exists!", "An Error Occurred!");
             break;
           }
           case 400: {
-            this.toastr.error("Some of the fields do not conform to the schema", "An Error Occurred!");
+            this.toastrMsg("Some of the Fields do not Conform to the Schema!", "An Error Occurred!");
             break;
           }
           default: {
-            this.toastr.error("Your data did not save.", "An Error Occurred!");
+            this.toastrMsg("Your Data did not Save!", "An Error Occurred!");
           }
         }
       }
@@ -199,7 +203,7 @@ export class ConfigurationsComponent implements OnInit {
         error => {
           switch (error.status) {
             case 404: {
-              this.toastr.error("File Not Found", "An Error Occured!");
+              this.toastr.error("File Not Found!", "An Error Occured!");
               break;
             }
             case 400: {
@@ -207,12 +211,12 @@ export class ConfigurationsComponent implements OnInit {
               break;
             }
             case 500: {
-              this.toastr.error("Internal Server Error!");
+              this.toastr.error("An error has occurred!", "Check the logs!");
               break;
             }
             default: {
               this.toastr.error(
-                "Your Data was Not Retreived",
+                "Your Data was Not Retreived!",
                 "An Error Occurred!"
               );
             }

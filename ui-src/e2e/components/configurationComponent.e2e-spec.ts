@@ -19,7 +19,6 @@ const configPO: ConfigurationPageObject = new ConfigurationPageObject();
 
 describe("configuration component", () => {
   beforeEach(() => {
-    browser.executeScript("window.onbeforeunload = function(e){};");
     browser.get("/configurations");
     browser.executeScript("window.onbeforeunload = function(e){};");
   });
@@ -28,7 +27,6 @@ describe("configuration component", () => {
     configPO.addData();
     configPO.submitBtn.click();
     expect(configPO.toastrMessage.getText()).toContain("Success!");
-    
   });
 
   it("should show submit button is disabled when requiredFields data is blank", () => {
@@ -62,7 +60,7 @@ describe("configuration component", () => {
     configPO.addData();
     configPO.configFilePath.sendKeys("/path/to/bad/location");
     configPO.submitBtn.click();
-    expect(configPO.toastrMessage.getText()).toContain("An Error Occured!");
+    expect(configPO.toastrMessage.getText()).toContain("An Error Occurred!");
   });
 
   it("should check requiredFields warning appears when requiredFields input is blank", () => {
@@ -226,8 +224,13 @@ describe("configuration component", () => {
     configPO.numIterations.sendKeys(25);
     configPO.btnUpdate.click();
     expect(configPO.toastrMessage.getText()).toContain("Success!");
-
-
-
+  });
+  it("should show get File button and update button are disabled when Xml File Name is blank", () => {
+    expect(configPO.btnUpdate.isEnabled()).toBe(false);
+    expect(configPO.getBtn.isEnabled()).toBe(false);
+  });
+  it("should show cancel button clear", () => {
+    expect(configPO.btnUpdate.isEnabled()).toBe(false);
+    expect(configPO.getBtn.isEnabled()).toBe(false);
   });
 });
