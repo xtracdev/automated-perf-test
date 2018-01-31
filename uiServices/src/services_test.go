@@ -504,24 +504,4 @@ func TestNoFileNamePut(t *testing.T) {
 	assert.Equal(t, w.Code, http.StatusNotFound, "Successfully updated. Should not have worked due to no file name given")
 }
 
-func TestPut(t *testing.T) {
-	r := chi.NewRouter()
-	r.Mount("/", GetIndexPage())
-
-	reader := strings.NewReader(validJson)
-	r.HandleFunc("/configs", putConfigs)
-
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
-	request, err := http.NewRequest(http.MethodPut, "/configs", reader)
-	request.Header.Set("configPathDir", filePath)
-
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	assert.Equal(t, w.Code, http.StatusNotFound, "Successfully updated. Should not have worked due to no file name given")
-}
 
