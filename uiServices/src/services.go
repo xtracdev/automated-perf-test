@@ -19,6 +19,31 @@ import (
                 /*****************************************************
 		*************  CONFIG SERVICES **********************
 		****************************************************/
+func getConfigHeader(req *http.Request)string {
+    configPathDir := req.Header.Get("configPathDir")
+
+    if !strings.HasSuffix(configPathDir, "/") {
+        configPathDir = configPathDir + "/"
+    }
+    return configPathDir
+}
+
+
+func validateFileNameAndHeader(rw http.ResponseWriter, req *http.Request,header, name string) {
+
+    if len(name) <= 1 {
+        logrus.Error("File Not Found")
+        rw.WriteHeader(http.StatusNotFound)
+        return
+    }
+
+    if len(header) <= 1 {
+        logrus.Error("No Header Path Found")
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+    }
+    return
+}
 
 
 func ConfigCtx(next http.Handler) http.Handler {
@@ -111,12 +136,10 @@ func validateJsonWithSchema(config []byte) bool {
 
 func getConfigs(rw http.ResponseWriter, req *http.Request){
 
-    configPathDir := req.Header.Get("configPathDir")
+    configPathDir := getConfigHeader(req)
     configName := chi.URLParam(req, "configName")
 
-    if !strings.HasSuffix(configPathDir, "/"){
-        configPathDir = configPathDir + "/"
-    }
+    validateFileNameAndHeader(rw,req,configPathDir, configName)
 
     file, err := os.Open(fmt.Sprintf("%s%s.xml", configPathDir, configName))
     if len(configPathDir) <= 1{
@@ -167,26 +190,10 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
 }
 
 func putConfigs(rw http.ResponseWriter, req *http.Request) {
-    path := req.Header.Get("configPathDir")
-
-    if !strings.HasSuffix(path, "/") {
-        path = path + "/"
-    }
-
-    if len(path) <= 1 {
-        logrus.Error("No Path Entered")
-        rw.WriteHeader(http.StatusBadRequest)
-        return
-    }
-
+    path := getConfigHeader(req)
     configName := chi.URLParam(req, "configName")
 
-    if len(configName) <= 1 {
-        logrus.Error("No File Name Entered")
-        rw.WriteHeader(http.StatusNotFound)
-        return
-
-    }
+    validateFileNameAndHeader(rw,req,path,configName)
 
     configPathDir := fmt.Sprintf("%s%s.xml", path, configName)
     buf := new(bytes.Buffer)
@@ -213,27 +220,6 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
     if configName != config.APIName {
         logrus.Error("Api Name must match File Name")
-        rw.WriteHeader(http.StatusBadRequest)
-        return
-    }
-    //cannot have update with invalid or empty values
-    if config.APIName == "" ||
-    config.AllowablePeakMemoryVariance < 0 ||
-    config.AllowableServiceResponseTimeVariance < 0 ||
-    config.TargetHost == "" ||
-    config.TargetPort == "" ||
-    config.NumIterations < 0 ||
-    config.TestCaseDir == "" ||
-    config.TestSuiteDir == "" ||
-    config.BaseStatsOutputDir == "" ||
-    config.ReportOutputDir == "" ||
-    config.ConcurrentUsers < 0 ||
-    config.TestSuite == "" ||
-    config.RequestDelay < 0 ||
-    config.TPSFreq < 0 ||
-    config.RampDelay < 0 ||
-    config.RampUsers < 0 {
-        logrus.Println("Error: Missing Required Field(s)")
         rw.WriteHeader(http.StatusBadRequest)
         return
     }
