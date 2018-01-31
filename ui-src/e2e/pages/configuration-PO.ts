@@ -37,7 +37,7 @@ class ConfigurationPageObject {
   baseStatsDir = element(by.name("baseStatsOutputDir"));
   reportsDir = element(by.name("reportOutputDir"));
 
-  toastrMessage = element(by.className("toast-title"));
+  toastrMessage = element(by.className("toast-message"));
   labels = $("json-schema-form").$$("label");
   requiredFields = $$("p");
 
