@@ -17,6 +17,6 @@
     </div>
     <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
-    <button class="btn btn-primary" [disabled]="!xmlFileName" (click)="onUpdate(formData)">Update</button>
+    <button class="btn btn-primary" id="btn-update" [disabled]="!xmlFileName" (click)="onUpdate(formData)">Update</button>
     <button class="btn btn-primary" (click)="onCancel()">Cancel</button>
 </div>

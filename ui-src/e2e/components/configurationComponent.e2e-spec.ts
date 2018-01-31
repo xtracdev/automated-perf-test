@@ -19,13 +19,16 @@ const configPO: ConfigurationPageObject = new ConfigurationPageObject();
 
 describe("configuration component", () => {
   beforeEach(() => {
+    browser.executeScript("window.onbeforeunload = function(e){};");
     browser.get("/configurations");
+    browser.executeScript("window.onbeforeunload = function(e){};");
   });
 
   it("should create xml file", () => {
     configPO.addData();
     configPO.submitBtn.click();
     expect(configPO.toastrMessage.getText()).toContain("Success!");
+    
   });
 
   it("should show submit button is disabled when requiredFields data is blank", () => {
@@ -191,7 +194,7 @@ describe("configuration component", () => {
       .toEqual("Must be 100 or less");
   });
 
-  it("should values of existing file are ", () => {
+  it("should check values of existing file are as expected", () => {
     configPO.configFilePath.sendKeys(configPO.absolutePath);
     configPO.xmlFileName.sendKeys("config");
     configPO.getBtn.click();
@@ -215,5 +218,16 @@ describe("configuration component", () => {
     expect(configPO.tpsFreq.getAttribute("value")).toEqual("30");
     expect(configPO.rampDelay.getAttribute("value")).toEqual("15");
     expect(configPO.rampUsers.getAttribute("value")).toEqual("5");
+  });
+  it("should update existing file", () => {
+    configPO.configFilePath.sendKeys(configPO.absolutePath);
+    configPO.xmlFileName.sendKeys("config");
+    configPO.getBtn.click();
+    configPO.numIterations.sendKeys(25);
+    configPO.btnUpdate.click();
+    expect(configPO.toastrMessage.getText()).toContain("Success!");
+
+
+
   });
 });

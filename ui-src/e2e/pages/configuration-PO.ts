@@ -15,6 +15,7 @@ const configFileLocation = "../../../config/";
 class ConfigurationPageObject {
   configFilePath = element(by.id("config-path"));
   getBtn = element(by.id("btn-get"));
+  btnUpdate = element(by.id("btn-update"));
   xmlFileName = element(by.id("xml-file-name"));
   applicationName = element(by.name("apiName"));
   targetHost = element(by.name("targetHost"));
@@ -94,6 +95,7 @@ class ConfigurationPageObject {
   setReportDir() {
     return this.reportsDir.sendKeys("./report");
   }
+ 
 
   addData() {
     this.setConfigPath();
