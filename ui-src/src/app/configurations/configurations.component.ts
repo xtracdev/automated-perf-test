@@ -155,31 +155,28 @@ export class ConfigurationsComponent implements OnInit {
     };
   }
 
-  toastrMsg(msg1, msg2){
-    this.toastr.error(msg1, msg2);
-  }
 
   onSubmit(configData) {
     this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
       data => {
-        this.toastrMsg("Your Data has been Save!", "Success!");
+        this.toastr.success("Your Data has been Saved!", "Success!");
       },
       error => {
         switch (error.status) {
           case 500: {
-            this.toastrMsg("An Error has Occurred!", "Check the logs!");
+            this.toastr.error("An Error has Occurred!", "Check the logs!");
             break;
           }
           case 409: {
-            this.toastrMsg("File Already Exists!", "An Error Occurred!");
+            this.toastr.error("File Already Exists!", "An Error Occurred!");
             break;
           }
           case 400: {
-            this.toastrMsg("Some of the Fields do not Conform to the Schema!", "An Error Occurred!");
+            this.toastr.error("Some of the Fields do not Conform to the Schema!", "An Error Occurred!");
             break;
           }
           default: {
-            this.toastrMsg("Your Data did not Save!", "An Error Occurred!");
+            this.toastr.error("Your Data did not Save!", "An Error Occurred!");
           }
         }
       }
@@ -216,7 +213,7 @@ export class ConfigurationsComponent implements OnInit {
             }
             default: {
               this.toastr.error(
-                "Your Data was Not Retreived!",
+                "Your Data was Not Retrieved!",
                 "An Error Occurred!"
               );
             }
@@ -229,7 +226,7 @@ export class ConfigurationsComponent implements OnInit {
     .putConfig$(this.formData, this.configPath, this.xmlFileName)
     .subscribe(
       data => {
-        this.toastr.success("Success!"); 
+        this.toastr.success("Success!");  
       },
       error => {
         switch (error.status) {
