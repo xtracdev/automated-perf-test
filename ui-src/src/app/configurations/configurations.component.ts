@@ -158,7 +158,7 @@ export class ConfigurationsComponent implements OnInit {
   onSubmit(configData) {
     this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
       data => {
-        this.toastr.success("Your Data has Been Save!", "Success!");
+        this.toastr.success("Your Data has Been Saved!", "Success!");
       },
       error => {
         switch (error.status) {
@@ -171,7 +171,7 @@ export class ConfigurationsComponent implements OnInit {
             break;
           }
           default: {
-            this.toastr.error("Your Data Did Not save!", "An Error Occurred!");
+            this.toastr.error("Your Data Did Not Save!", "An Error Occurred!");
           }
         }
       }
@@ -208,7 +208,7 @@ export class ConfigurationsComponent implements OnInit {
             }
             default: {
               this.toastr.error(
-                "Your Data was Not Retreived!",
+                "Your Data was Not Retrieved!",
                 "An Error Occurred!"
               );
             }
