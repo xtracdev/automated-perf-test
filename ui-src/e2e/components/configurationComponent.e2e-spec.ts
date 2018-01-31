@@ -59,7 +59,7 @@ describe("configuration component", () => {
     configPO.addData();
     configPO.configFilePath.sendKeys("/path/to/bad/location");
     configPO.submitBtn.click();
-    expect(configPO.toastrMessage.getText()).toContain("Directory Not found!");
+    expect(configPO.toastrMessage.getText()).toContain("An error occurred");
   });
 
   it("should check requiredFields warning appears when requiredFields input is blank", () => {
