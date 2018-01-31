@@ -19,6 +19,30 @@ import (
 	"net/http/httptest"
 )
 
+func FeatureContext(s *godog.Suite) {
+	api := &apiFeature{}
+
+	s.BeforeScenario(func(interface{}) {
+
+		api.resetResponse()
+
+	})
+
+	s.Step(`^I send "(GET|POST|PUT|DELETE)" request to "([^"]*)"$`, api.iSendrequestTo)
+	s.Step(`^the response code should be (\d+)$`, api.theResponseCodeShouldBe)
+	s.Step(`^the header configsDirPath is "([^"]*)"$`, api.theHeaderConfigsDirPathIs)
+	s.Step(`^the response body should match json:$`, api.theResponseBodyShouldMatchJSON)
+	s.Step(`^the response body should be empty$`, api.theResponseBodyShouldBeEmpty)
+	s.Step(`^the config file was created at location defined by configsPathDir$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir)
+	s.Step(`^the automated performance ui server is available$`, theAutomatedPerformanceUiServerIsAvailable)
+	s.Step(`^I send "([^"]*)" request to "([^"]*)" with a body:$`, api.iSendRequestToWithABody)
+	s.Step(`^the file name is "([^"]*)"$`, api.theFileNameis)
+	s.Step(`^I send a "([^"]*)" request to "([^"]*)"$`, api.iSendARequestTo)
+	s.Step(`^the config file "([^"]*)" exists at "([^"]*)"$`, theConfigFileExistsAt)
+	s.Step(`^I send "([^"]*)" request to "([^"]*)" with body:$`, api.iSendRequestToWithBody)
+	s.Step(`^the updated file should match json:$`, api.theUpdatedFileShouldMatchJSON)
+}
+
 type apiFeature struct {
 	res *httptest.ResponseRecorder
 	resp   *http.Response
@@ -167,29 +191,7 @@ func makePostRequest(client *http.Client, method, endpoint, body string, header 
 	return resp, nil
 }
 
-func FeatureContext(s *godog.Suite) {
-	api := &apiFeature{}
 
-	s.BeforeScenario(func(interface{}) {
-
-		api.resetResponse()
-
-	})
-
-	s.Step(`^I send "(GET|POST|PUT|DELETE)" request to "([^"]*)"$`, api.iSendrequestTo)
-	s.Step(`^the response code should be (\d+)$`, api.theResponseCodeShouldBe)
-	s.Step(`^the header configsDirPath is "([^"]*)"$`, api.theHeaderConfigsDirPathIs)
-	s.Step(`^the response body should match json:$`, api.theResponseBodyShouldMatchJSON)
-	s.Step(`^the response body should be empty$`, api.theResponseBodyShouldBeEmpty)
-	s.Step(`^the config file was created at location defined by configsPathDir$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir)
-	s.Step(`^the automated performance ui server is available$`, theAutomatedPerformanceUiServerIsAvailable)
-	s.Step(`^I send "([^"]*)" request to "([^"]*)" with a body:$`, api.iSendRequestToWithABody)
-	s.Step(`^the file name is "([^"]*)"$`, api.theFileNameis)
-	s.Step(`^I send a "([^"]*)" request to "([^"]*)"$`, api.iSendARequestTo)
-	s.Step(`^the config file "([^"]*)" exists at "([^"]*)"$`, theConfigFileExistsAt)
-	s.Step(`^I send "([^"]*)" request to "([^"]*)" with body:$`, api.iSendRequestToWithBody)
-	s.Step(`^the updated file should match json:$`, api.theUpdatedFileShouldMatchJSON)
-}
 
 func theAutomatedPerformanceUiServerIsAvailable() error {
 	go http.ListenAndServe(":9191", services.GetRouter())
