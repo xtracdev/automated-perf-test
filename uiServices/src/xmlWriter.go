@@ -30,4 +30,3 @@ func writerXml(config perfTestUtils.Config, configPathDir string) bool {
 	}
 	return true
 }
-

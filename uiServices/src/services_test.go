@@ -136,7 +136,7 @@ func TestValidJsonPost(t *testing.T) {
 	}
 }
 
-func TestPostWithInvalidHeader (t *testing.T) {
+func TestPostWithInvalidHeader(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
@@ -155,7 +155,7 @@ func TestPostWithInvalidHeader (t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest {
-		t.Error("TestValidJsonPost. Expected:", http.StatusBadRequest ," Got:", w.Code, "  Error. Did not succesfully post")
+		t.Error("TestValidJsonPost. Expected:", http.StatusBadRequest, " Got:", w.Code, "  Error. Did not succesfully post")
 	}
 }
 
@@ -205,7 +205,6 @@ func TestInvalidURL(t *testing.T) {
 	pt := perfTestUtils.Config{}
 	writerXml(pt, "/path/xxx")
 }
-
 
 func TestSuccessfulGet(t *testing.T) {
 	r := chi.NewRouter()
@@ -294,7 +293,6 @@ func TestGetFileNotFound(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	r.HandleFunc("/configs", getConfigs)
-
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodGet, "/configs/xxx.java", nil)
@@ -480,5 +478,3 @@ func TestNoFileNamePut(t *testing.T) {
 
 	assert.Equal(t, w.Code, http.StatusNotFound, "Successfully updated. Should not have worked due to no file name given")
 }
-
-

@@ -204,9 +204,9 @@ func AssetNames() []string {
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
 	"report/content.tmpl": reportContentTmpl,
-	"report/footer.tmpl": reportFooterTmpl,
-	"report/header.tmpl": reportHeaderTmpl,
-	"report/test.tmpl": reportTestTmpl,
+	"report/footer.tmpl":  reportFooterTmpl,
+	"report/header.tmpl":  reportHeaderTmpl,
+	"report/test.tmpl":    reportTestTmpl,
 }
 
 // AssetDir returns the file names below a certain
@@ -248,12 +248,13 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
 	"report": &bintree{nil, map[string]*bintree{
 		"content.tmpl": &bintree{reportContentTmpl, map[string]*bintree{}},
-		"footer.tmpl": &bintree{reportFooterTmpl, map[string]*bintree{}},
-		"header.tmpl": &bintree{reportHeaderTmpl, map[string]*bintree{}},
-		"test.tmpl": &bintree{reportTestTmpl, map[string]*bintree{}},
+		"footer.tmpl":  &bintree{reportFooterTmpl, map[string]*bintree{}},
+		"header.tmpl":  &bintree{reportHeaderTmpl, map[string]*bintree{}},
+		"test.tmpl":    &bintree{reportTestTmpl, map[string]*bintree{}},
 	}},
 }}
 
@@ -303,4 +304,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-
