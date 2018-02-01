@@ -9,7 +9,7 @@
             <input class="form-control" type="string" id="xmlFileName" required>
         </div>
     </div>
-    <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
+    <json-schema-form [layout] ="configSchema.layout" [schema]="configSchema"  [(ngModel)]="formData" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
     <button class="btn btn-primary" (click)="onCancel()">Cancel</button>
 </div>

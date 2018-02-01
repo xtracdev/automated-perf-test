@@ -5,12 +5,12 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
-	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 )
 
 const validJson = `{
