@@ -56,6 +56,7 @@ describe("configuration component", () => {
     );
   });
 
+
   it("should check values of existing file are as expected", () => {
     configPO.configFilePath.sendKeys(configPO.absolutePath);
     configPO.xmlFileName.sendKeys("config");
@@ -88,6 +89,8 @@ describe("configuration component", () => {
     expect(configPO.toastrMessage.getText()).toContain(
       "Some of the Fields do not Conform to the Schema!"
     );
+
+
   });
 
   it("should check requiredFields warning appears when requiredFields input is blank", () => {

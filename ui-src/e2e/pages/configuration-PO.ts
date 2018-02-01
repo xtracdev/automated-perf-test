@@ -13,6 +13,7 @@ const path = require("path");
 const configFileLocation = "../../../config/";
 
 class ConfigurationPageObject {
+
   configFilePath = element(by.id("config-path"));
   getBtn = element(by.id("btn-get"));
   btnUpdate = element(by.id("btn-update"));
@@ -96,6 +97,7 @@ class ConfigurationPageObject {
     return this.reportsDir.sendKeys("./report");
   }
  
+
 
   setConfigData() {
     this.setConfigPath();

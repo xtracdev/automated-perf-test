@@ -1,5 +1,6 @@
 <div class="container">
     <div class="row">
+
         <div class=" column col-xs-7 col-sm-7 col-md-7 col-lg-7 ">
             <label>Config File Path *</label>
             <input class="form-control" type="string" [(ngModel)]="configPath" id="config-path" required>
@@ -13,7 +14,7 @@
                 (click)="onGetFile()">Get File</button>
         </div>
     </div>
-    <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
+    <json-schema-form [layout] ="configSchema.layout" [schema]="configSchema"  [(ngModel)]="formData" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
     <button class="btn btn-primary" id="btn-update" [disabled]="!xmlFileName" (click)="onUpdate(formData)">Update</button>
     <button class="btn btn-primary" (click)="onCancel()">Cancel</button>

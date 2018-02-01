@@ -13,6 +13,7 @@ import { ToastModule } from "ng2-toastr/ng2-toastr";
 import { AutomatedUIServices } from "./automated-ui-services";
 import { HttpClientModule, HttpClient } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
+import { HttpModule }  from '@angular/http';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { FormsModule } from "@angular/forms";
     MatButtonModule,
     MatCheckboxModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    HttpModule
   ],
   providers: [AutomatedUIServices],
   bootstrap: [AppComponent]
