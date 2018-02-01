@@ -120,7 +120,7 @@ func TestValidJsonPost(t *testing.T) {
 	reader := strings.NewReader(validJson)
 	r.HandleFunc("/configs", postConfigs)
 
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
 	request.Header.Set("configPathDir", filePath)
 
@@ -156,30 +156,6 @@ func TestPostWithInvalidHeader (t *testing.T) {
 
 	if w.Code != http.StatusBadRequest {
 		t.Error("TestValidJsonPost. Expected:", http.StatusBadRequest ," Got:", w.Code, "  Error. Did not succesfully post")
-	}
-}
-
-func TestFilePathEndsWIthSlash(t *testing.T) {
-	r := chi.NewRouter()
-	r.Mount("/", GetIndexPage())
-
-	reader := strings.NewReader(validJson)
-	r.HandleFunc("/configs", postConfigs)
-
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
-
-	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
-	request.Header.Set("configPathDir", filePath)
-
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	if w.Code != http.StatusCreated {
-		t.Error("TestFilePathEndsWith'/'.  Expected:", http.StatusCreated, " Got:", w.Code, "  Error. Did not succesfully post")
 	}
 }
 

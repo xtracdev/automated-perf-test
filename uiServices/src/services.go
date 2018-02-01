@@ -83,6 +83,13 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
         return
 
     }
+
+    if FilePathExist(configPathDir + config.APIName +".xml") {
+        logrus.Error("File already exists", err)
+        rw.WriteHeader(http.StatusBadRequest)
+        return
+
+    }
     //Create file once checks are complete
     if !writerXml(config, configPathDir + config.APIName) {
 
@@ -208,5 +215,5 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
         return
     }
 
-    rw.WriteHeader(http.StatusNoContent) 
+    rw.WriteHeader(http.StatusNoContent)
 }

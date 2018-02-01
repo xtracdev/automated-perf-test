@@ -37,6 +37,33 @@ Feature: Create Configuration File
     And the response body should be empty
     And the config file was created at location defined by configsPathDir
 
+  Scenario: Unsuccessful creation of config file (file already exists)
+    Given the automated performance ui server is available
+    And the header configsDirPath is "/uiServices/test/GodogConfig.xml"
+    When I send "POST" request to "/configs" with a body:
+         """
+      {
+       "apiName": "GodogConfig",
+       "targetHost": "localhost",
+       "targetPort":"9191",
+       "memoryEndpoint": "/alt/debug/vars",
+       "numIterations": 1000,
+       "allowablePeakMemoryVariance": 30,
+       "allowableServiceResponseTimeVariance": 30,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+       "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 50,
+       "testSuite": "Default-3",
+       "requestDelay": 5000,
+       "TPSFreq": 30,
+       "rampUsers": 5,
+       "rampDelay": 15
+      }
+      """
+    Then the response code should be 400
+
   Scenario: Unsuccessful creation of config file (Missing required field)
     Given the automated performance ui server is available
     When I send "POST" request to "/configs" with a body:
