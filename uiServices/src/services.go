@@ -84,7 +84,7 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 
     }
     //Create file once checks are complete
-    if !writerXml(config, configPathDir) {
+    if !writerXml(config, configPathDir + config.APIName) {
 
         rw.WriteHeader(http.StatusInternalServerError)
         return
@@ -203,7 +203,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
     }
 
-    if !writerXml(config, path) {
+    if !writerXml(config, path + configName) {
         rw.WriteHeader(http.StatusInternalServerError)
         return
     }
