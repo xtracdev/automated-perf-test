@@ -73,7 +73,7 @@ func FilePathExist(path string) bool {
 
 func validateJsonWithSchema(config []byte) bool {
     goPath := os.Getenv("GOPATH")
-    schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/schema.json")
+    schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/schema.json")
     documentLoader := gojsonschema.NewBytesLoader(config)
     logrus.Info(schemaLoader)
     result, error := gojsonschema.Validate(schemaLoader, documentLoader)
@@ -105,24 +105,20 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
         configPathDir = configPathDir + "/"
     }
 
-    file, err := os.Open(fmt.Sprintf("%s%s.xml", configPathDir, configName))
     if len(configPathDir) <= 1{
         rw.WriteHeader(http.StatusBadRequest)
         logrus.Error("No Header Path Found")
         return
     }
-    if err != nil {
-        logrus.Error("Configuration Name Not Found: "+configPathDir + configName)
-        rw.WriteHeader(http.StatusNotFound)
-        return
-    }
-    defer file.Close()
 
+    file, err := os.Open(fmt.Sprintf("%s%s.xml", configPathDir, configName))
     if err != nil {
         logrus.Error("Configuration Name Not Found: "+configPathDir + configName)
         rw.WriteHeader(http.StatusNotFound)
         return
     }
+
+    defer file.Close()
 
     var config perfTestUtils.Config
 
