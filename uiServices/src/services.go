@@ -100,7 +100,7 @@ func FilePathExist(path string) bool {
 
 func validateJsonWithSchema(config []byte) bool {
     goPath := os.Getenv("GOPATH")
-    schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/schema.json")
+    schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/schema.json")
     documentLoader := gojsonschema.NewBytesLoader(config)
     logrus.Info(schemaLoader)
     result, error := gojsonschema.Validate(schemaLoader, documentLoader)
