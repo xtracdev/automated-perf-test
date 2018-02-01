@@ -24,7 +24,7 @@ describe("configuration component", () => {
   });
 
   it("should create xml file", () => {
-    configPO.addData();
+    configPO.setConfigData();
     configPO.submitBtn.click();
     expect(configPO.toastrMessage.getText()).toContain("Success!");
   });
@@ -36,7 +36,7 @@ describe("configuration component", () => {
   });
 
   it("should check that all text box names are correct", () => {
-    configPO.addData();
+    configPO.setConfigData();
     expect(configPO.labels.get(0).getText()).toContain("Api Name");
     expect(configPO.labels.get(1).getText()).toContain("Num Iterations");
     expect(configPO.labels.get(2).getText()).toContain("Request Delay (ms)");
@@ -57,7 +57,7 @@ describe("configuration component", () => {
   });
 
   it("should throw error when file path does not exist", () => {
-    configPO.addData();
+    configPO.setConfigData();
     configPO.configFilePath.sendKeys("/path/to/bad/location");
     configPO.submitBtn.click();
     expect(configPO.toastrMessage.getText()).toContain("An Error Occurred!");

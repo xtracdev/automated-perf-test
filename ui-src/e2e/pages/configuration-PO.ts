@@ -97,7 +97,7 @@ class ConfigurationPageObject {
   }
  
 
-  addData() {
+  setConfigData() {
     this.setConfigPath();
     this.setApplicationName();
     this.setTargetHost();
