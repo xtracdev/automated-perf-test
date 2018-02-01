@@ -21,12 +21,13 @@ describe("configuration component", () => {
   beforeEach(() => {
     browser.get("http://localhost:9191");
     browser.executeScript("window.onbeforeunload = function(e){};");
+    browser.driver.manage().window().maximize();
   });
 
   it("should create xml file", () => {
     configPO.setConfigData();
     configPO.submitBtn.click();
-    expect(configPO.toastrMessage.getText()).toContain("Success!");
+    expect(configPO.toastrMessage.getText()).toContain("Your Data has Been Saved!");
   });
 
   it("should show submit button is disabled when requiredFields data is blank", () => {
@@ -59,7 +60,7 @@ describe("configuration component", () => {
   it("should check values of existing file are as expected", () => {
     configPO.configFilePath.sendKeys(configPO.absolutePath);
     configPO.xmlFileName.sendKeys("config");
-    configPO.getBtn.click();
+    configPO.getConfigFileBtn.click();
     expect(configPO.applicationName.getAttribute("value")).toEqual("config");
     expect(configPO.targetHost.getAttribute("value")).toEqual("localhost");
     expect(configPO.targetPort.getAttribute("value")).toEqual("8080");
@@ -222,17 +223,19 @@ describe("configuration component", () => {
   it("should update existing file", () => {
     configPO.configFilePath.sendKeys(configPO.absolutePath);
     configPO.xmlFileName.sendKeys("config");
-    configPO.getBtn.click();
-    configPO.numIterations.sendKeys(25);
+    configPO.getConfigFileBtn.click();
+    configPO.numIterations.sendKeys(5);
     configPO.btnUpdate.click();
-    expect(configPO.toastrMessage.getText()).toContain("Success!");
+    configPO.numIterations.sendKeys(Key.BACK_SPACE)
+    configPO.getConfigFileBtn.click();
+    expect(configPO.numIterations.getAttribute("value")).toEqual("10005");
   });
   it("should show get File button and update button are disabled when Xml File Name is blank", () => {
     expect(configPO.btnUpdate.isEnabled()).toBe(false);
-    expect(configPO.getBtn.isEnabled()).toBe(false);
+    expect(configPO.getConfigFileBtn.isEnabled()).toBe(false);
   });
   it("should show cancel button clear", () => {
     expect(configPO.btnUpdate.isEnabled()).toBe(false);
-    expect(configPO.getBtn.isEnabled()).toBe(false);
+    expect(configPO.getConfigFileBtn.isEnabled()).toBe(false);
   });
 });

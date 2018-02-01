@@ -17,7 +17,7 @@ export class AutomatedUIServices {
     let headers = new HttpHeaders();
     headers = headers.set("Content-Type", "application/json;");
     headers = headers.append("configPathDir", configPath);
-    return this.http.post(`${environment.apiBaseUrl}configs`, {headers});
+    return this.http.post(`${environment.apiBaseUrl}configs`,configData, {headers});
 
   }
   getConfig$(configPath, xmlFileName): Observable<any> {

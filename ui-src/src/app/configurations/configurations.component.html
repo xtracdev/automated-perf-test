@@ -1,22 +1,22 @@
 <div class="container">
     <div class="row">
-        <div class=" column col-xs-7 col-sm-7 col-md-7 col-lg-7 ">
+        <div class=" column col-md-7 col-lg-7 ">
             <label>Config File Path *</label>
-            <input class="form-control" type="string" [(ngModel)]="configPath" id="config-path" required>
+            <input class="form-control" type="string" [(ngModel)]="configPath" id="config-file-path" required>
         </div>
-        <div class=" column col-xs-4 col-sm-4 col-md-4 col-lg-4 ">
+        <div class=" column col-md-4 col-lg-4 ">
             <label>Xml File Name *</label>
             <input class="form-control" type="string" [(ngModel)]="xmlFileName" id="xml-file-name" required>
         </div>
 
         
-        <div class="column col-xs-1 col-sm-1 col-md-1 col-lg-1 ">
-            <button class="button btn-secondary pull-right" ng-class="{'diabled-class': !PayoutEnabled}"  [disabled]="!xmlFileName" id="btn-get" (click)="onGetFile()">Get File</button>
+        <div class="column col-md-1 col-lg-1 ">
+            <button class="button btn-secondary pull-right" ng-class="{'diabled-class': !PayoutEnabled}"  [disabled]="!xmlFileName" id="get-config-file-btn" (click)="onGetFile()">Get File</button>
         </div>
 
     </div>
     <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
-    <button class="btn btn-primary" id="btn-update" [disabled]="!xmlFileName" (click)="onUpdate(formData)">Update</button>
+    <button class="btn btn-primary" id="update-config-file-btn" [disabled]="!xmlFileName" (click)="onUpdate(formData)">Update</button>
     <button class="btn btn-primary" (click)="onCancel()">Cancel</button>
 </div>

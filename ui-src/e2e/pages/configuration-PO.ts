@@ -13,9 +13,9 @@ const path = require("path");
 const configFileLocation = "../../../config/";
 
 class ConfigurationPageObject {
-  configFilePath = element(by.id("config-path"));
-  getBtn = element(by.id("btn-get"));
-  btnUpdate = element(by.id("btn-update"));
+  configFilePath = element(by.id("config-file-path"));
+  getConfigFileBtn = element(by.id("get-config-file-btn"));
+  btnUpdate = element(by.id("update-config-file-btn"));
   xmlFileName = element(by.id("xml-file-name"));
   applicationName = element(by.name("apiName"));
   targetHost = element(by.name("targetHost"));
