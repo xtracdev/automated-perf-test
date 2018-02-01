@@ -1,8 +1,13 @@
 <div class="container">
-
-    <div>
-        <label>Config File Path &nbsp;</label>
-        <input class="form-control" type="text" id="config">
+    <div class="row">
+        <div class=" column col-xs-8 col-sm-8 col-md-8 col-lg-8 ">
+            <label>Config File Path *</label>
+            <input class="form-control" type="string" [(ngModel)]="configPath" id="configPath" required>
+        </div>
+        <div class=" column col-xs-4 col-sm-4 col-md-4 col-lg-4 ">
+            <label>Xml File Name *</label>
+            <input class="form-control" type="string" id="xmlFileName" required>
+        </div>
     </div>
     <json-schema-form [layout] ="configSchema.layout" [schema]="configSchema"  [(ngModel)]="formData" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>

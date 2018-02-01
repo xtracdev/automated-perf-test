@@ -12,7 +12,7 @@ import { read } from "fs";
 const path = require("path");
 const configFileLocation = "../../../config/";
 class ConfigurationPageObject {
-  configFilePath = element(by.name("configFilePath"));
+  configFilePath = element(by.id("configPath"));
   applicationName = element(by.name("apiName"));
   targetHost = element(by.name("targetHost"));
   targetPort = element(by.name("targetPort"));
@@ -93,6 +93,7 @@ class ConfigurationPageObject {
   }
 
   addData() {
+    this.setConfigPath();
     this.setApplicationName();
     this.setTargetHost();
     this.setTargetPort();
