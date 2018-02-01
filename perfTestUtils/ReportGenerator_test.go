@@ -12,8 +12,8 @@ import (
 func TestGenerateTemplate(t *testing.T) {
 
 	ps := &PerfStats{
-		TestTimeStart:   time.Now(),
-		PeakMemory: 10e6,
+		TestTimeStart: time.Now(),
+		PeakMemory:    10e6,
 	}
 
 	bs := &BasePerfStats{
@@ -68,8 +68,8 @@ func TestGenerateTemplate(t *testing.T) {
 func TestGenerateTemplateBuiltin(t *testing.T) {
 
 	ps := &PerfStats{
-		TestTimeStart:   time.Now(),
-		PeakMemory: 10e6,
+		TestTimeStart: time.Now(),
+		PeakMemory:    10e6,
 	}
 
 	bs := &BasePerfStats{

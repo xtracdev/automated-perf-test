@@ -123,8 +123,8 @@ func BenchmarkCalcAverageResponseVariancePercentage(t *testing.B) {
 
 func TestPopulateBasePerfStats(t *testing.T) {
 	ps := &PerfStats{
-		TestTimeStart:   time.Now(),
-		PeakMemory: 10e6,
+		TestTimeStart: time.Now(),
+		PeakMemory:    10e6,
 	}
 
 	bs := &BasePerfStats{
@@ -176,8 +176,8 @@ func TestValidateAverageServiceResponeTimeVariance(t *testing.T) {
 
 func TestGenerateEnvBasePerfOutputFile(t *testing.T) {
 	ps := &PerfStats{
-		TestTimeStart:   time.Now(),
-		PeakMemory: 10e6,
+		TestTimeStart: time.Now(),
+		PeakMemory:    10e6,
 	}
 
 	bs := &BasePerfStats{
@@ -206,8 +206,8 @@ func TestGenerateEnvBasePerfOutputFile(t *testing.T) {
 
 func TestGenerateEnvBasePerfOutputFileFailCreate(t *testing.T) {
 	ps := &PerfStats{
-		TestTimeStart:   time.Now(),
-		PeakMemory: 10e6,
+		TestTimeStart: time.Now(),
+		PeakMemory:    10e6,
 	}
 
 	bs := &BasePerfStats{
