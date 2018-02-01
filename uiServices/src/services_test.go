@@ -108,8 +108,9 @@ func TestInvalidJsonPostMissingRequiredField(t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest {
-		t.Errorf("TestValidJsonPost. Expected:", http.StatusBadRequest, " Got:", w.Code, "  Error. Did not succesfully post")
+		t.Error("TestValidJsonPost. Expected:", http.StatusBadRequest, " Got:", w.Code, "  Error. Did not succesfully post")
 	}
+
 }
 
 func TestValidJsonPost(t *testing.T) {
@@ -131,7 +132,7 @@ func TestValidJsonPost(t *testing.T) {
 	}
 
 	if w.Code != http.StatusCreated {
-		t.Errorf("TestValidJsonPost. Expected:", http.StatusCreated, " Got:", w.Code, "  Error. Did not succesfully post")
+		t.Error("TestValidJsonPost. Expected:", http.StatusCreated, " Got:", w.Code, "  Error. Did not succesfully post")
 	}
 }
 
@@ -154,7 +155,7 @@ func TestPostWithInvalidHeader (t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest {
-		t.Errorf("TestValidJsonPost. Expected:", http.StatusBadRequest ," Got:", w.Code, "  Error. Did not succesfully post")
+		t.Error("TestValidJsonPost. Expected:", http.StatusBadRequest ," Got:", w.Code, "  Error. Did not succesfully post")
 	}
 }
 
@@ -178,7 +179,7 @@ func TestFilePathEndsWIthSlash(t *testing.T) {
 	}
 
 	if w.Code != http.StatusCreated {
-		t.Errorf("TestFilePathEndsWith'/'.  Expected:", http.StatusCreated, " Got:", w.Code, "  Error. Did not succesfully post")
+		t.Error("TestFilePathEndsWith'/'.  Expected:", http.StatusCreated, " Got:", w.Code, "  Error. Did not succesfully post")
 	}
 }
 
@@ -199,7 +200,7 @@ func TestInvalidJsonPost(t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest {
-		t.Errorf("TestInvalidJsonPost.  Expected:", http.StatusBadRequest, " Got:", w.Code, "Error. Did not succesfully post ")
+		t.Error("TestInvalidJsonPost.  Expected:", http.StatusBadRequest, " Got:", w.Code, "Error. Did not succesfully post ")
 	}
 }
 
@@ -220,7 +221,7 @@ func TestWhenConfigPathDirEmpty(t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest {
-		t.Errorf("TestWhenConfigPathDirEmpty.  Expected:", http.StatusBadRequest, " Got:", w.Code, "Error. ConfigPathDir is Empty ")
+		t.Error("TestWhenConfigPathDirEmpty.  Expected:", http.StatusBadRequest, " Got:", w.Code, "Error. ConfigPathDir is Empty ")
 	}
 }
 
@@ -260,7 +261,7 @@ func TestSuccessfulGet(t *testing.T) {
 	}
 
 	if w.Code != http.StatusOK {
-		t.Errorf("TestSuccessfulGET. Expected:", http.StatusOK, " Got:", w.Code, "  Error. Did not succesfully get")
+		t.Error("TestSuccessfulGET. Expected:", http.StatusOK, " Got:", w.Code, "  Error. Did not succesfully get")
 	}
 }
 
@@ -284,7 +285,7 @@ func TestSuccessfulGetPathWihoutSlash(t *testing.T) {
 	}
 
 	if w.Code != http.StatusOK {
-		t.Errorf("Test Get Path ends with backslash. Expected:", http.StatusOK, " Got:", w.Code, "  Error. Did not succesfully get")
+		t.Error("Test Get Path ends with backslash. Expected:", http.StatusOK, " Got:", w.Code, "  Error. Did not succesfully get")
 	}
 }
 
@@ -308,7 +309,7 @@ func TestGetNoHeaderPath(t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest {
-		t.Errorf("Test No-Header-Get. Expected:", http.StatusBadRequest, " Got:", w.Code)
+		t.Error("Test No-Header-Get. Expected:", http.StatusBadRequest, " Got:", w.Code)
 	}
 }
 
@@ -333,7 +334,7 @@ func TestGetFileNotFound(t *testing.T) {
 	}
 
 	if w.Code != http.StatusNotFound {
-		t.Errorf("Test File Not Found. Expected:", http.StatusNotFound, " Got:", w.Code)
+		t.Error("Test File Not Found. Expected:", http.StatusNotFound, " Got:", w.Code)
 	}
 }
 
