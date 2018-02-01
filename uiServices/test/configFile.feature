@@ -275,34 +275,6 @@ Feature: Create Configuration File
       """
     Then the response code should be 400
 
-    Scenario: Unsuccessful update of config file with PUT request (ApiName different to Filename)
-    Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
-    Given the automated performance ui server is available
-    And the header configsDirPath is "/uiServices/test/"
-    When I send "PUT" request to "/configs/GodogConfig" with body:
-         """
-      {
-       "apiName": "xxx",
-       "targetHost": "localhost",
-       "targetPort":"1001",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 4000,
-       "allowablePeakMemoryVariance": 50,
-       "allowableServiceResponseTimeVariance": 50,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 1000,
-       "TPSFreq": 10,
-       "rampUsers": 10,
-       "rampDelay": 10
-      }
-      """
-    Then the response code should be 400
-
 
   Scenario: Successful update of config file with PUT request
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
