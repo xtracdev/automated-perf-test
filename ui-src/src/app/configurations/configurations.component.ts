@@ -4,8 +4,8 @@ import { AutomatedUIServices } from "../automated-ui-services";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import { ToastOptions } from "ng2-toastr/src/toast-options";
-import { Observable } from "rxjs/Observable";
 import "rxjs/add/operator/map";
+
 @Component({
   selector: "app-configurations",
   templateUrl: "./configurations.component.html",
@@ -13,8 +13,10 @@ import "rxjs/add/operator/map";
 })
 export class ConfigurationsComponent implements OnInit {
   formData = {};
+  configPath = undefined;
   // needed for layout to load
   configSchema = { layout: "" };
+
 
   constructor(
     private automatedUIServices: AutomatedUIServices,
@@ -41,16 +43,29 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onSubmit(configData) {
-    this.automatedUIServices.postConfig$(configData).subscribe(
+    this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
       data => {
         this.toastr.success("Your data has been save!", "Success!");
       },
-      error => {
-        this.toastr.error("Failed to save data, Check the Command Line!");
+      error => { switch (error.status) {
+        case 500: {
+          this.toastr.error ("An error has occurred. Check the logs.");
+                          break;
+                      }
+                      case 400: {
+                       this.toastr.error("Some of the fields do not conform to the schema", "An error occurred");
+                          break;
+                      }
+                      default: {
+                        this.toastr.error("Your data did not save.", "An error occurred");
+                                    }
+                    }
       }
     );
   }
+
   onCancel() {
-    this.formData = {};
+    this.configPath = undefined;
+    this.formData = undefined;
   }
 }
