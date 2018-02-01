@@ -25,20 +25,20 @@ func getConfigHeader(req *http.Request)string {
 }
 
 
-func validateFileNameAndHeader(rw http.ResponseWriter, req *http.Request,header, name string) {
+func validateFileNameAndHeader(rw http.ResponseWriter, req *http.Request,header, name string) bool{
 
     if len(name) <= 1 {
         logrus.Error("File Not Found")
         rw.WriteHeader(http.StatusNotFound)
-        return
+        return false
     }
 
     if len(header) <= 1 {
         logrus.Error("No Header Path Found")
         rw.WriteHeader(http.StatusBadRequest)
-        return
+        return false
     }
-    return
+    return true
 }
 
 func ConfigCtx(next http.Handler) http.Handler {
@@ -85,6 +85,7 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
     }
 
     if FilePathExist(configPathDir + config.APIName +".xml") {
+
         logrus.Error("File already exists")
         rw.WriteHeader(http.StatusConflict)
         return
@@ -93,6 +94,7 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 
     //Create file once checks are complete
     if !writerXml(config, configPathDir) {
+
         rw.WriteHeader(http.StatusInternalServerError)
         return
     }
@@ -107,7 +109,7 @@ func FilePathExist(path string) bool {
 
 func validateJsonWithSchema(config []byte) bool {
     goPath := os.Getenv("GOPATH")
-    schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/schema.json")
+    schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/schema.json")
     documentLoader := gojsonschema.NewBytesLoader(config)
     logrus.Info(schemaLoader)
     result, error := gojsonschema.Validate(schemaLoader, documentLoader)
@@ -135,7 +137,9 @@ func getConfigs(rw http.ResponseWriter, req *http.Request){
     configPathDir := getConfigHeader(req)
     configName := chi.URLParam(req, "configName")
 
-    validateFileNameAndHeader(rw, req,configPathDir,configName)
+    if !validateFileNameAndHeader(rw, req,configPathDir,configName){
+        return
+    }
 
         file, err := os.Open(fmt.Sprintf("%s%s.xml", configPathDir, configName))
         if err != nil {
@@ -180,7 +184,9 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
     path := getConfigHeader(req)
     configName := chi.URLParam(req, "configName")
 
-    validateFileNameAndHeader(rw, req,path,configName)
+    if !validateFileNameAndHeader(rw, req,path,configName){
+        return
+    }
 
     configPathDir := fmt.Sprintf("%s%s.xml", path, configName)
     buf := new(bytes.Buffer)
@@ -194,6 +200,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
     config := perfTestUtils.Config{}
     err := json.Unmarshal(buf.Bytes(), &config)
     if err != nil {
+        logrus.Error("Cannot Unmarshall Json")
         rw.WriteHeader(http.StatusBadRequest)
         return
     }
@@ -205,13 +212,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
     }
 
-    if configName != config.APIName {
-        logrus.Error("Api Name must match File Name")
-        rw.WriteHeader(http.StatusBadRequest)
-        return
-    }
-
-    if !writerXml(config, path) {
+    if !writerXml(config, path + configName) {
         rw.WriteHeader(http.StatusInternalServerError)
         return
     }

@@ -97,6 +97,7 @@ class ConfigurationPageObject {
   }
  
 
+
   setConfigData() {
     this.setConfigPath();
     this.setApplicationName();

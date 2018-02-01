@@ -13,9 +13,8 @@
         <div class="column col-md-1 col-lg-1 ">
             <button class="button btn-secondary pull-right" ng-class="{'diabled-class': !PayoutEnabled}"  [disabled]="!xmlFileName" id="get-config-file-btn" (click)="onGetFile()">Get File</button>
         </div>
-
     </div>
-    <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
+    <json-schema-form [layout] ="configSchema.layout" [schema]="configSchema"  [(ngModel)]="formData" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
     <button class="btn btn-primary" id="update-config-file-btn" [disabled]="!xmlFileName" (click)="onUpdate(formData)">Update</button>
     <button class="btn btn-primary" (click)="onCancel()">Cancel</button>

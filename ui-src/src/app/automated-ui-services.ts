@@ -8,10 +8,12 @@ import { Observable } from "rxjs/Observable";
 import { environment } from "../environments/environment.prod";
 import { $ } from "protractor";
 
+
 @Injectable()
 export class AutomatedUIServices {
 
   constructor(private http: HttpClient) {}
+
 
   postConfig$(configData, configPath): Observable<any> {
     let headers = new HttpHeaders();

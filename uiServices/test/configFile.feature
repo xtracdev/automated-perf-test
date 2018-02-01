@@ -37,6 +37,33 @@ Feature: Create Configuration File
     And the response body should be empty
     And the config file was created at location defined by configsPathDir
 
+  Scenario: Unsuccessful creation of config file (file already exists)
+    Given the automated performance ui server is available
+    And the header configsDirPath is "/uiServices/test/GodogConfig.xml"
+    When I send "POST" request to "/configs" with a body:
+         """
+      {
+       "apiName": "GodogConfig",
+       "targetHost": "localhost",
+       "targetPort":"9191",
+       "memoryEndpoint": "/alt/debug/vars",
+       "numIterations": 1000,
+       "allowablePeakMemoryVariance": 30,
+       "allowableServiceResponseTimeVariance": 30,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+       "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 50,
+       "testSuite": "Default-3",
+       "requestDelay": 5000,
+       "TPSFreq": 30,
+       "rampUsers": 5,
+       "rampDelay": 15
+      }
+      """
+    Then the response code should be 400
+
   Scenario: Unsuccessful creation of config file (Missing required field)
     Given the automated performance ui server is available
     When I send "POST" request to "/configs" with a body:
@@ -275,34 +302,6 @@ Feature: Create Configuration File
       """
     Then the response code should be 400
 
-    Scenario: Unsuccessful update of config file with PUT request (ApiName different to Filename)
-    Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
-    Given the automated performance ui server is available
-    And the header configsDirPath is "/uiServices/test/"
-    When I send "PUT" request to "/configs/GodogConfig" with body:
-         """
-      {
-       "apiName": "xxx",
-       "targetHost": "localhost",
-       "targetPort":"1001",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 4000,
-       "allowablePeakMemoryVariance": 50,
-       "allowableServiceResponseTimeVariance": 50,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 1000,
-       "TPSFreq": 10,
-       "rampUsers": 10,
-       "rampDelay": 10
-      }
-      """
-    Then the response code should be 400
-
 
   Scenario: Successful update of config file with PUT request
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
@@ -338,6 +337,58 @@ Feature: Create Configuration File
       {
        "apiName": "GodogConfig",
        "targetHost": "localhost2",
+       "targetPort":"1001",
+       "memoryEndpoint": "/alt/debug/vars",
+       "numIterations": 4000,
+       "allowablePeakMemoryVariance": 50,
+       "allowableServiceResponseTimeVariance": 50,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+       "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 50,
+       "testSuite": "Default-3",
+       "requestDelay": 1000,
+       "TPSFreq": 10,
+       "rampUsers": 10,
+       "rampDelay": 10
+      }
+      """
+
+  Scenario: Successful update of config file with PUT request (Update API Name to not match Filename)
+    Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header configsDirPath is "/uiServices/test/"
+    When I send "PUT" request to "/configs/GodogConfig" with body:
+            """
+      {
+       "apiName": "GodogAPI",
+       "targetHost": "localhost",
+       "targetPort":"1001",
+       "memoryEndpoint": "/alt/debug/vars",
+       "numIterations": 4000,
+       "allowablePeakMemoryVariance": 50,
+       "allowableServiceResponseTimeVariance": 50,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+       "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 50,
+       "testSuite": "Default-3",
+       "requestDelay": 1000,
+       "TPSFreq": 10,
+       "rampUsers": 10,
+       "rampDelay": 10
+      }
+      """
+    Then the response code should be 204
+    And the response body should be empty
+    When I send a "GET" request to "/configs/GodogConfig"
+    And the updated file should match json:
+           """
+      {
+       "apiName": "GodogAPI",
+       "targetHost": "localhost",
        "targetPort":"1001",
        "memoryEndpoint": "/alt/debug/vars",
        "numIterations": 4000,
