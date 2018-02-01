@@ -208,5 +208,5 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
         return
     }
 
-    rw.WriteHeader(http.StatusNoContent)
+    rw.WriteHeader(http.StatusNoContent) 
 }
