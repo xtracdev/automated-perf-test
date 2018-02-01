@@ -36,9 +36,50 @@ Feature: Create Configuration File
     When I send "PUT" request to "/configs"
     Then the response code should be 405
 
-  Scenario: Try to create config file with "GET" request
-    When I send "GET" request to "/configs"
-    Then the response code should be 405
+  Scenario: Try to retrieve config file with valid "GET" request
+    Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header configsDirPath is "/uiServices/test/"
+    And the file name is "GodogConfig.xml"
+    When I send a "GET" request to "/configs/GodogConfig"
+    Then the response code should be 200
+    And the response body should match json:
+    """
+      {
+       "apiName": "GodogConfig",
+       "targetHost": "localhost",
+       "targetPort":"9191",
+       "memoryEndpoint": "/alt/debug/vars",
+       "numIterations": 1000,
+       "allowablePeakMemoryVariance": 30,
+       "allowableServiceResponseTimeVariance": 30,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+       "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 50,
+       "testSuite": "Default-3",
+       "requestDelay": 5000,
+       "TPSFreq": 30,
+       "rampUsers": 5,
+       "rampDelay": 15
+      }
+      """
+
+  Scenario: Unsuccessful retrieval of config file (File Not Found)
+    Given the automated performance ui server is available
+    Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header configsDirPath is "/uiServices/test/"
+    When I send a "GET" request to "/configs/xxx"
+    Then the response code should be 404
+
+
+  Scenario: Unsuccessful retrieval of config file (No Header)
+    Given the automated performance ui server is available
+    And the header configsDirPath is ""
+    When I send a "GET" request to "/configs/GodogConfig"
+    Then the response code should be 400
 
   Scenario: Try to create config file with "DELETE" request
     When I send "DELETE" request to "/configs"

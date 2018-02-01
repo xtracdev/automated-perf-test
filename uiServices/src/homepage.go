@@ -99,6 +99,7 @@ func routeConfigs() http.Handler {
 	router := chi.NewRouter()
 	router.Use(ConfigCtx)
 	router.Post("/", postConfigs)
+	router.Get("/{configName}", getConfigs)
 
 	return router
 }
