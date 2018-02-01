@@ -19,7 +19,7 @@ const configPO: ConfigurationPageObject = new ConfigurationPageObject();
 
 describe("configuration component", () => {
   beforeEach(() => {
-    browser.get("/configurations");
+    browser.get("http://localhost:9191");
     browser.executeScript("window.onbeforeunload = function(e){};");
   });
 
@@ -56,11 +56,38 @@ describe("configuration component", () => {
     );
   });
 
+  it("should check values of existing file are as expected", () => {
+    configPO.configFilePath.sendKeys(configPO.absolutePath);
+    configPO.xmlFileName.sendKeys("config");
+    configPO.getBtn.click();
+    expect(configPO.applicationName.getAttribute("value")).toEqual("config");
+    expect(configPO.targetHost.getAttribute("value")).toEqual("localhost");
+    expect(configPO.targetPort.getAttribute("value")).toEqual("8080");
+    expect(configPO.testCaseDir.getAttribute("value")).toEqual(
+      "./definitions/testCases"
+    );
+    expect(configPO.baseStatsDir.getAttribute("value")).toEqual("./envStats");
+    expect(configPO.memoryEndpoint.getAttribute("value")).toEqual(
+      "/alt/debug/vars"
+    );
+    expect(configPO.reportsDir.getAttribute("value")).toEqual("./report");
+    expect(configPO.numIterations.getAttribute("value")).toEqual("1000");
+    expect(configPO.memoryVariance.getAttribute("value")).toEqual("15");
+    expect(configPO.serviceVariance.getAttribute("value")).toEqual("15");
+    expect(configPO.concurrentUsers.getAttribute("value")).toEqual("50");
+    expect(configPO.requestDelay.getAttribute("value")).toEqual("5000");
+    expect(configPO.tpsFreq.getAttribute("value")).toEqual("30");
+    expect(configPO.rampDelay.getAttribute("value")).toEqual("15");
+    expect(configPO.rampUsers.getAttribute("value")).toEqual("5");
+  });
+
   it("should throw error when file path does not exist", () => {
     configPO.setConfigData();
     configPO.configFilePath.sendKeys("/path/to/bad/location");
     configPO.submitBtn.click();
-    expect(configPO.toastrMessage.getText()).toContain("An Error Occurred!");
+    expect(configPO.toastrMessage.getText()).toContain(
+      "Some of the Fields do not Conform to the Schema!"
+    );
   });
 
   it("should check requiredFields warning appears when requiredFields input is blank", () => {
@@ -192,31 +219,6 @@ describe("configuration component", () => {
       .toEqual("Must be 100 or less");
   });
 
-  it("should check values of existing file are as expected", () => {
-    configPO.configFilePath.sendKeys(configPO.absolutePath);
-    configPO.xmlFileName.sendKeys("config");
-    configPO.getBtn.click();
-    expect(configPO.applicationName.getAttribute("value")).toEqual("Xtrac API");
-    expect(configPO.targetHost.getAttribute("value")).toEqual("localhost");
-    expect(configPO.targetPort.getAttribute("value")).toEqual("8080");
-    expect(configPO.testSuite.getAttribute("value")).toEqual("Default-1");
-    expect(configPO.testCaseDir.getAttribute("value")).toEqual(
-      "./definitions/testCases"
-    );
-    expect(configPO.baseStatsDir.getAttribute("value")).toEqual("./envStats");
-    expect(configPO.memoryEndpoint.getAttribute("value")).toEqual(
-      "/alt/debug/vars"
-    );
-    expect(configPO.reportsDir.getAttribute("value")).toEqual("./report");
-    expect(configPO.numIterations.getAttribute("value")).toEqual("1000");
-    expect(configPO.memoryVariance.getAttribute("value")).toEqual("15");
-    expect(configPO.serviceVariance.getAttribute("value")).toEqual("15");
-    expect(configPO.concurrentUsers.getAttribute("value")).toEqual("");
-    expect(configPO.requestDelay.getAttribute("value")).toEqual("5000");
-    expect(configPO.tpsFreq.getAttribute("value")).toEqual("30");
-    expect(configPO.rampDelay.getAttribute("value")).toEqual("15");
-    expect(configPO.rampUsers.getAttribute("value")).toEqual("5");
-  });
   it("should update existing file", () => {
     configPO.configFilePath.sendKeys(configPO.absolutePath);
     configPO.xmlFileName.sendKeys("config");
