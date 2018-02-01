@@ -159,7 +159,7 @@ export class ConfigurationsComponent implements OnInit {
   onSubmit(configData) {
     this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
       data => {
-        this.toastr.success("Your Data has been Saved!", "Success!");
+        this.toastr.success("Your Data has Been Saved!", "Success!");
       },
       error => {
         switch (error.status) {
@@ -177,6 +177,7 @@ export class ConfigurationsComponent implements OnInit {
           }
           default: {
             this.toastr.error("Your Data did not Save!", "An Error Occurred!");
+
           }
         }
       }
@@ -204,11 +205,11 @@ export class ConfigurationsComponent implements OnInit {
               break;
             }
             case 400: {
-              this.toastr.error("Directory Not found!", "An Error Occurred!");
+              this.toastr.error("Check Your Field Inputs", "An Error Occurred!");
               break;
             }
             case 500: {
-              this.toastr.error("An error has occurred!", "Check the logs!");
+              this.toastr.error("An Error has Occurred!", "Check the logs!");
               break;
             }
             default: {
