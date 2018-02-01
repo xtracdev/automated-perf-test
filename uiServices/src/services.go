@@ -203,7 +203,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	if !FilePathExist(configPathDir) {
 		logrus.Error("File path does not exist", err)
-		rw.WriteHeader(http.StatusConflict)
+		rw.WriteHeader(http.StatusNotFound)
 		return
 
 	}

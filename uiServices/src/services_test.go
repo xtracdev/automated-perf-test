@@ -393,7 +393,7 @@ func TestInvalidUrlPut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusConflict, "Sucessfully updated. Should have have worked using /configs/xxx")
+	assert.Equal(t, w.Code, http.StatusNotFound, "Sucessfully updated. Should have have worked using /configs/xxx")
 }
 
 func TestNoUrlPut(t *testing.T) {

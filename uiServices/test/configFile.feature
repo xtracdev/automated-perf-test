@@ -244,7 +244,7 @@ Feature: Create Configuration File
        "rampDelay": 10
       }
       """
-    Then the response code should be 409
+    Then the response code should be 404
 
   Scenario: Unsuccessful update of config file with PUT request (No File Name)
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
