@@ -476,5 +476,5 @@ func TestNoFileNamePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusNotFound, "Successfully updated. Should not have worked due to no file name given")
+	assert.Equal(t, w.Code, http.StatusBadRequest, "Successfully updated. Should not have worked due to no file name given")
 }

@@ -28,7 +28,7 @@ func validateFileNameAndHeader(rw http.ResponseWriter, req *http.Request, header
 
 	if len(name) <= 1 {
 		logrus.Error("File Not Found")
-		rw.WriteHeader(http.StatusNotFound)
+		rw.WriteHeader(http.StatusBadRequest)
 		return false
 	}
 
