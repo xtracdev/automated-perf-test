@@ -38,8 +38,6 @@ export class ConfigurationsComponent implements OnInit {
         err => console.log(err), // error
         () => console.log("Complete") // complete
       );
-
-
     this.formData = {
       allowablePeakMemoryVariance: 15,
       allowableServiceResponseTimeVariance: 15
@@ -78,9 +76,19 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onCancel() {
+
+    this.automatedUIServices
+    .getConfig$(this.configPath, this.xmlFileName)
+    .subscribe(
+      data => {
+        this.formData = data;
+        this.toastr.success("Previous Data Reloaded!");
+      },
+      error => {
     this.configPath = undefined;
     this.xmlFileName = undefined;
     this.formData = undefined;
+      });
   }
 
   onGetFile() {
@@ -114,15 +122,13 @@ export class ConfigurationsComponent implements OnInit {
           }
         }
       );
-
-   
   }
   onUpdate(configData) {
     this.automatedUIServices
     .putConfig$(this.formData, this.configPath, this.xmlFileName)
     .subscribe(
       data => {
-        this.toastr.success("Success!");  
+        this.toastr.success("Success!");
       },
       error => {
         switch (error.status) {
