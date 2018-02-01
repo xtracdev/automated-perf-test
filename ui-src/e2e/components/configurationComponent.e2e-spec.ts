@@ -53,12 +53,13 @@ describe("configuration component", () => {
     expect(configPO.labels.get(14).getText()).toContain(
       "Test Suites Directory"
     );
-    expect(configPO.labels.get(15).getText()).toContain(
-      "Base Stats Output Directory"
-    );
-    expect(configPO.labels.get(16).getText()).toContain(
-      "Report Output Director"
-    );
+  });
+
+  it("should throw error when file path does not exist", () => {
+    configPO.addData();
+    configPO.configFilePath.sendKeys("/path/to/bad/location");
+    configPO.submitBtn.click();
+    expect(configPO.toastrMessage.getText()).toContain("An error occurred");
   });
 
   it("should check requiredFields warning appears when requiredFields input is blank", () => {
