@@ -105,7 +105,6 @@ const (
         <testCase>xiws-workitem-search-success.xml</testCase>
     </testCases>
 </testSuite>`
-
 )
 
 func TestUnmarshalXmlTestSuite(t *testing.T) {
