@@ -1,31 +1,31 @@
 package main
 
 import (
+	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"github.com/DATA-DOG/godog"
 	"github.com/DATA-DOG/godog/gherkin"
+	"github.com/Sirupsen/logrus"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
+	"github.com/xtracdev/automated-perf-test/uiServices/src"
+	"io"
 	"io/ioutil"
 	"net/http"
-	"io"
-	"strings"
-	"os"
-	"github.com/Sirupsen/logrus"
-	"github.com/xtracdev/automated-perf-test/uiServices/src"
-	"encoding/xml"
-	"github.com/xtracdev/automated-perf-test/perfTestUtils"
-	"encoding/json"
-	"reflect"
 	"net/http/httptest"
+	"os"
+	"reflect"
+	"strings"
 )
 
 type apiFeature struct {
-	res *httptest.ResponseRecorder
-	resp   *http.Response
-	client *http.Client
+	res         *httptest.ResponseRecorder
+	resp        *http.Response
+	client      *http.Client
 	requestbody string
-	header string
-	filename string
+	header      string
+	filename    string
 }
 
 func (a *apiFeature) resetResponse() {
@@ -34,7 +34,7 @@ func (a *apiFeature) resetResponse() {
 }
 
 func (a *apiFeature) iSendrequestTo(method, endpoint string) (err error) {
-	response, err := makePostRequest(a.client, method, endpoint, "","")
+	response, err := makePostRequest(a.client, method, endpoint, "", "")
 	if err != nil {
 		return err
 	}
@@ -76,11 +76,11 @@ func (a *apiFeature) theResponseBodyShouldMatchJSON(body *gherkin.DocString) (er
 	}
 	"""`
 
-	json.Unmarshal([]byte (body.Content), &actualConfig)
-	json.Unmarshal([]byte (expectedJson), &expectedConfig)
+	json.Unmarshal([]byte(body.Content), &actualConfig)
+	json.Unmarshal([]byte(expectedJson), &expectedConfig)
 
-	if !reflect.DeepEqual(&expectedConfig,&actualConfig) {
-		fmt.Errorf("Expected :", expectedConfig," ,but actual was :", actualConfig)
+	if !reflect.DeepEqual(&expectedConfig, &actualConfig) {
+		fmt.Errorf("Expected :", expectedConfig, " ,but actual was :", actualConfig)
 		return
 	}
 
@@ -103,10 +103,10 @@ func (a *apiFeature) theResponseBodyShouldBeEmpty() error {
 	return nil
 }
 
-func (a *apiFeature) theHeaderConfigsDirPathIs(path string) error{
+func (a *apiFeature) theHeaderConfigsDirPathIs(path string) error {
 	a.header = path
 
-	if path == ""{
+	if path == "" {
 		fmt.Println("Error: No Header Defined")
 		return nil
 	}
@@ -115,16 +115,16 @@ func (a *apiFeature) theHeaderConfigsDirPathIs(path string) error{
 }
 
 func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() error {
-	configsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test"+a.header
+	configsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.header
 
 	fileExists := services.FilePathExist(configsPathDir)
 
-	if (!fileExists){
+	if !fileExists {
 		return fmt.Errorf("File Does Not Exist")
 	}
 
 	logrus.Println("File Exists")
-	if !IsValidXml(a.requestbody, a.header){
+	if !IsValidXml(a.requestbody, a.header) {
 		return fmt.Errorf("File is not a valid XML file")
 	}
 	logrus.Println("File is a valid XML file")
@@ -148,11 +148,11 @@ func makePostRequest(client *http.Client, method, endpoint, body string, header 
 		reqBody = strings.NewReader(body)
 	}
 
-	req, err := http.NewRequest(method, "http://localhost:9191" + endpoint, reqBody)
+	req, err := http.NewRequest(method, "http://localhost:9191"+endpoint, reqBody)
 
 	if header == "" {
 		req.Header.Set("configPathDir", "")
-	}else {
+	} else {
 		req.Header.Set("configPathDir", fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
 	}
 	if err != nil {
@@ -187,6 +187,14 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^the file name is "([^"]*)"$`, api.theFileNameis)
 	s.Step(`^I send a "([^"]*)" request to "([^"]*)"$`, api.iSendARequestTo)
 	s.Step(`^the config file "([^"]*)" exists at "([^"]*)"$`, theConfigFileExistsAt)
+	s.Step(`^I send "([^"]*)" request to "([^"]*)" with body:$`, api.iSendRequestToWithBody)
+	s.Step(`^the updated file should match json:$`, api.theUpdatedFileShouldMatchJSON)
+	s.Step(`^there is no existing test file "([^"]*)"$`, api.thereIsNoExistingTestFile)
+}
+
+func (a * apiFeature) thereIsNoExistingTestFile(file string) error{
+	os.Remove(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"+file)
+	return nil
 }
 
 func theAutomatedPerformanceUiServerIsAvailable() error {
@@ -194,8 +202,8 @@ func theAutomatedPerformanceUiServerIsAvailable() error {
 	return nil
 }
 
-func  IsValidXml(config string, header string) bool{
-	file, err := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test"+header)
+func IsValidXml(config string, header string) bool {
+	file, err := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + header)
 	if err != nil {
 		fmt.Println(err)
 		return false
@@ -209,27 +217,27 @@ func  IsValidXml(config string, header string) bool{
 
 	byteValue, err := ioutil.ReadAll(file)
 	xml.Unmarshal(byteValue, &actualConfig)
-	if err != nil{
+	if err != nil {
 		logrus.Println("Cannot Unmarshall into XML")
 		return false
 	}
 
-	bytes, err:= []byte(config),err
+	bytes, err := []byte(config), err
 	json.Unmarshal(bytes, &expectedConfig)
-	if err != nil{
+	if err != nil {
 		logrus.Println("Cannot Unmarshall into JSON")
 		return false
 	}
 
-	if !reflect.DeepEqual(&expectedConfig,&actualConfig) {
+	if !reflect.DeepEqual(&expectedConfig, &actualConfig) {
 		logrus.Println("Error: Values Not Equal")
-		logrus.Println("Expected :", expectedConfig," ,but actual was :", actualConfig)
+		logrus.Println("Expected :", expectedConfig, " ,but actual was :", actualConfig)
 		return false
 	}
 	return true
 }
 
-func (a *apiFeature) theFileNameis(filename string)error {
+func (a *apiFeature) theFileNameis(filename string) error {
 	a.filename = filename
 	return nil
 }
@@ -246,16 +254,16 @@ func (a *apiFeature) iSendARequestTo(method, endpoint string) error {
 
 func makeGetRequest(client *http.Client, method, endpoint string, filename string, header string) (*http.Response, error) {
 
-	req, err := http.NewRequest(method, "http://localhost:9191" + endpoint,nil)
+	req, err := http.NewRequest(method, "http://localhost:9191"+endpoint, nil)
 
-	if header == ""{
+	if header == "" {
 		req.Header.Set("configPathDir", "")
-	}else{
+	} else {
 		req.Header.Set("configPathDir", fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
 	}
-		if err != nil {
+	if err != nil {
 		return nil, err
-		}
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -265,11 +273,84 @@ func makeGetRequest(client *http.Client, method, endpoint string, filename strin
 	return resp, nil
 }
 
-func theConfigFileExistsAt(filename, path string)error{
-	_, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test"+path+filename)
-	if err != nil{
-		fmt.Println("Error. File Not Found at location : "+path +filename)
+func theConfigFileExistsAt(filename, path string) error {
+	_, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + path + filename)
+	if err != nil {
+		fmt.Println("Error. File Not Found at location : " + path + filename)
 		return nil
 	}
 	return nil
+}
+
+func (a *apiFeature) iSendRequestToWithBody(method, endpoint string, body *gherkin.DocString) error {
+	response, err := makePutRequest(a.client, method, endpoint, body.Content, a.header)
+	a.requestbody = body.Content
+	if err != nil {
+		return err
 	}
+	a.resp = response
+	return nil
+}
+
+func makePutRequest(client *http.Client, method, endpoint, body string, header string) (*http.Response, error) {
+
+	var reqBody io.Reader
+	if body != "" {
+		reqBody = strings.NewReader(body)
+	}
+
+	req, err := http.NewRequest(method, "http://localhost:9191"+endpoint, reqBody)
+
+	if header == "" {
+		req.Header.Set("configPathDir", "")
+	} else {
+		req.Header.Set("configPathDir", fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (a *apiFeature) theUpdatedFileShouldMatchJSON(body *gherkin.DocString) (err error) {
+	var expectedConfig perfTestUtils.Config
+	var actualConfig perfTestUtils.Config
+
+	expectedJson := `"""
+	{
+	"apiName": "GodogConfig",
+	"targetHost": "localhost2",
+	"targetPort":"1001",
+	"memoryEndpoint": "/alt/debug/vars",
+	"numIterations": 4000,
+	"allowablePeakMemoryVariance": 50,
+	"allowableServiceResponseTimeVariance": 50,
+	"testCaseDir": "./definitions/testCases",
+	"testSuiteDir": "./definitions/testSuites",
+	"baseStatsOutputDir": "./envStats",
+	"reportOutputDir": "./report",
+	"concurrentUsers": 50,
+	"testSuite": "Default-3",
+	"requestDelay": 1000,
+	"TPSFreq": 10,
+	"rampUsers": 10,
+	"rampDelay": 10
+	}
+	"""`
+
+	json.Unmarshal([]byte(body.Content), &actualConfig)
+	json.Unmarshal([]byte(expectedJson), &expectedConfig)
+
+	if !reflect.DeepEqual(&expectedConfig, &actualConfig) {
+		fmt.Errorf("Expected :", expectedConfig, " ,but actual was :", actualConfig)
+		return
+	}
+
+	return nil
+}

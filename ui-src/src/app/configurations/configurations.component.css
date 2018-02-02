@@ -2,21 +2,17 @@
   margin-top: 25px;
   margin-bottom: 25px;
 }
-.fileButton {
-  margin-top: 15px;
-  margin-right: 15px;
-}
 
-
-.btn-primary1 {
+.btn-secondary {
     color: #fff;
     background-color: #337ab7;
     border-color: #2e6da4;
 }
-.btn1 {
+.button {
     display: inline-block;
     padding: 6px 12px;
     margin-bottom: 0;
+    margin-top: 25px;
     font-size: 14px;
     font-weight: 400;
     line-height: 1.42857143;
@@ -33,4 +29,10 @@
     background-image: none;
     border: 1px solid transparent;
     border-radius: 4px;
+}
+.button[disabled] {
+  cursor: not-allowed;
+  filter: alpha(opacity=65);
+  box-shadow: none;
+  opacity: .65;
 }

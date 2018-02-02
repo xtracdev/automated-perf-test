@@ -7,8 +7,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 	"sort"
+	"strconv"
 )
 
 type perfStatsModel struct {

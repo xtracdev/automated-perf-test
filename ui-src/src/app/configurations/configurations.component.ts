@@ -15,7 +15,6 @@ export class ConfigurationsComponent implements OnInit {
   formData = {};
   configPath = undefined;
   xmlFileName = undefined;
-
   // needed for layout to load
   configSchema = { layout: "" };
 
@@ -24,6 +23,7 @@ export class ConfigurationsComponent implements OnInit {
     private toastr: ToastsManager,
     private http: Http
   ) {}
+
 
   ngOnInit() {
     this.http
@@ -36,40 +36,57 @@ export class ConfigurationsComponent implements OnInit {
         err => console.log(err), // error
         () => console.log("Complete") // complete
       );
-
     this.formData = {
       allowablePeakMemoryVariance: 15,
       allowableServiceResponseTimeVariance: 15
     };
   }
 
+
   onSubmit(configData) {
     this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
       data => {
         this.toastr.success("Your Data has Been Saved!", "Success!");
       },
+
       error => {
         switch (error.status) {
           case 500: {
             this.toastr.error("An Error has Occurred!", "Check the logs!");
             break;
           }
+          case 409: {
+            this.toastr.error("File Already Exists!", "An Error Occurred!");
+            break;
+          }
           case 400: {
-            this.toastr.error("Check Your Field Inputs!", "An Error Occurred!");
+            this.toastr.error("Some of the Fields do not Conform to the Schema!", "An Error Occurred!");
             break;
           }
           default: {
-            this.toastr.error("Your Data Did Not Save!", "An Error Occurred!");
+            this.toastr.error("Your Data did not Save!", "An Error Occurred!");
+
           }
         }
+
       }
     );
   }
 
   onCancel() {
+
+    this.automatedUIServices
+    .getConfig$(this.configPath, this.xmlFileName)
+    .subscribe(
+      data => {
+        this.formData = data;
+        this.toastr.success("Previous Data Reloaded!");
+      },
+      error => {
     this.configPath = undefined;
     this.xmlFileName = undefined;
     this.formData = undefined;
+      });
   }
 
   onGetFile() {
@@ -104,4 +121,35 @@ export class ConfigurationsComponent implements OnInit {
         }
       );
   }
+  onUpdate(configData) {
+    this.automatedUIServices
+    .putConfig$(this.formData, this.configPath, this.xmlFileName)
+    .subscribe(
+      data => {
+        this.toastr.success("Success!");
+      },
+      error => {
+        switch (error.status) {
+          case 404: {
+            this.toastr.error("File Not Found", "An Error Occured!");
+            break;
+          }
+          case 400: {
+            this.toastr.error("File Must be Specified!", "An Error Occurred!");
+            break;
+          }
+          case 500: {
+            this.toastr.error("Internal Server Error!");
+            break;
+          }
+          default: {
+            this.toastr.error(
+              "File Was Not Updated!",
+              "An Error Occurred!"
+            );
+          }
+        }
+      }
+    );
+}
 }
