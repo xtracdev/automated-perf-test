@@ -11,8 +11,11 @@ import {
 import { read } from "fs";
 const path = require("path");
 const configFileLocation = "../../../config/";
+
 class ConfigurationPageObject {
-  configFilePath = element(by.id("configPath"));
+  configFilePath = element(by.id("config-path"));
+  getBtn = element(by.id("btn-get"));
+  xmlFileName = element(by.id("xml-file-name"));
   applicationName = element(by.name("apiName"));
   targetHost = element(by.name("targetHost"));
   targetPort = element(by.name("targetPort"));

@@ -11,12 +11,26 @@ import { environment } from "../environments/environment.prod";
 export class AutomatedUIServices {
   constructor(private http: HttpClient) {}
 
-
   postConfig$(configData, configPath): Observable<any> {
     let headers = new HttpHeaders();
     headers = headers.set("Content-Type", "application/json;");
     headers = headers.append("configPathDir", configPath);
 
-    return this.http.post(environment.apiUrl, configData, {headers});
+    return this.http.post(environment.apiBaseUrl + "configs", configData, {headers});
+  }
+  getConfig$(configPath, xmlFileName): Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set("Content-Type", "application/json;");
+    headers = headers.append("configPathDir", configPath);
+
+    return this.http.get(environment.apiBaseUrl + "configs/" + xmlFileName, {headers});
+  }
+  putConfig$(configData,configPath, xmlFileName): Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set("Content-Type", "application/json;");
+    headers = headers.append("configPathDir", configPath);
+
+    return this.http.put(environment.apiBaseUrl + "configs/" + xmlFileName, configData, {headers});
   }
 }
+

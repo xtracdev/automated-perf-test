@@ -170,11 +170,7 @@ Feature: Create Configuration File
     And the header configsDirPath is ""
     When I send a "GET" request to "/configs/GodogConfig"
     Then the response code should be 400
-
-
-  Scenario: Unsuccessful retrieval of config file (invalid URL)
-    When I send "GET" request to "/xxx"
-    Then the response code should be 404
+    
 
 
                                 ###################################
