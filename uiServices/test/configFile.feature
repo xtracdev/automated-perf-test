@@ -9,6 +9,7 @@ Feature: Create Configuration File
                                 ###################################
 
   Scenario: Successful creation of config file
+    Given there is no existing test file "GodogConfig.xml"
     Given the automated performance ui server is available
     And the header configsDirPath is "/uiServices/test/GodogConfig.xml"
     When I send "POST" request to "/configs" with a body:
@@ -244,7 +245,7 @@ Feature: Create Configuration File
        "rampDelay": 10
       }
       """
-    Then the response code should be 409
+    Then the response code should be 404
 
   Scenario: Unsuccessful update of config file with PUT request (No File Name)
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"

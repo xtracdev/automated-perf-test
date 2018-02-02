@@ -189,6 +189,12 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^the config file "([^"]*)" exists at "([^"]*)"$`, theConfigFileExistsAt)
 	s.Step(`^I send "([^"]*)" request to "([^"]*)" with body:$`, api.iSendRequestToWithBody)
 	s.Step(`^the updated file should match json:$`, api.theUpdatedFileShouldMatchJSON)
+	s.Step(`^there is no existing test file "([^"]*)"$`, api.thereIsNoExistingTestFile)
+}
+
+func (a * apiFeature) thereIsNoExistingTestFile(file string) error{
+	os.Remove(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"+file)
+	return nil
 }
 
 func theAutomatedPerformanceUiServerIsAvailable() error {

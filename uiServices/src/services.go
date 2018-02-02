@@ -26,9 +26,9 @@ func getConfigHeader(req *http.Request) string {
 
 func validateFileNameAndHeader(rw http.ResponseWriter, req *http.Request, header, name string) bool {
 
-	if len(name) <= 1 {
-		logrus.Error("File Not Found")
-		rw.WriteHeader(http.StatusNotFound)
+	if len(name) < 1 {
+		logrus.Error("File Name is Empty")
+		rw.WriteHeader(http.StatusBadRequest)
 		return false
 	}
 
@@ -203,7 +203,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	if !FilePathExist(configPathDir) {
 		logrus.Error("File path does not exist", err)
-		rw.WriteHeader(http.StatusConflict)
+		rw.WriteHeader(http.StatusNotFound)
 		return
 
 	}
