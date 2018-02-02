@@ -26,8 +26,8 @@ func getConfigHeader(req *http.Request) string {
 
 func validateFileNameAndHeader(rw http.ResponseWriter, req *http.Request, header, name string) bool {
 
-	if len(name) <= 1 {
-		logrus.Error("File Not Found")
+	if len(name) < 1 {
+		logrus.Error("File Name is Empty")
 		rw.WriteHeader(http.StatusBadRequest)
 		return false
 	}

@@ -73,6 +73,26 @@ const invalidJson = `{
        "rampDelay": 15
        }`
 
+const validJsonWithOneCharName = `{
+        "apiName": "x",
+       "targetHost": "localhost",
+       "targetPort": "9191",
+       "numIterations": 1000,
+       "allowablePeakMemoryVariance": 30,
+       "allowableServiceResponseTimeVariance": 30,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+        "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 50,
+       "testSuite": "Default-1",
+       "memoryEndpoint": "/alt/debug/vars",
+       "requestDelay": 5000,
+       "TPSFreq": 30,
+       "rampUsers": 5,
+       "rampDelay": 15
+       }`
+
 func TestFilePathExist(t *testing.T) {
 	path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	actual := false
@@ -139,6 +159,31 @@ func TestValidJsonPost(t *testing.T) {
 	}
 }
 
+func TestPostWithOneCharName(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validJsonWithOneCharName)
+	r.HandleFunc("/configs", postConfigs)
+
+	//remove file if exists
+	os.Remove(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/x.xml")
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if w.Code != http.StatusCreated {
+		t.Error("TestValidJsonPost. Expected:", http.StatusCreated, " Got:", w.Code, "  Error. Did not succesfully post")
+	}
+}
 func TestPostWithInvalidHeader(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
