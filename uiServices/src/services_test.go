@@ -120,6 +120,9 @@ func TestValidJsonPost(t *testing.T) {
 	reader := strings.NewReader(validJson)
 	r.HandleFunc("/configs", postConfigs)
 
+	//remove file if exists
+	os.Remove(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/ServiceTestConfig.xml")
+
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
 	request.Header.Set("configPathDir", filePath)

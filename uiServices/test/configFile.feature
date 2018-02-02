@@ -9,6 +9,7 @@ Feature: Create Configuration File
                                 ###################################
 
   Scenario: Successful creation of config file
+    Given there is no existing test file "GodogConfig.xml"
     Given the automated performance ui server is available
     And the header configsDirPath is "/uiServices/test/GodogConfig.xml"
     When I send "POST" request to "/configs" with a body:
