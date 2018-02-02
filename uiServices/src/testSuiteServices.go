@@ -1,14 +1,14 @@
 package services
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/Sirupsen/logrus"
 	"github.com/xeipuuv/gojsonschema"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
+	"net/http"
 	"os"
 	"strings"
-	"encoding/json"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
-	"bytes"
-	"net/http"
 )
 
 func TestSuiteCtx(next http.Handler) http.Handler {
@@ -54,8 +54,15 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 
 	}
-	//Create file once checks are complete
-	if !testSuiteWriterXml(testSuite, configPathDir + testSuite.Name) {
+
+	if FilePathExist(configPathDir + testSuite.Name + ".xml") {
+		logrus.Error("File already exists")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+
+	}
+
+	if !testSuiteWriterXml(testSuite, configPathDir+testSuite.Name) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}

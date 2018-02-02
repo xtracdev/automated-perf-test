@@ -6,8 +6,8 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
-	"os"
 	"github.com/xtracdev/automated-perf-test/testStrategies"
+	"os"
 )
 
 func configWriterXml(config perfTestUtils.Config, configPathDir string) bool {
