@@ -1,16 +1,41 @@
 {
   "type": "object",
-  "required": [
-    "name",
-    "testStrategy"
-  ],
+  "required": ["name", "testStrategy"],
+  "additionalProperties": false,
   "properties": {
-    "name": {
-      "type": "string"
-    },
     "testStrategy": {
       "type": "string",
       "enum": ["SuiteBased", "ServiceBased"]
+    },
+    "name": {
+      "type": "string"
+    },
+    "testCases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "preThinkTime": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9999
+          },
+          "postThinkTime": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9999
+          },
+          "execWeight": {
+            "type": "string",
+            "enum": ["infrequent", "sparce"]
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }
