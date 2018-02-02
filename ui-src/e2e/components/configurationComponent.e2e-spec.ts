@@ -19,13 +19,15 @@ const configPO: ConfigurationPageObject = new ConfigurationPageObject();
 
 describe("configuration component", () => {
   beforeEach(() => {
-    browser.get("/configurations");
+    browser.get("http://localhost:9191");
+    browser.executeScript("window.onbeforeunload = function(e){};");
+    browser.driver.manage().window().maximize();
   });
 
   it("should create xml file", () => {
-    configPO.addData();
+    configPO.setConfigData();
     configPO.submitBtn.click();
-    expect(configPO.toastrMessage.getText()).toContain("Success!");
+    expect(configPO.toastrMessage.getText()).toContain("Your Data has Been Saved!");
   });
 
   it("should show submit button is disabled when requiredFields data is blank", () => {
@@ -35,7 +37,7 @@ describe("configuration component", () => {
   });
 
   it("should check that all text box names are correct", () => {
-    configPO.addData();
+    configPO.setConfigData();
     expect(configPO.labels.get(0).getText()).toContain("Api Name");
     expect(configPO.labels.get(1).getText()).toContain("Num Iterations");
     expect(configPO.labels.get(2).getText()).toContain("Request Delay (ms)");
@@ -55,11 +57,41 @@ describe("configuration component", () => {
     );
   });
 
+
+  it("should check values of existing file are as expected", () => {
+    configPO.configFilePath.sendKeys(configPO.absolutePath);
+    configPO.xmlFileName.sendKeys("config");
+    configPO.getConfigFileBtn.click();
+    expect(configPO.applicationName.getAttribute("value")).toEqual("config");
+    expect(configPO.targetHost.getAttribute("value")).toEqual("localhost");
+    expect(configPO.targetPort.getAttribute("value")).toEqual("8080");
+    expect(configPO.testCaseDir.getAttribute("value")).toEqual(
+      "./definitions/testCases"
+    );
+    expect(configPO.baseStatsDir.getAttribute("value")).toEqual("./envStats");
+    expect(configPO.memoryEndpoint.getAttribute("value")).toEqual(
+      "/alt/debug/vars"
+    );
+    expect(configPO.reportsDir.getAttribute("value")).toEqual("./report");
+    expect(configPO.numIterations.getAttribute("value")).toEqual("1000");
+    expect(configPO.memoryVariance.getAttribute("value")).toEqual("15");
+    expect(configPO.serviceVariance.getAttribute("value")).toEqual("15");
+    expect(configPO.concurrentUsers.getAttribute("value")).toEqual("50");
+    expect(configPO.requestDelay.getAttribute("value")).toEqual("5000");
+    expect(configPO.tpsFreq.getAttribute("value")).toEqual("30");
+    expect(configPO.rampDelay.getAttribute("value")).toEqual("15");
+    expect(configPO.rampUsers.getAttribute("value")).toEqual("5");
+  });
+
   it("should throw error when file path does not exist", () => {
-    configPO.addData();
+    configPO.setConfigData();
     configPO.configFilePath.sendKeys("/path/to/bad/location");
     configPO.submitBtn.click();
-    expect(configPO.toastrMessage.getText()).toContain("An error occurred");
+    expect(configPO.toastrMessage.getText()).toContain(
+      "Some of the Fields do not Conform to the Schema!"
+    );
+
+
   });
 
   it("should check requiredFields warning appears when requiredFields input is blank", () => {
@@ -189,5 +221,24 @@ describe("configuration component", () => {
     since("(serviceVariance) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(1).getText())
       .toEqual("Must be 100 or less");
+  });
+
+  it("should update existing file", () => {
+    configPO.configFilePath.sendKeys(configPO.absolutePath);
+    configPO.xmlFileName.sendKeys("config");
+    configPO.getConfigFileBtn.click();
+    configPO.numIterations.sendKeys(5);
+    configPO.btnUpdate.click();
+    configPO.numIterations.sendKeys(Key.BACK_SPACE)
+    configPO.getConfigFileBtn.click();
+    expect(configPO.numIterations.getAttribute("value")).toEqual("10005");
+  });
+  it("should show get File button and update button are disabled when Xml File Name is blank", () => {
+    expect(configPO.btnUpdate.isEnabled()).toBe(false);
+    expect(configPO.getConfigFileBtn.isEnabled()).toBe(false);
+  });
+  it("should show cancel button clear", () => {
+    expect(configPO.btnUpdate.isEnabled()).toBe(false);
+    expect(configPO.getConfigFileBtn.isEnabled()).toBe(false);
   });
 });

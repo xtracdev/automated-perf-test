@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <!-- Provide a name to the API under test to be used for report generation. -->
-    <apiName>Xtrac API</apiName>
+    <apiName>config</apiName>
 
     <!-- Target API under test. -->
     <targetHost>localhost</targetHost>
@@ -18,12 +18,12 @@
     <concurrentUsers>50</concurrentUsers>
 
     <!-- Directory location for test cases. -->
-    <testCasesDir>./definitions/testCases</testCasesDir>
+    <testCaseDir>./definitions/testCases</testCaseDir>
     <!-- Directory location for test suites. -->
     <testSuiteDir>./definitions/testSuites</testSuiteDir>
 
     <!-- Name of the test suite XML file. Remove this property for service-base strategy. -->
-    <testSuite>suiteFileName.xml</testSuite>
+    <testSuite>Default-1</testSuite>
 
     <!-- Output locations for generated files -->
     <baseStatsOutputDir>./envStats</baseStatsOutputDir>
@@ -36,7 +36,7 @@
     <requestDelay>5000</requestDelay>
 
     <!-- Specify the number of seconds between displaying the overall TPS message in log.info output. -->
-    <tpsFreq>30</tpsFreq>
+    <TPSFreq>30</TPSFreq>
 
     <!-- Specify the number of user threads to start in a batch during ramp up. eg. Start 5 threads every 15 seconds. -->
     <rampUsers>5</rampUsers>
