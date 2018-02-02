@@ -1,0 +1,10 @@
+h1{
+    text-align: center;
+  }
+
+.nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0;
+    list-style: none;
+}

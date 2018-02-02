@@ -13,8 +13,9 @@ const path = require("path");
 const configFileLocation = "../../../config/";
 
 class ConfigurationPageObject {
-  configFilePath = element(by.id("config-path"));
-  getBtn = element(by.id("btn-get"));
+  configFilePath = element(by.id("config-file-path"));
+  getConfigFileBtn = element(by.id("get-config-file-btn"));
+  btnUpdate = element(by.id("update-config-file-btn"));
   xmlFileName = element(by.id("xml-file-name"));
   applicationName = element(by.name("apiName"));
   targetHost = element(by.name("targetHost"));
@@ -36,7 +37,7 @@ class ConfigurationPageObject {
   baseStatsDir = element(by.name("baseStatsOutputDir"));
   reportsDir = element(by.name("reportOutputDir"));
 
-  toastrMessage = element(by.className("toast-title"));
+  toastrMessage = element(by.className("toast-message"));
   labels = $("json-schema-form").$$("label");
   requiredFields = $$("p");
 
@@ -94,8 +95,10 @@ class ConfigurationPageObject {
   setReportDir() {
     return this.reportsDir.sendKeys("./report");
   }
+ 
 
-  addData() {
+
+  setConfigData() {
     this.setConfigPath();
     this.setApplicationName();
     this.setTargetHost();
