@@ -206,7 +206,7 @@ func TestWhenConfigPathDirEmpty(t *testing.T) {
 
 func TestInvalidURL(t *testing.T) {
 	pt := perfTestUtils.Config{}
-	writerXml(pt, "/path/xxx")
+	configWriterXml(pt, "/path/xxx")
 }
 
 func TestSuccessfulGet(t *testing.T) {
