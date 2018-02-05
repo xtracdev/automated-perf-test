@@ -30,35 +30,28 @@ const validTestSuite = `
   ]
 }
 `
-const InvalidTestSuiteMissingRequired = `
+const TestSuiteMissingRequired = `
 {
-  "testStrategy": "",
   "testCases": [
     {
       "name":"file1.xml",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
       "execWeight": "infrequent"
-    },
-    {
-      "name":"file2.xml",
-      "preThinkTime": 1,
-      "postThinkTime": 10,
-      "execWeight": "sparce"
     }
   ]
 }
 `
-const InvalidTestSuiteIncorrectData = `
+const TestSuiteNoName = `
 {
-  "name": 9,
-  "testStrategy": 9,
+  "name": "",
+  "testStrategy": "SuiteBased",
   "testCases": [
     {
       "name":"file1.xml",
-      "preThinkTime": "NUMBER",
-      "postThinkTime": "NUMBER",
-      "execWeight": "infrequent"
+      "preThinkTime": "xxxx"
+      "postThinkTime": 2000,
+      "execWeight": 123
     }
   ]
 }
@@ -112,7 +105,7 @@ func TestMissingRequiredTestSuitePost(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(InvalidTestSuiteMissingRequired)
+	reader := strings.NewReader(TestSuiteMissingRequired)
 	r.HandleFunc("/test-suites", postTestSuites)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
@@ -130,11 +123,11 @@ func TestMissingRequiredTestSuitePost(t *testing.T) {
 
 }
 
-func TestIncorrectDataTestSuitePost(t *testing.T) {
+func TestIncorrectDataTypePost(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(InvalidTestSuiteIncorrectData)
+	reader := strings.NewReader(TestSuiteNoName)
 	r.HandleFunc("/test-suites", postTestSuites)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
@@ -160,6 +153,28 @@ func TestValidTestSuitePostNoConfigPathDir(t *testing.T) {
 	r.HandleFunc("/test-suites", postTestSuites)
 
 	filePath := ""
+	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
+	request.Header.Set("configPathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusBadRequest, "successfully created but should not have due to no config path specified")
+
+}
+
+func TestValidTestSuitePostConfigPathDirNotExist(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validTestSuite)
+	r.HandleFunc("/test-suites", postTestSuites)
+
+	filePath := "C:/a/b/c/d/////"
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
 	request.Header.Set("configPathDir", filePath)
 

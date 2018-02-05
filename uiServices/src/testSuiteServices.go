@@ -8,7 +8,6 @@ import (
 	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"net/http"
 	"os"
-	"strings"
 )
 
 func TestSuiteCtx(next http.Handler) http.Handler {
@@ -19,34 +18,28 @@ func TestSuiteCtx(next http.Handler) http.Handler {
 }
 
 func postTestSuites(rw http.ResponseWriter, req *http.Request) {
-	configPathDir := req.Header.Get("configPathDir")
+	configPathDir := GetConfigHeader(req)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
 	testSuite := testStrategies.TestSuite{}
 	err := json.Unmarshal(buf.Bytes(), &testSuite)
-
-	if !validateTestSuiteJsonWithSchema(buf.Bytes()) {
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	if err != nil {
 		logrus.Error("Failed to unmarshall json body", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	if !strings.HasSuffix(configPathDir, "/") {
-		configPathDir = configPathDir + "/"
-	}
-
-	if len(configPathDir) <= 1 {
-		logrus.Error("File path is length too short", err)
+	if !validateTestSuiteJsonWithSchema(buf.Bytes()) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
-
 	}
+
+	if !ValidateFileNameAndHeader(rw,req,configPathDir ,testSuite.Name){
+		return
+	}
+
+
 
 	if !FilePathExist(configPathDir) {
 		logrus.Error("File path does not exist", err)

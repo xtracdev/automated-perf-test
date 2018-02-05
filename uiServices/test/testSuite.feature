@@ -69,19 +69,12 @@ Feature: Test Suite Creation
     When I send "POST" request to "/test-suites" with a body:
          """
       {
-  "testStrategy": "SuiteBased",
   "testCases": [
     {
       "name":"file1.xml",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
       "execWeight": "infrequent"
-    },
-    {
-      "name":"file2.xml",
-      "preThinkTime": 1,
-      "postThinkTime": 10,
-      "execWeight": "sparce"
     }
   ]
 }
@@ -103,12 +96,6 @@ Feature: Test Suite Creation
       "preThinkTime": 1000,
       "postThinkTime": 2000,
       "execWeight": "infrequent"
-    },
-    {
-      "name":"file2.xml",
-      "preThinkTime": 1,
-      "postThinkTime": 10,
-      "execWeight": "sparce"
     }
   ]
 }
@@ -130,14 +117,28 @@ Feature: Test Suite Creation
       "preThinkTime": 1000,
       "postThinkTime": 2000,
       "execWeight": "infrequent"
-    },
-    {
-      "name":"file2.xml",
-      "preThinkTime": 1,
-      "postThinkTime": 10,
-      "execWeight": "sparce"
     }
   ]
 }
       """
     Then the response code should be 405
+
+  Scenario: Unsuccessful creation of test Suite(No Name defined)
+    Given the automated performance ui server is available
+    And the header configsDirPath is "/uiServices/test/GodogTestSuite.xml"
+    When I send "POST" request to "/test-suites" with a body:
+         """
+      {
+  "name": "",
+  "testStrategy": "SuiteBased",
+  "testCases": [
+    {
+      "name":"file1.xml",
+      "preThinkTime": 1000,
+      "postThinkTime": 2000,
+      "execWeight": "infrequent"
+    }
+  ]
+}
+      """
+    Then the response code should be 400

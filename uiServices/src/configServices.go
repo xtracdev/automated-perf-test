@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-func getConfigHeader(req *http.Request) string {
+func GetConfigHeader(req *http.Request) string {
 	configPathDir := req.Header.Get("configPathDir")
 
 	if !strings.HasSuffix(configPathDir, "/") {
@@ -24,7 +24,7 @@ func getConfigHeader(req *http.Request) string {
 	return configPathDir
 }
 
-func validateFileNameAndHeader(rw http.ResponseWriter, req *http.Request, header, name string) bool {
+func ValidateFileNameAndHeader(rw http.ResponseWriter, req *http.Request, header, name string) bool {
 
 	if len(name) < 1 {
 		logrus.Error("File Name is Empty")
@@ -131,10 +131,10 @@ func validateJsonWithSchema(config []byte) bool {
 
 func getConfigs(rw http.ResponseWriter, req *http.Request) {
 
-	configPathDir := getConfigHeader(req)
+	configPathDir := GetConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 
-	if !validateFileNameAndHeader(rw, req, configPathDir, configName) {
+	if !ValidateFileNameAndHeader(rw, req, configPathDir, configName) {
 		return
 	}
 
@@ -177,10 +177,10 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 }
 
 func putConfigs(rw http.ResponseWriter, req *http.Request) {
-	path := getConfigHeader(req)
+	path := GetConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 
-	if !validateFileNameAndHeader(rw, req, path, configName) {
+	if !ValidateFileNameAndHeader(rw, req, path, configName) {
 		return
 	}
 
