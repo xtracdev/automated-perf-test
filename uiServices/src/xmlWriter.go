@@ -33,7 +33,7 @@ func configWriterXml(config perfTestUtils.Config, configPathDir string) bool {
 }
 
 func testSuiteWriterXml(testSuite testStrategies.TestSuite, configPathDir string) bool {
-	filename := fmt.Sprintf("%s.xml", configPathDir)
+	filename := fmt.Sprintf("%s", configPathDir)
 
 	testSuiteAsXml, err := xml.MarshalIndent(testSuite, "  ", "    ")
 	if err != nil {
