@@ -8,6 +8,8 @@ import (
 	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"net/http"
 	"os"
+	"github.com/go-chi/chi"
+	"fmt"
 )
 
 func TestSuiteCtx(next http.Handler) http.Handler {
@@ -53,7 +55,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !testSuiteWriterXml(testSuite, configPathDir+testSuite.Name) {
+	if !testSuiteWriterXml(testSuite, configPathDir+testSuite.Name+".xml") {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -85,3 +87,45 @@ func validateTestSuiteJsonWithSchema(testSuite []byte) bool {
 	}
 	return true
 }
+
+
+func putTestSuites(rw http.ResponseWriter, req *http.Request) {
+	path := GetConfigHeader(req)
+	testSuiteName := chi.URLParam(req, "testSuiteName")
+
+	if !ValidateFileNameAndHeader(rw, req, path, testSuiteName) {
+		return
+	}
+
+	configPathDir := fmt.Sprintf("%s%s", path, testSuiteName)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(req.Body)
+
+	if !validateTestSuiteJsonWithSchema(buf.Bytes()) {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	testSuite := testStrategies.TestSuite{}
+	err := json.Unmarshal(buf.Bytes(), &testSuite)
+	if err != nil {
+		logrus.Error("Cannot Unmarshall Json")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !FilePathExist(configPathDir) {
+		logrus.Error("File path does not exist", err)
+		rw.WriteHeader(http.StatusNotFound)
+		return
+
+	}
+
+	if !testSuiteWriterXml(testSuite, path+testSuiteName) {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
+}
+
