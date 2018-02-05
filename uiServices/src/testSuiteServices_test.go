@@ -19,13 +19,13 @@ const validTestSuite = `
       "name":"file1.xml",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "infrequent"
+      "execWeight": "Infrequent"
     },
     {
       "name":"file2.xml",
       "preThinkTime": 1,
       "postThinkTime": 10,
-      "execWeight": "sparce"
+      "execWeight": "Sparse"
     }
   ]
 }
@@ -37,7 +37,7 @@ const TestSuiteMissingRequired = `
       "name":"file1.xml",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "infrequent"
+      "execWeight": "Infrequent"
     }
   ]
 }

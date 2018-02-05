@@ -30,16 +30,14 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !validateTestSuiteJsonWithSchema(buf.Bytes()) {
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	if !ValidateFileNameAndHeader(rw,req,configPathDir ,testSuite.Name){
 		return
 	}
 
-
+	if !validateTestSuiteJsonWithSchema(buf.Bytes()) {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	if !FilePathExist(configPathDir) {
 		logrus.Error("File path does not exist", err)

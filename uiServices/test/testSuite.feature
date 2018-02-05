@@ -21,13 +21,13 @@ Feature: Test Suite Creation
       "name":"file1.xml",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "infrequent"
+      "execWeight": "Infrequent"
     },
     {
       "name":"file2.xml",
       "preThinkTime": 1,
       "postThinkTime": 10,
-      "execWeight": "sparce"
+      "execWeight": "Sparse"
     }
   ]
 }
@@ -49,13 +49,13 @@ Feature: Test Suite Creation
       "name":"file1.xml",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "infrequent"
+      "execWeight": "Infrequent"
     },
     {
       "name":"file2.xml",
       "preThinkTime": 1,
       "postThinkTime": 10,
-      "execWeight": "sparce"
+      "execWeight": "Sparse"
     }
   ]
 }
@@ -74,7 +74,7 @@ Feature: Test Suite Creation
       "name":"file1.xml",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "infrequent"
+      "execWeight": "Infrequent"
     }
   ]
 }
@@ -95,7 +95,7 @@ Feature: Test Suite Creation
       "name":"file1.xml",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "infrequent"
+      "execWeight": "Infrequent"
     }
   ]
 }
@@ -116,7 +116,7 @@ Feature: Test Suite Creation
       "name":"file1.xml",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "infrequent"
+      "execWeight": "Infrequent"
     }
   ]
 }
@@ -136,7 +136,7 @@ Feature: Test Suite Creation
       "name":"file1.xml",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "infrequent"
+      "execWeight": "Infrequent"
     }
   ]
 }
