@@ -10,7 +10,7 @@ import (
 )
 
 func writerXml(config perfTestUtils.Config, configPathDir string) bool {
-	filename := fmt.Sprintf("%s.xml", configPathDir)
+	filename := fmt.Sprintf("%s", configPathDir)
 
 	configAsXml, err := xml.MarshalIndent(config, "  ", "    ")
 	if err != nil {

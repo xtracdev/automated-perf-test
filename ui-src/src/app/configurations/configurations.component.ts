@@ -143,15 +143,11 @@ export class ConfigurationsComponent implements OnInit {
               this.toastr.error("File Not Found", "An Error Occured!");
               break;
             }
-            case 409: {
+            case 400: {
               this.toastr.error(
                 "File Must be Specified!",
                 "An Error Occurred!"
               );
-              break;
-            }
-            case 400: {
-              this.toastr.error("Bad Request!", "An Error Occurred!");
               break;
             }
             case 500: {
