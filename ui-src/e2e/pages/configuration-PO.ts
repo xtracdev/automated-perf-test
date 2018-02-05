@@ -14,7 +14,6 @@ const configFileLocation = "../../../config/";
 
 class ConfigurationPageObject {
   configFilePath = element(by.id("config-file-path"));
-  getConfigFileBtn = element(by.id("get-config-file-btn"));
   btnUpdate = element(by.id("update-config-file-btn"));
   xmlFileName = element(by.id("xml-file-name"));
   applicationName = element(by.name("apiName"));
@@ -22,7 +21,8 @@ class ConfigurationPageObject {
   targetPort = element(by.name("targetPort"));
   memoryEndpoint = element(by.name("memoryEndpoint"));
   submitBtn = element(by.className("btn"));
-  cancelBtn = element(by.cssContainingText("btn", "Cancel"));
+  cancelBtn = element(by.id("cancel-btn"));
+
   numIterations = element(by.name("numIterations"));
   concurrentUsers = element(by.name("concurrentUsers"));
   memoryVariance = element(by.name("allowablePeakMemoryVariance"));
@@ -36,7 +36,7 @@ class ConfigurationPageObject {
   testSuiteDir = element(by.name("testSuiteDir"));
   baseStatsDir = element(by.name("baseStatsOutputDir"));
   reportsDir = element(by.name("reportOutputDir"));
-
+ 
   toastrMessage = element(by.className("toast-message"));
   labels = $("json-schema-form").$$("label");
   requiredFields = $$("p");
