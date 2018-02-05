@@ -27,7 +27,7 @@
           },
           "execWeight": {
             "type": "string",
-            "enum": ["Infrequent", "Sparce"]
+            "enum": ["Infrequent", "Sparse"]
           },
           "name": {
             "type": "string"
