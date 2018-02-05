@@ -271,7 +271,7 @@ func TestSuccessfulGet(t *testing.T) {
 
 	//prepare GET request
 	filePath = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
-	request, err = http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig", nil)
+	request, err = http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig.xml", nil)
 
 	request.Header.Set("configPathDir", filePath)
 	request.Header.Get("configPathDir")
@@ -295,7 +295,7 @@ func TestSuccessfulGetPathWihoutSlash(t *testing.T) {
 	r.HandleFunc("/configs", getConfigs)
 	//no slash at end of filepath header
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
-	request, err := http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig", nil)
+	request, err := http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig.xml", nil)
 
 	request.Header.Set("configPathDir", filePath)
 	request.Header.Get("configPathDir")
@@ -368,7 +368,7 @@ func TestValidJsonPut(t *testing.T) {
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
-	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig", reader)
+	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig.xml", reader)
 	request.Header.Set("configPathDir", filePath)
 
 	w := httptest.NewRecorder()
@@ -473,7 +473,7 @@ func TestSuccessfulPutWithNoPathSlash(t *testing.T) {
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
-	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig", reader)
+	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig.xml", reader)
 	request.Header.Set("configPathDir", filePath)
 
 	w := httptest.NewRecorder()

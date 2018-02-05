@@ -53,7 +53,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !testSuiteWriterXml(testSuite, configPathDir+testSuite.Name) {
+	if !testSuiteWriterXml(testSuite, configPathDir+testSuite.Name+".xml") {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
