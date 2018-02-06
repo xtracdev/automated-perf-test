@@ -8,6 +8,8 @@ import (
 	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"net/http"
 	"os"
+	"strings"
+	"fmt"
 )
 
 func TestSuiteCtx(next http.Handler) http.Handler {
@@ -16,9 +18,17 @@ func TestSuiteCtx(next http.Handler) http.Handler {
 	})
 
 }
+func getTestSuiteHeader(req *http.Request) string {
+	testSuitePathDir := req.Header.Get("testSuitePathDir")
+
+	if !strings.HasSuffix(testSuitePathDir, "/") {
+		testSuitePathDir = testSuitePathDir + "/"
+	}
+	return testSuitePathDir
+}
 
 func postTestSuites(rw http.ResponseWriter, req *http.Request) {
-	configPathDir := GetConfigHeader(req)
+	testSuitePathDir := getTestSuiteHeader(req)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
@@ -30,7 +40,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateFileNameAndHeader(rw,req,configPathDir ,testSuite.Name){
+	if !ValidateFileNameAndHeader(rw,req, testSuitePathDir,testSuite.Name){
 		return
 	}
 
@@ -39,21 +49,21 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !FilePathExist(configPathDir) {
+	if !FilePathExist(testSuitePathDir) {
 		logrus.Error("File path does not exist", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 
 	}
 
-	if FilePathExist(configPathDir + testSuite.Name + ".xml") {
+	if FilePathExist(fmt.Sprintf("%s%s.xml",testSuitePathDir, testSuite.Name)) {
 		logrus.Error("File already exists")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 
 	}
 
-	if !testSuiteWriterXml(testSuite, configPathDir+testSuite.Name+".xml") {
+	if !testSuiteWriterXml(testSuite, testSuitePathDir +testSuite.Name+".xml") {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -71,11 +81,7 @@ func validateTestSuiteJsonWithSchema(testSuite []byte) bool {
 	if error != nil {
 		return false
 	}
-	if result.Valid() {
-		logrus.Info("**** The TestSuite document is valid *****")
 
-		return true
-	}
 	if !result.Valid() {
 		logrus.Error("**** The TestSuite document is not valid. see errors :")
 		for _, desc := range result.Errors() {
@@ -83,5 +89,6 @@ func validateTestSuiteJsonWithSchema(testSuite []byte) bool {
 			return false
 		}
 	}
+	logrus.Info("**** The TestSuite document is valid *****")
 	return true
 }

@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-func GetConfigHeader(req *http.Request) string {
+func getConfigHeader(req *http.Request) string {
 	configPathDir := req.Header.Get("configPathDir")
 
 	if !strings.HasSuffix(configPathDir, "/") {
@@ -131,7 +131,7 @@ func validateJsonWithSchema(config []byte) bool {
 
 func getConfigs(rw http.ResponseWriter, req *http.Request) {
 
-	configPathDir := GetConfigHeader(req)
+	configPathDir := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 
 	if !ValidateFileNameAndHeader(rw, req, configPathDir, configName) {
@@ -177,7 +177,7 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 }
 
 func putConfigs(rw http.ResponseWriter, req *http.Request) {
-	path := GetConfigHeader(req)
+	path := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 
 	if !ValidateFileNameAndHeader(rw, req, path, configName) {

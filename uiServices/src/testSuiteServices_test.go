@@ -22,10 +22,7 @@ const validTestSuite = `
       "execWeight": "Infrequent"
     },
     {
-      "name":"file2.xml",
-      "preThinkTime": 1,
-      "postThinkTime": 10,
-      "execWeight": "Sparse"
+      "name":"file2.xml"
     }
   ]
 }
@@ -68,16 +65,16 @@ func TestValidTestSuitePost(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
 
 	if err != nil {
 		t.Error(err)
-
-		assert.Equal(t, w.Code, http.StatusCreated, "Error: Did Not Successfully Post")
 	}
+
+	assert.Equal(t, w.Code, http.StatusCreated, "Error: Did Not Successfully Post")
 }
 
 func TestFileExistsPost(t *testing.T) {
@@ -89,7 +86,7 @@ func TestFileExistsPost(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -110,7 +107,7 @@ func TestMissingRequiredTestSuitePost(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -132,7 +129,7 @@ func TestIncorrectDataTypePost(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -154,7 +151,7 @@ func TestValidTestSuitePostNoConfigPathDir(t *testing.T) {
 
 	filePath := ""
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -176,7 +173,7 @@ func TestValidTestSuitePostConfigPathDirNotExist(t *testing.T) {
 
 	filePath := "C:/a/b/c/d/////"
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
