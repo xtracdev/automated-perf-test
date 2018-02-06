@@ -138,7 +138,7 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	file, err := os.Open(fmt.Sprintf("%s%s", configPathDir, configName))
+	file, err := os.Open(fmt.Sprintf("%s%s.xml", configPathDir, configName))
 	if err != nil {
 		logrus.Error("Configuration Name Not Found: " + configPathDir + configName)
 		rw.WriteHeader(http.StatusNotFound)
@@ -184,7 +184,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	configPathDir := fmt.Sprintf("%s%s", path, configName)
+	configPathDir := fmt.Sprintf("%s%s.xml", path, configName)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
@@ -208,7 +208,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !configWriterXml(config, path+configName) {
+	if !configWriterXml(config, configPathDir) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
