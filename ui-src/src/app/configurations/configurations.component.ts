@@ -5,7 +5,6 @@ import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import { ToastOptions } from "ng2-toastr/src/toast-options";
 import "rxjs/add/operator/map";
-import { DOCUMENT } from "@angular/platform-browser";
 
 @Component({
   selector: "app-configurations",

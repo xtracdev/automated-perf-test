@@ -89,7 +89,7 @@ describe("configuration component", () => {
     configPO.configFilePath.sendKeys("/path/to/bad/location");
     configPO.submitBtn.click();
     expect(configPO.toastrMessage.getText()).toContain(
-      "Some of the Fields do not Conform to the Schema!"
+      "Some of the fields do not conform to the schema"
     );
 
 
