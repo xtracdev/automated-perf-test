@@ -10,6 +10,7 @@ import (
 	"os"
 	"github.com/go-chi/chi"
 	"fmt"
+	"strings"
 )
 
 func TestSuiteCtx(next http.Handler) http.Handler {
@@ -18,9 +19,17 @@ func TestSuiteCtx(next http.Handler) http.Handler {
 	})
 
 }
+func getTestSuiteHeader(req *http.Request) string {
+	testSuitePathDir := req.Header.Get("testSuitePathDir")
+
+	if !strings.HasSuffix(testSuitePathDir, "/") {
+		testSuitePathDir = testSuitePathDir + "/"
+	}
+	return testSuitePathDir
+}
 
 func postTestSuites(rw http.ResponseWriter, req *http.Request) {
-	configPathDir := GetConfigHeader(req)
+	testSuitePathDir := getTestSuiteHeader(req)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
@@ -32,7 +41,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateFileNameAndHeader(rw,req,configPathDir ,testSuite.Name){
+	if !ValidateFileNameAndHeader(rw,req, testSuitePathDir,testSuite.Name){
 		return
 	}
 
@@ -41,21 +50,21 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !FilePathExist(configPathDir) {
+	if !FilePathExist(testSuitePathDir) {
 		logrus.Error("File path does not exist", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 
 	}
 
-	if FilePathExist(configPathDir + testSuite.Name + ".xml") {
+	if FilePathExist(testSuitePathDir + testSuite.Name + ".xml") {
 		logrus.Error("File already exists")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 
 	}
 
-	if !testSuiteWriterXml(testSuite, configPathDir+testSuite.Name+".xml") {
+	if !testSuiteWriterXml(testSuite, testSuitePathDir +testSuite.Name+".xml") {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -90,14 +99,14 @@ func validateTestSuiteJsonWithSchema(testSuite []byte) bool {
 
 
 func putTestSuites(rw http.ResponseWriter, req *http.Request) {
-	path := GetConfigHeader(req)
+	path := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
 	if !ValidateFileNameAndHeader(rw, req, path, testSuiteName) {
 		return
 	}
 
-	configPathDir := fmt.Sprintf("%s%s", path, testSuiteName)
+	testSuitePathDir := fmt.Sprintf("%s%s.xml", path, testSuiteName)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
@@ -114,14 +123,14 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !FilePathExist(configPathDir) {
+	if !FilePathExist(testSuitePathDir) {
 		logrus.Error("File path does not exist", err)
 		rw.WriteHeader(http.StatusNotFound)
 		return
 
 	}
 
-	if !testSuiteWriterXml(testSuite, path+testSuiteName) {
+	if !testSuiteWriterXml(testSuite, testSuitePathDir) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}

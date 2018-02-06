@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-func GetConfigHeader(req *http.Request) string {
+func getConfigHeader(req *http.Request) string {
 	configPathDir := req.Header.Get("configPathDir")
 
 	if !strings.HasSuffix(configPathDir, "/") {
@@ -131,14 +131,14 @@ func validateJsonWithSchema(config []byte) bool {
 
 func getConfigs(rw http.ResponseWriter, req *http.Request) {
 
-	configPathDir := GetConfigHeader(req)
+	configPathDir := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 
 	if !ValidateFileNameAndHeader(rw, req, configPathDir, configName) {
 		return
 	}
 
-	file, err := os.Open(fmt.Sprintf("%s%s", configPathDir, configName))
+	file, err := os.Open(fmt.Sprintf("%s%s.xml", configPathDir, configName))
 	if err != nil {
 		logrus.Error("Configuration Name Not Found: " + configPathDir + configName)
 		rw.WriteHeader(http.StatusNotFound)
@@ -177,14 +177,14 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 }
 
 func putConfigs(rw http.ResponseWriter, req *http.Request) {
-	path := GetConfigHeader(req)
+	path := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 
 	if !ValidateFileNameAndHeader(rw, req, path, configName) {
 		return
 	}
 
-	configPathDir := fmt.Sprintf("%s%s", path, configName)
+	configPathDir := fmt.Sprintf("%s%s.xml", path, configName)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
@@ -208,7 +208,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !configWriterXml(config, path+configName) {
+	if !configWriterXml(config, configPathDir) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
