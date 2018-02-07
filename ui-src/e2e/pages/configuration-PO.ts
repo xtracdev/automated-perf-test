@@ -36,7 +36,7 @@ class ConfigurationPageObject {
   testSuiteDir = element(by.name("testSuiteDir"));
   baseStatsDir = element(by.name("baseStatsOutputDir"));
   reportsDir = element(by.name("reportOutputDir"));
- 
+
   toastrMessage = element(by.className("toast-message"));
   labels = $("json-schema-form").$$("label");
   requiredFields = $$("p");
@@ -95,8 +95,6 @@ class ConfigurationPageObject {
   setReportDir() {
     return this.reportsDir.sendKeys("./report");
   }
- 
-
 
   setConfigData() {
     this.setConfigPath();

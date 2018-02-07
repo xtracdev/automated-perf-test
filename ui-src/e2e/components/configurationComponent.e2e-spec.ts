@@ -22,13 +22,18 @@ describe("configuration component", () => {
   beforeEach(() => {
     browser.get("http://localhost:9191");
     browser.executeScript("window.onbeforeunload = function(e){};");
-    browser.driver.manage().window().maximize();
+    browser.driver
+      .manage()
+      .window()
+      .maximize();
   });
 
   it("should create xml file", () => {
     configPO.setConfigData();
     configPO.submitBtn.click();
-    expect(configPO.toastrMessage.getText()).toContain("Your Data has Been Saved!");
+    expect(configPO.toastrMessage.getText()).toContain(
+      "Your Data has Been Saved!"
+    );
   });
 
   it("should show submit button is disabled when requiredFields data is blank", () => {
@@ -57,7 +62,6 @@ describe("configuration component", () => {
       "Test Suites Directory"
     );
   });
-
 
   it("should check values of existing file are as expected", () => {
     configPO.configFilePath.sendKeys(configPO.absolutePath);
@@ -91,8 +95,6 @@ describe("configuration component", () => {
     expect(configPO.toastrMessage.getText()).toContain(
       "Some of the fields do not conform to the schema"
     );
-
-
   });
 
   it("should check requiredFields warning appears when requiredFields input is blank", () => {
@@ -226,11 +228,11 @@ describe("configuration component", () => {
 
   it("should update existing file", () => {
     configPO.configFilePath.sendKeys(configPO.absolutePath);
-    configPO.xmlFileName.sendKeys("config.xml")
+    configPO.xmlFileName.sendKeys("config.xml");
     configPO.cancelBtn.click();
     configPO.numIterations.sendKeys(5);
     configPO.btnUpdate.click();
-    configPO.numIterations.sendKeys(Key.BACK_SPACE)
+    configPO.numIterations.sendKeys(Key.BACK_SPACE);
     configPO.cancelBtn.click();
     expect(configPO.numIterations.getAttribute("value")).toEqual("10005");
   });

@@ -1,5 +1,4 @@
 import { Component, OnInit } from "@angular/core";
-import { Http } from "@angular/http";
 import { AutomatedUIServices } from "../automated-ui-services";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
@@ -17,25 +16,20 @@ export class ConfigurationsComponent implements OnInit {
   xmlFileName = undefined;
   fileName = undefined;
   // needed for layout to load
-  configSchema = { layout: "" };
+  configSchema = { layout: true };
 
   constructor(
     private automatedUIServices: AutomatedUIServices,
     private toastr: ToastsManager,
-    private http: Http
   ) {}
 
   ngOnInit() {
-    this.http
-      .get("assets/schema.json")
-      .map((data: any) => data.json())
-      .subscribe(
-        (data: any) => {
-          this.configSchema = data;
-        },
-        err => console.log(err), // error
-        () => console.log("Complete") // complete
-      );
+    this.automatedUIServices
+      .getSchema$("assets/schema.json")
+      .subscribe((data: any) => {
+        this.configSchema = data;
+      });
+
     this.formData = {
       allowablePeakMemoryVariance: 15,
       allowableServiceResponseTimeVariance: 15
