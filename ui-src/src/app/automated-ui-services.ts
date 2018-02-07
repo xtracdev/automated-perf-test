@@ -16,23 +16,23 @@ export class AutomatedUIServices {
   }
 
   postConfig$(configData, configPath): Observable<any> {
-    const headers = this.headers.append("configPathDir", configPath);
+    this.headers = this.headers.set("configPathDir", configPath);
     return this.http.post(`${environment.apiBaseUrl}configs`, configData, {
-      headers: headers
+      headers: this.headers
     });
   }
   getConfig$(configPath, xmlFileName): Observable<any> {
-    const headers = this.headers.append("configPathDir", configPath);
+     this.headers = this.headers.set("configPathDir", configPath);
     return this.http.get(`${environment.apiBaseUrl}configs/${xmlFileName}`, {
-      headers: headers
+      headers: this.headers
     });
   }
   putConfig$(configData, configPath, xmlFileName): Observable<any> {
-    const headers = this.headers.append("configPathDir", configPath);
+    this.headers = this.headers.set("configPathDir", configPath);
     return this.http.put(
       `${environment.apiBaseUrl}configs/${xmlFileName}`,
       configData,
-      { headers: headers }
+      { headers: this.headers }
     );
   }
   getSchema$(location: string): Observable<any> {

@@ -39,28 +39,28 @@ export class ConfigurationsComponent implements OnInit {
   onSubmit(configData) {
     this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
       data => {
-        this.toastr.success("Your Data has Been Saved!", "Success!");
+        this.toastr.success("Your data has been saved!", "Success!");
       },
 
       error => {
         switch (error.status) {
           case 500: {
-            this.toastr.error("An Error has Occurred!", "Check the logs!");
+            this.toastr.error("An error has occurred!", "Check the logs!");
             break;
           }
           case 409: {
-            this.toastr.error("File Already Exists!", "An Error Occurred!");
+            this.toastr.error("File already exists!", "An error occurred!");
             break;
           }
           case 400: {
             this.toastr.error(
-              "Some of the Fields do not Conform to the Schema!",
-              "An Error Occurred!"
+              "Some of the fields do not conform to the schema!",
+              "An error occurred!"
             );
             break;
           }
           default: {
-            this.toastr.error("Your Data did not Save!", "An Error Occurred!");
+            this.toastr.error("Your data did not save!", "An error occurred!");
           }
         }
       }
@@ -73,7 +73,7 @@ export class ConfigurationsComponent implements OnInit {
       .subscribe(
         data => {
           this.formData = data;
-          this.toastr.success("Previous Data Reloaded!");
+          this.toastr.success("Previous data reloaded!");
         },
         error => {
           this.configPath = undefined;
@@ -99,24 +99,24 @@ export class ConfigurationsComponent implements OnInit {
         error => {
           switch (error.status) {
             case 404: {
-              this.toastr.error("File Not Found!", "An Error Occured!");
+              this.toastr.error("File not found!", "An error occured!");
               break;
             }
             case 400: {
               this.toastr.error(
-                "Check Your Field Inputs",
-                "An Error Occurred!"
+                "Check your field inputs",
+                "An error occurred!"
               );
               break;
             }
             case 500: {
-              this.toastr.error("An Error has Occurred!", "Check the logs!");
+              this.toastr.error("An error has occurred!", "Check the logs!");
               break;
             }
             default: {
               this.toastr.error(
-                "Your Data was Not Retrieved!",
-                "An Error Occurred!"
+                "Your data was not retrieved!",
+                "An error occurred!"
               );
             }
           }
@@ -133,22 +133,22 @@ export class ConfigurationsComponent implements OnInit {
         error => {
           switch (error.status) {
             case 404: {
-              this.toastr.error("File Not Found", "An Error Occured!");
+              this.toastr.error("File not found", "An error occured!");
               break;
             }
             case 400: {
               this.toastr.error(
-                "File Must be Specified!",
-                "An Error Occurred!"
+                "File must be specified!",
+                "An error occurred!"
               );
               break;
             }
             case 500: {
-              this.toastr.error("Internal Server Error!");
+              this.toastr.error("Internal server error!");
               break;
             }
             default: {
-              this.toastr.error("File Was Not Updated!", "An Error Occurred!");
+              this.toastr.error("File was not updated!", "An error occurred!");
             }
           }
         }
