@@ -11,6 +11,10 @@ import (
 	"github.com/go-chi/chi"
 	"fmt"
 	"strings"
+	"log"
+	"io/ioutil"
+	"path/filepath"
+	"encoding/gob"
 )
 
 func TestSuiteCtx(next http.Handler) http.Handler {
@@ -138,3 +142,40 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusNoContent)
 }
 
+func getAllTestSuites(rw http.ResponseWriter, req *http.Request){
+	//list of files
+	var fileList []string
+	//get  path
+	path := getTestSuiteHeader(req)
+
+	//read the path
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//loop through files
+	for _, file := range files {
+		//only add any xml files to list
+		if filepath.Ext(path + file.Name()) == ".xml" {
+			fileList = append(fileList, file.Name())
+		}
+	}
+	//let user know if there are no xml files
+	if len(fileList) ==0{
+		logrus.Println("No Files Found")
+	}
+
+	//print list to command line for user
+	logrus.Println(fileList)
+
+	//this bit i'm not sure about...do I need to write the bytes of List for the return? Or what do I return?
+	buffer := &bytes.Buffer{}
+	gob.NewEncoder(buffer).Encode(fileList)
+	byteSlice := buffer.Bytes()
+	rw.Write(byteSlice)
+
+	//return 200
+	rw.WriteHeader(http.StatusOK)
+
+}
