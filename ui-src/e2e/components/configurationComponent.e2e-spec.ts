@@ -32,7 +32,7 @@ describe("configuration component", () => {
     configPO.setConfigData();
     configPO.submitBtn.click();
     expect(configPO.toastrMessage.getText()).toContain(
-      "Your Data has Been Saved!"
+      "Your data has been saved!"
     );
   });
 

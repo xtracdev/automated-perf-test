@@ -29,11 +29,6 @@ export class ConfigurationsComponent implements OnInit {
       .subscribe((data: any) => {
         this.configSchema = data;
       });
-
-    this.formData = {
-      allowablePeakMemoryVariance: 15,
-      allowableServiceResponseTimeVariance: 15
-    };
   }
 
   onSubmit(configData) {
