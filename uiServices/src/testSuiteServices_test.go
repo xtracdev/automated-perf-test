@@ -378,3 +378,66 @@ func TestNoFileNameTestSuitePut(t *testing.T) {
 
 	assert.Equal(t, w.Code, http.StatusBadRequest, "Successfully updated. Should not have worked due to no file name given")
 }
+
+
+
+
+func TestSuccessfulGetTestSuite(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodGet, "/test-suites/TestSuiteService.xml", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusOK, "Error. Did not successfully GET")
+}
+
+func TestGetTestSuiteNoPath(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := ""
+	request, err := http.NewRequest(http.MethodGet, "/test-suites/TestSuiteService.xml", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusBadRequest, "Retrived file but should not have as there is no path")
+}
+
+func TestGetTestSuiteFileNotFound(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodGet, "/test-suites/xxx", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, w.Code, http.StatusNotFound, "Retrived a file but should not have as there is no file")
+}

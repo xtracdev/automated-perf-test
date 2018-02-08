@@ -306,3 +306,55 @@ Feature: Test Suite Creation
         ]
       }
     """
+
+
+
+                                ###################################
+                                #######    GET REQUESTS ########
+                                ###################################
+
+
+  Scenario: Try to retrieve test-suite file with valid "GET" request
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    And the file name is "GodogTestSuite.xml"
+    When I send a "GET" request to "/test-suites/GodogTestSuite"
+    Then the response code should be 200
+    And the response body should match json:
+   """
+      {
+  "name": "GodogTestSuite",
+  "testStrategy": "SuiteBased",
+  "testCases": [
+    {
+      "name":"file1.xml",
+      "preThinkTime": 1000,
+      "postThinkTime": 2000,
+      "execWeight": "Infrequent"
+    },
+    {
+      "name":"file2.xml",
+      "preThinkTime": 1,
+      "postThinkTime": 10,
+      "execWeight": "Sparse"
+    }
+  ]
+}
+      """
+
+
+  Scenario: Unsuccessful retrieval of test-suites file (File Not Found)
+    Given the automated performance ui server is available
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send a "GET" request to "/test-suites/xxx"
+    Then the response code should be 404
+
+
+  Scenario: Unsuccessful retrieval of test-suites file (No Header)
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is ""
+    When I send a "GET" request to "/test-suites/GodogTestSuite"
+    Then the response code should be 400

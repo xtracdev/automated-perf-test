@@ -11,6 +11,8 @@ import (
 	"github.com/go-chi/chi"
 	"fmt"
 	"strings"
+	"encoding/xml"
+	"io/ioutil"
 )
 
 func TestSuiteCtx(next http.Handler) http.Handler {
@@ -138,3 +140,47 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusNoContent)
 }
 
+func getTestSuite(rw http.ResponseWriter, req *http.Request){
+
+	testSuitePathDir := getTestSuiteHeader(req)
+	testSuiteName := chi.URLParam(req, "testSuiteName")
+
+	ValidateFileNameAndHeader(rw,req,testSuitePathDir, testSuiteName)
+
+	file, err := os.Open(fmt.Sprintf("%s%s", testSuitePathDir, testSuiteName))
+	if err != nil {
+		logrus.Error("Test Suite Name Not Found: "+testSuitePathDir + testSuiteName)
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+
+	var testSuite testStrategies.TestSuite
+
+	byteValue, err := ioutil.ReadAll(file)
+	if err != nil{
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Read File")
+		return
+	}
+
+	err = xml.Unmarshal(byteValue, &testSuite)
+	if err != nil{
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Unmarshall")
+		return
+	}
+
+	testSuiteJSON, err := json.MarshalIndent(testSuite,"","")
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Marshall")
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(testSuiteJSON)
+	logrus.Println(string(testSuiteJSON))
+
+}
