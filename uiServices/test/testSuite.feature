@@ -16,18 +16,21 @@ Feature: Test Suite Creation
       {
        "name": "GodogTestSuite",
        "testStrategy": "SuiteBased",
+       "description": "Services for XYZ",
        "testCases":[
          {
-         "name":"file1.xml",
+         "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent"
+          "execWeight": "Infrequent",
+           "description": "Desc1"
          },
          {
-          "name":"file2.xml",
+          "name":"file2",
           "preThinkTime": 1,
           "postThinkTime": 10,
-          "execWeight": "Sparse"
+          "execWeight": "Sparse",
+          "description": "Desc2"
          }
         ]
       }
@@ -43,18 +46,21 @@ Feature: Test Suite Creation
       {
        "name": "GodogTestSuite",
        "testStrategy": "SuiteBased",
+       "description": "Services for XYZ",
        "testCases":[
          {
-         "name":"file1.xml",
+         "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent"
+          "execWeight": "Infrequent",
+           "description": "Desc1"
          },
          {
-          "name":"file2.xml",
+          "name":"file2",
           "preThinkTime": 1,
           "postThinkTime": 10,
-          "execWeight": "Sparse"
+          "execWeight": "Sparse",
+          "description": "Desc2"
          }
         ]
       }
@@ -70,7 +76,7 @@ Feature: Test Suite Creation
       {
        "testCases": [
         {
-        "name":"file1.xml",
+        "name":"file1",
         "preThinkTime": 1000,
         "postThinkTime": 2000,
         "execWeight": "Infrequent"
@@ -85,16 +91,18 @@ Feature: Test Suite Creation
     Given the automated performance ui server is available
     And the header "testSuitePathDir" is ""
     When I send "POST" request to "/test-suites" with a body:
-    """
+      """
       {
        "name": "GodogTestSuite",
        "testStrategy": "SuiteBased",
+       "description": "Services for XYZ",
        "testCases":[
          {
-         "name":"file1.xml",
+         "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent"
+          "execWeight": "Infrequent",
+           "description": "Desc1"
          }
         ]
       }
@@ -106,16 +114,18 @@ Feature: Test Suite Creation
     Given the automated performance ui server is available
     And the header "testSuitePathDir" is "/uiServices/test/GodogTestSuite.xml"
     When I send "POST" request to "/xxxx" with a body:
-     """
+      """
       {
        "name": "GodogTestSuite",
        "testStrategy": "SuiteBased",
+       "description": "Services for XYZ",
        "testCases":[
          {
-         "name":"file1.xml",
+         "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent"
+          "execWeight": "Infrequent",
+           "description": "Desc1"
          }
         ]
       }
@@ -126,16 +136,18 @@ Feature: Test Suite Creation
     Given the automated performance ui server is available
     And the header "testSuitePathDir" is "/uiServices/test/GodogTestSuite.xml"
     When I send "POST" request to "/test-suites" with a body:
-     """
+       """
       {
        "name": "",
        "testStrategy": "SuiteBased",
+       "description": "Services for XYZ",
        "testCases":[
          {
-         "name":"file1.xml",
+         "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent"
+          "execWeight": "Infrequent",
+           "description": "Desc1"
          }
         ]
       }

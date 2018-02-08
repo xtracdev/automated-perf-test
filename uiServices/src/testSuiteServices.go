@@ -44,13 +44,13 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !validateTestSuiteJsonWithSchema(buf.Bytes()) {
+	if !ValidateJsonWithSchema(buf.Bytes(), "testSuite_schema.json", "TestSuite") {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if !FilePathExist(testSuitePathDir) {
-		logrus.Error("File path does not exist", err)
+		logrus.Error("Directory path does not exist", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 
@@ -71,9 +71,9 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusCreated)
 }
 
-func validateTestSuiteJsonWithSchema(testSuite []byte) bool {
+func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) bool {
 	goPath := os.Getenv("GOPATH")
-	schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/testSuite_schema.json")
+	schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/"+ schemaName)
 	documentLoader := gojsonschema.NewBytesLoader(testSuite)
 	logrus.Info(schemaLoader)
 	result, error := gojsonschema.Validate(schemaLoader, documentLoader)
@@ -83,12 +83,12 @@ func validateTestSuiteJsonWithSchema(testSuite []byte) bool {
 	}
 
 	if !result.Valid() {
-		logrus.Error("**** The TestSuite document is not valid. see errors :")
+		logrus.Error("**** The "+structType+" document is not valid. see errors :")
 		for _, desc := range result.Errors() {
 			logrus.Error("- ", desc)
 			return false
 		}
 	}
-	logrus.Info("**** The TestSuite document is valid *****")
+	logrus.Info("**** The "+structType+" document is valid *****")
 	return true
 }

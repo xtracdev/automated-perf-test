@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
-	"github.com/xeipuuv/gojsonschema"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"io/ioutil"
 	"net/http"
@@ -51,7 +50,7 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
-	if !validateJsonWithSchema(buf.Bytes()) {
+	if !ValidateJsonWithSchema(buf.Bytes(), "schema.json", "Configurations") {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -102,31 +101,6 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 func FilePathExist(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
-}
-
-func validateJsonWithSchema(config []byte) bool {
-	goPath := os.Getenv("GOPATH")
-	schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/schema.json")
-	documentLoader := gojsonschema.NewBytesLoader(config)
-	logrus.Info(schemaLoader)
-	result, error := gojsonschema.Validate(schemaLoader, documentLoader)
-
-	if error != nil {
-		return false
-	}
-	if result.Valid() {
-		logrus.Info("**** The document is valid *****")
-
-		return true
-	}
-	if !result.Valid() {
-		logrus.Error("**** The document is not valid. see errors :")
-		for _, desc := range result.Errors() {
-			logrus.Error("- ", desc)
-			return false
-		}
-	}
-	return true
 }
 
 func getConfigs(rw http.ResponseWriter, req *http.Request) {
@@ -188,7 +162,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
-	if !validateJsonWithSchema(buf.Bytes()) {
+	if !ValidateJsonWithSchema(buf.Bytes(), "schema.json","Configurations") {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
