@@ -245,7 +245,9 @@ func (a *apiFeature) theFileNameis(filename string) error {
 }
 
 func (a *apiFeature) iSendARequestTo(method, endpoint string) error {
-	response, err := makeGetRequest(a.client, method, endpoint, a.filename, a.headerPath)
+	response, err := makeGetRequest(a.client, method, endpoint, a.filename, a.headerPath, a.headerName)
+	fmt.Println("*******************name: "+a.headerName)
+	fmt.Println("*******************path:   "+a.headerPath)
 	if err != nil {
 		return err
 	}
@@ -254,14 +256,15 @@ func (a *apiFeature) iSendARequestTo(method, endpoint string) error {
 	return nil
 }
 
-func makeGetRequest(client *http.Client, method, endpoint string, filename string, header string) (*http.Response, error) {
-
+func makeGetRequest(client *http.Client, method, endpoint string, filename string, headerPath, headerName string) (*http.Response, error) {
+	fmt.Println("*******************name: "+headerName)
+	fmt.Println("*******************path:   "+headerPath)
 	req, err := http.NewRequest(method, "http://localhost:9191"+endpoint, nil)
 
-	if header == "" {
-		req.Header.Set("configPathDir", "")
+	if headerPath == "" {
+		req.Header.Set(headerName, "")
 	} else {
-		req.Header.Set("configPathDir", fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
 	}
 	if err != nil {
 		return nil, err

@@ -110,6 +110,13 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
+	if !FilePathExist(testSuitePathDir) {
+		logrus.Error("File path does not exist")
+		rw.WriteHeader(http.StatusNotFound)
+		return
+
+	}
+
 	if !ValidateJsonWithSchema(buf.Bytes(),"testSuite_schema.json", "TestSuite") {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
@@ -121,13 +128,6 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 		logrus.Error("Cannot Unmarshall Json")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
-	}
-
-	if !FilePathExist(testSuitePathDir) {
-		logrus.Error("File path does not exist", err)
-		rw.WriteHeader(http.StatusNotFound)
-		return
-
 	}
 
 	if !testSuiteWriterXml(testSuite, testSuitePathDir) {
@@ -145,7 +145,7 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request){
 
 	ValidateFileNameAndHeader(rw,req,testSuitePathDir, testSuiteName)
 
-	file, err := os.Open(fmt.Sprintf("%s%s", testSuitePathDir, testSuiteName))
+	file, err := os.Open(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName))
 	if err != nil {
 		logrus.Error("Test Suite Name Not Found: "+testSuitePathDir + testSuiteName)
 		rw.WriteHeader(http.StatusNotFound)

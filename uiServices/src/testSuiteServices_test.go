@@ -2,12 +2,14 @@ package services
 
 import (
 	"github.com/go-chi/chi"
-	"github.com/stretchr/testify/assert"
+
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"strings"
+
 	"testing"
+	"github.com/stretchr/testify/assert"
+	"strings"
 )
 
 const validTestSuite = `
@@ -392,7 +394,7 @@ func TestSuccessfulGetTestSuite(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
-	request, err := http.NewRequest(http.MethodGet, "/test-suites/TestSuiteService.xml", nil)
+	request, err := http.NewRequest(http.MethodGet, "/test-suites/TestSuiteService", nil)
 
 	request.Header.Set("testSuitePathDir", filePath)
 	request.Header.Get("testSuitePathDir")
