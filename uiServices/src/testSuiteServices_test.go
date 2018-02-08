@@ -14,15 +14,18 @@ const validTestSuite = `
 {
   "name": "TestSuiteService",
   "testStrategy": "SuiteBased",
+  "description": "Services for XYZ",
   "testCases": [
     {
-      "name":"file1.xml",
+      "name":"file1",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "Infrequent"
+      "execWeight": "Infrequent",
+       "description": "Desc1"
     },
     {
-      "name":"file2.xml"
+      "name":"file2",
+       "description": "Desc2"
     }
   ]
 }
@@ -64,12 +67,14 @@ const TestSuiteNoName = `
 {
   "name": "",
   "testStrategy": "SuiteBased",
+   "description": "Services for XYZ",
   "testCases": [
     {
       "name":"file1.xml",
       "preThinkTime": "xxxx"
       "postThinkTime": 2000,
-      "execWeight": 123
+      "execWeight": 123,
+       "description": "Desc"
     }
   ]
 }
@@ -95,7 +100,7 @@ func TestValidTestSuitePost(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusCreated, "Error: Did Not Successfully Post")
+	assert.Equal(t, http.StatusCreated, w.Code, "Error: Did Not Successfully Post")
 }
 
 func TestFileExistsPost(t *testing.T) {
@@ -116,7 +121,7 @@ func TestFileExistsPost(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusBadRequest, "Created, but should not have. File Should Alreday Exist")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Created, but should not have. File Should Alreday Exist")
 }
 
 func TestMissingRequiredTestSuitePost(t *testing.T) {
@@ -137,7 +142,7 @@ func TestMissingRequiredTestSuitePost(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusBadRequest, "Created TestSuite but should not have due to missing fields")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Created TestSuite but should not have due to missing fields")
 
 }
 
@@ -159,7 +164,7 @@ func TestIncorrectDataTypePost(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusBadRequest, "Created TestSuite but should not have due to incorrect data types")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Created TestSuite but should not have due to incorrect data types")
 
 }
 
@@ -181,7 +186,7 @@ func TestValidTestSuitePostNoConfigPathDir(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusBadRequest, "successfully created but should not have due to no config path specified")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "successfully created but should not have due to no config path specified")
 
 }
 
@@ -203,7 +208,7 @@ func TestValidTestSuitePostConfigPathDirNotExist(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusBadRequest, "successfully created but should not have due to no config path specified")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "successfully created but should not have due to no config path specified")
 
 }
 

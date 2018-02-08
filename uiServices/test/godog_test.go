@@ -294,7 +294,7 @@ func (a *apiFeature) iSendRequestToWithBody(method, endpoint string, body *gherk
 	return nil
 }
 
-func makePutRequest(client *http.Client, method, endpoint, body string, headerPath string, headerName string) (*http.Response, error) {
+func makePutRequest(client *http.Client, method, endpoint, body string, headerPath, headerName string) (*http.Response, error) {
 
 	var reqBody io.Reader
 	if body != "" {
