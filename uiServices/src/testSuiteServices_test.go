@@ -227,7 +227,7 @@ func TestValidTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusNoContent, "Did Not successfully Update")
+	assert.Equal(t,  http.StatusNoContent, w.Code, "Did Not successfully Update")
 }
 
 func TestTestSuiteMissingFieldPut(t *testing.T) {
@@ -248,7 +248,7 @@ func TestTestSuiteMissingFieldPut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusBadRequest, "Sucessfully updated. Field Should be missing so update shouldn't occur")
+	assert.Equal(t,http.StatusBadRequest, w.Code,  "Sucessfully updated. Field Should be missing so update shouldn't occur")
 }
 
 
@@ -270,7 +270,7 @@ func TestInvalidTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusBadRequest, "Sucessfully updated. Field data type should have been incorrect so update should occur")
+	assert.Equal(t, http.StatusBadRequest, w.Code,  "Sucessfully updated. Field data type should have been incorrect so update should occur")
 }
 
 
@@ -292,7 +292,7 @@ func TestInvalidUrlTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusNotFound, "Sucessfully updated. Should have have worked using /test-suites/xxx")
+	assert.Equal(t, http.StatusNotFound, w.Code, "Sucessfully updated. Should have have worked using /test-suites/xxx")
 }
 
 func TestNoUrlTestSuitePut(t *testing.T) {
@@ -313,7 +313,7 @@ func TestNoUrlTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusNotFound, "Sucessfully updated. Should not have worked with no URL")
+	assert.Equal(t, http.StatusNotFound, w.Code,  "Sucessfully updated. Should not have worked with no URL")
 }
 
 func TestPutWithNoPathSlash(t *testing.T) {
@@ -334,7 +334,7 @@ func TestPutWithNoPathSlash(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusNoContent, "Did not update. Should have added '/' to path")
+	assert.Equal(t,http.StatusNoContent, w.Code,  "Did not update. Should have added '/' to path")
 }
 
 func TestNoPathTestSuitePut(t *testing.T) {
@@ -355,7 +355,7 @@ func TestNoPathTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusBadRequest, "Successfully updated. Should not have worked due to no filepath")
+	assert.Equal(t,  http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no filepath")
 }
 
 func TestNoFileNameTestSuitePut(t *testing.T) {
@@ -376,5 +376,5 @@ func TestNoFileNameTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusBadRequest, "Successfully updated. Should not have worked due to no file name given")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no file name given")
 }
