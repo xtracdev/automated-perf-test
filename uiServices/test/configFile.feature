@@ -131,12 +131,12 @@ Feature: Create Configuration File
     Given the automated performance ui server is available
     And the header configsDirPath is "/uiServices/test/"
     And the file name is "GodogConfig.xml"
-    When I send a "GET" request to "/configs/GodogConfig"
+    When I send a "GET" request to "/configs/GodogConfig.xml"
     Then the response code should be 200
     And the response body should match json:
     """
       {
-       "apiName": "GodogConfig",
+       "apiName": "GodogConfig.xml",
        "targetHost": "localhost",
        "targetPort":"9191",
        "memoryEndpoint": "/alt/debug/vars",
@@ -170,11 +170,7 @@ Feature: Create Configuration File
     And the header configsDirPath is ""
     When I send a "GET" request to "/configs/GodogConfig"
     Then the response code should be 400
-
-
-  Scenario: Unsuccessful retrieval of config file (invalid URL)
-    When I send "GET" request to "/xxx"
-    Then the response code should be 404
+    
 
 
                                 ###################################
@@ -195,7 +191,7 @@ Feature: Create Configuration File
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header configsDirPath is ""
-    When I send "PUT" request to "/configs/GodogConfig" with body:
+    When I send "PUT" request to "/configs/GodogConfig.xml" with body:
          """
       {
        "apiName": "GodogConfig",
@@ -308,7 +304,7 @@ Feature: Create Configuration File
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header configsDirPath is "/uiServices/test/"
-    When I send "PUT" request to "/configs/GodogConfig" with body:
+    When I send "PUT" request to "/configs/GodogConfig.xml" with body:
          """
       {
        "apiName": "GodogConfig",
@@ -360,7 +356,7 @@ Feature: Create Configuration File
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header configsDirPath is "/uiServices/test/"
-    When I send "PUT" request to "/configs/GodogConfig" with body:
+    When I send "PUT" request to "/configs/GodogConfig.xml" with body:
             """
       {
        "apiName": "GodogAPI",
