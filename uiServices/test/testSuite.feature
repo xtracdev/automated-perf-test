@@ -16,21 +16,18 @@ Feature: Test Suite Creation
       {
        "name": "GodogTestSuite",
        "testStrategy": "SuiteBased",
-       "description": "Services for XYZ",
        "testCases":[
          {
-         "name":"file1",
+         "name":"file1.xml",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          },
          {
-          "name":"file2",
+          "name":"file2.xml",
           "preThinkTime": 1,
           "postThinkTime": 10,
-          "execWeight": "Sparse",
-          "description": "Desc2"
+          "execWeight": "Sparse"
          }
         ]
       }
@@ -46,21 +43,18 @@ Feature: Test Suite Creation
       {
        "name": "GodogTestSuite",
        "testStrategy": "SuiteBased",
-       "description": "Services for XYZ",
        "testCases":[
          {
-         "name":"file1",
+         "name":"file1.xml",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          },
          {
-          "name":"file2",
+          "name":"file2.xml",
           "preThinkTime": 1,
           "postThinkTime": 10,
-          "execWeight": "Sparse",
-          "description": "Desc2"
+          "execWeight": "Sparse"
          }
         ]
       }
@@ -76,7 +70,7 @@ Feature: Test Suite Creation
       {
        "testCases": [
         {
-        "name":"file1",
+        "name":"file1.xml",
         "preThinkTime": 1000,
         "postThinkTime": 2000,
         "execWeight": "Infrequent"
@@ -91,18 +85,16 @@ Feature: Test Suite Creation
     Given the automated performance ui server is available
     And the header "testSuitePathDir" is ""
     When I send "POST" request to "/test-suites" with a body:
-      """
+    """
       {
        "name": "GodogTestSuite",
        "testStrategy": "SuiteBased",
-       "description": "Services for XYZ",
        "testCases":[
          {
-         "name":"file1",
+         "name":"file1.xml",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -114,18 +106,16 @@ Feature: Test Suite Creation
     Given the automated performance ui server is available
     And the header "testSuitePathDir" is "/uiServices/test/GodogTestSuite.xml"
     When I send "POST" request to "/xxxx" with a body:
-      """
+     """
       {
        "name": "GodogTestSuite",
        "testStrategy": "SuiteBased",
-       "description": "Services for XYZ",
        "testCases":[
          {
-         "name":"file1",
+         "name":"file1.xml",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -136,18 +126,16 @@ Feature: Test Suite Creation
     Given the automated performance ui server is available
     And the header "testSuitePathDir" is "/uiServices/test/GodogTestSuite.xml"
     When I send "POST" request to "/test-suites" with a body:
-       """
+     """
       {
        "name": "",
        "testStrategy": "SuiteBased",
-       "description": "Services for XYZ",
        "testCases":[
          {
-         "name":"file1",
+         "name":"file1.xml",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -168,14 +156,12 @@ Feature: Test Suite Creation
       {
        "name": "GodogTestSuite2",
        "testStrategy": "SuiteBased",
-       "description": "ServiceDesc",
        "testCases":[
          {
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -192,14 +178,12 @@ Feature: Test Suite Creation
       {
        "name": "GodogTestSuite2",
        "testStrategy": "SuiteBased",
-       "description": "ServiceDesc",
        "testCases":[
          {
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -216,14 +200,12 @@ Feature: Test Suite Creation
       {
        "name": "GodogTestSuite2",
        "testStrategy": "SuiteBased",
-       "description": "ServiceDesc",
        "testCases":[
          {
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -242,8 +224,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -260,14 +241,12 @@ Feature: Test Suite Creation
       {
        "name": "GodogTestSuite2",
        "testStrategy": "SuiteBased",
-       "description": "ServiceDesc",
        "testCases":[
          {
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -280,14 +259,12 @@ Feature: Test Suite Creation
       {
        "name": "GodogTestSuite2",
        "testStrategy": "SuiteBased",
-       "description": "ServiceDesc",
        "testCases":[
          {
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -301,14 +278,12 @@ Feature: Test Suite Creation
       {
        "name": "GodogTestSuite2",
        "testStrategy": "SuiteBased",
-        "description": "ServiceDesc",
        "testCases":[
          {
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -321,69 +296,13 @@ Feature: Test Suite Creation
       {
        "name": "GodogTestSuite2",
        "testStrategy": "SuiteBased",
-        "description": "ServiceDesc",
        "testCases":[
          {
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
     """
-
-
-
-                                ###################################
-                                #######    GET REQUESTS ########
-                                ###################################
-
-  Scenario: Try to retrieve test-suite file with valid "GET" request
-    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
-    Given the automated performance ui server is available
-    And the header "testSuitePathDir" is "/uiServices/test/"
-    And the file name is "GodogConfig.xml"
-    When I send a "GET" request to "/test-suites/GodogTestSuite"
-    Then the response code should be 200
-    And the response body should match json:
-   """
-      {
-  "name": "GodogTestSuite",
-  "testStrategy": "SuiteBased",
-  "description": "ServiceDesc",
-  "testCases": [
-    {
-      "name":"file1.xml",
-      "preThinkTime": 1000,
-      "postThinkTime": 2000,
-      "execWeight": "Infrequent",
-       "description": "Desc1"
-    },
-    {
-      "name":"file2.xml",
-      "preThinkTime": 1,
-      "postThinkTime": 10,
-      "execWeight": "Sparse",
-       "description": "Desc1"
-    }
-  ]
-}
-      """
-
-
-  Scenario: Unsuccessful retrieval of test-suites file (File Not Found)
-    Given the automated performance ui server is available
-    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
-    Given the automated performance ui server is available
-    And the header "testSuitePathDir" is "/uiServices/test/"
-    When I send a "GET" request to "/test-suites/xxx"
-    Then the response code should be 404
-
-
-  Scenario: Unsuccessful retrieval of test-suites file (No Header)
-    Given the automated performance ui server is available
-    And the header "testSuitePathDir" is ""
-    When I send a "GET" request to "/test-suites/GodogTestSuite"
-    Then the response code should be 400

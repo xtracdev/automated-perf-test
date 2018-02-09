@@ -1,6 +1,6 @@
 {
   "type": "object",
-  "required": ["name", "testStrategy", "description"],
+  "required": ["name", "testStrategy"],
   "additionalProperties": false,
   "properties": {
     "testStrategy": {
@@ -10,15 +10,12 @@
     "name": {
       "type": "string"
     },
-    "description": {
-      "type": "string"
-    },
     "testCases": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "description"],
+        "required": ["name"],
         "properties": {
           "preThinkTime": {
             "type": "integer",
@@ -33,9 +30,6 @@
             "enum": ["Infrequent", "Sparse"]
           },
           "name": {
-            "type": "string"
-          },
-          "description": {
             "type": "string"
           }
         }
