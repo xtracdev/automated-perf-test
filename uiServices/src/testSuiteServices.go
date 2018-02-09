@@ -13,6 +13,8 @@ import (
 	"strings"
 	"encoding/xml"
 	"io/ioutil"
+	"log"
+	"path/filepath"
 )
 
 func TestSuiteCtx(next http.Handler) http.Handler {
@@ -181,4 +183,62 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request){
 	rw.Write(testSuiteJSON)
 	logrus.Println(string(testSuiteJSON))
 
+}
+
+
+
+
+
+func getAllTestSuites(rw http.ResponseWriter, req *http.Request){
+	var testSuite testStrategies.TestSuite
+	var testSuiteList []testStrategies.TestSuite
+	var filename string
+	var filenameList []string
+
+	testSuitePathDir := getTestSuiteHeader(req)
+
+	files, err := ioutil.ReadDir(testSuitePathDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		if filepath.Ext(testSuitePathDir + file.Name()) == ".xml" {
+			filenameList = append(filenameList, file.Name())
+
+			filename = file.Name()
+
+			file, err := os.Open(fmt.Sprintf("%s%s", testSuitePathDir, filename))
+			if err != nil {
+				rw.WriteHeader(http.StatusInternalServerError)
+				logrus.Error("Cannot open file")
+				return
+			}
+
+			byteValue, err := ioutil.ReadAll(file)
+			if err != nil{
+				rw.WriteHeader(http.StatusInternalServerError)
+				logrus.Error("Cannot Read File")
+				return
+			}
+
+			err = xml.Unmarshal(byteValue, &testSuite)
+			if err != nil {
+				rw.WriteHeader(http.StatusInternalServerError)
+				logrus.Error("Cannot Unmarshall")
+				return
+			}
+
+			testSuiteList = append(testSuiteList, testSuite)
+		}
+	}
+
+	if len(filenameList) ==0{
+		logrus.Println("No Files Found")
+	}
+
+	json.NewEncoder(rw).Encode(filenameList)
+	json.NewEncoder(rw).Encode(testSuiteList)
+
+	rw.WriteHeader(http.StatusOK)
 }

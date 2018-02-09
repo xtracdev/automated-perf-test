@@ -112,6 +112,7 @@ func routeTestSuites() http.Handler {
 	router.Post("/", postTestSuites)
 	router.Put("/{testSuiteName}",putTestSuites)
 	router.Get("/{testSuiteName}", getTestSuite)
+	router.Get("/", getAllTestSuites)
 
 	return router
 }

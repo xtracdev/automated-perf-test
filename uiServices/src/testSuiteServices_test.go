@@ -448,3 +448,24 @@ func TestGetTestSuiteFileNotFound(t *testing.T) {
 
 	assert.Equal(t, w.Code, http.StatusNotFound, "Retrived a file but should not have as there is no file")
 }
+
+func TestGetAllTestSuites(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodGet, "/test-suites", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusOK, w.Code, "Error. Did not successfully get all Test Suites")
+}
+
