@@ -11,6 +11,10 @@ import (
 	"github.com/go-chi/chi"
 	"fmt"
 	"strings"
+	"encoding/xml"
+	"io/ioutil"
+	"path/filepath"
+	"log"
 )
 
 func TestSuiteCtx(next http.Handler) http.Handler {
@@ -137,3 +141,65 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusNoContent)
 }
 
+func getAllTestSuites(rw http.ResponseWriter, req *http.Request){
+	var testSuite testStrategies.TestSuite
+	var filename string
+
+	type Suite struct {
+		File string `json:"file"`
+		Name string `json:"name"`
+		Description string `json:"description"`
+	}
+
+	var t Suite
+
+	type Suites[]Suite
+
+	suites := Suites{}
+
+	testSuitePathDir := getTestSuiteHeader(req)
+	if len(testSuitePathDir) < 1 {
+		logrus.Error("No file directory entered")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	files, err := ioutil.ReadDir(testSuitePathDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		if filepath.Ext(testSuitePathDir + file.Name()) == ".xml" {
+			filename = file.Name()
+
+			file, err := os.Open(fmt.Sprintf("%s%s", testSuitePathDir, filename))
+			if err != nil {
+				logrus.Error("Cannot open file: %s", filename)
+			}
+
+			byteValue, err := ioutil.ReadAll(file)
+			if err != nil{
+				logrus.Error("Cannot Read File: %s", filename)
+			}
+
+			err = xml.Unmarshal(byteValue, &testSuite)
+			if err != nil {
+				logrus.Error("Cannot Unmarshall: %s", filename)
+			}
+
+			t.File = filename
+			t.Name = testSuite.Name
+			t.Description = testSuite.Description
+
+			//if a Test Suite Name can't be assigned, it isn't a Test Suite object
+			if t.Name != "" {
+				suites = append(suites, t)
+			}
+		}
+	}
+
+	json.NewEncoder(rw).Encode(suites)
+
+	rw.WriteHeader(http.StatusOK)
+}
