@@ -192,8 +192,8 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^there is no existing test file "([^"]*)"$`, api.thereIsNoExistingTestFile)
 }
 
-func (a * apiFeature) thereIsNoExistingTestFile(file string) error{
-	os.Remove(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"+file)
+func (a *apiFeature) thereIsNoExistingTestFile(file string) error {
+	os.Remove(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/" + file)
 	return nil
 }
 
