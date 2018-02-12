@@ -14,7 +14,6 @@ const configFileLocation = "../../../config/";
 
 class ConfigurationPageObject {
   configFilePath = element(by.id("config-file-path"));
-  getConfigFileBtn = element(by.id("get-config-file-btn"));
   btnUpdate = element(by.id("update-config-file-btn"));
   xmlFileName = element(by.id("xml-file-name"));
   applicationName = element(by.name("apiName"));
@@ -22,7 +21,8 @@ class ConfigurationPageObject {
   targetPort = element(by.name("targetPort"));
   memoryEndpoint = element(by.name("memoryEndpoint"));
   submitBtn = element(by.className("btn"));
-  cancelBtn = element(by.cssContainingText("btn", "Cancel"));
+  cancelBtn = element(by.id("cancel-btn"));
+
   numIterations = element(by.name("numIterations"));
   concurrentUsers = element(by.name("concurrentUsers"));
   memoryVariance = element(by.name("allowablePeakMemoryVariance"));
@@ -37,7 +37,7 @@ class ConfigurationPageObject {
   baseStatsDir = element(by.name("baseStatsOutputDir"));
   reportsDir = element(by.name("reportOutputDir"));
 
-  toastrMessage = element(by.className("toast-message"));
+  toastrMessage = element(by.id("toast-container"));
   labels = $("json-schema-form").$$("label");
   requiredFields = $$("p");
 
@@ -64,6 +64,12 @@ class ConfigurationPageObject {
   }
   setNumberIterations() {
     return this.numIterations.sendKeys(1000);
+  }
+  setMemoryVariance() {
+    return this.memoryVariance.sendKeys(15);
+  }
+  setServiceVariance() {
+    return this.serviceVariance.sendKeys(15);
   }
 
   setTestSuite() {
@@ -104,6 +110,8 @@ class ConfigurationPageObject {
     this.setMemoryEndpoint();
     this.setConcurrentUsers();
     this.setNumberIterations();
+    this.setMemoryVariance();
+    this.setServiceVariance();
     // used to activate dropdown
     this.testSuite.click();
     this.setTestSuite();
@@ -131,18 +139,16 @@ class ConfigurationPageObject {
     this.testSuiteDir.sendKeys("x");
     this.baseStatsDir.sendKeys("x");
     this.reportsDir.sendKeys("x");
+    this.serviceVariance.sendKeys(1);
+    this.memoryVariance.sendKeys(1);
 
     this.applicationName.sendKeys(Key.BACK_SPACE);
     this.numIterations.sendKeys(Key.BACK_SPACE);
     this.concurrentUsers.sendKeys(Key.BACK_SPACE);
     this.targetHost.sendKeys(Key.BACK_SPACE);
     this.targetPort.sendKeys(Key.BACK_SPACE);
-    // Clear default data in these fields
-    this.memoryVariance.sendKeys(Key.BACK_SPACE);
     this.memoryVariance.sendKeys(Key.BACK_SPACE);
     this.serviceVariance.sendKeys(Key.BACK_SPACE);
-    this.serviceVariance.sendKeys(Key.BACK_SPACE);
-
     this.requestDelay.sendKeys(Key.BACK_SPACE);
     this.tpsFreq.sendKeys(Key.BACK_SPACE);
     this.rampUsers.sendKeys(Key.BACK_SPACE);
