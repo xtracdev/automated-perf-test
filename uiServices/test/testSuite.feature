@@ -333,3 +333,29 @@ Feature: Test Suite Creation
         ]
       }
     """
+
+
+                                ###################################
+                                #######    GET ALL REQUESTS #######
+                                ###################################
+
+  Scenario: Try to retrieve all test suites with valid "GET" request
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send a "GET" request to "/test-suites"
+    Then the response code should be 200
+    And the response body should match json:
+     """
+      {
+       "file": "GodogTestSuite.xml",
+       "name": "TestSuiteService",
+       "description": "Services for XYZ",
+      }
+    """
+
+
+  Scenario: Unsuccessful retrieval of test-suites (No Header)
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is ""
+    When I send a "GET" request to "/test-suites"
+    Then the response code should be 400
