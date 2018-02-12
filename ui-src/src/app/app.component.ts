@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewContainerRef } from "@angular/core";
-import { ToastsManager } from "ng2-toastr/ng2-toastr";
+import {Component, OnInit, ViewContainerRef} from "@angular/core";
+import {ToastsManager} from "ng2-toastr";
 
 @Component({
   selector: "app-root",
@@ -9,7 +9,7 @@ import { ToastsManager } from "ng2-toastr/ng2-toastr";
 export class AppComponent {
   title = "Automated Performance Testing";
 
-  constructor(public toastr: ToastsManager, vcr: ViewContainerRef) {
-    this.toastr.setRootViewContainerRef(vcr);
+  constructor(private toastr: ToastsManager, viewContainerReference: ViewContainerRef) {
+    this.toastr.setRootViewContainerRef(viewContainerReference);
   }
 }

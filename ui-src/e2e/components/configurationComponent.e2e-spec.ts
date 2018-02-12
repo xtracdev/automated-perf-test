@@ -229,7 +229,7 @@ describe("configuration component", () => {
     configPO.getConfigFileBtn.click();
     configPO.numIterations.sendKeys(5);
     configPO.btnUpdate.click();
-    configPO.numIterations.sendKeys(Key.BACK_SPACE)
+    configPO.numIterations.sendKeys(Key.BACK_SPACE);
     configPO.getConfigFileBtn.click();
     expect(configPO.numIterations.getAttribute("value")).toEqual("10005");
   });
