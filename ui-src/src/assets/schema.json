@@ -108,7 +108,11 @@
     { "key": "testCaseDir", "title": "Test Case Directory" },
     { "key": "testSuiteDir", "title": "Test Suites Directory" },
     { "key": "baseStatsOutputDir", "title": "Base Stats Output Directory" },
-    { "key": "reportOutputDir", "title": "Report Output Directory" }
- 
-  ]
+    { "key": "reportOutputDir", "title": "Report Output Directory" },
+     {
+      "title": "Create",
+      "type": "submit"
+
+
+    } ]
 }
