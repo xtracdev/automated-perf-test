@@ -246,8 +246,6 @@ func (a *apiFeature) theFileNameis(filename string) error {
 
 func (a *apiFeature) iSendARequestTo(method, endpoint string) error {
 	response, err := makeGetRequest(a.client, method, endpoint, a.filename, a.headerPath, a.headerName)
-	fmt.Println("*******************name: "+a.headerName)
-	fmt.Println("*******************path:   "+a.headerPath)
 	if err != nil {
 		return err
 	}
@@ -257,8 +255,6 @@ func (a *apiFeature) iSendARequestTo(method, endpoint string) error {
 }
 
 func makeGetRequest(client *http.Client, method, endpoint string, filename string, headerPath, headerName string) (*http.Response, error) {
-	fmt.Println("*******************name: "+headerName)
-	fmt.Println("*******************path:   "+headerPath)
 	req, err := http.NewRequest(method, "http://localhost:9191"+endpoint, nil)
 
 	if headerPath == "" {
