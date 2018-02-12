@@ -195,10 +195,10 @@ func TestSuccessfulGetAllSuites(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodGet, "/test-suites", nil)
 
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("testSuitePathDir", DirectoryPath)
 	request.Header.Get("testSuitePathDir")
 
 	w := httptest.NewRecorder()
@@ -215,10 +215,10 @@ func TestGetAllSuitesNoHeader(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	filePath := ""
+	DircetoryPath := ""
 	request, err := http.NewRequest(http.MethodGet, "/test-suites", nil)
 
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("testSuitePathDir", DircetoryPath)
 	request.Header.Get("testSuitePathDir")
 
 	w := httptest.NewRecorder()
