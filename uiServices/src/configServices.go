@@ -46,7 +46,7 @@ func ConfigCtx(next http.Handler) http.Handler {
 }
 
 func postConfigs(rw http.ResponseWriter, req *http.Request) {
-	configPathDir := req.Header.Get("configPathDir")
+      configPathDir := req.Header.Get("configPathDir")
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
