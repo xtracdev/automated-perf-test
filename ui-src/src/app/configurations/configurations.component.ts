@@ -4,7 +4,6 @@ import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import { ToastOptions } from "ng2-toastr/src/toast-options";
 import "rxjs/add/operator/map";
-import { and } from "@angular/router/src/utils/collection";
 
 @Component({
   selector: "app-configurations",
@@ -17,7 +16,7 @@ export class ConfigurationsComponent implements OnInit {
   xmlFileName = undefined;
   fileName = undefined;
   // needed for layout to load
-  configSchema = { form: true };
+  configSchema = { layout: true };
 
   constructor(
     private automatedUIServices: AutomatedUIServices,
@@ -30,23 +29,8 @@ export class ConfigurationsComponent implements OnInit {
       .subscribe((data: any) => {
         this.configSchema = data;
       });
-
-     
-
   }
 
-
-  test() {
-    if(this.xmlFileName && this.xmlFileName != ""){
-      console.log("*(*******************tEST");    
-      (<HTMLInputElement> document.getElementById("control28")).disabled = true;
-    }
-    else{
-      (<HTMLInputElement> document.getElementsByClassName("btn")[0]).disabled = false;
-    }
-    
-
-  }
   onSubmit(configData) {
     this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
       data => {
@@ -98,8 +82,6 @@ export class ConfigurationsComponent implements OnInit {
     this.fileName = event.srcElement.files[0].name;
     this.xmlFileName = this.fileName;
     this.onGetFile();
-    this.test();
-    this.test();
   }
   onGetFile() {
     this.automatedUIServices
@@ -107,9 +89,7 @@ export class ConfigurationsComponent implements OnInit {
       .subscribe(
         data => {
           this.formData = data;
-          this.test();
           this.toastr.success("Success!");
-         
         },
         error => {
           switch (error.status) {

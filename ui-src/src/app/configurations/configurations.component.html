@@ -7,7 +7,7 @@
         </div>
         <div class=" column col-md-4">
             <label>File Select</label>
-            <input class="form-control" id="xml-file-name" (change)="test()" placeholder="Click to Browse Files" [(ngModel)]="xmlFileName" type="string" onclick="javascript:document.getElementById('file').click();">
+            <input class="form-control" id="xml-file-name" placeholder="Click to Browse Files" [(ngModel)]="xmlFileName" type="string" onclick="javascript:document.getElementById('file').click();">
             <input id="file" type="file" (change)="fileSelector($event)" />
         </div>
 
@@ -15,7 +15,7 @@
     </div>
     <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="configSchema.layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
-    <button class="btn btn-primary" id="update-config-file-btn" *ngIf="this.xmlFileName" (click)="onUpdate(formData)">Update</button>
+    <button class="btn btn-primary" id="update-config-file-btn" [disabled]="!xmlFileName" (click)="onUpdate(formData)">Update</button>
     <button class="btn btn-primary" id="cancel-btn" (click)="onCancel()">Cancel</button>
 
 </div>
