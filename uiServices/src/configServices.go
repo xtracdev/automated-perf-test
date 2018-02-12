@@ -14,6 +14,9 @@ import (
 	"strings"
 )
 
+var schemaFilename string = "schema.json"
+var structName string = "Config"
+
 func getConfigHeader(req *http.Request) string {
 	configPathDir := req.Header.Get("configPathDir")
 
@@ -103,7 +106,6 @@ func FilePathExist(path string) bool {
 	return !os.IsNotExist(err)
 }
 
-
 func getConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	configPathDir := getConfigHeader(req)
@@ -163,7 +165,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
-	if !ValidateJsonWithSchema(buf.Bytes(), "schema.json","Configurations") {
+	if !ValidateJsonWithSchema(buf.Bytes(), schemaFilename,structName) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}

@@ -420,7 +420,7 @@ func TestInvalidJsonPut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, http.StatusBadRequest, w.Code, "Sucessfully updated. Field data type should have been incorrect so update should occur")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Sucessfully updated. Field data type should have been incorrect so update shouldn't occur")
 }
 
 func TestInvalidUrlPut(t *testing.T) {
