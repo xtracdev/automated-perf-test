@@ -1,1 +1,23 @@
-<p>test-suite works</p>
+<div class="container">
+    <div class="row">
+        <label>Test Suite Directory</label>
+        <input class="form-control" type="string" required>
+    </div>
+    <div class="row">
+        <button class="btn btn-primary" (click)="onAdd()">Add</button>
+        <button class="btn btn-primary" (click)="onDelete()">Delete</button>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+
+        </div>
+        <div class="col-md-8">
+            <json-schema-form [schema]="testSchema" framework="bootstrap-4">
+            </json-schema-form>
+            <button class="btn btn-primary push-right" (click)="onCancel()">Cancel</button>
+            <button class="btn btn-primary push-right" (click)="onSave()">Save</button>
+        </div>
+
+    </div>
+</div>

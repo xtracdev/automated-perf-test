@@ -13,7 +13,7 @@ import { ToastModule } from "ng2-toastr/ng2-toastr";
 import { AutomatedUIServices } from "./automated-ui-services";
 import { HttpClientModule, HttpClient } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
-import { HttpModule }  from '@angular/http';
+import { HttpModule } from '@angular/http';
 
 @NgModule({
   declarations: [
@@ -38,4 +38,4 @@ import { HttpModule }  from '@angular/http';
   providers: [AutomatedUIServices],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }

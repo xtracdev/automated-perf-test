@@ -5,4 +5,27 @@ import { Component, OnInit } from "@angular/core";
   templateUrl: "./test-suites.component.html",
   styleUrls: ["./test-suites.component.css"]
 })
-export class TestSuitesComponent {}
+export class TestSuitesComponent {
+
+  testSchema = {
+    type: "object",
+    properties: {
+      name: { type: "string" },
+      testStrategy: { type: "string" },
+      description: { type: "string" }
+
+    },
+    layout: [
+      {
+
+        submit: "hidden"
+      }
+    ],
+  }
+
+  onAdd() { }
+  onDelete() { }
+  onCancel() { }
+  onSave() { }
+
+}
