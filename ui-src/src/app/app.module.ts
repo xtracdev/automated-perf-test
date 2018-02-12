@@ -8,7 +8,6 @@ import { TestSuitesComponent } from "./test-suites/test-suites.component";
 import { AppRoutingModule } from "./app-routing.module";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ConfigurationsComponent } from "./configurations/configurations.component";
-import { MatButtonModule, MatCheckboxModule } from "@angular/material";
 import { ToastModule } from "ng2-toastr/ng2-toastr";
 import { AutomatedUIServices } from "./automated-ui-services";
 import { HttpClientModule, HttpClient } from "@angular/common/http";
@@ -28,8 +27,6 @@ import { FormsModule } from "@angular/forms";
     BrowserModule,
     BrowserAnimationsModule,
     ToastModule.forRoot(),
-    MatButtonModule,
-    MatCheckboxModule,
     AppRoutingModule,
     HttpClientModule
   ],

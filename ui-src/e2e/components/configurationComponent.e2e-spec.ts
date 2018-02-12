@@ -234,6 +234,9 @@ describe("configuration component", () => {
     configPO.btnUpdate.click();
     configPO.numIterations.sendKeys(Key.BACK_SPACE);
     configPO.cancelBtn.click();
+
+    configPO.getConfigFileBtn.click();
+
     expect(configPO.numIterations.getAttribute("value")).toEqual("10005");
   });
   it("should show update button is disabled when Xml File Name is blank", () => {

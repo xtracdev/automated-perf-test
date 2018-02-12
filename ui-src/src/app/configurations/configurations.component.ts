@@ -1,8 +1,8 @@
 import { Component, OnInit } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
 import { AutomatedUIServices } from "../automated-ui-services";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
-import { ToastOptions } from "ng2-toastr/src/toast-options";
 import "rxjs/add/operator/map";
 
 @Component({
@@ -21,6 +21,8 @@ export class ConfigurationsComponent implements OnInit {
   constructor(
     private automatedUIServices: AutomatedUIServices,
     private toastr: ToastsManager,
+
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
