@@ -13,6 +13,9 @@ import (
 	"strings"
 )
 
+var schemaFile string = "testSuite_schema.json"
+var structType string = "TestSuite"
+
 func TestSuiteCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
@@ -45,7 +48,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateJsonWithSchema(buf.Bytes(), "testSuite_schema.json", "TestSuite") {
+	if !ValidateJsonWithSchema(buf.Bytes(), schemaFile, structType) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -83,18 +86,17 @@ func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) boo
 		return false
 	}
 	if !result.Valid() {
-		logrus.Error("**** The "+structType+" document is not valid. see errors :")
+		logrus.Errorf("%sdocument is not valid. see errors :", structType)
 		for _, desc := range result.Errors() {
 			logrus.Error("- ", desc)
 			return false
 		}
 	}
 
-	logrus.Info("**** The "+structType+" document is valid *****")
 
+	logrus.Infof("%s document is valid", structType)
 	return true
 }
-
 
 func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 	path := getTestSuiteHeader(req)
@@ -136,4 +138,5 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	rw.WriteHeader(http.StatusNoContent)
 }
+
 

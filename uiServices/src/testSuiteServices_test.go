@@ -53,6 +53,7 @@ const invalidTestSuite = `
 `
 const TestSuiteMissingRequired = `
 {
+  "name":"",
   "testCases": [
     {
       "name":"file1.xml",
