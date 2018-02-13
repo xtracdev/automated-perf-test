@@ -196,6 +196,12 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request){
 			if t.Name != "" {
 				suites = append(suites, t)
 			}
+
+			//ensure values are reset every iteration
+			filename = ""
+			testSuite.Name = ""
+			testSuite.Description = ""
+
 		}
 	}
 
