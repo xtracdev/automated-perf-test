@@ -109,5 +109,6 @@
     { "key": "testSuiteDir", "title": "Test Suites Directory" },
     { "key": "baseStatsOutputDir", "title": "Base Stats Output Directory" },
     { "key": "reportOutputDir", "title": "Report Output Directory" }
+ 
   ]
 }
