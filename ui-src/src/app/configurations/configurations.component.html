@@ -1,22 +1,21 @@
 <div class="container">
     <div class="row">
-        <div class=" column  col-md-8">
+        <div class=" column  col-md-7">
             <label>Config File Path *</label>
-            <input class="form-control" type="string" [(ngModel)]="configPath" id="config-file-path" required>
-
+            <input class="form-control" type="string" [(ngModel)]="configPath" id="config-path" required>
         </div>
         <div class=" column col-md-4">
-            <label>File Select</label>
-            <input class="form-control" id="xml-file-name" placeholder="Click to Browse Files" [(ngModel)]="xmlFileName" type="string" onclick="javascript:document.getElementById('file').click();">
-            <input id="file" type="file" (change)="fileSelector($event)" />
-
+            <label>Xml File Name*</label>
+            <input class="form-control" type="string" [(ngModel)]="xmlFileName" id="xml-file-name" required>
         </div>
 
-
+        <div class="column col-md-1">
+            <button class="button btn-secondary" ng-class="{'diabled-class': !PayoutEnabled}" [disabled]="!xmlFileName" id="btn-get"
+                (click)="onGetFile()">Get File</button>
+        </div>
     </div>
-    <json-schema-form name="auto-generated-fields" ngDefaultControl [schema]="configSchema" ngModel="formData" [layout]="configSchema.layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
+    <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="configSchema.layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
-    <button class="btn btn-primary" id="update-config-file-btn" *ngIf="xmlFileName" (click)="onUpdate(formData)">Update</button>
-    <button class="btn btn-primary" id="cancel-btn" (click)="onCancel()">Cancel</button>
-
+    <button class="btn btn-primary" id="btn-update" [disabled]="!xmlFileName" (click)="onUpdate(formData)">Update</button>
+    <button class="btn btn-primary" (click)="onCancel()">Cancel</button>
 </div>

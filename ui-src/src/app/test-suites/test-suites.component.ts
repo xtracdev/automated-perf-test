@@ -14,13 +14,7 @@ export class TestSuitesComponent {
       testStrategy: { type: "string" },
       description: { type: "string" }
 
-    },
-    layout: [
-      {
-
-        submit: "hidden"
-      }
-    ],
+    }
   }
 
   onAdd() { }

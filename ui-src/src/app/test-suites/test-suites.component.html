@@ -3,21 +3,79 @@
         <label>Test Suite Directory</label>
         <input class="form-control" type="string" required>
     </div>
-    <div class="row">
-        <button class="btn btn-primary" (click)="onAdd()">Add</button>
-        <button class="btn btn-primary" (click)="onDelete()">Delete</button>
-    </div>
+
 
     <div class="row">
-        <div class="col-md-4">
 
+        <div class="column col-md-4">
+            <button class="btn btn-primary " (click)="onAdd()">Add</button>
+            <button class="btn btn-primary " (click)="onDelete()">Delete</button>
+            <table>
+                <tr>
+                    <th>Name </th>
+                    <th>Description</th>
+
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+            </table>
         </div>
-        <div class="col-md-8">
+        <div class=" col-md-8">
             <json-schema-form [schema]="testSchema" framework="bootstrap-4">
             </json-schema-form>
+            <div class="col-md-6">
+                <h3>Available</h3>
+                <table>
+                    <tr>
+                        <th>Name </th>
+                        <th>Description</th>
+                        <th>Http Method</th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h3>Selected</h3>
+                <table>
+                    <tr>
+                        <th>Name </th>
+                        <th>Description</th>
+                        <th>Http Method</th>
+                        <th>Order</th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
             <button class="btn btn-primary push-right" (click)="onCancel()">Cancel</button>
             <button class="btn btn-primary push-right" (click)="onSave()">Save</button>
         </div>
-
     </div>
 </div>
