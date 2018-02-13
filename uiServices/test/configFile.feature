@@ -11,7 +11,7 @@ Feature: Create Configuration File
   Scenario: Successful creation of config file
     Given there is no existing test file "GodogConfig.xml"
     Given the automated performance ui server is available
-    And the header configsDirPath is "/uiServices/test/GodogConfig.xml"
+    And the header "configPathDir" is "/uiServices/test/GodogConfig.xml"
     When I send "POST" request to "/configs" with a body:
          """
       {
@@ -40,7 +40,7 @@ Feature: Create Configuration File
 
   Scenario: Unsuccessful creation of config file (file already exists)
     Given the automated performance ui server is available
-    And the header configsDirPath is "/uiServices/test/GodogConfig.xml"
+    And the header "configPathDir" is "/uiServices/test/GodogConfig.xml"
     When I send "POST" request to "/configs" with a body:
          """
       {
@@ -89,13 +89,13 @@ Feature: Create Configuration File
        "rampDelay": 15
       }
       """
-    And the header configsDirPath is "/uiServices/test/GodogConfig.xml"
+    And the header "configPathDir" is "/uiServices/test/GodogConfig.xml"
     Then the response code should be 400
 
 
   Scenario: Unsuccessful creation of config file (Missing Header)
     Given the automated performance ui server is available
-    And the header configsDirPath is ""
+    And the header "configPathDir" is ""
     When I send "POST" request to "/configs" with a body:
          """
       {
@@ -129,14 +129,14 @@ Feature: Create Configuration File
   Scenario: Try to retrieve config file with valid "GET" request
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header configsDirPath is "/uiServices/test/"
+    And the header "configPathDir" is "/uiServices/test/"
     And the file name is "GodogConfig.xml"
-    When I send a "GET" request to "/configs/GodogConfig.xml"
+    When I send a "GET" request to "/configs/GodogConfig"
     Then the response code should be 200
     And the response body should match json:
     """
       {
-       "apiName": "GodogConfig.xml",
+       "apiName": "GodogConfig",
        "targetHost": "localhost",
        "targetPort":"9191",
        "memoryEndpoint": "/alt/debug/vars",
@@ -160,27 +160,10 @@ Feature: Create Configuration File
     Given the automated performance ui server is available
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header configsDirPath is "/uiServices/test/"
+    And the header "configPathDir" is "/uiServices/test/"
     When I send a "GET" request to "/configs/xxx"
     Then the response code should be 404
 
-
-  Scenario: Unsuccessful retrieval of config file (No Header)
-    Given the automated performance ui server is available
-    And the header configsDirPath is ""
-    When I send a "GET" request to "/configs/GodogConfig"
-    Then the response code should be 400
-    
-
-
-                                ###################################
-                                #######    DELETE REQUESTS ########
-                                ###################################
-
-
-  Scenario: Try to create config file with "DELETE" request
-    When I send "DELETE" request to "/configs"
-    Then the response code should be 405
 
 
                                 ###################################
@@ -190,8 +173,8 @@ Feature: Create Configuration File
   Scenario: Unsuccessful update of config file with PUT request (No File Path)
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header configsDirPath is ""
-    When I send "PUT" request to "/configs/GodogConfig.xml" with body:
+    And the header "configsPathDir" is ""
+    When I send "PUT" request to "/configs/GodogConfig" with body:
          """
       {
        "apiName": "GodogConfig",
@@ -218,7 +201,7 @@ Feature: Create Configuration File
   Scenario: Unsuccessful update of config file with PUT request (Incorrect File Name)
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header configsDirPath is "/uiServices/test/"
+    And the header "configsPathDir" is "/uiServices/test/"
     When I send "PUT" request to "/configs/xxx" with body:
          """
       {
@@ -246,7 +229,7 @@ Feature: Create Configuration File
   Scenario: Unsuccessful update of config file with PUT request (No File Name)
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header configsDirPath is "/uiServices/test/"
+    And the header "configsPathDir" is "/uiServices/test/"
     When I send "PUT" request to "/configs/" with body:
          """
       {
@@ -274,7 +257,7 @@ Feature: Create Configuration File
   Scenario: Unsuccessful update of config file with PUT request (Missing Required Fields)
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header configsDirPath is "/uiServices/test/"
+    And the header "configsPathDir" is "/uiServices/test/"
     When I send "PUT" request to "/configs/GodogConfig" with body:
          """
       {
@@ -303,8 +286,8 @@ Feature: Create Configuration File
   Scenario: Successful update of config file with PUT request
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header configsDirPath is "/uiServices/test/"
-    When I send "PUT" request to "/configs/GodogConfig.xml" with body:
+    And the header "configsPathDir" is "/uiServices/test/"
+    When I send "PUT" request to "/configs/GodogConfig" with body:
          """
       {
        "apiName": "GodogConfig",
@@ -355,8 +338,8 @@ Feature: Create Configuration File
   Scenario: Successful update of config file with PUT request (Update API Name to not match Filename)
     Given the config file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header configsDirPath is "/uiServices/test/"
-    When I send "PUT" request to "/configs/GodogConfig.xml" with body:
+    And the header "configsPathDir" is "/uiServices/test/"
+    When I send "PUT" request to "/configs/GodogConfig" with body:
             """
       {
        "apiName": "GodogAPI",

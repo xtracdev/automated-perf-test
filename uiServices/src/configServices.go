@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
-	"github.com/xeipuuv/gojsonschema"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"io/ioutil"
 	"net/http"
@@ -15,7 +14,10 @@ import (
 	"strings"
 )
 
-func GetConfigHeader(req *http.Request) string {
+var schemaFilename string = "schema.json"
+var structName string = "Config"
+
+func getConfigHeader(req *http.Request) string {
 	configPathDir := req.Header.Get("configPathDir")
 
 	if !strings.HasSuffix(configPathDir, "/") {
@@ -51,7 +53,7 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
-	if !validateJsonWithSchema(buf.Bytes()) {
+	if !ValidateJsonWithSchema(buf.Bytes(), "schema.json", "Configurations") {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -104,41 +106,16 @@ func FilePathExist(path string) bool {
 	return !os.IsNotExist(err)
 }
 
-func validateJsonWithSchema(config []byte) bool {
-	goPath := os.Getenv("GOPATH")
-	schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/schema.json")
-	documentLoader := gojsonschema.NewBytesLoader(config)
-	logrus.Info(schemaLoader)
-	result, error := gojsonschema.Validate(schemaLoader, documentLoader)
-
-	if error != nil {
-		return false
-	}
-	if result.Valid() {
-		logrus.Info("**** The document is valid *****")
-
-		return true
-	}
-	if !result.Valid() {
-		logrus.Error("**** The document is not valid. see errors :")
-		for _, desc := range result.Errors() {
-			logrus.Error("- ", desc)
-			return false
-		}
-	}
-	return true
-}
-
 func getConfigs(rw http.ResponseWriter, req *http.Request) {
 
-	configPathDir := GetConfigHeader(req)
+	configPathDir := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 
 	if !ValidateFileNameAndHeader(rw, req, configPathDir, configName) {
 		return
 	}
 
-	file, err := os.Open(fmt.Sprintf("%s%s", configPathDir, configName))
+	file, err := os.Open(fmt.Sprintf("%s%s.xml", configPathDir, configName))
 	if err != nil {
 		logrus.Error("Configuration Name Not Found: " + configPathDir + configName)
 		rw.WriteHeader(http.StatusNotFound)
@@ -177,18 +154,18 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 }
 
 func putConfigs(rw http.ResponseWriter, req *http.Request) {
-	path := GetConfigHeader(req)
+	path := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 
 	if !ValidateFileNameAndHeader(rw, req, path, configName) {
 		return
 	}
 
-	configPathDir := fmt.Sprintf("%s%s", path, configName)
+	configPathDir := fmt.Sprintf("%s%s.xml", path, configName)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
-	if !validateJsonWithSchema(buf.Bytes()) {
+	if !ValidateJsonWithSchema(buf.Bytes(), schemaFilename,structName) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -208,7 +185,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !configWriterXml(config, path+configName) {
+	if !configWriterXml(config, configPathDir) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}

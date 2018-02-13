@@ -72,6 +72,7 @@ type TestDefinition struct {
 type TestSuite struct {
 	XMLName         xml.Name   `xml:"testSuite"`
 	Name            string     `xml:"name"`
+	Description     string	   `xml:"description"`
 	TestStrategy    string     `xml:"testStrategy"`
 	TestCases       []TestCase `xml:"testCases>testCase"`
 	TestDefinitions []*TestDefinition
@@ -83,6 +84,7 @@ type TestSuite struct {
 type TestCase struct {
 	XMLName       xml.Name `xml:"testCase"`
 	Name          string   `xml:",chardata"`
+	Description   string   `xml:"description"`
 	PreThinkTime  int64    `xml:"preThinkTime,attr"`
 	PostThinkTime int64    `xml:"postThinkTime,attr"`
 	ExecWeight    string   `xml:"execWeight,attr"`

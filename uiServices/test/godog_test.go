@@ -24,8 +24,9 @@ type apiFeature struct {
 	resp        *http.Response
 	client      *http.Client
 	requestbody string
-	header      string
+	headerPath string
 	filename    string
+	headerName  string
 }
 
 func (a *apiFeature) resetResponse() {
@@ -34,7 +35,7 @@ func (a *apiFeature) resetResponse() {
 }
 
 func (a *apiFeature) iSendrequestTo(method, endpoint string) (err error) {
-	response, err := makePostRequest(a.client, method, endpoint, "", "")
+	response, err := makePostRequest(a.client, method, endpoint, "", "","")
 	if err != nil {
 		return err
 	}
@@ -103,8 +104,9 @@ func (a *apiFeature) theResponseBodyShouldBeEmpty() error {
 	return nil
 }
 
-func (a *apiFeature) theHeaderConfigsDirPathIs(path string) error {
-	a.header = path
+func (a *apiFeature) theHeaderIs(name string, path string) error {
+	a.headerPath = path
+	a.headerName = name
 
 	if path == "" {
 		fmt.Println("Error: No Header Defined")
@@ -115,7 +117,7 @@ func (a *apiFeature) theHeaderConfigsDirPathIs(path string) error {
 }
 
 func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() error {
-	configsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.header
+	configsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath
 
 	fileExists := services.FilePathExist(configsPathDir)
 
@@ -124,7 +126,7 @@ func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() 
 	}
 
 	logrus.Println("File Exists")
-	if !IsValidXml(a.requestbody, a.header) {
+	if !IsValidXml(a.requestbody, a.headerPath) {
 		return fmt.Errorf("File is not a valid XML file")
 	}
 	logrus.Println("File is a valid XML file")
@@ -132,7 +134,7 @@ func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() 
 }
 
 func (a *apiFeature) iSendRequestToWithABody(method, endpoint string, body *gherkin.DocString) error {
-	response, err := makePostRequest(a.client, method, endpoint, body.Content, a.header)
+	response, err := makePostRequest(a.client, method, endpoint, body.Content, a.headerPath, a.headerName)
 	a.requestbody = body.Content
 	if err != nil {
 		return err
@@ -141,7 +143,7 @@ func (a *apiFeature) iSendRequestToWithABody(method, endpoint string, body *gher
 	return nil
 }
 
-func makePostRequest(client *http.Client, method, endpoint, body string, header string) (*http.Response, error) {
+func makePostRequest(client *http.Client, method, endpoint, body string, headerPath string, headerName string) (*http.Response, error) {
 
 	var reqBody io.Reader
 	if body != "" {
@@ -150,10 +152,10 @@ func makePostRequest(client *http.Client, method, endpoint, body string, header 
 
 	req, err := http.NewRequest(method, "http://localhost:9191"+endpoint, reqBody)
 
-	if header == "" {
-		req.Header.Set("configPathDir", "")
+	if headerPath == "" {
+		req.Header.Set(headerName, "")
 	} else {
-		req.Header.Set("configPathDir", fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
 	}
 	if err != nil {
 		return nil, err
@@ -178,7 +180,7 @@ func FeatureContext(s *godog.Suite) {
 
 	s.Step(`^I send "(GET|POST|PUT|DELETE)" request to "([^"]*)"$`, api.iSendrequestTo)
 	s.Step(`^the response code should be (\d+)$`, api.theResponseCodeShouldBe)
-	s.Step(`^the header configsDirPath is "([^"]*)"$`, api.theHeaderConfigsDirPathIs)
+	s.Step(`^the header "([^"]*)" is "([^"]*)"$`, api.theHeaderIs)
 	s.Step(`^the response body should match json:$`, api.theResponseBodyShouldMatchJSON)
 	s.Step(`^the response body should be empty$`, api.theResponseBodyShouldBeEmpty)
 	s.Step(`^the config file was created at location defined by configsPathDir$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir)
@@ -243,7 +245,7 @@ func (a *apiFeature) theFileNameis(filename string) error {
 }
 
 func (a *apiFeature) iSendARequestTo(method, endpoint string) error {
-	response, err := makeGetRequest(a.client, method, endpoint, a.filename, a.header)
+	response, err := makeGetRequest(a.client, method, endpoint, a.filename, a.headerPath)
 	if err != nil {
 		return err
 	}
@@ -283,7 +285,7 @@ func theConfigFileExistsAt(filename, path string) error {
 }
 
 func (a *apiFeature) iSendRequestToWithBody(method, endpoint string, body *gherkin.DocString) error {
-	response, err := makePutRequest(a.client, method, endpoint, body.Content, a.header)
+	response, err := makePutRequest(a.client, method, endpoint, body.Content, a.headerPath)
 	a.requestbody = body.Content
 	if err != nil {
 		return err
