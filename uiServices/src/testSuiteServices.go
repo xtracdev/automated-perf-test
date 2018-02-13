@@ -158,7 +158,7 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request){
 	suites := Suites{}
 
 	testSuitePathDir := getTestSuiteHeader(req)
-	if len(testSuitePathDir) < 1 {
+	if len(testSuitePathDir) <= 1 {
 		logrus.Error("No file directory entered")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
