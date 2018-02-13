@@ -8,12 +8,14 @@ import (
 	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"net/http"
 	"os"
-	"strings"
+	"github.com/go-chi/chi"
 	"fmt"
+	"strings"
+	"encoding/xml"
+	"io/ioutil"
+	"path/filepath"
+	"log"
 )
-
-var schemaFile string = "testSuite_schema.json"
-var structType string = "TestSuite"
 
 func TestSuiteCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +49,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateJsonWithSchema(buf.Bytes(), schemaFile, structType) {
+	if !ValidateJsonWithSchema(buf.Bytes(), "testSuite_schema.json", "TestSuite") {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -59,7 +61,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if FilePathExist(fmt.Sprintf("%s%s.xml",testSuitePathDir, testSuite.Name)) {
+	if FilePathExist(testSuitePathDir + testSuite.Name + ".xml") {
 		logrus.Error("File already exists")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
@@ -84,14 +86,126 @@ func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) boo
 	if error != nil {
 		return false
 	}
-
 	if !result.Valid() {
-		logrus.Errorf("%sdocument is not valid. see errors :", structType)
+		logrus.Error("**** The "+structType+" document is not valid. see errors :")
 		for _, desc := range result.Errors() {
 			logrus.Error("- ", desc)
 			return false
 		}
 	}
-	logrus.Infof("%s document is valid", structType)
+
+	logrus.Info("**** The "+structType+" document is valid *****")
+
 	return true
+}
+
+
+func putTestSuites(rw http.ResponseWriter, req *http.Request) {
+	path := getTestSuiteHeader(req)
+	testSuiteName := chi.URLParam(req, "testSuiteName")
+
+	if !ValidateFileNameAndHeader(rw, req, path, testSuiteName) {
+		return
+	}
+
+	testSuitePathDir := fmt.Sprintf("%s%s.xml", path, testSuiteName)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(req.Body)
+
+	if !FilePathExist(testSuitePathDir) {
+		logrus.Error("File path does not exist")
+		rw.WriteHeader(http.StatusNotFound)
+		return
+
+	}
+
+	if !ValidateJsonWithSchema(buf.Bytes(),"testSuite_schema.json", "TestSuite") {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	testSuite := testStrategies.TestSuite{}
+	err := json.Unmarshal(buf.Bytes(), &testSuite)
+
+	if err != nil {
+		logrus.Error("Cannot Unmarshall Json")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !testSuiteWriterXml(testSuite, testSuitePathDir) {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
+}
+
+func getAllTestSuites(rw http.ResponseWriter, req *http.Request){
+	var testSuite testStrategies.TestSuite
+	var filename string
+
+	type Suite struct {
+		File string `json:"file"`
+		Name string `json:"name"`
+		Description string `json:"description"`
+	}
+
+	var t Suite
+
+	type Suites[]Suite
+
+	suites := Suites{}
+
+	testSuitePathDir := getTestSuiteHeader(req)
+	if len(testSuitePathDir) <= 1 {
+		logrus.Error("No file directory entered")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	files, err := ioutil.ReadDir(testSuitePathDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		if filepath.Ext(testSuitePathDir + file.Name()) == ".xml" {
+			filename = file.Name()
+
+			file, err := os.Open(fmt.Sprintf("%s%s", testSuitePathDir, filename))
+			if err != nil {
+				logrus.Error("Cannot open file: ", filename)
+			}
+
+			byteValue, err := ioutil.ReadAll(file)
+			if err != nil{
+				logrus.Error("Cannot Read File: ", filename)
+			}
+
+			err = xml.Unmarshal(byteValue, &testSuite)
+			if err != nil {
+				logrus.Error("Cannot Unmarshall: ", filename)
+			}
+
+			t.File = filename
+			t.Name = testSuite.Name
+			t.Description = testSuite.Description
+
+			//if a Test Suite Name can't be assigned, it isn't a Test Suite object
+			if t.Name != "" {
+				suites = append(suites, t)
+			}
+
+			//ensure values are reset every iteration
+			filename = ""
+			testSuite.Name = ""
+			testSuite.Description = ""
+
+		}
+	}
+
+	json.NewEncoder(rw).Encode(suites)
+
+	rw.WriteHeader(http.StatusOK)
 }

@@ -153,3 +153,209 @@ Feature: Test Suite Creation
       }
     """
     Then the response code should be 400
+
+
+                                ###################################
+                                #######    PUT REQUESTS ###########
+                                ###################################
+
+  Scenario: Unsuccessful update of test-suite file with PUT request (No File Path)
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is ""
+    When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
+    """
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+       "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent",
+           "description": "Desc1"
+         }
+        ]
+      }
+    """
+   Then the response code should be 400
+
+
+  Scenario: Unsuccessful update of test-suite file with PUT request (Incorrect File Name)
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send "PUT" request to "/test-suites/xxx" with body:
+   """
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+       "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent",
+           "description": "Desc1"
+         }
+        ]
+      }
+    """
+    Then the response code should be 404
+
+
+  Scenario: Unsuccessful update of test-suite file with PUT request (No File Name)
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send "PUT" request to "/test-suites/" with body:
+    """
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+       "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent",
+           "description": "Desc1"
+         }
+        ]
+      }
+    """
+    Then the response code should be 404
+
+  Scenario: Unsuccessful update of test-suite file with PUT request (Missing Required Fields)
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
+  """
+      {
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent",
+           "description": "Desc1"
+         }
+        ]
+      }
+    """
+    Then the response code should be 400
+
+
+  Scenario: Successful update of test-suite file with PUT request
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
+    """
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+       "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent",
+           "description": "Desc1"
+         }
+        ]
+      }
+    """
+    Then the response code should be 204
+    And the response body should be empty
+    When I send a "GET" request to "/test-suites/GodogTestSuite"
+    And the updated file should match json:
+"""
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+       "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent",
+           "description": "Desc1"
+         }
+        ]
+      }
+    """
+  Scenario: Successful update of test-suite file with PUT request (Update API Name to not match Filename)
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
+    """
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+        "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent",
+           "description": "Desc1"
+         }
+        ]
+      }
+    """
+    Then the response code should be 204
+    And the response body should be empty
+    When I send a "GET" request to "/test-suites/GodogTestSuite"
+    And the updated file should match json:
+    """
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+        "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent",
+           "description": "Desc1"
+         }
+        ]
+      }
+    """
+
+
+                                ###################################
+                                #######    GET ALL REQUESTS #######
+                                ###################################
+
+  Scenario: Try to retrieve all test suites with valid "GET" request
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send a "GET" request to "/test-suites"
+    Then the response code should be 200
+    And the response body should match json:
+     """
+      {
+       "file": "GodogTestSuite.xml",
+       "name": "TestSuiteService",
+       "description": "Services for XYZ",
+      }
+    """
+
+
+  Scenario: Unsuccessful retrieval of test-suites (No Header)
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is ""
+    When I send a "GET" request to "/test-suites"
+    Then the response code should be 400
