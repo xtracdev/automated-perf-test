@@ -8,8 +8,11 @@ import (
 	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"net/http"
 	"os"
-	"strings"
+	"github.com/go-chi/chi"
 	"fmt"
+	"strings"
+	"encoding/xml"
+	"io/ioutil"
 )
 
 var schemaFile string = "testSuite_schema.json"
@@ -84,7 +87,6 @@ func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) boo
 	if error != nil {
 		return false
 	}
-
 	if !result.Valid() {
 		logrus.Errorf("%sdocument is not valid. see errors :", structType)
 		for _, desc := range result.Errors() {
@@ -92,6 +94,93 @@ func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) boo
 			return false
 		}
 	}
+
 	logrus.Infof("%s document is valid", structType)
 	return true
+}
+
+func putTestSuites(rw http.ResponseWriter, req *http.Request) {
+	path := getTestSuiteHeader(req)
+	testSuiteName := chi.URLParam(req, "testSuiteName")
+
+	if !ValidateFileNameAndHeader(rw, req, path, testSuiteName) {
+		return
+	}
+
+	testSuitePathDir := fmt.Sprintf("%s%s.xml", path, testSuiteName)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(req.Body)
+
+	if !FilePathExist(testSuitePathDir) {
+		logrus.Error("File path does not exist")
+		rw.WriteHeader(http.StatusNotFound)
+		return
+
+	}
+
+	if !ValidateJsonWithSchema(buf.Bytes(),"testSuite_schema.json", "TestSuite") {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	testSuite := testStrategies.TestSuite{}
+	err := json.Unmarshal(buf.Bytes(), &testSuite)
+
+	if err != nil {
+		logrus.Error("Cannot Unmarshall Json")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !testSuiteWriterXml(testSuite, testSuitePathDir) {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
+}
+
+func getTestSuite(rw http.ResponseWriter, req *http.Request){
+
+	testSuitePathDir := getTestSuiteHeader(req)
+	testSuiteName := chi.URLParam(req, "testSuiteName")
+
+	ValidateFileNameAndHeader(rw,req,testSuitePathDir, testSuiteName)
+
+	file, err := os.Open(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName))
+	if err != nil {
+		logrus.Error("Test Suite Name Not Found: "+testSuitePathDir + testSuiteName)
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+
+	var testSuite testStrategies.TestSuite
+
+	byteValue, err := ioutil.ReadAll(file)
+	if err != nil{
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Read File")
+		return
+	}
+
+	err = xml.Unmarshal(byteValue, &testSuite)
+	if err != nil{
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Unmarshall")
+		return
+	}
+
+	testSuiteJSON, err := json.MarshalIndent(testSuite,"","")
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Marshall")
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(testSuiteJSON)
+	logrus.Println(string(testSuiteJSON))
+
 }
