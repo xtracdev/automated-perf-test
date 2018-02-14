@@ -11,6 +11,10 @@ import (
 	"github.com/go-chi/chi"
 	"fmt"
 	"strings"
+	"encoding/xml"
+	"io/ioutil"
+	"path/filepath"
+	"log"
 )
 
 var schemaFile string = "testSuite_schema.json"
@@ -60,7 +64,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if FilePathExist(testSuitePathDir + testSuite.Name + ".xml") {
+	if FilePathExist(fmt.Sprintf("%s%s.xml",testSuitePathDir, testSuite.Name)) {
 		logrus.Error("File already exists")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
@@ -93,7 +97,6 @@ func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) boo
 		}
 	}
 
-
 	logrus.Infof("%s document is valid", structType)
 	return true
 }
@@ -117,7 +120,7 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !ValidateJsonWithSchema(buf.Bytes(),"testSuite_schema.json", "TestSuite") {
+	if !ValidateJsonWithSchema(buf.Bytes(),schemaFile, structType) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -139,4 +142,116 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusNoContent)
 }
 
+func getTestSuite(rw http.ResponseWriter, req *http.Request){
 
+	testSuitePathDir := getTestSuiteHeader(req)
+	testSuiteName := chi.URLParam(req, "testSuiteName")
+
+	ValidateFileNameAndHeader(rw,req,testSuitePathDir, testSuiteName)
+
+	file, err := os.Open(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName))
+	if err != nil {
+		logrus.Error("Test Suite Name Not Found: "+testSuitePathDir + testSuiteName)
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+
+	var testSuite testStrategies.TestSuite
+
+	byteValue, err := ioutil.ReadAll(file)
+	if err != nil{
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Read File")
+		return
+	}
+
+	err = xml.Unmarshal(byteValue, &testSuite)
+	if err != nil{
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Unmarshall")
+		return
+	}
+
+	testSuiteJSON, err := json.MarshalIndent(testSuite,"","")
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Marshall")
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(testSuiteJSON)
+	logrus.Println(string(testSuiteJSON))
+
+}
+
+func getAllTestSuites(rw http.ResponseWriter, req *http.Request){
+	var testSuite testStrategies.TestSuite
+	var filename string
+
+	type Suite struct {
+		File string `json:"file"`
+		Name string `json:"name"`
+		Description string `json:"description"`
+	}
+
+	var suite Suite
+
+	type Suites[]Suite
+
+	suites := Suites{}
+
+	testSuitePathDir := getTestSuiteHeader(req)
+	if len(testSuitePathDir) <= 1 {
+		logrus.Error("No file directory entered")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	files, err := ioutil.ReadDir(testSuitePathDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		if filepath.Ext(testSuitePathDir + file.Name()) == ".xml" {
+			filename = file.Name()
+
+			file, err := os.Open(fmt.Sprintf("%s%s", testSuitePathDir, filename))
+			if err != nil {
+				logrus.Error("Cannot open file: ", filename)
+			}
+
+			byteValue, err := ioutil.ReadAll(file)
+			if err != nil{
+				logrus.Error("Cannot Read File: ", filename)
+			}
+
+			err = xml.Unmarshal(byteValue, &testSuite)
+			if err != nil {
+				logrus.Error("Cannot Unmarshall: ", filename)
+			}
+
+			suite.File = filename
+			suite.Name = testSuite.Name
+			suite.Description = testSuite.Description
+
+			//if a Test Suite Name can't be assigned, it isn't a Test Suite object
+			if suite.Name != "" {
+				suites = append(suites, suite)
+			}
+
+			//ensure values are reset every iteration
+			filename = ""
+			testSuite.Name = ""
+			testSuite.Description = ""
+
+		}
+	}
+
+	json.NewEncoder(rw).Encode(suites)
+
+	rw.WriteHeader(http.StatusOK)
+}
