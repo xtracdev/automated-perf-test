@@ -60,5 +60,5 @@ export class TestSuitesComponent {
   onDelete() { }
   onCancel() { }
   onSave() { }
-
+  onAdd(){}
 }
