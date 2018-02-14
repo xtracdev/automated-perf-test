@@ -7,6 +7,7 @@ import {
   $$,
   ExpectedConditions,
   protractor,
+  WebDriver,
   Key
 } from "protractor";
 import { read } from "fs";
@@ -21,13 +22,18 @@ describe("configuration component", () => {
   beforeEach(() => {
     browser.get("http://localhost:9191");
     browser.executeScript("window.onbeforeunload = function(e){};");
-    browser.driver.manage().window().maximize();
+    browser.driver
+      .manage()
+      .window()
+      .maximize();
   });
 
   it("should create xml file", () => {
     configPO.setConfigData();
     configPO.submitBtn.click();
-    expect(configPO.toastrMessage.getText()).toContain("Your Data has Been Saved!");
+    expect(configPO.toastrMessage.getText()).toContain(
+      "Your data has been saved!"
+    );
   });
 
   it("should show submit button is disabled when requiredFields data is blank", () => {
@@ -57,11 +63,10 @@ describe("configuration component", () => {
     );
   });
 
-
   it("should check values of existing file are as expected", () => {
     configPO.configFilePath.sendKeys(configPO.absolutePath);
-    configPO.xmlFileName.sendKeys("config");
-    configPO.getConfigFileBtn.click();
+    configPO.xmlFileName.sendKeys("config.xml");
+    configPO.cancelBtn.click();
     expect(configPO.applicationName.getAttribute("value")).toEqual("config");
     expect(configPO.targetHost.getAttribute("value")).toEqual("localhost");
     expect(configPO.targetPort.getAttribute("value")).toEqual("8080");
@@ -88,10 +93,8 @@ describe("configuration component", () => {
     configPO.configFilePath.sendKeys("/path/to/bad/location");
     configPO.submitBtn.click();
     expect(configPO.toastrMessage.getText()).toContain(
-      "Some of the Fields do not Conform to the Schema!"
+      "Some of the fields do not conform to the schema"
     );
-
-
   });
 
   it("should check requiredFields warning appears when requiredFields input is blank", () => {
@@ -225,20 +228,18 @@ describe("configuration component", () => {
 
   it("should update existing file", () => {
     configPO.configFilePath.sendKeys(configPO.absolutePath);
-    configPO.xmlFileName.sendKeys("config");
-    configPO.getConfigFileBtn.click();
+    configPO.xmlFileName.sendKeys("config.xml");
+    configPO.cancelBtn.click();
     configPO.numIterations.sendKeys(5);
     configPO.btnUpdate.click();
-    configPO.numIterations.sendKeys(Key.BACK_SPACE)
+    configPO.numIterations.sendKeys(Key.BACK_SPACE);
+    configPO.cancelBtn.click();
+
     configPO.getConfigFileBtn.click();
+
     expect(configPO.numIterations.getAttribute("value")).toEqual("10005");
   });
-  it("should show get File button and update button are disabled when Xml File Name is blank", () => {
+  it("should show update button is disabled when Xml File Name is blank", () => {
     expect(configPO.btnUpdate.isEnabled()).toBe(false);
-    expect(configPO.getConfigFileBtn.isEnabled()).toBe(false);
-  });
-  it("should show cancel button clear", () => {
-    expect(configPO.btnUpdate.isEnabled()).toBe(false);
-    expect(configPO.getConfigFileBtn.isEnabled()).toBe(false);
   });
 });
