@@ -120,7 +120,7 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !ValidateJsonWithSchema(buf.Bytes(),"testSuite_schema.json", "TestSuite") {
+	if !ValidateJsonWithSchema(buf.Bytes(),schemaFile, structType) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
