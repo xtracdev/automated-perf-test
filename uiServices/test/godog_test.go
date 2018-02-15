@@ -5,11 +5,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/DATA-DOG/godog"
-	"github.com/DATA-DOG/godog/gherkin"
-	"github.com/Sirupsen/logrus"
-	"github.com/xtracdev/automated-perf-test/perfTestUtils"
-	"github.com/xtracdev/automated-perf-test/uiServices/src"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -17,6 +12,12 @@ import (
 	"os"
 	"reflect"
 	"strings"
+
+	"github.com/DATA-DOG/godog"
+	"github.com/DATA-DOG/godog/gherkin"
+	"github.com/Sirupsen/logrus"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
+	"github.com/xtracdev/automated-perf-test/uiServices/src"
 )
 
 type apiFeature struct {
@@ -24,7 +25,7 @@ type apiFeature struct {
 	resp        *http.Response
 	client      *http.Client
 	requestbody string
-	headerPath string
+	headerPath  string
 	filename    string
 	headerName  string
 }
@@ -35,7 +36,7 @@ func (a *apiFeature) resetResponse() {
 }
 
 func (a *apiFeature) iSendrequestTo(method, endpoint string) (err error) {
-	response, err := makePostRequest(a.client, method, endpoint, "", "","")
+	response, err := makePostRequest(a.client, method, endpoint, "", "", "")
 	if err != nil {
 		return err
 	}
@@ -81,8 +82,7 @@ func (a *apiFeature) theResponseBodyShouldMatchJSON(body *gherkin.DocString) (er
 	json.Unmarshal([]byte(expectedJson), &expectedConfig)
 
 	if !reflect.DeepEqual(&expectedConfig, &actualConfig) {
-		fmt.Errorf("Expected :", expectedConfig, " ,but actual was :", actualConfig)
-		return
+		return fmt.Errorf("Expected :%v ,but actually was :%v", expectedConfig, actualConfig)
 	}
 
 	return nil
@@ -349,8 +349,8 @@ func (a *apiFeature) theUpdatedFileShouldMatchJSON(body *gherkin.DocString) (err
 	json.Unmarshal([]byte(expectedJson), &expectedConfig)
 
 	if !reflect.DeepEqual(&expectedConfig, &actualConfig) {
-		fmt.Errorf("Expected :", expectedConfig, " ,but actual was :", actualConfig)
-		return
+		return fmt.Errorf("Expected : %v ,but actually was :%v", expectedConfig, actualConfig)
+
 	}
 
 	return nil

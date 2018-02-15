@@ -3,26 +3,27 @@ package services
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/Sirupsen/logrus"
-	"github.com/xeipuuv/gojsonschema"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
+	"encoding/xml"
+	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
-	"github.com/go-chi/chi"
-	"fmt"
-	"strings"
-	"encoding/xml"
-	"io/ioutil"
 	"path/filepath"
-	"log"
+	"strings"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/xeipuuv/gojsonschema"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
 var schemaFile string = "testSuite_schema.json"
 var structType string = "TestSuite"
 
 type Suite struct {
-	File string `json:"file"`
-	Name string `json:"name"`
+	File        string `json:"file"`
+	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
@@ -54,7 +55,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateFileNameAndHeader(rw,req, testSuitePathDir,testSuite.Name){
+	if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuite.Name) {
 		return
 	}
 
@@ -70,14 +71,14 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if FilePathExist(fmt.Sprintf("%s%s.xml",testSuitePathDir, testSuite.Name)) {
+	if FilePathExist(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuite.Name)) {
 		logrus.Error("File already exists")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 
 	}
 
-	if !testSuiteWriterXml(testSuite, testSuitePathDir +testSuite.Name+".xml") {
+	if !testSuiteWriterXml(testSuite, testSuitePathDir+testSuite.Name+".xml") {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -87,7 +88,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) bool {
 	goPath := os.Getenv("GOPATH")
-	schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/"+ schemaName)
+	schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/" + schemaName)
 	documentLoader := gojsonschema.NewBytesLoader(testSuite)
 	logrus.Info(schemaLoader)
 	result, error := gojsonschema.Validate(schemaLoader, documentLoader)
@@ -126,7 +127,7 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !ValidateJsonWithSchema(buf.Bytes(),schemaFile, structType) {
+	if !ValidateJsonWithSchema(buf.Bytes(), schemaFile, structType) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -148,39 +149,38 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusNoContent)
 }
 
-func getTestSuite(rw http.ResponseWriter, req *http.Request){
+func getTestSuite(rw http.ResponseWriter, req *http.Request) {
 
 	testSuitePathDir := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
-	ValidateFileNameAndHeader(rw,req,testSuitePathDir, testSuiteName)
+	ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName)
 
 	file, err := os.Open(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName))
 	if err != nil {
-		logrus.Error("Test Suite Name Not Found: "+testSuitePathDir + testSuiteName)
+		logrus.Error("Test Suite Name Not Found: " + testSuitePathDir + testSuiteName)
 		rw.WriteHeader(http.StatusNotFound)
 		return
 	}
 	defer file.Close()
 
-
 	var testSuite testStrategies.TestSuite
 
 	byteValue, err := ioutil.ReadAll(file)
-	if err != nil{
+	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		logrus.Error("Cannot Read File")
 		return
 	}
 
 	err = xml.Unmarshal(byteValue, &testSuite)
-	if err != nil{
+	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		logrus.Error("Cannot Unmarshall")
 		return
 	}
 
-	testSuiteJSON, err := json.MarshalIndent(testSuite,"","")
+	testSuiteJSON, err := json.MarshalIndent(testSuite, "", "")
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		logrus.Error("Cannot Marshall")
@@ -193,19 +193,7 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request){
 
 }
 
-func getAllTestSuites(rw http.ResponseWriter, req *http.Request){
-	var testSuite testStrategies.TestSuite
-	var filename string
-
-	type Suites[]Suite
-	suite := Suite{
-		Name: testSuite.Name,
-		Description:testSuite.Description,
-		File:filename,
-	}
-
-	suites := Suites{
-	}
+func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	testSuitePathDir := getTestSuiteHeader(req)
 	if len(testSuitePathDir) <= 1 {
@@ -219,9 +207,14 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request){
 		log.Fatal(err)
 	}
 
+	testSuites := make([]Suite, 0)
+
 	for _, file := range files {
-		if filepath.Ext(testSuitePathDir + file.Name()) == ".xml" {
-			filename = file.Name()
+		if filepath.Ext(testSuitePathDir+file.Name()) == ".xml" {
+
+			testSuite := new(testStrategies.TestSuite)
+
+			filename := file.Name()
 
 			file, err := os.Open(fmt.Sprintf("%s%s", testSuitePathDir, filename))
 			if err != nil {
@@ -229,33 +222,28 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request){
 			}
 
 			byteValue, err := ioutil.ReadAll(file)
-			if err != nil{
+			if err != nil {
 				logrus.Error("Cannot Read File: ", filename)
 			}
 
-			err = xml.Unmarshal(byteValue, &testSuite)
+			err = xml.Unmarshal(byteValue, testSuite)
 			if err != nil {
 				logrus.Error("Cannot Unmarshall: ", filename)
-			}
 
-			suite.File = filename
-			suite.Name = testSuite.Name
-			suite.Description = testSuite.Description
+			}
 
 			//if a Test Suite Name can't be assigned, it isn't a Test Suite object
-			if suite.Name != "" {
-				suites = append(suites, suite)
+			if testSuite.Name != "" {
+				testSuites = append(testSuites, Suite{
+					Name:        testSuite.Name,
+					Description: testSuite.Description,
+					File:        filename,
+				})
 			}
-
-			//ensure values are reset every iteration
-			filename = ""
-			testSuite.Name = ""
-			testSuite.Description = ""
-
 		}
 	}
 
-	json.NewEncoder(rw).Encode(suites)
+	json.NewEncoder(rw).Encode(testSuites)
 
 	rw.WriteHeader(http.StatusOK)
 }

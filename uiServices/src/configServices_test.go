@@ -3,14 +3,15 @@ package services
 import (
 	"fmt"
 
-	"github.com/go-chi/chi"
-	"github.com/stretchr/testify/assert"
-	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/go-chi/chi"
+	"github.com/stretchr/testify/assert"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 )
 
 const validJson = `{
@@ -399,7 +400,7 @@ func TestMissingFieldPut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, http.StatusBadRequest, w.Code,"Sucessfully updated. Field Should be missing so update shouldn't occur")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Sucessfully updated. Field Should be missing so update shouldn't occur")
 }
 
 func TestInvalidJsonPut(t *testing.T) {
@@ -503,7 +504,7 @@ func TestNoPathPut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusBadRequest, w.Code,"Successfully updated. Should not have worked due to no filepath")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no filepath")
 }
 
 func TestNoFileNamePut(t *testing.T) {

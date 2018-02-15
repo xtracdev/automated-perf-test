@@ -1,12 +1,13 @@
 package services
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 
 	"os"
 )
@@ -110,7 +111,7 @@ func routeTestSuites() http.Handler {
 	router := chi.NewRouter()
 	router.Use(TestSuiteCtx)
 	router.Post("/", postTestSuites)
-	router.Put("/{testSuiteName}",putTestSuites)
+	router.Put("/{testSuiteName}", putTestSuites)
 	router.Get("/{testSuiteName}", getTestSuite)
 	router.Get("/", getAllTestSuites)
 
