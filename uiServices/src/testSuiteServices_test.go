@@ -22,12 +22,10 @@ const validTestSuite = `
       "name":"file1",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "Infrequent",
-       "description": "Desc1"
+      "execWeight": "Infrequent"
     },
     {
-      "name":"file2",
-       "description": "Desc2"
+      "name":"file2"
     }
   ]
 }
@@ -76,8 +74,7 @@ const TestSuiteNoName = `
       "name":"file1.xml",
       "preThinkTime": "xxxx"
       "postThinkTime": 2000,
-      "execWeight": 123,
-       "description": "Desc"
+      "execWeight": 123
     }
   ]
 }
@@ -407,7 +404,7 @@ func TestSuccessfulGetTestSuite(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusOK, "Error. Did not successfully GET")
+	assert.Equal(t,http.StatusOK, w.Code, "Error. Did not successfully GET")
 }
 
 func TestGetTestSuiteNoPath(t *testing.T) {
@@ -427,7 +424,7 @@ func TestGetTestSuiteNoPath(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusBadRequest, "Retrived file but should not have as there is no path")
+	assert.Equal(t,  http.StatusBadRequest, w.Code, "Retrived file but should not have as there is no path")
 }
 
 func TestGetTestSuiteFileNotFound(t *testing.T) {
@@ -447,5 +444,5 @@ func TestGetTestSuiteFileNotFound(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusNotFound, "Retrived a file but should not have as there is no file")
+	assert.Equal(t, http.StatusNotFound, w.Code, "Retrived a file but should not have as there is no file")
 }

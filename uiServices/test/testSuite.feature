@@ -22,15 +22,13 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          },
          {
           "name":"file2",
           "preThinkTime": 1,
           "postThinkTime": 10,
-          "execWeight": "Sparse",
-          "description": "Desc2"
+          "execWeight": "Sparse"
          }
         ]
       }
@@ -52,15 +50,13 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          },
          {
           "name":"file2",
           "preThinkTime": 1,
           "postThinkTime": 10,
-          "execWeight": "Sparse",
-          "description": "Desc2"
+          "execWeight": "Sparse"
          }
         ]
       }
@@ -91,7 +87,7 @@ Feature: Test Suite Creation
     Given the automated performance ui server is available
     And the header "testSuitePathDir" is ""
     When I send "POST" request to "/test-suites" with a body:
-      """
+    """
       {
        "name": "GodogTestSuite",
        "testStrategy": "SuiteBased",
@@ -101,8 +97,7 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -114,7 +109,7 @@ Feature: Test Suite Creation
     Given the automated performance ui server is available
     And the header "testSuitePathDir" is "/uiServices/test/GodogTestSuite.xml"
     When I send "POST" request to "/xxxx" with a body:
-      """
+    """
       {
        "name": "GodogTestSuite",
        "testStrategy": "SuiteBased",
@@ -124,8 +119,7 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -136,7 +130,7 @@ Feature: Test Suite Creation
     Given the automated performance ui server is available
     And the header "testSuitePathDir" is "/uiServices/test/GodogTestSuite.xml"
     When I send "POST" request to "/test-suites" with a body:
-       """
+    """
       {
        "name": "",
        "testStrategy": "SuiteBased",
@@ -146,8 +140,7 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -174,8 +167,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -188,7 +180,7 @@ Feature: Test Suite Creation
     Given the automated performance ui server is available
     And the header "testSuitePathDir" is "/uiServices/test/"
     When I send "PUT" request to "/test-suites/xxx" with body:
-   """
+    """
       {
        "name": "GodogTestSuite2",
        "testStrategy": "SuiteBased",
@@ -198,8 +190,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -222,8 +213,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -235,15 +225,14 @@ Feature: Test Suite Creation
     Given the automated performance ui server is available
     And the header "testSuitePathDir" is "/uiServices/test/"
     When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
-  """
+    """
       {
        "testCases":[
          {
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -266,8 +255,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -276,7 +264,7 @@ Feature: Test Suite Creation
     And the response body should be empty
     When I send a "GET" request to "/test-suites/GodogTestSuite"
     And the updated file should match json:
-"""
+    """
       {
        "name": "GodogTestSuite2",
        "testStrategy": "SuiteBased",
@@ -286,8 +274,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -307,8 +294,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -327,8 +313,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -358,15 +343,13 @@ Feature: Test Suite Creation
       "name":"file1.xml",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "Infrequent",
-       "description": "Desc1"
+      "execWeight": "Infrequent"
     },
     {
       "name":"file2.xml",
       "preThinkTime": 1,
       "postThinkTime": 10,
-      "execWeight": "Sparse",
-       "description": "Desc1"
+      "execWeight": "Sparse"
     }
   ]
 }

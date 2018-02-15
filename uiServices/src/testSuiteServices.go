@@ -168,19 +168,18 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request){
 	err = xml.Unmarshal(byteValue, &testSuite)
 	if err != nil{
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot Unmarshall")
+		logrus.Error("Cannot Unmarshall from XML")
 		return
 	}
 
 	testSuiteJSON, err := json.MarshalIndent(testSuite,"","")
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot Marshall")
+		logrus.Error("Cannot marshall to JSON")
 		return
 	}
 
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(testSuiteJSON)
-	logrus.Println(string(testSuiteJSON))
 
 }
