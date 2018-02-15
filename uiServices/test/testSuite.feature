@@ -22,15 +22,13 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          },
          {
           "name":"file2",
           "preThinkTime": 1,
           "postThinkTime": 10,
-          "execWeight": "Sparse",
-          "description": "Desc2"
+          "execWeight": "Sparse"
          }
         ]
       }
@@ -52,15 +50,13 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          },
          {
           "name":"file2",
           "preThinkTime": 1,
           "postThinkTime": 10,
-          "execWeight": "Sparse",
-          "description": "Desc2"
+          "execWeight": "Sparse"
          }
         ]
       }
@@ -101,8 +97,7 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -124,8 +119,7 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -146,8 +140,7 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -174,8 +167,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -198,8 +190,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -222,8 +213,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -242,8 +232,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -266,8 +255,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -286,8 +274,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -307,8 +294,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -327,8 +313,7 @@ Feature: Test Suite Creation
          "name":"file1.xml",
           "preThinkTime": 2000,
           "postThinkTime": 5000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }

@@ -20,12 +20,10 @@ const validTestSuite = `
       "name":"file1",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "Infrequent",
-       "description": "Desc1"
+      "execWeight": "Infrequent"
     },
     {
-      "name":"file2",
-       "description": "Desc2"
+      "name":"file2"
     }
   ]
 }
@@ -74,8 +72,7 @@ const TestSuiteNoName = `
       "name":"file1.xml",
       "preThinkTime": "xxxx"
       "postThinkTime": 2000,
-      "execWeight": 123,
-       "description": "Desc"
+      "execWeight": 123
     }
   ]
 }
