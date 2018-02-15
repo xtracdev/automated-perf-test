@@ -15,11 +15,10 @@
                     <th>Name </th>
                     <th>Description</th>
                 </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
+                <tr *ngFor="let testSuite of testSuiteData">
+                    <td>{{testSuite.name}}</td>
+                    <td>{{testSuite.description}}</td>
                 </tr>
-
             </table>
         </div>
         <div class=" col-md-8">
@@ -39,13 +38,9 @@
                         <td></td>
                         <td></td>
                     </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
                 </table>
             </div>
+
             <div class="col-md-6">
                 <h3>Selected</h3>
                 <table>
@@ -61,13 +56,6 @@
                         <td></td>
                         <td></td>
                     </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-
                 </table>
             </div>
             <button class="btn btn-primary push-right" (click)="onCancel()">Cancel</button>

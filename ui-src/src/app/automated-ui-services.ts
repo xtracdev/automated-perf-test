@@ -59,6 +59,13 @@ export class AutomatedUIServices {
     });
   }
 
+  getAllTestSuite$(testSuitePath): Observable<any> {
+    this.headers = this.headers.set("testSuitePathDir", testSuitePath);
+    return this.http.get(`${environment.apiBaseUrl}test-suites`, {
+      headers: this.headers
+    });
+  }
+
   putTestSuite$(testSuiteData, testSuitePath, testSuiteFileName): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testSuitePath);
     return this.http.put(

@@ -10,6 +10,7 @@ export class TestSuitesComponent {
   testSuiteData = {};
   testSuitePath = undefined;
   testSuiteFileName = undefined;
+
   constructor(
     private automatedUIServices: AutomatedUIServices,
     private toastr: ToastsManager
@@ -31,9 +32,34 @@ export class TestSuitesComponent {
   }
 
   onAdd() {
-    this.testSuiteData = undefined;
-    //clear schema and get all in available  test cases from testSuitePath
+    this.automatedUIServices
+      .getAllTestSuite$(this.testSuitePath)
+      .subscribe(
+      data => {
+        this.testSuiteData = data;
+        console.log(this.testSuiteData);
+        this.toastr.success("Your data has been saved!", "Success!");
+      },
 
+      error => {
+        switch (error.status) {
+          case 500: {
+            this.toastr.error("An error has occurred!", "Check the logs!");
+            break;
+          }
+          case 400: {
+            this.toastr.error(
+              "No Test Suite Directory added",
+              "An error occurred!"
+            );
+            break;
+          }
+          default: {
+            this.toastr.error("An error occurred!");
+          }
+        }
+      }
+      );
   }
 
   onDelete() {
