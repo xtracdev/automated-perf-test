@@ -56,26 +56,26 @@ func (a *apiFeature) theResponseBodyShouldMatchJSON(body *gherkin.DocString) (er
 	var actualConfig perfTestUtils.Config
 
 	expectedJson := `"""
-	{
-		"apiName": "GodogConfig",
-	"targetHost": "localhost",
-	"targetPort":"9191",
-	"memoryEndpoint": "/alt/debug/vars",
-	"numIterations": 1000,
-	"allowablePeakMemoryVariance": 30,
-	"allowableServiceResponseTimeVariance": 30,
-	"testCaseDir": "./definitions/testCases",
-	"testSuiteDir": "./definitions/testSuites",
-	"baseStatsOutputDir": "./envStats",
-	"reportOutputDir": "./report",
-	"concurrentUsers": 50,
-	"testSuite": "Default-3",
-	"requestDelay": 5000,
-	"TPSFreq": 30,
-	"rampUsers": 5,
-	"rampDelay": 15
-	}
-	"""`
+       {
+              "apiName": "GodogConfig",
+       "targetHost": "localhost",
+       "targetPort":"9191",
+       "memoryEndpoint": "/alt/debug/vars",
+       "numIterations": 1000,
+       "allowablePeakMemoryVariance": 30,
+       "allowableServiceResponseTimeVariance": 30,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+       "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 50,
+       "testSuite": "Default-3",
+       "requestDelay": 5000,
+       "TPSFreq": 30,
+       "rampUsers": 5,
+       "rampDelay": 15
+       }
+       """`
 
 	json.Unmarshal([]byte(body.Content), &actualConfig)
 	json.Unmarshal([]byte(expectedJson), &expectedConfig)
@@ -188,7 +188,7 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^I send "([^"]*)" request to "([^"]*)" with a body:$`, api.iSendRequestToWithABody)
 	s.Step(`^the file name is "([^"]*)"$`, api.theFileNameis)
 	s.Step(`^I send a "([^"]*)" request to "([^"]*)"$`, api.iSendARequestTo)
-	s.Step(`^the config file "([^"]*)" exists at "([^"]*)"$`, theConfigFileExistsAt)
+	s.Step(`^the file "([^"]*)" exists at "([^"]*)"$`, theFileExistsAt)
 	s.Step(`^I send "([^"]*)" request to "([^"]*)" with body:$`, api.iSendRequestToWithBody)
 	s.Step(`^the updated file should match json:$`, api.theUpdatedFileShouldMatchJSON)
 	s.Step(`^there is no existing test file "([^"]*)"$`, api.thereIsNoExistingTestFile)
@@ -275,7 +275,7 @@ func makeGetRequest(client *http.Client, method, endpoint string, filename strin
 	return resp, nil
 }
 
-func theConfigFileExistsAt(filename, path string) error {
+func theFileExistsAt(filename, path string) error {
 	_, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + path + filename)
 	if err != nil {
 		fmt.Println("Error. File Not Found at location : " + path + filename)
@@ -285,7 +285,7 @@ func theConfigFileExistsAt(filename, path string) error {
 }
 
 func (a *apiFeature) iSendRequestToWithBody(method, endpoint string, body *gherkin.DocString) error {
-	response, err := makePutRequest(a.client, method, endpoint, body.Content, a.headerPath)
+	response, err := makePutRequest(a.client, method, endpoint, body.Content, a.headerPath, a.headerName)
 	a.requestbody = body.Content
 	if err != nil {
 		return err
@@ -294,7 +294,7 @@ func (a *apiFeature) iSendRequestToWithBody(method, endpoint string, body *gherk
 	return nil
 }
 
-func makePutRequest(client *http.Client, method, endpoint, body string, header string) (*http.Response, error) {
+func makePutRequest(client *http.Client, method, endpoint, body string, headerPath, headerName string) (*http.Response, error) {
 
 	var reqBody io.Reader
 	if body != "" {
@@ -303,10 +303,10 @@ func makePutRequest(client *http.Client, method, endpoint, body string, header s
 
 	req, err := http.NewRequest(method, "http://localhost:9191"+endpoint, reqBody)
 
-	if header == "" {
-		req.Header.Set("configPathDir", "")
+	if headerPath == "" {
+		req.Header.Set(headerName, "")
 	} else {
-		req.Header.Set("configPathDir", fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
 	}
 	if err != nil {
 		return nil, err
@@ -325,26 +325,26 @@ func (a *apiFeature) theUpdatedFileShouldMatchJSON(body *gherkin.DocString) (err
 	var actualConfig perfTestUtils.Config
 
 	expectedJson := `"""
-	{
-	"apiName": "GodogConfig",
-	"targetHost": "localhost2",
-	"targetPort":"1001",
-	"memoryEndpoint": "/alt/debug/vars",
-	"numIterations": 4000,
-	"allowablePeakMemoryVariance": 50,
-	"allowableServiceResponseTimeVariance": 50,
-	"testCaseDir": "./definitions/testCases",
-	"testSuiteDir": "./definitions/testSuites",
-	"baseStatsOutputDir": "./envStats",
-	"reportOutputDir": "./report",
-	"concurrentUsers": 50,
-	"testSuite": "Default-3",
-	"requestDelay": 1000,
-	"TPSFreq": 10,
-	"rampUsers": 10,
-	"rampDelay": 10
-	}
-	"""`
+       {
+       "apiName": "GodogConfig",
+       "targetHost": "localhost2",
+       "targetPort":"1001",
+       "memoryEndpoint": "/alt/debug/vars",
+       "numIterations": 4000,
+       "allowablePeakMemoryVariance": 50,
+       "allowableServiceResponseTimeVariance": 50,
+       "testCaseDir": "./definitions/testCases",
+       "testSuiteDir": "./definitions/testSuites",
+       "baseStatsOutputDir": "./envStats",
+       "reportOutputDir": "./report",
+       "concurrentUsers": 50,
+       "testSuite": "Default-3",
+       "requestDelay": 1000,
+       "TPSFreq": 10,
+       "rampUsers": 10,
+       "rampDelay": 10
+       }
+       """`
 
 	json.Unmarshal([]byte(body.Content), &actualConfig)
 	json.Unmarshal([]byte(expectedJson), &expectedConfig)

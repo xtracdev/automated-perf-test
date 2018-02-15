@@ -22,15 +22,13 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          },
          {
           "name":"file2",
           "preThinkTime": 1,
           "postThinkTime": 10,
-          "execWeight": "Sparse",
-          "description": "Desc2"
+          "execWeight": "Sparse"
          }
         ]
       }
@@ -52,15 +50,13 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          },
          {
           "name":"file2",
           "preThinkTime": 1,
           "postThinkTime": 10,
-          "execWeight": "Sparse",
-          "description": "Desc2"
+          "execWeight": "Sparse"
          }
         ]
       }
@@ -101,8 +97,7 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -124,8 +119,7 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
@@ -146,10 +140,181 @@ Feature: Test Suite Creation
          "name":"file1",
           "preThinkTime": 1000,
           "postThinkTime": 2000,
-          "execWeight": "Infrequent",
-           "description": "Desc1"
+          "execWeight": "Infrequent"
          }
         ]
       }
     """
     Then the response code should be 400
+
+
+                                ###################################
+                                #######    PUT REQUESTS ###########
+                                ###################################
+
+  Scenario: Unsuccessful update of test-suite file with PUT request (No File Path)
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is ""
+    When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
+    """
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+       "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent"
+         }
+        ]
+      }
+    """
+   Then the response code should be 400
+
+
+  Scenario: Unsuccessful update of test-suite file with PUT request (Incorrect File Name)
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send "PUT" request to "/test-suites/xxx" with body:
+   """
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+       "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent"
+         }
+        ]
+      }
+    """
+    Then the response code should be 404
+
+
+  Scenario: Unsuccessful update of test-suite file with PUT request (No File Name)
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send "PUT" request to "/test-suites/" with body:
+    """
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+       "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent"
+         }
+        ]
+      }
+    """
+    Then the response code should be 404
+
+  Scenario: Unsuccessful update of test-suite file with PUT request (Missing Required Fields)
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
+  """
+      {
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent"
+         }
+        ]
+      }
+    """
+    Then the response code should be 400
+
+
+  Scenario: Successful update of test-suite file with PUT request
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
+    """
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+       "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent"
+         }
+        ]
+      }
+    """
+    Then the response code should be 204
+    And the response body should be empty
+    When I send a "GET" request to "/test-suites/GodogTestSuite"
+    And the updated file should match json:
+"""
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+       "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent"
+         }
+        ]
+      }
+    """
+  Scenario: Successful update of test-suite file with PUT request (Update API Name to not match Filename)
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
+    """
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+        "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent"
+         }
+        ]
+      }
+    """
+    Then the response code should be 204
+    And the response body should be empty
+    When I send a "GET" request to "/test-suites/GodogTestSuite"
+    And the updated file should match json:
+    """
+      {
+       "name": "GodogTestSuite2",
+       "testStrategy": "SuiteBased",
+        "description": "ServiceDesc",
+       "testCases":[
+         {
+         "name":"file1.xml",
+          "preThinkTime": 2000,
+          "postThinkTime": 5000,
+          "execWeight": "Infrequent"
+         }
+        ]
+      }
+    """

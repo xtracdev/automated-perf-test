@@ -20,12 +20,31 @@ const validTestSuite = `
       "name":"file1",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "Infrequent",
-       "description": "Desc1"
+      "execWeight": "Infrequent"
     },
     {
-      "name":"file2",
-       "description": "Desc2"
+      "name":"file2"
+    }
+  ]
+}
+`
+
+const invalidTestSuite = `
+{
+  "name": 123,
+  "testStrategy": "SuiteBased",
+  "testCases": [
+    {
+      "name":"file1.xml",
+      "preThinkTime": "number",
+      "postThinkTime": 2000,
+      "execWeight": "Infrequent"
+    },
+    {
+      "name":"file2.xml",
+      "preThinkTime": 1,
+      "postThinkTime": 10,
+      "execWeight": "Sparse"
     }
   ]
 }
@@ -53,8 +72,7 @@ const TestSuiteNoName = `
       "name":"file1.xml",
       "preThinkTime": "xxxx"
       "postThinkTime": 2000,
-      "execWeight": 123,
-       "description": "Desc"
+      "execWeight": 123
     }
   ]
 }
@@ -190,4 +208,176 @@ func TestValidTestSuitePostConfigPathDirNotExist(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "successfully created but should not have due to no config path specified")
 
+}
+
+
+
+func TestValidTestSuitePut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validTestSuite)
+	r.HandleFunc("/test-suites", putTestSuites)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodPut, "/test-suites/TestSuiteService", reader)
+	request.Header.Set("testSuitePathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t,  http.StatusNoContent, w.Code, "Did Not successfully Update")
+}
+
+func TestTestSuiteMissingFieldPut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(TestSuiteMissingRequired)
+	r.HandleFunc("/test-suites", putTestSuites)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodPut, "/test-suites/TestSuiteService", reader)
+	request.Header.Set("testSuitePathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t,http.StatusBadRequest, w.Code,  "Sucessfully updated. Field Should be missing so update shouldn't occur")
+}
+
+
+func TestInvalidTestSuitePut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(invalidTestSuite)
+	r.HandleFunc("/test-suites", putTestSuites)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodPut, "/test-suites/TestSuiteService", reader)
+	request.Header.Set("testSuitePathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusBadRequest, w.Code,  "Sucessfully updated. Field data type should have been incorrect so update should occur")
+}
+
+
+func TestInvalidUrlTestSuitePut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validTestSuite)
+	r.HandleFunc("/test-suites", putTestSuites)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodPut, "/test-suites/xxx", reader)
+	request.Header.Set("testSuitePathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusNotFound, w.Code, "Sucessfully updated. Should have have worked using /test-suites/xxx")
+}
+
+func TestNoUrlTestSuitePut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validTestSuite)
+	r.HandleFunc("/test-suites", putTestSuites)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodPut, "", reader)
+	request.Header.Set("testSuitePathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusNotFound, w.Code,  "Sucessfully updated. Should not have worked with no URL")
+}
+
+func TestPutWithNoPathSlash(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validTestSuite)
+	r.HandleFunc("/test-suites", putTestSuites)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+	request, err := http.NewRequest(http.MethodPut, "/test-suites/TestSuiteService", reader)
+	request.Header.Set("testSuitePathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t,http.StatusNoContent, w.Code,  "Did not update. Should have added '/' to path")
+}
+
+func TestNoPathTestSuitePut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validTestSuite)
+	r.HandleFunc("/test-suites", putTestSuites)
+
+	filePath := ""
+	request, err := http.NewRequest(http.MethodPut, "/test-suites/TestSuiteService", reader)
+	request.Header.Set("testSuitePathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t,  http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no filepath")
+}
+
+func TestNoFileNameTestSuitePut(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(validTestSuite)
+	r.HandleFunc("/test-suites", putTestSuites)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+	request, err := http.NewRequest(http.MethodPut, "/test-suites", reader)
+	request.Header.Set("testSuitePathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no file name given")
 }

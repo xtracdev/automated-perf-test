@@ -110,6 +110,7 @@ func routeTestSuites() http.Handler {
 	router := chi.NewRouter()
 	router.Use(TestSuiteCtx)
 	router.Post("/", postTestSuites)
+	router.Put("/{testSuiteName}",putTestSuites)
 
 	return router
 }

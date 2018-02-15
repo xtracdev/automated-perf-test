@@ -8,8 +8,9 @@ import (
 	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"net/http"
 	"os"
-	"strings"
+	"github.com/go-chi/chi"
 	"fmt"
+	"strings"
 )
 
 var schemaFile string = "testSuite_schema.json"
@@ -59,7 +60,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if FilePathExist(fmt.Sprintf("%s%s.xml",testSuitePathDir, testSuite.Name)) {
+	if FilePathExist(testSuitePathDir + testSuite.Name + ".xml") {
 		logrus.Error("File already exists")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
@@ -84,7 +85,6 @@ func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) boo
 	if error != nil {
 		return false
 	}
-
 	if !result.Valid() {
 		logrus.Errorf("%sdocument is not valid. see errors :", structType)
 		for _, desc := range result.Errors() {
@@ -92,6 +92,51 @@ func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) boo
 			return false
 		}
 	}
+
+
 	logrus.Infof("%s document is valid", structType)
 	return true
 }
+
+func putTestSuites(rw http.ResponseWriter, req *http.Request) {
+	path := getTestSuiteHeader(req)
+	testSuiteName := chi.URLParam(req, "testSuiteName")
+
+	if !ValidateFileNameAndHeader(rw, req, path, testSuiteName) {
+		return
+	}
+
+	testSuitePathDir := fmt.Sprintf("%s%s.xml", path, testSuiteName)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(req.Body)
+
+	if !FilePathExist(testSuitePathDir) {
+		logrus.Error("File path does not exist")
+		rw.WriteHeader(http.StatusNotFound)
+		return
+
+	}
+
+	if !ValidateJsonWithSchema(buf.Bytes(),"testSuite_schema.json", "TestSuite") {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	testSuite := testStrategies.TestSuite{}
+	err := json.Unmarshal(buf.Bytes(), &testSuite)
+
+	if err != nil {
+		logrus.Error("Cannot Unmarshall Json")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !testSuiteWriterXml(testSuite, testSuitePathDir) {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
+}
+
+
