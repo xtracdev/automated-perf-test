@@ -2,12 +2,14 @@ package services
 
 import (
 	"github.com/go-chi/chi"
-	"github.com/stretchr/testify/assert"
+
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"strings"
+
 	"testing"
+	"github.com/stretchr/testify/assert"
+	"strings"
 )
 
 const validTestSuite = `
@@ -380,4 +382,67 @@ func TestNoFileNameTestSuitePut(t *testing.T) {
 	}
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no file name given")
+}
+
+
+
+
+func TestSuccessfulGetTestSuite(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodGet, "/test-suites/TestSuiteService", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t,http.StatusOK, w.Code, "Error. Did not successfully GET")
+}
+
+func TestGetTestSuiteNoPath(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := ""
+	request, err := http.NewRequest(http.MethodGet, "/test-suites/TestSuiteService.xml", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t,  http.StatusBadRequest, w.Code, "Retrived file but should not have as there is no path")
+}
+
+func TestGetTestSuiteFileNotFound(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodGet, "/test-suites/xxx", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusNotFound, w.Code, "Retrived a file but should not have as there is no file")
 }

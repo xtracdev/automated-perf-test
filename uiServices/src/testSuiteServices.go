@@ -11,6 +11,8 @@ import (
 	"github.com/go-chi/chi"
 	"fmt"
 	"strings"
+	"encoding/xml"
+	"io/ioutil"
 )
 
 var schemaFile string = "testSuite_schema.json"
@@ -60,7 +62,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if FilePathExist(testSuitePathDir + testSuite.Name + ".xml") {
+	if FilePathExist(fmt.Sprintf("%s%s.xml",testSuitePathDir, testSuite.Name)) {
 		logrus.Error("File already exists")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
@@ -92,7 +94,6 @@ func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) boo
 			return false
 		}
 	}
-
 
 	logrus.Infof("%s document is valid", structType)
 	return true
@@ -139,4 +140,46 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusNoContent)
 }
 
+func getTestSuite(rw http.ResponseWriter, req *http.Request){
 
+	testSuitePathDir := getTestSuiteHeader(req)
+	testSuiteName := chi.URLParam(req, "testSuiteName")
+
+	ValidateFileNameAndHeader(rw,req,testSuitePathDir, testSuiteName)
+
+	file, err := os.Open(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName))
+	if err != nil {
+		logrus.Error("Test Suite Name Not Found: "+testSuitePathDir + testSuiteName)
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+
+	var testSuite testStrategies.TestSuite
+
+	byteValue, err := ioutil.ReadAll(file)
+	if err != nil{
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Read File")
+		return
+	}
+
+	err = xml.Unmarshal(byteValue, &testSuite)
+	if err != nil{
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Unmarshall from XML")
+		return
+	}
+
+	testSuiteJSON, err := json.MarshalIndent(testSuite,"","")
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot marshall to JSON")
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(testSuiteJSON)
+
+}
