@@ -50,7 +50,21 @@ export class AutomatedUIServices {
     return this.http.post(`${environment.apiBaseUrl}test-suites`, testSuiteData, {
       headers: this.headers
     });
+  }
 
+  getTestSuite$(testSuitePath, testSuiteFileName): Observable<any> {
+    this.headers = this.headers.set("testSuitePathDir", testSuitePath);
+    return this.http.get(`${environment.apiBaseUrl}test-suites/${testSuiteFileName}`, {
+      headers: this.headers
+    });
+  }
 
+  putTestSuite$(testSuiteData, testSuitePath, testSuiteFileName): Observable<any> {
+    this.headers = this.headers.set("testSuitePathDir", testSuitePath);
+    return this.http.put(
+      `${environment.apiBaseUrl}test-suites/${testSuiteFileName}`,
+      testSuiteData,
+      { headers: this.headers }
+    );
   }
 }
