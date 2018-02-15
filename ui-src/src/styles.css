@@ -3,7 +3,7 @@
 @import '~https://fonts.googleapis.com/css?family=Roboto:300,400,500,700';
 @import '~https://fonts.googleapis.com/icon?family=Material+Icons';
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
-
+@import "./app/test-suites/test-suites.component.css"; 
 
 
 body {

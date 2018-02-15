@@ -31,5 +31,6 @@ tr:nth-child(even) {
   margin-bottom: 25px;
 }
 
-
-
+submit-widget{
+  display : none;
+}

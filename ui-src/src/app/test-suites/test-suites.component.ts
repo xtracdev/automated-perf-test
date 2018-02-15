@@ -26,7 +26,8 @@ export class TestSuitesComponent {
           "ServiceBased"
         ]
       },
-      description: { type: "string" }
+      description: { type: "string" },
+      options: { addSubmit: false }
 
     }
   }
@@ -69,7 +70,7 @@ export class TestSuitesComponent {
   onCancel() {
     //clear schema and moving info back into available (get method)
     this.automatedUIServices
-      .getConfig$(this.testSuitePath, this.testSuiteFileName)
+      .getTestSuite$(this.testSuitePath, this.testSuiteFileName)
       .subscribe(
       data => {
         this.testSuiteData = data;
