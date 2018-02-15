@@ -20,6 +20,12 @@ import (
 var schemaFile string = "testSuite_schema.json"
 var structType string = "TestSuite"
 
+type Suite struct {
+	File string `json:"file"`
+	Name string `json:"name"`
+	Description string `json:"description"`
+}
+
 func TestSuiteCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
@@ -191,17 +197,15 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request){
 	var testSuite testStrategies.TestSuite
 	var filename string
 
-	type Suite struct {
-		File string `json:"file"`
-		Name string `json:"name"`
-		Description string `json:"description"`
+	type Suites[]Suite
+	suite := Suite{
+		Name: testSuite.Name,
+		Description:testSuite.Description,
+		File:filename,
 	}
 
-	var suite Suite
-
-	type Suites[]Suite
-
-	suites := Suites{}
+	suites := Suites{
+	}
 
 	testSuitePathDir := getTestSuiteHeader(req)
 	if len(testSuitePathDir) <= 1 {
