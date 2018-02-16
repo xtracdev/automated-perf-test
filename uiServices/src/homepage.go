@@ -114,6 +114,7 @@ func routeTestSuites() http.Handler {
 	router.Put("/{testSuiteName}", putTestSuites)
 	router.Get("/{testSuiteName}", getTestSuite)
 	router.Get("/", getAllTestSuites)
+	router.Delete("/{testSuiteName}", deleteTestSuite)
 
 	return router
 }

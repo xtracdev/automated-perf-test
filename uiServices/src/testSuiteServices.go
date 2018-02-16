@@ -246,3 +246,25 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	rw.WriteHeader(http.StatusOK)
 }
+
+
+func deleteTestSuite(rw http.ResponseWriter, req *http.Request){
+	testSuitePathDir := getTestSuiteHeader(req)
+	testSuiteName := chi.URLParam(req, "testSuiteName")
+	ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName)
+
+	filepath := fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName)
+
+	if _, err := os.Stat(filepath); err != nil {
+		if os.IsNotExist(err) {
+			logrus.Println("File Not Found")
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
+	}
+
+	os.Remove(filepath)
+
+	rw.WriteHeader(http.StatusNoContent)
+
+}

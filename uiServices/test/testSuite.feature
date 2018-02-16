@@ -395,3 +395,31 @@ Feature: Test Suite Creation
     And the header "testSuitePathDir" is ""
     When I send a "GET" request to "/test-suites"
     Then the response code should be 400
+
+
+                                ###################################
+                                #######    DELETE REQUESTS #######
+                                ###################################
+
+
+  Scenario:Successful DELETE test-suite file
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    And the file name is "GodogTestSuite.xml"
+    When I send a "DELETE" request to "/test-suites/GodogTestSuite"
+    Then the response code should be 204
+
+  Scenario: Unsuccessful DELETE test-suite file (File Not Found)
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send a "DELETE" request to "/test-suites/xxx"
+    Then the response code should be 404
+
+  Scenario: Unsuccessful DELETE test-suite file (No Header)
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is ""
+    And the file name is "GodogTestSuite.xml"
+    When I send a "DELETE" request to "/test-suites/GodogTestSuite"
+    Then the response code should be 400

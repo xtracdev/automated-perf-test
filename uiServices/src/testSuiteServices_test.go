@@ -480,3 +480,63 @@ func TestGetAllSuitesNoHeader(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Did not get all test suites")
 }
+
+func TestSuccessfulDelete(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodDelete, "/test-suites/TestSuiteService", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t,http.StatusNoContent, w.Code, "Error. Did not successfully Delete")
+}
+
+func TestDeleteFileNotFound(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodDelete, "/test-suites/xxx", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t,http.StatusNotFound, w.Code, "Should not have successfully deleted")
+}
+
+func TestDeleteWithNoHeader(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := ""
+	request, err := http.NewRequest(http.MethodDelete, "/test-suites/TestSuiteService", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t,http.StatusBadRequest, w.Code, "Should not have successfully deleted")
+}
