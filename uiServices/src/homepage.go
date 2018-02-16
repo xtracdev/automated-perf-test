@@ -60,7 +60,6 @@ func GetIndexPage() *chi.Mux {
 
 	router.Mount("/configs", routeConfigs())
 	router.Mount("/test-suites", routeTestSuites())
-	router.Mount("/test-cases", routeTestCases())
 
 	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 
@@ -115,14 +114,6 @@ func routeTestSuites() http.Handler {
 	router.Put("/{testSuiteName}", putTestSuites)
 	router.Get("/{testSuiteName}", getTestSuite)
 	router.Get("/", getAllTestSuites)
-
-	return router
-}
-
-func routeTestCases() http.Handler {
-	router := chi.NewRouter()
-	router.Use(TestCaseCtx)
-	router.Get("/", getAllTestCases)
 
 	return router
 }

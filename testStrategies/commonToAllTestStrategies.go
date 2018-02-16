@@ -55,7 +55,6 @@ type TestDefinition struct {
 	OverrideHost        string               `xml:"overrideHost"`
 	OverridePort        string               `xml:"overridePort"`
 	HTTPMethod          string               `xml:"httpMethod"`
-	Description         string               `xml:"description"`
 	BaseURI             string               `xml:"baseUri"`
 	Multipart           bool                 `xml:"multipart"`
 	Payload             string               `xml:"payload"`
