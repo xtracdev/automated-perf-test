@@ -15,10 +15,6 @@
             <input id="file" type="file" (change)="fileSelector($event)" />
         </div>
 
-        <div class="column col-md-1">
-            <button class="button btn-secondary" ng-class="{'diabled-class': !PayoutEnabled}" [disabled]="!xmlFileName" id="btn-get"
-                (click)="onGetFile()">Get File</button>
-        </div>
     </div>
     <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="configSchema.layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
     </json-schema-form>
