@@ -83,6 +83,11 @@ export class ConfigurationsComponent implements OnInit {
   fileSelector(event) {
     this.fileName = event.srcElement.files[0].name;
     this.xmlFileName = this.fileName;
+    this.xmlFileName = this.xmlFileName.substring(
+      0,
+      this.xmlFileName.length - 4);
+
+
     this.onGetFile();
     (<HTMLInputElement>document.getElementById("file")).value ="";
    
