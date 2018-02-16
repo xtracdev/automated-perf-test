@@ -14,22 +14,19 @@
                 <tr>
                     <th>Name </th>
                     <th>Description</th>
-
                 </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-
+                <tr *ngFor="let testSuite of testSuiteData">
+                    <td>{{testSuite.name}}</td>
+                    <td>{{testSuite.description}}</td>
                 </tr>
             </table>
         </div>
         <div class=" col-md-8">
+<<<<<<< HEAD
             <json-schema-form [schema]="testSuiteSchema" [layout]="testSuiteSchema" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
+=======
+            <json-schema-form [schema]="testSchema" [(ngModel)]="testSuiteData" framework="bootstrap-4">
+>>>>>>> 43a151056cbde5c7ddaba9308e14b40778d41a6c
             </json-schema-form>
             <hr class="ng-tns-c0-0">
             <div class="col-md-6">
@@ -37,7 +34,6 @@
                 <table>
                     <tr>
                         <th>Name </th>
-
                         <th>Description</th>
                         <th>Http Method</th>
                     </tr>  
@@ -46,13 +42,9 @@
                         <td></td>
                         <td></td>
                     </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
                 </table>
             </div>
+
             <div class="col-md-6">
                 <h3>Selected</h3>
                 <table>
@@ -68,16 +60,10 @@
                         <td></td>
                         <td></td>
                     </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
                 </table>
             </div>
             <button class="btn btn-primary push-right" (click)="onCancel()">Cancel</button>
-            <button class="btn btn-primary push-right" (click)="onSave()">Save</button>
+            <button class="btn btn-primary push-right" (click)="onSave(testSuiteData)">Save</button>
         </div>
     </div>
 </div>

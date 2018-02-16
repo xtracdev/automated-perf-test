@@ -31,8 +31,6 @@ export class ConfigurationsComponent implements OnInit {
       .subscribe((data: any) => {
         this.configSchema = data;
       });
-
-    
   }
 
   onSubmit(configData) {
@@ -85,17 +83,14 @@ export class ConfigurationsComponent implements OnInit {
   fileSelector(event) {
     this.fileName = event.srcElement.files[0].name;
     this.xmlFileName = this.fileName;
-    this.xmlFileName = this.xmlFileName.substring(0,this.xmlFileName.length - 4);
     this.onGetFile();
     (<HTMLInputElement>document.getElementById("file")).value ="";
    
   }
 
   onClearFile(){
-    (<HTMLInputElement>document.getElementById("file")).value ="";
     this.xmlFileName = undefined;
   }
- 
   onGetFile() {
     this.automatedUIServices
       .getConfig$(this.configPath, this.xmlFileName)

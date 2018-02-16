@@ -36,7 +36,6 @@ fieldset{
 /* label[class|= "control-label"]
 {display: none} */
 
-
-
-
-
+submit-widget{
+  display : none;
+}

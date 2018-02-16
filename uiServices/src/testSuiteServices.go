@@ -252,6 +252,7 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request){
 	}
 
 	json.NewEncoder(rw).Encode(suites)
+	logrus.Println(suites)
 
 	rw.WriteHeader(http.StatusOK)
 }
