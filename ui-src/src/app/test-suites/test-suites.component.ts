@@ -9,24 +9,19 @@ import { ToastsManager } from "ng2-toastr/ng2-toastr";
 export class TestSuitesComponent {
 
   testSuitePath = undefined;
+
+  testSuiteSchema = {layout: true};
   constructor(
     private automatedUIServices: AutomatedUIServices,
     private toastr: ToastsManager
   ) { }
-  testSchema = {
-    type: "object",
-    properties: {
-      name: { type: "string" },
-      testStrategy: {
-        type: "string",
-        "enum": [
-          "SuiteBased",
-          "ServiceBased"
-        ]
-      },
-      description: { type: "string" }
 
-    }
+  ngOnInit() {
+    this.automatedUIServices
+      .getSchema$("assets/testSuite_schema.json")
+      .subscribe((data: any) => {
+        this.testSuiteSchema = data;
+      });
   }
 
   onSubmit(testSuiteData) {

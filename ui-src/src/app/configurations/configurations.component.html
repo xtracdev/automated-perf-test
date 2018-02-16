@@ -6,12 +6,12 @@
 
         </div>
         <div class=" column col-md-3">
-            <label>Update Existing File</label>
-            <input class="form-control" id="xml-file-name" placeholder="Click to Browse Files" [(ngModel)]="xmlFileName" type="string"
+            <label *ngIf="configPath">Update Existing File</label>
+            <input class="form-control" *ngIf="configPath" id="xml-file-name" placeholder="Click to Browse Files" [(ngModel)]="xmlFileName" type="string"
                 readonly onclick="javascript:document.getElementById('file').click();">
         </div>
-        <div class=" row2 col-md-2">
-            <button class="btn btn-primary" (click)= "onClearFile($event)" id="btn btn-primary">Clear</button>
+        <div class=" row2 col-md-1">
+            <button class="btn btn-primary" *ngIf="configPath" (click)= "onClearFile($event)" id="btn btn-primary">Clear</button>
             <input id="file" type="file" (change)="fileSelector($event)" />
         </div>
 

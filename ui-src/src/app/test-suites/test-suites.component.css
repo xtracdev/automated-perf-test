@@ -30,6 +30,11 @@ tr:nth-child(even) {
 .btn{
   margin-bottom: 25px;
 }
+fieldset{
+  display: none;
+}
+/* label[class|= "control-label"]
+{display: none} */
 
 
 

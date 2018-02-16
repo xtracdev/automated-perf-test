@@ -87,10 +87,12 @@ export class ConfigurationsComponent implements OnInit {
     this.xmlFileName = this.fileName;
     this.xmlFileName = this.xmlFileName.substring(0,this.xmlFileName.length - 4);
     this.onGetFile();
+    (<HTMLInputElement>document.getElementById("file")).value ="";
    
   }
 
-  onClearFile(event){
+  onClearFile(){
+    (<HTMLInputElement>document.getElementById("file")).value ="";
     this.xmlFileName = undefined;
   }
  
@@ -110,7 +112,7 @@ export class ConfigurationsComponent implements OnInit {
             }
             case 400: {
               this.toastr.error(
-                "Check your field inputs",
+                "Check your field inputs" ,
                 "An error occurred!"
               );
               break;
