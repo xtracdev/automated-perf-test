@@ -112,6 +112,31 @@ func (a *apiFeature) theTestSuiteCollectionResponseBodyShouldMatchJSON(body *ghe
 	return nil
 }
 
+func (a *apiFeature) theTestCaseCollectionResponseBodyShouldMatchJSON(body *gherkin.DocString) (err error) {
+	var expectedCase testStrategies.TestDefinition
+	var actualCase testStrategies.TestDefinition
+
+	exp:=
+	`"""
+        [
+          {
+           "name": "GodogTestCase,
+           "description": "Case Desc",
+           "httpMethod": "GET"
+          }
+        ]
+   	 """`
+
+	json.Unmarshal([]byte(body.Content), &actualCase)
+	json.Unmarshal([]byte(exp), &expectedCase)
+
+	if !reflect.DeepEqual(expectedCase, actualCase) {
+		return fmt.Errorf("Expected :%v ,but actually was :%v", expectedCase, actualCase)
+	}
+
+	return nil
+}
+
 func (a *apiFeature) theResponseBodyShouldBeEmpty() error {
 	defer a.resp.Body.Close()
 
@@ -218,6 +243,7 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^there is no existing test file "([^"]*)"$`, api.thereIsNoExistingTestFile)
 	s.Step(`^the test suite response body should match json:$`, api.theTestSuiteResponseBodyShouldMatchJSON)
 	s.Step(`^the test suite collection response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
+	s.Step(`^the test case collection response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
 }
 
 func (a *apiFeature) thereIsNoExistingTestFile(file string) error {
