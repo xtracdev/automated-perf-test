@@ -85,7 +85,12 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	json.NewEncoder(rw).Encode(testCases)
+	err = json.NewEncoder(rw).Encode(testCases)
+	if err != nil{
+		logrus.Error("Could not enocde Test Cases")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	rw.WriteHeader(http.StatusOK)
 }
