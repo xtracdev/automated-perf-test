@@ -5,11 +5,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/DATA-DOG/godog"
-	"github.com/DATA-DOG/godog/gherkin"
-	"github.com/Sirupsen/logrus"
-	"github.com/xtracdev/automated-perf-test/perfTestUtils"
-	"github.com/xtracdev/automated-perf-test/uiServices/src"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -17,6 +12,13 @@ import (
 	"os"
 	"reflect"
 	"strings"
+
+	"github.com/DATA-DOG/godog"
+	"github.com/DATA-DOG/godog/gherkin"
+	"github.com/Sirupsen/logrus"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
+	"github.com/xtracdev/automated-perf-test/uiServices/src"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
 type apiFeature struct {
@@ -24,7 +26,7 @@ type apiFeature struct {
 	resp        *http.Response
 	client      *http.Client
 	requestbody string
-	headerPath string
+	headerPath  string
 	filename    string
 	headerName  string
 }
@@ -35,7 +37,7 @@ func (a *apiFeature) resetResponse() {
 }
 
 func (a *apiFeature) iSendrequestTo(method, endpoint string) (err error) {
-	response, err := makePostRequest(a.client, method, endpoint, "", "","")
+	response, err := makePostRequest(a.client, method, endpoint, "", "", "")
 	if err != nil {
 		return err
 	}
@@ -55,34 +57,56 @@ func (a *apiFeature) theResponseBodyShouldMatchJSON(body *gherkin.DocString) (er
 	var expectedConfig perfTestUtils.Config
 	var actualConfig perfTestUtils.Config
 
-	expectedJson := `"""
-       {
-              "apiName": "GodogConfig",
-       "targetHost": "localhost",
-       "targetPort":"9191",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 1000,
-       "allowablePeakMemoryVariance": 30,
-       "allowableServiceResponseTimeVariance": 30,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 5000,
-       "TPSFreq": 30,
-       "rampUsers": 5,
-       "rampDelay": 15
-       }
-       """`
+	file, _ := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + a.filename)
+	byteValue, err := ioutil.ReadAll(file)
+	xml.Unmarshal(byteValue, &expectedConfig)
 
 	json.Unmarshal([]byte(body.Content), &actualConfig)
-	json.Unmarshal([]byte(expectedJson), &expectedConfig)
 
-	if !reflect.DeepEqual(&expectedConfig, &actualConfig) {
-		fmt.Errorf("Expected :", expectedConfig, " ,but actual was :", actualConfig)
-		return
+	if !reflect.DeepEqual(expectedConfig, actualConfig) {
+		return fmt.Errorf("Expected :%v ,but actually was :%v", expectedConfig, actualConfig)
+	}
+
+	return nil
+}
+
+func (a *apiFeature) theTestSuiteResponseBodyShouldMatchJSON(body *gherkin.DocString) (err error) {
+	var expectedSuite testStrategies.TestSuite
+	var actualSuite testStrategies.TestSuite
+
+	file, _ := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + a.filename)
+	byteValue, err := ioutil.ReadAll(file)
+	xml.Unmarshal(byteValue, &expectedSuite)
+
+	json.Unmarshal([]byte(body.Content), &actualSuite)
+
+	if !reflect.DeepEqual(expectedSuite, actualSuite) {
+		return fmt.Errorf("Expected :%v ,but actually was :%v", expectedSuite, actualSuite)
+	}
+
+	return nil
+}
+
+func (a *apiFeature) theTestSuiteCollectionResponseBodyShouldMatchJSON(body *gherkin.DocString) (err error) {
+	var expectedSuite testStrategies.TestSuite
+	var actualSuite testStrategies.TestSuite
+
+	exp :=
+	`"""
+        [
+          {
+          "file": "GodogTestSuite.xml",
+          "name": "GodogTestSuite2,
+          "description": "ServiceDesc",
+          }
+        ]
+   	 """`
+
+	json.Unmarshal([]byte(body.Content), &actualSuite)
+	json.Unmarshal([]byte(exp), &expectedSuite)
+
+	if !reflect.DeepEqual(expectedSuite, actualSuite) {
+		return fmt.Errorf("Expected :%v ,but actually was :%v", expectedSuite, actualSuite)
 	}
 
 	return nil
@@ -192,6 +216,8 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^I send "([^"]*)" request to "([^"]*)" with body:$`, api.iSendRequestToWithBody)
 	s.Step(`^the updated file should match json:$`, api.theUpdatedFileShouldMatchJSON)
 	s.Step(`^there is no existing test file "([^"]*)"$`, api.thereIsNoExistingTestFile)
+	s.Step(`^the test suite response body should match json:$`, api.theTestSuiteResponseBodyShouldMatchJSON)
+	s.Step(`^the test suite collection response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
 }
 
 func (a *apiFeature) thereIsNoExistingTestFile(file string) error {
@@ -323,34 +349,14 @@ func (a *apiFeature) theUpdatedFileShouldMatchJSON(body *gherkin.DocString) (err
 	var expectedConfig perfTestUtils.Config
 	var actualConfig perfTestUtils.Config
 
-	expectedJson := `"""
-       {
-       "apiName": "GodogConfig",
-       "targetHost": "localhost2",
-       "targetPort":"1001",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 4000,
-       "allowablePeakMemoryVariance": 50,
-       "allowableServiceResponseTimeVariance": 50,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 1000,
-       "TPSFreq": 10,
-       "rampUsers": 10,
-       "rampDelay": 10
-       }
-       """`
+	file, _ := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + a.filename)
+	byteValue, err := ioutil.ReadAll(file)
+	xml.Unmarshal(byteValue, &expectedConfig)
 
 	json.Unmarshal([]byte(body.Content), &actualConfig)
-	json.Unmarshal([]byte(expectedJson), &expectedConfig)
 
-	if !reflect.DeepEqual(&expectedConfig, &actualConfig) {
-		fmt.Errorf("Expected :", expectedConfig, " ,but actual was :", actualConfig)
-		return
+	if !reflect.DeepEqual(expectedConfig, actualConfig) {
+		return fmt.Errorf("Expected :%v ,but actually was :%v", expectedConfig, actualConfig)
 	}
 
 	return nil

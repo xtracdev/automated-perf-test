@@ -5,9 +5,6 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
-	"github.com/jmespath/go-jmespath"
-	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"io"
 	"io/ioutil"
 	"math/rand"
@@ -19,6 +16,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/jmespath/go-jmespath"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 )
 
 // ServiceBasedTesting and SuiteBasedTesting are used as boolean to determine
@@ -72,7 +73,7 @@ type TestDefinition struct {
 type TestSuite struct {
 	XMLName         xml.Name   `xml:"testSuite"`
 	Name            string     `xml:"name"`
-	Description     string	   `xml:"description"`
+	Description     string     `xml:"description"`
 	TestStrategy    string     `xml:"testStrategy"`
 	TestCases       []TestCase `xml:"testCases>testCase"`
 	TestDefinitions []*TestDefinition

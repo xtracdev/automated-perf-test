@@ -7,9 +7,10 @@ import (
 	"net/http/httptest"
 	"os"
 
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"strings"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const validTestSuite = `
@@ -212,8 +213,6 @@ func TestValidTestSuitePostConfigPathDirNotExist(t *testing.T) {
 
 }
 
-
-
 func TestValidTestSuitePut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -232,7 +231,7 @@ func TestValidTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,  http.StatusNoContent, w.Code, "Did Not successfully Update")
+	assert.Equal(t, http.StatusNoContent, w.Code, "Did Not successfully Update")
 }
 
 func TestTestSuiteMissingFieldPut(t *testing.T) {
@@ -253,9 +252,8 @@ func TestTestSuiteMissingFieldPut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusBadRequest, w.Code,  "Sucessfully updated. Field Should be missing so update shouldn't occur")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Sucessfully updated. Field Should be missing so update shouldn't occur")
 }
-
 
 func TestInvalidTestSuitePut(t *testing.T) {
 	r := chi.NewRouter()
@@ -275,9 +273,8 @@ func TestInvalidTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, http.StatusBadRequest, w.Code,  "Sucessfully updated. Field data type should have been incorrect so update should occur")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Sucessfully updated. Field data type should have been incorrect so update should occur")
 }
-
 
 func TestInvalidUrlTestSuitePut(t *testing.T) {
 	r := chi.NewRouter()
@@ -318,7 +315,7 @@ func TestNoUrlTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, http.StatusNotFound, w.Code,  "Sucessfully updated. Should not have worked with no URL")
+	assert.Equal(t, http.StatusNotFound, w.Code, "Sucessfully updated. Should not have worked with no URL")
 }
 
 func TestPutWithNoPathSlash(t *testing.T) {
@@ -339,7 +336,7 @@ func TestPutWithNoPathSlash(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusNoContent, w.Code,  "Did not update. Should have added '/' to path")
+	assert.Equal(t, http.StatusNoContent, w.Code, "Did not update. Should have added '/' to path")
 }
 
 func TestNoPathTestSuitePut(t *testing.T) {
@@ -360,7 +357,7 @@ func TestNoPathTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,  http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no filepath")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no filepath")
 }
 
 func TestNoFileNameTestSuitePut(t *testing.T) {
@@ -383,9 +380,6 @@ func TestNoFileNameTestSuitePut(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no file name given")
 }
-
-
-
 
 func TestSuccessfulGetTestSuite(t *testing.T) {
 	r := chi.NewRouter()
@@ -445,4 +439,44 @@ func TestGetTestSuiteFileNotFound(t *testing.T) {
 	}
 
 	assert.Equal(t, http.StatusNotFound, w.Code, "Retrived a file but should not have as there is no file")
+}
+
+func TestSuccessfulGetAllSuites(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodGet, "/test-suites", nil)
+
+	request.Header.Set("testSuitePathDir", DirectoryPath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusOK, w.Code, "Did not get all test suites")
+}
+
+func TestGetAllSuitesNoHeader(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	DircetoryPath := ""
+	request, err := http.NewRequest(http.MethodGet, "/test-suites", nil)
+
+	request.Header.Set("testSuitePathDir", DircetoryPath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Did not get all test suites")
 }
