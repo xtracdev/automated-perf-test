@@ -1,0 +1,49 @@
+{
+  "type": "object",
+  "required": ["testname", "overridePort","overrideHost","HttpMethod","BaseURI","multipart","payload","responseStatusCode",
+  "responseContentType", "preThinkTime", "postThinkTime", "execWeight", "Headers", "ResponseValues","MultipartPayload" ],
+
+  "properties": {
+    "overridePort": {
+      "type": "string"
+    },
+    "testname": {
+      "type": "string"
+    },
+    "description":{
+      "type": "string"
+    },
+    "overrideHort": {
+      "type": "string"
+    },
+    "HttpMethod":{
+      "type": "string",
+      "enum": ["POST", "GET","PUT" ,"DELETE"]
+    },
+    "BaseURI": {
+      "type": "string"
+    },
+    "multipart": {
+      "type": "boolean"
+    },
+    "payload": {
+      "type": "string"
+    },
+    "responseStatusCode": {
+      "type": "number"
+    },
+    "responseContentType": {
+      "type": "string"
+    },
+    "preThinkTime": {
+      "type": "number"
+    },
+    "postThinkTime": {
+      "type": "number"
+    },
+    "execWeight": {
+      "type": "string",
+      "enum": ["Sparse" ,"Infrequent"]
+    }
+  }
+}

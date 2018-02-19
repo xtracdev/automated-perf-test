@@ -11,7 +11,7 @@ import (
 )
 
 var testCaseSchema string = "testCase_schema.json"
-var structTypeName string = "TestCase"
+var structTypeName string = "TestCase "
 
 func TestCaseCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -45,10 +45,10 @@ func postTestCase(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//if !ValidateJsonWithSchema(buf.Bytes(), testCaseSchema, structName) {
-	//	rw.WriteHeader(http.StatusBadRequest)
-	//	return
-	//}
+	if !ValidateJsonWithSchema(buf.Bytes(), testCaseSchema, structTypeName) {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	if !FilePathExist(testCasePathDir) {
 		logrus.Error("Directory path does not exist")

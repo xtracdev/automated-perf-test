@@ -7,3 +7,136 @@ Feature: Test Case Scenarios
                                 ###################################
                                 #######    POST REQUESTS    #######
                                 ###################################
+
+  Scenario: Successful creation of Test Case
+    Given there is no existing test file "GodogTestCase.xml"
+    Given the automated performance ui server is available
+    And the header "testCasePathDir" is "/uiServices/test/"
+    When I send "POST" request to "/test-cases" with a body:
+    """
+     {
+   "testname":"GodogTestCase",
+   "description":"desc",
+   "overrideHost":"host",
+   "overridePort":"9191",
+   "HttpMethod":"GET",
+   "BaseURI": "path/to/URI",
+   "multipart":false,
+   "payload": "payload",
+   "responseStatusCode":200,
+   "responseContentType": "JSON" ,
+   "preThinkTime": 1000,
+   "postThinkTime":2000,
+   "execWeight": "Sparse",
+   "Headers":[{
+   	 "Key": "Authorization",
+     "Value" :"Header-Value"
+   }],
+  "ResponseValues":[{
+     "Value":"Res-Value",
+     "ExtractionKey": "Res-Key"
+  }],
+  "MultipartPayload":[{
+     "fieldName": "F-Name",
+   	 "FieldValue":"PayloadName",
+     "FileName": "file-name"
+  }]
+
+}
+    """
+    Then the response code should be 201
+    And the response body should be empty
+
+  Scenario: Unsuccessful creation of Test Case (file already exists )
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send "POST" request to "/test-cases" with a body:
+       """
+     {
+   "testname":"GodogTestCase",
+   "description":"desc",
+   "overrideHost":"host",
+   "overridePort":"9191",
+   "HttpMethod":"GET",
+   "BaseURI": "path/to/URI",
+   "multipart":false,
+   "payload": "payload",
+   "responseStatusCode":200,
+   "responseContentType": "JSON" ,
+   "preThinkTime": 1000,
+   "postThinkTime":2000,
+   "execWeight": "Sparse",
+   "Headers":[{
+   	 "Key": "Authorization",
+     "Value" :"Header-Value"
+   }],
+  "ResponseValues":[{
+     "Value":"Res-Value",
+     "ExtractionKey": "Res-Key"
+  }],
+  "MultipartPayload":[{
+     "fieldName": "F-Name",
+   	 "FieldValue":"PayloadName",
+     "FileName": "file-name"
+  }]
+
+}
+    """
+    Then the response code should be 400
+
+
+#  Scenario: Unsuccessful creation of test Case ( Missing Required Fields )
+#    Given the automated performance ui server is available
+#    And the header "testSuitePathDir" is "/uiServices/test/"
+#    When I send "POST" request to "/test-suites" with a body:
+#    """
+#      {
+#       "testCases": [
+#        {
+#        "name":"file1",
+#        "preThinkTime": 1000,
+#        "postThinkTime": 2000,
+#        "execWeight": "Infrequent"
+#        }
+#      ]
+#    }
+#    """
+#    Then the response code should be 400
+
+
+  Scenario: Unsuccessful creation of Test Case ( No header defined )
+    Given the automated performance ui server is available
+    And the header "testCasePathDir" is ""
+    When I send "POST" request to "/test-cases" with a body:
+      """
+     {
+   "testname":"GodogTestCase",
+   "description":"desc",
+   "overrideHost":"host",
+   "overridePort":"9191",
+   "HttpMethod":"GET",
+   "BaseURI": "path/to/URI",
+   "multipart":false,
+   "payload": "payload",
+   "responseStatusCode":200,
+   "responseContentType": "JSON" ,
+   "preThinkTime": 1000,
+   "postThinkTime":2000,
+   "execWeight": "Sparse",
+   "Headers":[{
+   	 "Key": "Authorization",
+     "Value" :"Header-Value"
+   }],
+  "ResponseValues":[{
+     "Value":"Res-Value",
+     "ExtractionKey": "Res-Key"
+  }],
+  "MultipartPayload":[{
+     "fieldName": "F-Name",
+   	 "FieldValue":"PayloadName",
+     "FileName": "file-name"
+  }]
+
+}
+    """
+    Then the response code should be 400
