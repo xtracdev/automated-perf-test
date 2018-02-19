@@ -8,10 +8,10 @@
         <div class=" column col-md-3">
             <label>Update Existing File</label>
             <input class="form-control" id="xml-file-name" placeholder="Click to Browse Files" [(ngModel)]="xmlFileName" type="string"
-                readonly onclick="javascript:document.getElementById('file').click();">
+                onclick="javascript:document.getElementById('file').click();">
         </div>
         <div class=" row col-md-1">
-            <button class="btn btn-primary"(click)= "onClearFile($event)" id="btn btn-primary">Clear</button>
+            <button class="btn btn-primary"(click)= "onClearFile()" id="btn btn-primary">Clear</button>
             <input id="file" type="file" (change)="fileSelector($event)" />
         </div>
 
@@ -20,5 +20,5 @@
     </json-schema-form>
     <button class="btn btn-primary" id="btn-update" *ngIf="xmlFileName" (click)="onUpdate(formData)">Update</button>
     <button class="btn btn-primary" id="btn-create" *ngIf="!xmlFileName"  (click)="onSubmit(formData)">Create</button>
-    <button class="btn btn-primary" (click)="onCancel()">Cancel</button>
+    <button class="btn btn-primary" id="btn-cancel" (click)="onCancel()">Cancel</button>
 </div>
