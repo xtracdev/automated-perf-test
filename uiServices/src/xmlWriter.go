@@ -53,3 +53,24 @@ func testSuiteWriterXml(testSuite testStrategies.TestSuite, configPathDir string
 	}
 	return true
 }
+
+func testCaseWriterXml(testSuite testStrategies.TestDefinition, path string) bool {
+	filename := fmt.Sprintf("%s", path)
+
+	testCaseAsXml, err := xml.MarshalIndent(testSuite, "  ", "    ")
+	if err != nil {
+		log.Error("Failed to marshal to XML. Error:", err)
+		return false
+	}
+
+	file, err := os.Create(filename)
+	if err != nil {
+		log.Error("Failed to create output file. Error:", err)
+		return false
+	}
+	if file != nil {
+		defer file.Close()
+		file.Write(testCaseAsXml)
+	}
+	return true
+}
