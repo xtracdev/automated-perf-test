@@ -1,12 +1,13 @@
 package services
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 
 	"os"
 )
@@ -59,6 +60,7 @@ func GetIndexPage() *chi.Mux {
 
 	router.Mount("/configs", routeConfigs())
 	router.Mount("/test-suites", routeTestSuites())
+	router.Mount("/test-cases", routeTestCases())
 
 	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 
@@ -110,9 +112,17 @@ func routeTestSuites() http.Handler {
 	router := chi.NewRouter()
 	router.Use(TestSuiteCtx)
 	router.Post("/", postTestSuites)
-	router.Put("/{testSuiteName}",putTestSuites)
+	router.Put("/{testSuiteName}", putTestSuites)
 	router.Get("/{testSuiteName}", getTestSuite)
 	router.Get("/", getAllTestSuites)
+
+	return router
+}
+
+func routeTestCases() http.Handler {
+	router := chi.NewRouter()
+	router.Use(TestCaseCtx)
+	router.Get("/", getAllTestCases)
 
 	return router
 }

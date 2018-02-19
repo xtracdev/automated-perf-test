@@ -37,7 +37,7 @@ Feature: Create Configuration File
     Then the response code should be 201
     And the response body should be empty
     And the config file was created at location defined by configsPathDir
-
+#
   Scenario: Unsuccessful creation of config file (file already exists)
     Given the automated performance ui server is available
     And the header "configPathDir" is "/uiServices/test/GodogConfig.xml"
@@ -166,9 +166,9 @@ Feature: Create Configuration File
 
 
 
-                                ###################################
-                                #######    PUT REQUESTS ###########
-                                ###################################
+                                ##################################
+                                ######    PUT REQUESTS ###########
+                                ##################################
 
   Scenario: Unsuccessful update of config file with PUT request (No File Path)
     Given the file "GodogConfig.xml" exists at "/uiServices/test/"

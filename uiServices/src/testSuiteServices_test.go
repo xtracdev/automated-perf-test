@@ -7,9 +7,10 @@ import (
 	"net/http/httptest"
 	"os"
 
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"strings"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const validTestSuite = `
@@ -22,12 +23,10 @@ const validTestSuite = `
       "name":"file1",
       "preThinkTime": 1000,
       "postThinkTime": 2000,
-      "execWeight": "Infrequent",
-       "description": "Desc1"
+      "execWeight": "Infrequent"
     },
     {
-      "name":"file2",
-       "description": "Desc2"
+      "name":"file2"
     }
   ]
 }
@@ -76,8 +75,7 @@ const TestSuiteNoName = `
       "name":"file1.xml",
       "preThinkTime": "xxxx"
       "postThinkTime": 2000,
-      "execWeight": 123,
-       "description": "Desc"
+      "execWeight": 123
     }
   ]
 }
@@ -215,8 +213,6 @@ func TestValidTestSuitePostConfigPathDirNotExist(t *testing.T) {
 
 }
 
-
-
 func TestValidTestSuitePut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -235,7 +231,7 @@ func TestValidTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,  http.StatusNoContent, w.Code, "Did Not successfully Update")
+	assert.Equal(t, http.StatusNoContent, w.Code, "Did Not successfully Update")
 }
 
 func TestTestSuiteMissingFieldPut(t *testing.T) {
@@ -256,9 +252,8 @@ func TestTestSuiteMissingFieldPut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusBadRequest, w.Code,  "Sucessfully updated. Field Should be missing so update shouldn't occur")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Sucessfully updated. Field Should be missing so update shouldn't occur")
 }
-
 
 func TestInvalidTestSuitePut(t *testing.T) {
 	r := chi.NewRouter()
@@ -278,9 +273,8 @@ func TestInvalidTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, http.StatusBadRequest, w.Code,  "Sucessfully updated. Field data type should have been incorrect so update should occur")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Sucessfully updated. Field data type should have been incorrect so update should occur")
 }
-
 
 func TestInvalidUrlTestSuitePut(t *testing.T) {
 	r := chi.NewRouter()
@@ -321,7 +315,7 @@ func TestNoUrlTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, http.StatusNotFound, w.Code,  "Sucessfully updated. Should not have worked with no URL")
+	assert.Equal(t, http.StatusNotFound, w.Code, "Sucessfully updated. Should not have worked with no URL")
 }
 
 func TestPutWithNoPathSlash(t *testing.T) {
@@ -342,7 +336,7 @@ func TestPutWithNoPathSlash(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusNoContent, w.Code,  "Did not update. Should have added '/' to path")
+	assert.Equal(t, http.StatusNoContent, w.Code, "Did not update. Should have added '/' to path")
 }
 
 func TestNoPathTestSuitePut(t *testing.T) {
@@ -363,7 +357,7 @@ func TestNoPathTestSuitePut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,  http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no filepath")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no filepath")
 }
 
 func TestNoFileNameTestSuitePut(t *testing.T) {
@@ -387,9 +381,6 @@ func TestNoFileNameTestSuitePut(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no file name given")
 }
 
-
-
-
 func TestSuccessfulGetTestSuite(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -407,7 +398,7 @@ func TestSuccessfulGetTestSuite(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusOK, "Error. Did not successfully GET")
+	assert.Equal(t,http.StatusOK, w.Code, "Error. Did not successfully GET")
 }
 
 func TestGetTestSuiteNoPath(t *testing.T) {
@@ -427,7 +418,7 @@ func TestGetTestSuiteNoPath(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusBadRequest, "Retrived file but should not have as there is no path")
+	assert.Equal(t,  http.StatusBadRequest, w.Code, "Retrived file but should not have as there is no path")
 }
 
 func TestGetTestSuiteFileNotFound(t *testing.T) {
@@ -447,7 +438,7 @@ func TestGetTestSuiteFileNotFound(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, w.Code, http.StatusNotFound, "Retrived a file but should not have as there is no file")
+	assert.Equal(t, http.StatusNotFound, w.Code, "Retrived a file but should not have as there is no file")
 }
 
 func TestSuccessfulGetAllSuites(t *testing.T) {

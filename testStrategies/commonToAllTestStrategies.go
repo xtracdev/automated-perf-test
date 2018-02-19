@@ -5,9 +5,6 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
-	"github.com/jmespath/go-jmespath"
-	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"io"
 	"io/ioutil"
 	"math/rand"
@@ -19,6 +16,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/jmespath/go-jmespath"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 )
 
 // ServiceBasedTesting and SuiteBasedTesting are used as boolean to determine
@@ -54,6 +55,7 @@ type TestDefinition struct {
 	OverrideHost        string               `xml:"overrideHost"`
 	OverridePort        string               `xml:"overridePort"`
 	HTTPMethod          string               `xml:"httpMethod"`
+	Description         string               `xml:"description"`
 	BaseURI             string               `xml:"baseUri"`
 	Multipart           bool                 `xml:"multipart"`
 	Payload             string               `xml:"payload"`
@@ -72,7 +74,7 @@ type TestDefinition struct {
 type TestSuite struct {
 	XMLName         xml.Name   `xml:"testSuite"`
 	Name            string     `xml:"name"`
-	Description     string	   `xml:"description"`
+	Description     string     `xml:"description"`
 	TestStrategy    string     `xml:"testStrategy"`
 	TestCases       []TestCase `xml:"testCases>testCase"`
 	TestDefinitions []*TestDefinition
@@ -84,7 +86,6 @@ type TestSuite struct {
 type TestCase struct {
 	XMLName       xml.Name `xml:"testCase"`
 	Name          string   `xml:",chardata"`
-	Description   string   `xml:"description"`
 	PreThinkTime  int64    `xml:"preThinkTime,attr"`
 	PostThinkTime int64    `xml:"postThinkTime,attr"`
 	ExecWeight    string   `xml:"execWeight,attr"`
