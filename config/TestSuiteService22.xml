@@ -1,0 +1,9 @@
+  <testSuite>
+      <name>TestSuiteService22</name>
+      <description>Services 22</description>
+      <testStrategy>SuiteBased</testStrategy>
+      <testCases>
+          <testCase preThinkTime="2000" postThinkTime="2002" execWeight="Infrequent">file222</testCase>
+          <testCase preThinkTime="2" postThinkTime="0" execWeight="">file2222</testCase>
+      </testCases>
+  </testSuite>

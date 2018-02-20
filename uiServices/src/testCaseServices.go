@@ -27,7 +27,7 @@ func TestCaseCtx(next http.Handler) http.Handler {
 
 }
 func getTestCaseHeader(req *http.Request) string {
-	testCasePathDir := req.Header.Get("testCasePathDir")
+	testCasePathDir := req.Header.Get("testSuitePathDir")
 
 	if !strings.HasSuffix(testCasePathDir, "/") {
 		testCasePathDir = testCasePathDir + "/"

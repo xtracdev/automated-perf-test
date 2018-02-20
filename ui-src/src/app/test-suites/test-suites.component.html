@@ -8,7 +8,7 @@
     <div class="row">
 
         <div class="column col-md-4">
-            <button class="btn btn-primary " (click)="onAdd()">Add</button>
+            <button class="btn btn-primary " (click)="onAdd()" (click)="getTestCases()">Add</button>
             <button class="btn btn-primary " (click)="onDelete()">Delete</button>
             <table>
                 <tr>
@@ -22,7 +22,7 @@
             </table>
         </div>
         <div class=" col-md-8">
-            <json-schema-form [schema]="testSuiteSchema" [(ngModel)]="testSuiteData" framework="bootstrap-4">
+            <json-schema-form [schema]="testSuiteSchema" framework="bootstrap-4">
             </json-schema-form>
             <div class="col-md-6">
                 <h3>Available</h3>
@@ -32,10 +32,10 @@
                         <th>Description</th>
                         <th>Http Method</th>
                     </tr>  
-                    <tr>
-                        <td></td>
-                        <td></td> 
-                        <td></td>
+                    <tr *ngFor="let testCase of testCaseData" [ngValue]="c">
+                        <td>{{testCase.name}}</td>
+                        <td>{{testCase.description}}</td> 
+                        <td>{{testCase.httpMethod}}</td>
                     </tr>
                 </table>
             </div>

@@ -59,12 +59,21 @@ export class AutomatedUIServices {
     });
   }
 
+
+  getAllTestCases$(testCasesPath): Observable<any> {
+    this.headers = this.headers.set("testSuitePathDir", testCasesPath);
+    return this.http.get(`${environment.apiBaseUrl}test-suites` + '/a/a', {
+      headers: this.headers
+    });
+  }
+
   getAllTestSuite$(testSuitePath): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testSuitePath);
     return this.http.get(`${environment.apiBaseUrl}test-suites`, {
       headers: this.headers
     });
   }
+
 
   putTestSuite$(testSuiteData, testSuitePath, testSuiteFileName): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testSuitePath);

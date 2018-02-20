@@ -1,0 +1,29 @@
+  <testDefinition>
+      <testName>TestCase222</testName>
+      <overrideHost>host222</overrideHost>
+      <overridePort>x222</overridePort>
+      <httpMethod>GET222</httpMethod>
+      <description>desc222</description>
+      <baseUri>p22I</baseUri>
+      <multipart>false</multipart>
+      <payload>payload</payload>
+      <multipartPayload>
+          <multipartFormField>
+              <fieldName>F-Name</fieldName>
+              <fieldValue>PayloadName</fieldValue>
+              <fileName>file-name</fileName>
+              <fileContent></fileContent>
+          </multipartFormField>
+      </multipartPayload>
+      <responseStatusCode>200</responseStatusCode>
+      <responseContentType>JSON</responseContentType>
+      <headers>
+          <header key="Authorization">Header-Value</header>
+      </headers>
+      <responseProperties>
+          <value extractionKey="Res-Key">Res-Value</value>
+      </responseProperties>
+      <PreThinkTime>1000</PreThinkTime>
+      <PostThinkTime>2000</PostThinkTime>
+      <ExecWeight>Sparse</ExecWeight>
+  </testDefinition>
