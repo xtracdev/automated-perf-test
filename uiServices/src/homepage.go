@@ -123,6 +123,7 @@ func routeTestCases() http.Handler {
 	router := chi.NewRouter()
 	router.Use(TestCaseCtx)
 	router.Post("/", postTestCase)
+	router.Put("/{testCaseName}", putTestCase)
 
 	return router
 }
