@@ -104,9 +104,6 @@
             },
             "FileName": {
               "type": "string"
-            },
-            "FileContent": {
-              //"type": byte array  -> []byte
             }
           }
         }
