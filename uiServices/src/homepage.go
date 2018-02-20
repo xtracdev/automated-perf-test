@@ -124,6 +124,7 @@ func routeTestCases() http.Handler {
 	router := chi.NewRouter()
 	router.Use(TestCaseCtx)
 	router.Get("/", getAllTestCases)
+	router.Get("/{testCaseName}", getTestCase)
 
 	return router
 }
