@@ -9,9 +9,12 @@ import { ToastsManager } from "ng2-toastr/ng2-toastr";
 export class TestSuitesComponent {
   testSuiteData = {};
   testCaseData = {};
+  test = [];
   testSuitePath = undefined;
   testSuiteFileName = undefined;
   testSuiteSchema = { layout: true };
+
+  currentCase = "";
   constructor(
     private automatedUIServices: AutomatedUIServices,
     private toastr: ToastsManager
@@ -25,6 +28,13 @@ export class TestSuitesComponent {
         this.testSuiteSchema = data;
       });
     }
+
+    selectedCase(event, testCase) {
+          this.currentCase = testCase;
+          this.test.push(testCase);
+        }
+ 
+
 
   onAdd() {
         this.automatedUIServices.getAllTestSuite$(this.testSuitePath).subscribe(

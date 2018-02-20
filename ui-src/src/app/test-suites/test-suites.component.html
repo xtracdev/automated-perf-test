@@ -32,7 +32,7 @@
                         <th>Description</th>
                         <th>Http Method</th>
                     </tr>  
-                    <tr *ngFor="let testCase of testCaseData" [ngValue]="c">
+                    <tr *ngFor="let testCase of testCaseData" [class.highlighted]="testCase === currentCase" (click)="selectedCase($event,testCase)">
                         <td>{{testCase.name}}</td>
                         <td>{{testCase.description}}</td> 
                         <td>{{testCase.httpMethod}}</td>
@@ -47,13 +47,11 @@
                         <th>Name </th>
                         <th>Description</th>
                         <th>Http Method</th>
-                        <th>Order</th>
                     </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                    <tr *ngFor="let tests of test">
+                        <td>{{tests.name}}</td>
+                        <td>{{tests.description}}</td>
+                        <td>{{tests.httpMethod}}</td>
                     </tr>
                 </table>
             </div>
