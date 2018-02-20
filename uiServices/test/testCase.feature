@@ -51,7 +51,7 @@ Feature: Test Case Scenarios
     Given the automated performance ui server is available
     And the header "testSuitePathDir" is "/uiServices/test/"
     When I send "POST" request to "/test-cases" with a body:
-       """
+    """
      {
    "testname":"GodogTestCase",
    "description":"desc",
@@ -85,23 +85,41 @@ Feature: Test Case Scenarios
     Then the response code should be 400
 
 
-#  Scenario: Unsuccessful creation of test Case ( Missing Required Fields )
-#    Given the automated performance ui server is available
-#    And the header "testSuitePathDir" is "/uiServices/test/"
-#    When I send "POST" request to "/test-suites" with a body:
-#    """
-#      {
-#       "testCases": [
-#        {
-#        "name":"file1",
-#        "preThinkTime": 1000,
-#        "postThinkTime": 2000,
-#        "execWeight": "Infrequent"
-#        }
-#      ]
-#    }
-#    """
-#    Then the response code should be 400
+  Scenario: Unsuccessful creation of test Case ( Missing Required Fields )
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send "POST" request to "/test-suites" with a body:
+    """
+     {
+   "testname":"",
+   "description":"",
+   "overrideHost":"",
+   "overridePort":"",
+   "HttpMethod":"",
+   "multipart":false,
+   "payload": "payload",
+   "responseStatusCode":200,
+   "responseContentType": "JSON" ,
+   "preThinkTime": 1000,
+   "postThinkTime":2000,
+   "execWeight": "Sparse",
+   "Headers":[{
+   	 "Key": "Authorization",
+     "Value" :"Header-Value"
+   }],
+  "ResponseValues":[{
+     "Value":"Res-Value",
+     "ExtractionKey": "Res-Key"
+  }],
+  "MultipartPayload":[{
+     "fieldName": "F-Name",
+   	 "FieldValue":"PayloadName",
+     "FileName": "file-name"
+  }]
+
+}
+    """
+    Then the response code should be 400
 
 
   Scenario: Unsuccessful creation of Test Case ( No header defined )
