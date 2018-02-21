@@ -26,6 +26,7 @@ func TestCaseCtx(next http.Handler) http.Handler {
 	})
 
 }
+
 func getTestCaseHeader(req *http.Request) string {
 	testCasePathDir := req.Header.Get("testCasePathDir")
 
@@ -60,18 +61,17 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 
 			file, err := os.Open(fmt.Sprintf("%s%s", testCasePathDir, filename))
 			if err != nil {
-				logrus.Error("Cannot open file: ", filename)
+				continue
 			}
 
 			byteValue, err := ioutil.ReadAll(file)
 			if err != nil {
-				logrus.Error("Cannot Read File: ", filename)
+				continue
 			}
 
 			err = xml.Unmarshal(byteValue, testCase)
 			if err != nil {
-				logrus.Error("Cannot Unmarshall: ", filename)
-
+				continue
 			}
 
 			//if a Test Case Name can't be assigned, it isn't a Test Case object

@@ -23,11 +23,9 @@ func TestSuccessfulGetAllCases(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
 
-	if err != nil {
-		t.Error(err)
+	if assert.NoError(t,err) {
+		assert.Equal(t, http.StatusOK, w.Code, "Did not get all test cases")
 	}
-
-	assert.Equal(t, http.StatusOK, w.Code, "Did not get all test casess")
 }
 
 func TestGetAllCasesNoHeader(t *testing.T) {
@@ -43,9 +41,7 @@ func TestGetAllCasesNoHeader(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
 
-	if err != nil {
-		t.Error(err)
+	if assert.NoError(t,err) {
+		assert.Equal(t, http.StatusBadRequest, w.Code, "Did not get all test cases")
 	}
-
-	assert.Equal(t, http.StatusBadRequest, w.Code, "Should not have retrieved all test cases")
 }

@@ -8,7 +8,7 @@ Feature: Test Case Scenarios
                                 #######    GET ALL REQUESTS #######
                                 ###################################
 
-  Scenario: Susscessful retrieval all test cases with valid "GET" request
+  Scenario: Successful retrieval all test cases with valid "GET" request
     Given the automated performance ui server is available
     And the header "testCasePathDir" is "/uiServices/test/"
     When I send a "GET" request to "/test-cases"
