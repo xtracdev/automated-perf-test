@@ -14,7 +14,7 @@ import (
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 )
 
-const validJson = `{
+const validJSON = `{
         "apiName": "ServiceTestConfig",
        "targetHost": "localhost",
        "targetPort": "9191",

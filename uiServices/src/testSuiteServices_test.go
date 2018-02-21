@@ -398,7 +398,7 @@ func TestSuccessfulGetTestSuite(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusOK, w.Code, "Error. Did not successfully GET")
+	assert.Equal(t, http.StatusOK, w.Code, "Error. Did not successfully GET")
 }
 
 func TestGetTestSuiteNoPath(t *testing.T) {
@@ -418,7 +418,7 @@ func TestGetTestSuiteNoPath(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,  http.StatusBadRequest, w.Code, "Retrived file but should not have as there is no path")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Retrived file but should not have as there is no path")
 }
 
 func TestGetTestSuiteFileNotFound(t *testing.T) {
@@ -479,4 +479,59 @@ func TestGetAllSuitesNoHeader(t *testing.T) {
 	}
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Did not get all test suites")
+}
+
+func TestDeleteTestSuiteFileNotFound(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := os.Getenv("GOPATH") + "C:/Users/a622123/go/src/github.com/xtracdev/automated-perf-test/config"
+	request, err := http.NewRequest(http.MethodDelete, "test-suites/abc", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	w := httptest.NewRecorder()
+	r.ServerHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+	assert.Equal(t, http.StatusNotFound, w.Code, "No file found, no file DELETED")
+}
+
+func TestDeleteAllSuitesNoHeader(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	DirectoryPath := ""
+	request, err := http.NewRequest(http.MethodDelete, "/test-suites", nil)
+
+	request.Header.Set("testSuitePathDir", DirectoryPath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Did not DELETE all test suites")
+}
+
+func TestSuccessfulDeletedTestSuite(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := os.Getenv("GOPATH") + "C:/Usersa622123/go/src/github.com/xtracdev/automated-perf-test/config"
+	request, err := http.NewRequest(http.MethodDelete, "/test-suites/TestSuiteService", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusNoContent, w.Code, "File successfully DELETED")
 }
