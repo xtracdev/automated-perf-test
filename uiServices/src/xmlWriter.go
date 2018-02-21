@@ -68,9 +68,8 @@ func testCaseWriterXml(testSuite testStrategies.TestDefinition, path string) boo
 		log.Error("Failed to create output file. Error:", err)
 		return false
 	}
-	if file != nil {
 		defer file.Close()
 		file.Write(testCaseAsXml)
-	}
-	return true
+		return true
 }
+

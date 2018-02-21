@@ -10,8 +10,8 @@ import (
 	"bytes"
 )
 
-var testCaseSchema string = "testCase_schema.json"
-var structTypeName string = "TestCase "
+const testCaseSchema string = "testCase_schema.json"
+const structTypeName string = "TestCase "
 
 func TestCaseCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
