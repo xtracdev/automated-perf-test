@@ -103,6 +103,7 @@ func routeConfigs() http.Handler {
 	router.Post("/", postConfigs)
 	router.Get("/{configName}", getConfigs)
 	router.Put("/{configName}", putConfigs)
+	router.Put("/filename/{configFileName}/{newConfigFileName}", putConfigFileName)
 
 	return router
 }

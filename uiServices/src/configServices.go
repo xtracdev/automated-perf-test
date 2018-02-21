@@ -86,14 +86,14 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if FilePathExist(configPathDir + config.APIName + ".xml") {
+	if FilePathExist(configPathDir + config.APIName + "bbb.xml") {
 		logrus.Error("File already exists", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 
 	}
 	//Create file once checks are complete
-	if !configWriterXml(config, configPathDir+config.APIName+".xml") {
+	if !configWriterXml(config, configPathDir+config.APIName+"bbb.xml") {
 
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
@@ -190,6 +190,22 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	rw.WriteHeader(http.StatusNoContent)
+}
+
+func putConfigFileName(rw http.ResponseWriter, req *http.Request) {
+	path := getConfigHeader(req)
+	configFileName := chi.URLParam(req, "configFileName")
+	newConfigFileName := chi.URLParam(req, "newConfigFileName")
+
+	if len(newConfigFileName) < 1{
+		logrus.Error("File path does not exist")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	os.Rename(fmt.Sprintf("%s%s.xml", path, configFileName),fmt.Sprintf("%s%s.xml", path, newConfigFileName))
 
 	rw.WriteHeader(http.StatusNoContent)
 }
