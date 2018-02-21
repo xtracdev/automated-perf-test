@@ -1,3 +1,4 @@
+
 package services
 
 import (
@@ -86,14 +87,14 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if FilePathExist(configPathDir + config.APIName + "bbb.xml") {
+	if FilePathExist(configPathDir + config.APIName + ".xml") {
 		logrus.Error("File already exists", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 
 	}
 	//Create file once checks are complete
-	if !configWriterXml(config, configPathDir+config.APIName+"bbb.xml") {
+	if !configWriterXml(config, configPathDir+config.APIName+".xml") {
 
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
@@ -193,6 +194,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	rw.WriteHeader(http.StatusNoContent)
 }
+
 
 func putConfigFileName(rw http.ResponseWriter, req *http.Request) {
 	path := getConfigHeader(req)
