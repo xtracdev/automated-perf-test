@@ -35,10 +35,10 @@ func TestDeleteFileNotFound(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
-	request, err := http.NewRequest(http.MethodDelete, "/test-suites/xxx", nil)
+	request, err := http.NewRequest(http.MethodDelete, "/test-cases/xxx", nil)
 
-	request.Header.Set("testSuitePathDir", filePath)
-	request.Header.Get("testSuitePathDir")
+	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Get("testCasePathDir")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -55,10 +55,10 @@ func TestDeleteWithNoHeader(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	filePath := ""
-	request, err := http.NewRequest(http.MethodDelete, "/test-suites/TestSuiteService", nil)
+	request, err := http.NewRequest(http.MethodDelete, "/test-cases/TestSuiteService", nil)
 
-	request.Header.Set("testSuitePathDir", filePath)
-	request.Header.Get("testSuitePathDir")
+	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Get("testCasePathDir")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)

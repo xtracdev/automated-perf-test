@@ -39,7 +39,13 @@ func deleteTestCase(rw http.ResponseWriter, req *http.Request){
 		}
 	}
 
-	os.Remove(filepath)
+	err := os.Remove(filepath)
+	if  err != nil{
+		logrus.Println("File was not deleted")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+
+	}
 
 	rw.WriteHeader(http.StatusNoContent)
 
