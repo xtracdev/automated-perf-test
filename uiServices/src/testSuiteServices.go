@@ -153,20 +153,26 @@ func deleteTestSuite(rw http.ResponseWriter, req *http.Request) {
 	testSuitePathDir := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
-	ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName)
+	if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName) {
+		return
+	}
 
-	_, err := os.Stat(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName))
-	if err != nil {
+	if _, err := os.Stat(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName)); err != nil {
 		if os.IsNotExist(err) {
 			logrus.Error("Test Suite File Not Found: " + testSuitePathDir + testSuiteName)
 			rw.WriteHeader(http.StatusNotFound)
 			return
 		}
-	} else {
-		os.Remove(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName))
-		rw.WriteHeader(http.StatusNoContent)
-
 	}
+
+	err := os.Remove(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName))
+	if err != nil {
+		logrus.Errorf("Error deleting the file from filesystem: %s", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
 }
 
 func getTestSuite(rw http.ResponseWriter, req *http.Request) {

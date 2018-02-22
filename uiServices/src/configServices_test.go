@@ -138,7 +138,7 @@ func TestValidJsonPost(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", postConfigs)
 
 	//remove file if exists
@@ -189,7 +189,7 @@ func TestPostWithInvalidHeader(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", postConfigs)
 
 	filePath := "xxxxxx"
@@ -233,7 +233,7 @@ func TestWhenConfigPathDirEmpty(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", postConfigs)
 
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
@@ -252,7 +252,7 @@ func TestWhenConfigPathDirEmpty(t *testing.T) {
 
 func TestInvalidURL(t *testing.T) {
 	pt := perfTestUtils.Config{}
-	configWriterXml(pt, "/path/xxx")
+	configWriterXML(pt, "/path/xxx")
 }
 
 func TestSuccessfulGet(t *testing.T) {
@@ -260,7 +260,7 @@ func TestSuccessfulGet(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	// create file to GET
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", postConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
@@ -365,7 +365,7 @@ func TestValidJsonPut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
@@ -428,7 +428,7 @@ func TestInvalidUrlPut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
@@ -449,7 +449,7 @@ func TestNoUrlPut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
@@ -470,7 +470,7 @@ func TestSuccessfulPutWithNoPathSlash(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
@@ -490,7 +490,7 @@ func TestNoPathPut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := ""
@@ -511,7 +511,7 @@ func TestNoFileNamePut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
