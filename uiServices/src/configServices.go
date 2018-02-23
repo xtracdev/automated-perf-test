@@ -54,7 +54,7 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
-	if !ValidateJsonWithSchema(buf.Bytes(), "schema.json", "Configurations") {
+	if !ValidateJSONWithSchema(buf.Bytes(), "schema.json", "Configurations") {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -93,7 +93,7 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 	//Create file once checks are complete
-	if !configWriterXml(config, configPathDir+config.APIName+".xml") {
+	if !configWriterXML(config, configPathDir+config.APIName+".xml") {
 
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
@@ -166,7 +166,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
-	if !ValidateJsonWithSchema(buf.Bytes(), schemaFilename, structName) {
+	if !ValidateJSONWithSchema(buf.Bytes(), schemaFilename, structName) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -186,7 +186,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !configWriterXml(config, configPathDir) {
+	if !configWriterXML(config, configPathDir) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
