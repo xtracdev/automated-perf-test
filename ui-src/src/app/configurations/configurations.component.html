@@ -20,5 +20,7 @@
     </json-schema-form>
     <button class="btn btn-primary" id="btn-update" *ngIf="xmlFileName" (click)="onUpdate(formData)">Update</button>
     <button class="btn btn-primary" id="btn-create" *ngIf="!xmlFileName"  (click)="onSubmit(formData)">Create</button>
+ 
+ 
     <button class="btn btn-primary" id="btn-cancel" (click)="onCancel()">Cancel</button>
 </div>

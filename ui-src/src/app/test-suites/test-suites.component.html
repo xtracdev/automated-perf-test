@@ -6,7 +6,7 @@
 
 
     <div class="row">
-
+<!-- --------------------------------BUTTONS------------------------------------------------- -->
         <div class="column col-md-4">
             <button class="btn btn-primary " (click)="onAdd()" (click)="getTestCases()">Add</button>
             <button class="btn btn-primary " (click)="onDelete()">Delete</button>
@@ -15,17 +15,20 @@
                     <th>Name </th>
                     <th>Description</th>
                 </tr>
-                <tr *ngFor="let testSuite of testSuiteData">
-                    <td>{{testSuite.name}}</td>
+                <tr *ngFor="let testSuite of formData">
+                    <td>{{testSuite.name}}</td>  
                     <td>{{testSuite.description}}</td>
                 </tr>
             </table>
         </div>
         <div class="col-md-8">
             <div class="row">
-                <json-schema-form [schema]="testSuiteSchema" framework="bootstrap-4">
+                <!--------------------- schema -------------------------------->
+                <json-schema-form [schema]="testSuiteSchema" [(ngModel)]="testSuiteData" framework="bootstrap-4">
                 </json-schema-form>
                 <div class="col-md-5">
+<!--------------------------------- AVAILABLE---------------------------------------->
+                    
                     <h3>Available</h3>
                     <table>
                         <tr>
@@ -34,10 +37,11 @@
                             <th>Http Method</th>
                         </tr>
                         <tr *ngFor="let testCase of testCaseData" [class.highlighted]="testCase === currentCase" (click)="selectedCase($event,testCase)">
-                                <td>{{testCase.name}}</td>
-                                <td>{{testCase.description}}</td> 
-                                <td>{{testCase.httpMethod}}</td>
-                            </tr>
+                            <td>{{testCase.preThinkTime}}</td>
+                            <td>{{testCase.postThinkTime}}</td>   
+                            <td>{{testCase.execWeight}}</td>
+                        </tr>  
+                           
                     </table>
                 </div>
                 <div class="button-row col-md-1">
@@ -49,6 +53,7 @@
                                 << </button>
                 </div>
                 <div class="col-md-6">
+                    <!--------------------------------- SELECTED-------------------------------------- -->
                     <h3>Selected</h3>
                     <table>
                         <tr>
@@ -56,18 +61,18 @@
                             <th>Description</th>
                             <th>Http Method</th>
                         </tr>
-                        <tr *ngFor="let testCase of selectedTestCaseData">
-                            <td>{{testCase.name}}</td>
-                            <td>{{testCase.description}}</td>
-                            <td>{{testCase.httpMethod}}</td>
+                        <tr *ngFor="let testCase of selectedTestCaseData" [class.highlighted]="testCase.preThinkTime === currentCase" (click)="selectedCase($event,testCase)">
+                            <td>{{testCase.preThinkTime}}</td>
+                            <td>{{testCase.postThinkTime}}</td>   
+                            <td>{{testCase.execWeight}}</td>
                         </tr>
                     </table>
                 </div>
-          </div>
+            </div>
             <div class="button-row">
                 <button class="btn btn-primary push-right" (click)="onCancel()">Cancel</button>
                 <button class="btn btn-primary push-right" (click)="onSave(testSuiteData)">Save</button>
             </div>
         </div>
     </div>
-    </div>
+</div>

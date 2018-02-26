@@ -19,6 +19,9 @@ type Case struct {
 	HttpMethod  string `json:"httpMethod"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	PreThinkTime int64 `json:"preThinkTime"` 
+	PostThinkTime int64 `json:"postThinkTime"` 
+	ExecWeight string `json:"execWeight"`
 }
 
 func TestCaseCtx(next http.Handler) http.Handler {
@@ -81,6 +84,10 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 					Name:        testCase.TestName,
 					Description: testCase.Description,
 					HttpMethod:  testCase.HTTPMethod,
+					PostThinkTime: testCase.PostThinkTime,
+					PreThinkTime: testCase.PreThinkTime,
+					ExecWeight: testCase.ExecWeight,
+
 				})
 			}
 		}

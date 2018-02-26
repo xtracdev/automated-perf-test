@@ -7,8 +7,11 @@ import { ToastsManager } from "ng2-toastr/ng2-toastr";
   styleUrls: ["./test-suites.component.css"]
 })
 export class TestSuitesComponent {
-  testSuiteData = {};
+  testSuiteData = [];
   testCaseData = {};
+  data = [];
+  test =[];
+  formData ={};
   selectedTestCaseData = [];
   testSuitePath = undefined;
   testSuiteFileName = undefined;
@@ -18,7 +21,7 @@ export class TestSuitesComponent {
   constructor(
     private automatedUIServices: AutomatedUIServices,
     private toastr: ToastsManager
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.automatedUIServices
@@ -27,21 +30,28 @@ export class TestSuitesComponent {
         this.testSuiteSchema = data;
       });
   }
+  
+  selectedCase(event, testCase) {
+   //selected test
+    this.test.push(testCase)
+    //adding selected testcase to table
+    this.selectedTestCaseData.push(testCase);
+    //adding schemaInfo to payload
+    this.data= this.testSuiteData
+    Object.assign(this.test, this.data)
+    //adding selected cases tp payload
+    this.data = this.test
 
-    selectedCase(event, testCase) {
-          this.currentCase = testCase;
-          this.selectedTestCaseData.push(testCase);
-        }
- 
 
+  
+  }
 
   onAdd() {
     this.automatedUIServices.getAllTestSuite$(this.testSuitePath).subscribe(
-      (data: any) => {
-        this.testSuiteData = data;
-
+      data=> {
+        this.formData = data;
         this.toastr.success("Your data has been saved!", "Success!");
-      },
+      },  
 
       error => {
         switch (error.status) {
@@ -61,7 +71,7 @@ export class TestSuitesComponent {
           }
         }
       }
-    );
+    );   
   }
 
   getTestCases() {
@@ -69,70 +79,68 @@ export class TestSuitesComponent {
       .getAllTestCases$(this.testSuitePath)
       .subscribe((data: any) => {
         this.testCaseData = data;
+        console.log("************************",this.testCaseData);
       });
-  }
+  }  
 
-
-  onDelete() {
-
-  }
+  onDelete() {}
 
   onCancel() {
     //clear schema and moving info back into available (get method)
     this.automatedUIServices
       .getTestSuite$(this.testSuitePath, this.testSuiteFileName)
       .subscribe(
-      data => {
-        this.testSuiteData = data;
-        this.toastr.success("Previous data reloaded!");
-      },
-      error => {
-        this.testSuiteData = undefined;
-      }
+        data => {
+          this.testSuiteData = data;
+          this.toastr.success("Previous data reloaded!");
+        },
+        error => {
+          this.testSuiteData = undefined;
+        }
       );
   }
 
-  onSave(testSuiteData) {
-    this.automatedUIServices
-      .postTestSuite$(testSuiteData, this.testSuitePath)
+  onSave(data) {
+    this.automatedUIServices  
+      .postTestSuite$(this.data, this.testSuitePath)
       .subscribe(
-      data => {
-        this.toastr.success("Your data has been saved!", "Success!");
-      },
-
-      error => {
-        switch (error.status) {
-          case 500: {
-            this.toastr.error("An error has occurred!", "Check the logs!");
-            break;
-          }
-          case 400: {
-            this.toastr.error(
-              "Some of the fields do not conform to the schema!",
-              "An error occurred!"
-            );
-            break;
-          }
-          default: {
-            this.toastr.error(
-              "Your data did not save!",
-              "An error occurred!"
-            );
+        data => {
+          this.toastr.success("Your data has been saved!", "Success!");
+        },
+        error => {
+          switch (error.status) {
+            case 500: {
+              this.toastr.error("An error has occurred!", "Check the logs!");
+              break;
+            }  
+            case 400: {  
+              console.log(this.data);
+              this.toastr.error(
+                "Some of the fields do not conform to the schema!",
+                "An error occurred!"
+              );
+              break;
+            }
+            default: {
+              this.toastr.error(
+                "Your data did not save!",
+                "An error occurred!"
+              );
+            }
           }
         }
-      }
       );
   }
 
-  onSelectAll() {
+  onSelectAll() {  
     this.automatedUIServices
       .getAllTestCases$(this.testSuitePath)
       .subscribe((data: any) => {
-        this.selectedTestCaseData = data;  
+        this.selectedTestCaseData = data;
       });
   }
-  onSelectOne() { }
-  onReverseOne() { }
+  onSelectOne() {}
+  onReverseOne() {}
   onReverseAll() {
     this.selectedTestCaseData = undefined;
   }

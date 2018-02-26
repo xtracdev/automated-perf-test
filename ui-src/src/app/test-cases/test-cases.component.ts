@@ -5,4 +5,4 @@ import { Component, OnInit } from "@angular/core";
   templateUrl: "./test-cases.component.html",
   styleUrls: ["./test-cases.component.css"]
 })
-export class TestCasesComponent {}
+export class TestCasesComponent {}    
