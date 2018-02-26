@@ -218,16 +218,19 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
 			file, err := os.Open(fmt.Sprintf("%s%s", testSuitePathDir, filename))
 			if err != nil {
 				logrus.Error("Cannot open file: ", filename)
+				continue
 			}
 
 			byteValue, err := ioutil.ReadAll(file)
 			if err != nil {
 				logrus.Error("Cannot Read File: ", filename)
+				continue
 			}
 
 			err = xml.Unmarshal(byteValue, testSuite)
 			if err != nil {
 				logrus.Error("Cannot Unmarshall: ", filename)
+				continue
 
 			}
 
@@ -257,13 +260,18 @@ func deleteTestSuite(rw http.ResponseWriter, req *http.Request){
 
 	if _, err := os.Stat(filepath); err != nil {
 		if os.IsNotExist(err) {
-			logrus.Println("File Not Found")
+			logrus.Error("File Not Found")
 			rw.WriteHeader(http.StatusNotFound)
 			return
 		}
 	}
 
-	os.Remove(filepath)
+	err := os.Remove(filepath)
+	if err != nil{
+		logrus.Error("File was not deleted")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	rw.WriteHeader(http.StatusNoContent)
 
