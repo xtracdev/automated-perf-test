@@ -244,16 +244,19 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
 			file, err := os.Open(fmt.Sprintf("%s%s", testSuitePathDir, filename))
 			if err != nil {
 				logrus.Error("Cannot open file: ", filename)
+				continue
 			}
 
 			byteValue, err := ioutil.ReadAll(file)
 			if err != nil {
 				logrus.Error("Cannot Read File: ", filename)
+				continue
 			}
 
 			err = xml.Unmarshal(byteValue, testSuite)
 			if err != nil {
 				logrus.Error("Cannot Unmarshall: ", filename)
+				continue
 
 			}
 
@@ -271,4 +274,31 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(rw).Encode(testSuites)
 
 	rw.WriteHeader(http.StatusOK)
+}
+
+
+func deleteTestSuite(rw http.ResponseWriter, req *http.Request){
+	testSuitePathDir := getTestSuiteHeader(req)
+	testSuiteName := chi.URLParam(req, "testSuiteName")
+	ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName)
+
+	filepath := fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName)
+
+	if _, err := os.Stat(filepath); err != nil {
+		if os.IsNotExist(err) {
+			logrus.Error("File Not Found")
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
+	}
+
+	err := os.Remove(filepath)
+	if err != nil{
+		logrus.Error("File was not deleted")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
+
 }

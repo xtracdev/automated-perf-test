@@ -397,28 +397,29 @@ Feature: Test Suite Creation
     Then the response code should be 400
 
 
-
                                 ###################################
-                                #######    DELETE REQUESTS ########
+                                #######    DELETE REQUESTS #######
                                 ###################################
 
-Scenario: Unsuccessful deleting of test-suites (No Header)
-  Given the automated performance ui server is available
-  And the header "testSuitePathDir" is ""
-  When I send a "DELETE" request to "/test-suites/deleteTest"
-  Then the response code should be 400
 
+  Scenario:Successful DELETE test-suite file
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    And the file name is "GodogTestSuite.xml"
+    When I send a "DELETE" request to "/test-suites/GodogTestSuite"
+    Then the response code should be 204
 
-Scenario: Unsuccessful deleting of test-suites file (File Not Found)
-  Given the automated performance ui server is available
-  And the header "testSuitePathDir" is "/uiServices/test/"
-  When I send a "DELETE" request to "/test-suites/nonExistentFile"
-  Then the response code should be 404
-   
+  Scenario: Unsuccessful DELETE test-suite file (File Not Found)
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is "/uiServices/test/"
+    When I send a "DELETE" request to "/test-suites/xxx"
+    Then the response code should be 404
 
-Scenario: Successful deleting of test-suite file with DELETE request
-  Given the "deleteTest.xml" has been created at "/uiServices/test/"
-  Given the automated performance ui server is available
-  And the header "testSuitePathDir" is "/uiServices/test/"
-  When I send a "DELETE" request to "/test-suites/deleteTest"
-  Then the response code should be 204
+  Scenario: Unsuccessful DELETE test-suite file (No Header)
+    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is ""
+    And the file name is "GodogTestSuite.xml"
+    When I send a "DELETE" request to "/test-suites/GodogTestSuite"
+    Then the response code should be 400
