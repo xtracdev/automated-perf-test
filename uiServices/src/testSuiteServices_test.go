@@ -539,5 +539,5 @@ func TestSuccessfulDelete(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusNoContent, w.Code, "Error. Did not successfully Delete")
+	assert.Equal(t,http.StatusNoContent, w.Code, "Error. Did not successfully Delete") 
 }
