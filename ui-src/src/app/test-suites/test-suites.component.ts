@@ -28,11 +28,16 @@ export class TestSuitesComponent {
       });
   }
 
-    selectedCase(event, testCase) {
-          this.currentCase = testCase;
-          this.selectedTestCaseData.push(testCase);
-        }
- 
+  selectedCase(event, testCase) {
+    this.currentCase = testCase;
+    this.selectedTestCaseData.push(testCase);
+  }
+  reverseCase(event, testCase) {
+    console.log(testCase, this.currentCase);
+    this.currentCase = testCase;
+    testCase = {};
+
+  }
 
 
   onAdd() {
@@ -128,12 +133,13 @@ export class TestSuitesComponent {
     this.automatedUIServices
       .getAllTestCases$(this.testSuitePath)
       .subscribe((data: any) => {
-        this.selectedTestCaseData = data;  
+        this.selectedTestCaseData = data;
       });
   }
-  onSelectOne() { }
+  onSelectOne() {
+  }
   onReverseOne() { }
   onReverseAll() {
-    this.selectedTestCaseData = undefined;
+    this.selectedTestCaseData = [];
   }
 }

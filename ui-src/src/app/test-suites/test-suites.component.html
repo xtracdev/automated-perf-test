@@ -23,7 +23,7 @@
         </div>
         <div class="col-md-8">
             <div class="row">
-                <json-schema-form [schema]="testSuiteSchema" framework="bootstrap-4">
+                <json-schema-form [schema]="testSuiteSchema" [(ngModel)]="testSuiteData" framework="bootstrap-4">
                 </json-schema-form>
                 <div class="col-md-5">
                     <h3>Available</h3>
@@ -34,10 +34,10 @@
                             <th>Http Method</th>
                         </tr>
                         <tr *ngFor="let testCase of testCaseData" [class.highlighted]="testCase === currentCase" (click)="selectedCase($event,testCase)">
-                                <td>{{testCase.name}}</td>
-                                <td>{{testCase.description}}</td> 
-                                <td>{{testCase.httpMethod}}</td>
-                            </tr>
+                            <td>{{testCase.name}}</td>
+                            <td>{{testCase.description}}</td>
+                            <td>{{testCase.httpMethod}}</td>
+                        </tr>
                     </table>
                 </div>
                 <div class="button-row col-md-1">
@@ -56,18 +56,18 @@
                             <th>Description</th>
                             <th>Http Method</th>
                         </tr>
-                        <tr *ngFor="let testCase of selectedTestCaseData">
+                        <tr *ngFor="let testCase of selectedTestCaseData" [class.highlighted]="testCase === currentCase" (click)="reverseCase($event,testCase)">
                             <td>{{testCase.name}}</td>
                             <td>{{testCase.description}}</td>
                             <td>{{testCase.httpMethod}}</td>
                         </tr>
                     </table>
                 </div>
-          </div>
+            </div>
             <div class="button-row">
                 <button class="btn btn-primary push-right" (click)="onCancel()">Cancel</button>
                 <button class="btn btn-primary push-right" (click)="onSave(testSuiteData)">Save</button>
             </div>
         </div>
     </div>
-    </div>
+</div>
