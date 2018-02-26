@@ -17,8 +17,8 @@ import (
 	"github.com/DATA-DOG/godog/gherkin"
 	"github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
-	"github.com/xtracdev/automated-perf-test/uiServices/src"
 	"github.com/xtracdev/automated-perf-test/testStrategies"
+	"github.com/xtracdev/automated-perf-test/uiServices/src"
 )
 
 type apiFeature struct {
@@ -30,6 +30,8 @@ type apiFeature struct {
 	filename    string
 	headerName  string
 }
+
+var suitDir = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test"
 
 func (a *apiFeature) resetResponse() {
 	a.client = &http.Client{}
@@ -92,7 +94,7 @@ func (a *apiFeature) theTestSuiteCollectionResponseBodyShouldMatchJSON(body *ghe
 	var actualSuite testStrategies.TestSuite
 
 	exp :=
-	`"""
+		`"""
         [
           {
           "file": "GodogTestSuite.xml",
@@ -107,31 +109,6 @@ func (a *apiFeature) theTestSuiteCollectionResponseBodyShouldMatchJSON(body *ghe
 
 	if !reflect.DeepEqual(expectedSuite, actualSuite) {
 		return fmt.Errorf("Expected :%v ,but actually was :%v", expectedSuite, actualSuite)
-	}
-
-	return nil
-}
-
-func (a *apiFeature) theTestCaseCollectionResponseBodyShouldMatchJSON(body *gherkin.DocString) (err error) {
-	var expectedCase testStrategies.TestDefinition
-	var actualCase testStrategies.TestDefinition
-
-	exp:=
-	`"""
-        [
-          {
-           "name": "GodogTestCase,
-           "description": "Case Desc",
-           "httpMethod": "GET"
-          }
-        ]
-   	 """`
-
-	json.Unmarshal([]byte(body.Content), &actualCase)
-	json.Unmarshal([]byte(exp), &expectedCase)
-
-	if !reflect.DeepEqual(expectedCase, actualCase) {
-		return fmt.Errorf("Expected :%v ,but actually was :%v", expectedCase, actualCase)
 	}
 
 	return nil
@@ -243,7 +220,7 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^there is no existing test file "([^"]*)"$`, api.thereIsNoExistingTestFile)
 	s.Step(`^the test suite response body should match json:$`, api.theTestSuiteResponseBodyShouldMatchJSON)
 	s.Step(`^the test suite collection response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
-	s.Step(`^the test case collection response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
+	s.Step(`^the "([^"]*)" has been created at "([^"]*)"$`, createNewFile)
 }
 
 func (a *apiFeature) thereIsNoExistingTestFile(file string) error {
@@ -386,4 +363,14 @@ func (a *apiFeature) theUpdatedFileShouldMatchJSON(body *gherkin.DocString) (err
 	}
 
 	return nil
+}
+
+func createNewFile(fileName, path string) error {
+
+	err := ioutil.WriteFile(fmt.Sprintf("%s%s/%s", suitDir, path, fileName), nil, 0666)
+	if err != nil {
+		logrus.Error(" error creating file ", err)
+		return err
+	}
+	return err
 }
