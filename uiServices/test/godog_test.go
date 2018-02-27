@@ -114,6 +114,31 @@ func (a *apiFeature) theTestSuiteCollectionResponseBodyShouldMatchJSON(body *ghe
 	return nil
 }
 
+func (a *apiFeature) theTestCaseCollectionResponseBodyShouldMatchJSON(body *gherkin.DocString) (err error) {
+	var expectedSuite testStrategies.TestSuite
+	var actualSuite testStrategies.TestSuite
+
+	exp :=
+	`"""
+[
+  {
+  "file": "GodogTestSuite.xml",
+  "name": "GodogTestSuite2,
+  "description": "ServiceDesc",
+  }
+]
+    """`
+
+	json.Unmarshal([]byte(body.Content), &actualSuite)
+	json.Unmarshal([]byte(exp), &expectedSuite)
+
+	if !reflect.DeepEqual(expectedSuite, actualSuite) {
+		return fmt.Errorf("Expected :%v ,but actually was :%v", expectedSuite, actualSuite)
+	}
+
+	return nil
+}
+
 func (a *apiFeature) theResponseBodyShouldBeEmpty() error {
 	defer a.resp.Body.Close()
 
@@ -220,6 +245,7 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^there is no existing test file "([^"]*)"$`, api.thereIsNoExistingTestFile)
 	s.Step(`^the test suite response body should match json:$`, api.theTestSuiteResponseBodyShouldMatchJSON)
 	s.Step(`^the test suite collection response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
+	s.Step(`^the test case collection response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
 	s.Step(`^the "([^"]*)" has been created at "([^"]*)"$`, createNewFile)
 }
 
