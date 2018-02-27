@@ -1,15 +1,17 @@
 package services
 
 import (
-	"github.com/go-chi/chi"
-
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
-
 	"strings"
 	"testing"
 
+	"github.com/Sirupsen/logrus"
+
+	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -398,7 +400,7 @@ func TestSuccessfulGetTestSuite(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusOK, w.Code, "Error. Did not successfully GET")
+	assert.Equal(t, http.StatusOK, w.Code, "Error. Did not successfully GET")
 }
 
 func TestGetTestSuiteNoPath(t *testing.T) {
@@ -418,7 +420,7 @@ func TestGetTestSuiteNoPath(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,  http.StatusBadRequest, w.Code, "Retrived file but should not have as there is no path")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Retrived file but should not have as there is no path")
 }
 
 func TestGetTestSuiteFileNotFound(t *testing.T) {
@@ -479,4 +481,76 @@ func TestGetAllSuitesNoHeader(t *testing.T) {
 	}
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Did not get all test suites")
+}
+
+func TestDeleteAllSuites(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	t.Run("400 - Bad request no header", func(t *testing.T) {
+		directoryPath := ""
+		request, err := http.NewRequest(http.MethodDelete, "/test-suites/testParam", nil)
+		if err != nil {
+			logrus.Warnf("Error creating the request %s", err)
+		}
+
+		request.Header.Set("testSuitePathDir", directoryPath)
+
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, request)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code, "Did not DELETE the file")
+	})
+
+	t.Run("failure - 500", func(t *testing.T) {
+		filePath := os.Getenv("GOPATH") + "C:/Usersa622123/go/src/github.com/xtracdev/automated-perf-test/config"
+		request, err := http.NewRequest(http.MethodDelete, "/test-suites/test", nil)
+
+		request.Header.Set("testSuitePathDir", filePath)
+
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, request)
+
+		if err != nil {
+			t.Error(err)
+		}
+
+		assert.Equal(t, http.StatusInternalServerError, w.Code, "Internal error: failed to DELETE the file")
+	})
+
+	t.Run("failure - 404", func(t *testing.T) {
+		filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config"
+		request, err := http.NewRequest(http.MethodDelete, "/test-suites/abc", nil)
+
+		request.Header.Set("testSuitePathDir", filePath)
+
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, request)
+
+		if err != nil {
+			t.Error(err)
+		}
+
+		assert.Equal(t, http.StatusNotFound, w.Code, "File was found and NOT DELETED")
+	})
+
+	t.Run("success - 204", func(t *testing.T) {
+		filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/config"
+		err := ioutil.WriteFile(fmt.Sprintf("%s/%s.xml", filePath, "test"), nil, 0666)
+		if err != nil {
+			logrus.Errorf("Error trying to create the file %s", err)
+		}
+
+		request, err := http.NewRequest(http.MethodDelete, "/test-suites/test", nil)
+		if err != nil {
+			logrus.Errorf("error trying to delete the file %s", err)
+		}
+
+		request.Header.Set("testSuitePathDir", filePath)
+
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, request)
+
+		assert.Equal(t, http.StatusNoContent, w.Code, "File was NOT DELETED")
+	})
 }
