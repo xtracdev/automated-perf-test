@@ -59,7 +59,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateJsonWithSchema(buf.Bytes(), schemaFile, structType) {
+	if !ValidateJSONWithSchema(buf.Bytes(), schemaFile, structType) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -78,7 +78,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !testSuiteWriterXml(testSuite, testSuitePathDir+testSuite.Name+".xml") {
+	if !testSuiteWriterXML(testSuite, testSuitePathDir+testSuite.Name+".xml") {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -86,7 +86,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusCreated)
 }
 
-func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) bool {
+func ValidateJSONWithSchema(testSuite []byte, schemaName, structType string) bool {
 	goPath := os.Getenv("GOPATH")
 	schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/" + schemaName)
 	documentLoader := gojsonschema.NewBytesLoader(testSuite)
@@ -127,7 +127,7 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !ValidateJsonWithSchema(buf.Bytes(), schemaFile, structType) {
+	if !ValidateJSONWithSchema(buf.Bytes(), schemaFile, structType) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -141,7 +141,33 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !testSuiteWriterXml(testSuite, testSuitePathDir) {
+	if !testSuiteWriterXML(testSuite, testSuitePathDir) {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
+}
+
+func deleteTestSuite(rw http.ResponseWriter, req *http.Request) {
+	testSuitePathDir := getTestSuiteHeader(req)
+	testSuiteName := chi.URLParam(req, "testSuiteName")
+
+	if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName) {
+		return
+	}
+
+	if _, err := os.Stat(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName)); err != nil {
+		if os.IsNotExist(err) {
+			logrus.Error("Test Suite File Not Found: " + testSuitePathDir + testSuiteName)
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
+	}
+
+	err := os.Remove(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName))
+	if err != nil {
+		logrus.Errorf("Error deleting the file from filesystem: %s", err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
