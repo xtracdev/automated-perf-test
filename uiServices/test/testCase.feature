@@ -19,8 +19,8 @@ Feature: Test Case Scenarios
        "description":"desc",
        "overrideHost":"host",
        "overridePort":"9191",
-       "HttpMethod":"GET",
-       "BaseURI": "path/to/URI",
+       "httpMethod":"GET",
+       "baseURI": "path/to/URI",
        "multipart":false,
        "payload": "payload",
        "responseStatusCode":200,
@@ -28,18 +28,18 @@ Feature: Test Case Scenarios
        "preThinkTime": 1000,
        "postThinkTime":2000,
        "execWeight": "Sparse",
-       "Headers":[{
-   	     "Key": "Authorization",
-         "Value" :"Header-Value"
+       "headers":[{
+   	     "key": "Authorization",
+         "value" :"Header-Value"
         }],
-      "ResponseValues":[{
-         "Value":"Res-Value",
-         "ExtractionKey": "Res-Key"
+      "responseValues":[{
+         "value":"Res-Value",
+         "extractionKey": "Res-Key"
        }],
-      "MultipartPayload":[{
-         "FieldName": "F-Name",
-         "FieldValue":"PayloadName",
-         "FileName": "file-name"
+      "multipartPayload":[{
+         "fieldName": "F-Name",
+         "fieldValue":"PayloadName",
+         "fileName": "file-name"
        }]
       }
     """
@@ -56,8 +56,8 @@ Feature: Test Case Scenarios
        "description":"desc",
        "overrideHost":"host",
        "overridePort":"9191",
-       "HttpMethod":"GET",
-       "BaseURI": "path/to/URI",
+       "httpMethod":"GET",
+       "baseURI": "path/to/URI",
        "multipart":false,
        "payload": "payload",
        "responseStatusCode":200,
@@ -65,18 +65,18 @@ Feature: Test Case Scenarios
        "preThinkTime": 1000,
        "postThinkTime":2000,
        "execWeight": "Sparse",
-       "Headers":[{
-   	     "Key": "Authorization",
-         "Value" :"Header-Value"
+       "headers":[{
+   	     "key": "Authorization",
+         "value" :"Header-Value"
         }],
-      "ResponseValues":[{
-         "Value":"Res-Value",
-         "ExtractionKey": "Res-Key"
+      "responseValues":[{
+         "value":"Res-Value",
+         "extractionKey": "Res-Key"
        }],
-      "MultipartPayload":[{
-         "FieldName": "F-Name",
-         "FieldValue":"PayloadName",
-         "FileName": "file-name"
+      "multipartPayload":[{
+         "fieldName": "F-Name",
+         "fieldValue":"PayloadName",
+         "fileName": "file-name"
        }]
       }
     """

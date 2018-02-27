@@ -45,11 +45,6 @@ func postTestCase(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateJSONWithSchema(buf.Bytes(), testCaseSchema, structTypeName) {
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	if !FilePathExist(testCasePathDir) {
 		logrus.Error("Directory path does not exist")
 		rw.WriteHeader(http.StatusBadRequest)
