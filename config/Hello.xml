@@ -1,0 +1,9 @@
+  <testSuite>
+      <name>Hello</name>
+      <description>World</description>
+      <testStrategy>SuiteBased</testStrategy>
+      <testCases>
+          <testCase preThinkTime="1000" postThinkTime="2000" execWeight="Sparse">TestCaseService</testCase>
+          <testCase preThinkTime="1000" postThinkTime="2000" execWeight="Sparse">TestCaseService</testCase>
+      </testCases>
+  </testSuite>

@@ -59,10 +59,10 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateJsonWithSchema(buf.Bytes(), schemaFile, structType) {
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	// if !ValidateJsonWithSchema(buf.Bytes(), schemaFile, structType) {
+	// 	rw.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
 
 	if !FilePathExist(testSuitePathDir) {
 		logrus.Error("Directory path does not exist", err)
