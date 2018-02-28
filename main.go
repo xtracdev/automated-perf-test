@@ -147,7 +147,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 
 	// Start server for the User Interface Mode
 	if uiMode {
-		services.StartUiMode()
+		services.StartUIMode()
 	}
 
 	setLogLevel(boolVerbose, boolDebug)
