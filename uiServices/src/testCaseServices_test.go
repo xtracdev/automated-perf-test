@@ -1,13 +1,14 @@
 package services
 
 import (
-	"testing"
-	"github.com/go-chi/chi"
-	"strings"
-	"os"
-	"net/http/httptest"
-	"github.com/stretchr/testify/assert"
 	"net/http"
+	"net/http/httptest"
+	"os"
+	"strings"
+	"testing"
+
+	"github.com/go-chi/chi"
+	"github.com/stretchr/testify/assert"
 )
 
 const validTestCase = `
@@ -88,7 +89,6 @@ const TestCaseMissingRequired = `
    "execWeight": "Sparse"
 }
 `
-
 
 func TestValidTestCasePost(t *testing.T) {
 	r := chi.NewRouter()
@@ -210,7 +210,6 @@ func TestTestCasePutMissingRequired(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Should not have successfully updated")
 }
 
-
 func TestInvalidUrlTestCasePut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -314,4 +313,22 @@ func TestNoNameTestCasePut(t *testing.T) {
 	}
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no filepath")
+}
+
+func TestGetAllCasesNoHeader(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	DircetoryPath := ""
+	request, err := http.NewRequest(http.MethodGet, "/test-cases", nil)
+
+	request.Header.Set("testCasePathDir", DircetoryPath)
+	request.Header.Get("testCasePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusBadRequest, w.Code, "Did not get all test cases")
+	}
 }

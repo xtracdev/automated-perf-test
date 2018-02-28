@@ -1,14 +1,20 @@
 package services
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"strings"
-	"github.com/Sirupsen/logrus"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"bytes"
+	"encoding/json"
+	"encoding/xml"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
 const testCaseSchema string = "testCase_schema.json"
@@ -27,6 +33,65 @@ func getTestCaseHeader(req *http.Request) string {
 		testCasePathDir = testCasePathDir + "/"
 	}
 	return testCasePathDir
+}
+
+func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
+
+	testCasePathDir := getTestCaseHeader(req)
+	if len(testCasePathDir) <= 1 {
+		logrus.Error("No file directory entered")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	files, err := ioutil.ReadDir(testCasePathDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	testCases := make([]Case, 0)
+
+	for _, file := range files {
+		if filepath.Ext(testCasePathDir+file.Name()) == ".xml" {
+
+			testCase := new(testStrategies.TestDefinition)
+
+			filename := file.Name()
+
+			file, err := os.Open(fmt.Sprintf("%s%s", testCasePathDir, filename))
+			if err != nil {
+				continue
+			}
+
+			byteValue, err := ioutil.ReadAll(file)
+			if err != nil {
+				continue
+			}
+
+			err = xml.Unmarshal(byteValue, testCase)
+			if err != nil {
+				continue
+			}
+
+			//if a Test Case Name can't be assigned, it isn't a Test Case object
+			if testCase.TestName != "" {
+				testCases = append(testCases, Case{
+					Name:        testCase.TestName,
+					Description: testCase.Description,
+					HttpMethod:  testCase.HTTPMethod,
+				})
+			}
+		}
+	}
+
+	err = json.NewEncoder(rw).Encode(testCases)
+	if err != nil {
+		logrus.Error("Could not enocde Test Cases")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
 }
 
 func postTestCase(rw http.ResponseWriter, req *http.Request) {
@@ -60,7 +125,7 @@ func postTestCase(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !testCaseWriterXml(testCase, testCasePathDir + testCase.TestName+".xml") {
+	if !testCaseWriterXml(testCase, testCasePathDir+testCase.TestName+".xml") {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -101,7 +166,7 @@ func putTestCase(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if len(testCase.TestName) < 1{
+	if len(testCase.TestName) < 1 {
 		logrus.Error("No TestName Entered")
 		rw.WriteHeader(http.StatusBadRequest)
 		return

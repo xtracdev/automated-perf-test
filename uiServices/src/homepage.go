@@ -125,6 +125,8 @@ func routeTestCases() http.Handler {
 	router.Use(TestCaseCtx)
 	router.Post("/", postTestCase)
 	router.Put("/{testCaseName}", putTestCase)
+	router.Get("/", getAllTestCases)
+	
 
 	return router
 }
