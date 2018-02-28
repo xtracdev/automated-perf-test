@@ -115,6 +115,7 @@ func routeTestSuites() http.Handler {
 	router.Put("/{testSuiteName}", putTestSuites)
 	router.Get("/{testSuiteName}", getTestSuite)
 	router.Get("/", getAllTestSuites)
+	router.Delete("/{testSuiteName}", deleteTestSuite)
 
 	return router
 }
@@ -122,8 +123,8 @@ func routeTestSuites() http.Handler {
 func routeTestCases() http.Handler {
 	router := chi.NewRouter()
 	router.Use(TestCaseCtx)
-	router.Get("/", getAllTestCases)
-	router.Get("/{testCaseName}", getTestCase)
+	router.Post("/", postTestCase)
+	router.Put("/{testCaseName}", putTestCase)
 
 	return router
 }

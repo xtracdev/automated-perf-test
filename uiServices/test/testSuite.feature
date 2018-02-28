@@ -329,27 +329,27 @@ Feature: Test Suite Creation
     And the test suite response body should match json:
     """
       {
-        "XMLName": {
+      ":": {
+      "Space": "",
+      "Local": "testSuite"
+      },
+      "name": "GodogTestSuite2",
+      "description": "ServiceDesc",
+      "testStrategy": "SuiteBased",
+      "testCases": [
+       {
+        "testCase": {
         "Space": "",
-        "Local": "testSuite"
+        "Local": "testCase"
         },
-         "Name": "GodogTestSuite2",
-         "Description": "ServiceDesc",
-           "TestStrategy": "SuiteBased",
-          "TestCases": [
-           {
-            "XMLName": {
-            "Space": "",
-            "Local": "testCase"
-           },
-            "Name": "file1",
-            "PreThinkTime": 2000,
-            "PostThinkTime": 5000,
-            "ExecWeight": "Infrequent"
-         }
-        ],
-"TestDefinitions": null
-}
+        "Name": "file1",
+        "preThinkTime": 2000,
+        "PostThinkTime": 5000,
+        "execWeight": "Infrequent"
+        }
+      ],
+        "TestDefinitions": null
+      }
     """
 
 
@@ -395,3 +395,30 @@ Feature: Test Suite Creation
     And the header "testSuitePathDir" is ""
     When I send a "GET" request to "/test-suites"
     Then the response code should be 400
+
+
+
+                                ###################################
+                                #######    DELETE REQUESTS ########
+                                ###################################
+
+Scenario: Unsuccessful deleting of test-suites (No Header)
+  Given the automated performance ui server is available
+  And the header "testSuitePathDir" is ""
+  When I send a "DELETE" request to "/test-suites/deleteTest"
+  Then the response code should be 400
+
+
+Scenario: Unsuccessful deleting of test-suites file (File Not Found)
+  Given the automated performance ui server is available
+  And the header "testSuitePathDir" is "/uiServices/test/"
+  When I send a "DELETE" request to "/test-suites/nonExistentFile"
+  Then the response code should be 404
+   
+
+Scenario: Successful deleting of test-suite file with DELETE request
+  Given the "deleteTest.xml" has been created at "/uiServices/test/"
+  Given the automated performance ui server is available
+  And the header "testSuitePathDir" is "/uiServices/test/"
+  When I send a "DELETE" request to "/test-suites/deleteTest"
+  Then the response code should be 204

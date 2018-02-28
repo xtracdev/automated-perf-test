@@ -1,15 +1,12 @@
 package services
 
 import (
-	"github.com/go-chi/chi"
-
 	"net/http"
 	"net/http/httptest"
 	"os"
-
 	"strings"
 	"testing"
-
+	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -81,6 +78,24 @@ const TestSuiteNoName = `
 }
 `
 
+const validTestSuiteForDelete = `
+{
+  "name": "TestSuiteA",
+  "testStrategy": "SuiteBased",
+  "description": "Services for XYZ",
+  "testCases": [
+    {
+      "name":"file1",
+      "preThinkTime": 1000,
+      "postThinkTime": 2000,
+      "execWeight": "Infrequent"
+    },
+    {
+      "name":"file2"
+    }
+  ]
+}
+`
 func TestValidTestSuitePost(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -398,7 +413,7 @@ func TestSuccessfulGetTestSuite(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusOK, w.Code, "Error. Did not successfully GET")
+	assert.Equal(t, http.StatusOK, w.Code, "Error. Did not successfully GET")
 }
 
 func TestGetTestSuiteNoPath(t *testing.T) {
@@ -418,7 +433,7 @@ func TestGetTestSuiteNoPath(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,  http.StatusBadRequest, w.Code, "Retrived file but should not have as there is no path")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Retrived file but should not have as there is no path")
 }
 
 func TestGetTestSuiteFileNotFound(t *testing.T) {
@@ -479,4 +494,83 @@ func TestGetAllSuitesNoHeader(t *testing.T) {
 	}
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Did not get all test suites")
+}
+
+func TestSuccessfulDeleteTestSuite(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	//create file to be deleted
+	reader := strings.NewReader(validTestSuiteForDelete)
+	r.HandleFunc("/test-suites", postTestSuites)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
+	request.Header.Set("testSuitePathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusCreated, w.Code, "Error: Did Not Successfully Post")
+
+
+
+	filePath = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err = http.NewRequest(http.MethodDelete, "/test-suites/TestSuiteA", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusNoContent, w.Code, "Error. Did not successfully Delete")
+}
+
+func TestDeleteTestSuiteNoHeader(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := ""
+	request, err := http.NewRequest(http.MethodDelete, "/test-suites/TestSuiteService", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Deleted. But SHould Not Have")
+}
+
+func TestDeleteTestSuiteNotFound(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodDelete, "/test-suites/xxx", nil)
+
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusNotFound, w.Code, "Deleted. But should not have")
 }
