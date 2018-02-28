@@ -5,7 +5,7 @@
             <th>Description</th>
             <th>Http Method</th>
         </tr>
-        <tr *ngFor="let testCase of testCases">
+        <tr *ngFor="let testCase of testCases" [class.highlighted]="testCase" (click)="selectedCase(testCase)">
             <td>{{testCase.name}}</td>
             <td>{{testCase.description}}</td>   
             <td>{{testCase.httpMethod}}</td>
