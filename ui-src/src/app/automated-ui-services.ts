@@ -24,7 +24,7 @@ export class AutomatedUIServices {
 
   }
   getConfig$(configPath, xmlFileName): Observable<any> {
-     this.headers = this.headers.set("configPathDir", configPath);
+    this.headers = this.headers.set("configPathDir", configPath);
     return this.http.get(`${environment.apiBaseUrl}configs/${xmlFileName}`, {
       headers: this.headers
     });
@@ -42,4 +42,12 @@ export class AutomatedUIServices {
       .get(`${environment.apiBaseUrl}${location}`, { headers: this.headers })
       .map((data: any) => data);
   }
+
+  getAllCases$(testCasePath): Observable<any> {
+    this.headers = this.headers.set("testCasePathDir", testCasePath);
+    return this.http.get(`${environment.apiBaseUrl}test-cases`, {
+      headers: this.headers
+    });
+  }
+
 }

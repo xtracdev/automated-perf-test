@@ -1,1 +1,38 @@
 
+.row {
+    margin-top: 25px;
+    margin-bottom: 25px;
+  }
+  .button-row {   margin-top: 25px;}
+  .column {
+   
+    padding: 0px;
+  }
+  
+  table {
+   
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 25px;
+
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+.btn{
+  margin-bottom: 25px;
+}
+
+submit-widget{
+  display : none;
+}
+

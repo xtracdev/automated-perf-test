@@ -23,7 +23,7 @@ export class ConfigurationsComponent implements OnInit {
     private toastr: ToastsManager,
 
     private http: HttpClient
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.automatedUIServices
@@ -68,87 +68,95 @@ export class ConfigurationsComponent implements OnInit {
     this.automatedUIServices
       .getConfig$(this.configPath, this.xmlFileName)
       .subscribe(
-        data => {
-          this.formData = data;
-          this.toastr.success("Previous data reloaded!");
-        },
-        error => {
-          this.configPath = undefined;
-          this.xmlFileName = undefined;
-          this.formData = undefined;
-        }
+      data => {
+        this.formData = data;
+        this.toastr.success("Previous data reloaded!");
+      },
+      error => {
+        this.configPath = undefined;
+        this.xmlFileName = undefined;
+        this.formData = undefined;
+      }
       );
   }
 
+
   fileSelector(event) {
-    this.fileName = event.srcElement.files[0].name;
-    this.xmlFileName = this.fileName;
+    this.fileName  =  event.srcElement.files[0].name;
+    this.xmlFileName  =  this.fileName;
+    this.xmlFileName  =  this.xmlFileName.substring(
+      0,
+      this.xmlFileName.length  -  4);
+
     this.onGetFile();
+    (<HTMLInputElement>document.getElementById("file")).value  = "";
   }
+
+
   onGetFile() {
     this.automatedUIServices
       .getConfig$(this.configPath, this.xmlFileName)
       .subscribe(
-        data => {
-          this.formData = data;
-          this.toastr.success("Success!");
-        },
-        error => {
-          switch (error.status) {
-            case 404: {
-              this.toastr.error("File not found!", "An error occured!");
-              break;
-            }
-            case 400: {
-              this.toastr.error(
-                "Check your field inputs",
-                "An error occurred!"
-              );
-              break;
-            }
-            case 500: {
-              this.toastr.error("An error has occurred!", "Check the logs!");
-              break;
-            }
-            default: {
-              this.toastr.error(
-                "Your data was not retrieved!",
-                "An error occurred!"
-              );
-            }
+      data => {
+        this.formData = data;
+        this.toastr.success("Success!");
+      },
+      error => {
+        switch (error.status) {
+          case 404: {
+            this.toastr.error("File not found!", "An error occured!");
+            break;
+          }
+          case 400: {
+            this.toastr.error(
+              "Check your field inputs",
+              "An error occurred!"
+            );
+            break;
+          }
+          case 500: {
+            this.toastr.error("An error has occurred!", "Check the logs!");
+            break;
+          }
+          default: {
+            this.toastr.error(
+              "Your data was not retrieved!",
+              "An error occurred!"
+            );
           }
         }
+      }
       );
   }
   onUpdate(configData) {
     this.automatedUIServices
       .putConfig$(this.formData, this.configPath, this.xmlFileName)
       .subscribe(
-        data => {
-          this.toastr.success("Success!");
-        },
-        error => {
-          switch (error.status) {
-            case 404: {
-              this.toastr.error("File not found", "An error occured!");
-              break;
-            }
-            case 400: {
-              this.toastr.error(
-                "File must be specified!",
-                "An error occurred!"
-              );
-              break;
-            }
-            case 500: {
-              this.toastr.error("Internal server error!");
-              break;
-            }
-            default: {
-              this.toastr.error("File was not updated!", "An error occurred!");
-            }
+      data => {
+        this.toastr.success("Success!");
+      },
+      error => {
+        switch (error.status) {
+          case 404: {
+            this.toastr.error("File not found", "An error occured!");
+            break;
+          }
+          case 400: {
+            this.toastr.error(
+              "File must be specified!",
+              "An error occurred!"
+            );
+            break;
+          }
+          case 500: {
+            this.toastr.error("Internal server error!");
+            break;
+          }
+          default: {
+            this.toastr.error("File was not updated!", "An error occurred!");
           }
         }
+      }
       );
   }
 }
