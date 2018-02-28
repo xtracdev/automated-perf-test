@@ -1,95 +1,90 @@
 import { Component, OnInit } from "@angular/core";
-import { AutomatedUIServices } from "../automated-ui-services";
+import { TestSuiteService } from "./test-suite.service";
+import { TestCaseService } from "../test-cases/test-case.service";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
+const TEST_SUITE_PATH  = '/Users/a505230/code/go/src/github.com/xtracdev/automated-perf-test/config';
 @Component({
   selector: "app-test-suites",
   templateUrl: "./test-suites.component.html",
   styleUrls: ["./test-suites.component.css"]
 })
 export class TestSuitesComponent {
+
+
+  testSuitePath = TEST_SUITE_PATH
+
+
   testSuiteData = [];
   testCaseData = [];
   testCaseArray = [];
   formData = {};
   selectedTestCaseData = [];
-  testSuitePath = undefined;
   testSuiteFileName = undefined;
   testSuiteSchema = { layout: true };
 
   constructor(
-    private automatedUIServices: AutomatedUIServices,
+    private testSuiteService: TestSuiteService,
+    private testCaseService: TestCaseService,
     private toastr: ToastsManager
   ) {}
 
-  ngOnInit() {
-    this.automatedUIServices
-      .getSchema$("assets/testSuite_schema.json")
-      .subscribe((data: any) => {
-        this.testSuiteSchema = data;
-      });
-  }
-
-  selectedCase(testCase) {
-    this.selectedTestCaseData.push(testCase);
-    this.testCaseArray["testCases"] = this.selectedTestCaseData;
-  }
+  // selectedCase(testCase) {
+  //   this.selectedTestCaseData.push(testCase);
+  //   this.testCaseArray["testCases"] = this.selectedTestCaseData;
+  // }
 
   onAdd() {
-    this.automatedUIServices.getAllTestSuite$(this.testSuitePath).subscribe(
-      data => {
-        this.formData = data;
-        this.toastr.success("Your data has been saved!", "Success!");
-      },
+  //   this.testSuiteService.getAllTestSuite$(TEST_SUITE_PATH).subscribe(
+  //     data => {
+  //       this.formData = data;
+  //       this.toastr.success("Your data has been saved!", "Success!");
+  //     },
 
-      error => {
-        switch (error.status) {
-          case 500: {
-            this.toastr.error("An error has occurred!", "Check the logs!");
-            break;
-          }
-          case 400: {
-            this.toastr.error(
-              "No Test Suite Directory added",
-              "An error occurred!"
-            );
-            break;
-          }
-          default: {
-            this.toastr.error("An error occurred!");
-          }
-        }
-      }
-    );
+  //     error => {
+  //       switch (error.status) {
+  //         case 500: {
+  //           this.toastr.error("An error has occurred!", "Check the logs!");
+  //           break;
+  //         }
+  //         case 400: {
+  //           this.toastr.error(
+  //             "No Test Suite Directory added",
+  //             "An error occurred!"
+  //           );
+  //           break;
+  //         }
+  //         default: {
+  //           this.toastr.error("An error occurred!");
+  //         }
+  //       }
+  //     }
+  //   );
   }
 
   getTestCases() {
-    this.automatedUIServices
-      .getAllTestCases$(this.testSuitePath)
-      .subscribe((data: any) => {
-        this.testCaseData = data;
-      });
+    // this.testCaseService.getAllTestCases$(TEST_SUITE_PATH)
+    //   .subscribe((data: any) => this.testCases = data);
   }
 
   onDelete() {}
 
   onCancel() {
     //clear schema and moving info back into available (get method)
-    this.automatedUIServices
-      .getTestSuite$(this.testSuitePath, this.testSuiteFileName)
-      .subscribe(
-        data => {
-          this.testSuiteData = data;
-          this.toastr.success("Previous data reloaded!");
-        },
-        error => {
-          this.testSuiteData = undefined;
-        }
-      );
+    // this.testSuiteService.getTestSuite$(TEST_SUITE_PATH, this.testSuiteFileName)
+    //   .subscribe(
+    //     data => {
+    //       this.testSuiteData = data;
+    //       this.toastr.success("Previous data reloaded!");
+    //     },
+    //     error => {
+    //       this.testSuiteData = undefined;
+    //     }
+    //   );
   }
 
   onSave(data) {
     Object.assign(data, this.testCaseArray);
-    this.automatedUIServices.postTestSuite$(data, this.testSuitePath).subscribe(
+    this.testSuiteService.postTestSuite$(data, TEST_SUITE_PATH).subscribe(
       data => {
         this.toastr.success("Your data has been saved!", "Success!");
       },
@@ -120,8 +115,8 @@ export class TestSuitesComponent {
   }
 
   onSelectAll() {
-    this.automatedUIServices
-      .getAllTestCases$(this.testSuitePath)
+    this.testCaseService
+      .getAllTestCases$(TEST_SUITE_PATH)
       .subscribe((data: any) => {
         this.selectedTestCaseData = data;
         this.testCaseArray["testCases"] = this.selectedTestCaseData;

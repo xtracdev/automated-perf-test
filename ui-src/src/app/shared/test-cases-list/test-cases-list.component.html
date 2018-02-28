@@ -1,0 +1,14 @@
+<div>
+    <table>
+        <tr>
+            <th>Name </th>
+            <th>Description</th>
+            <th>Http Method</th>
+        </tr>
+        <tr *ngFor="let testCase of testCases">
+            <td>{{testCase.name}}</td>
+            <td>{{testCase.description}}</td>   
+            <td>{{testCase.httpMethod}}</td>
+        </tr>  
+    </table>
+</div>

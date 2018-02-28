@@ -10,18 +10,19 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
 	"github.com/Sirupsen/logrus"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"github.com/go-chi/chi"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
 type Case struct {
-	HttpMethod  string `json:"httpMethod"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	PreThinkTime int64 `json:"preThinkTime"` 
-	PostThinkTime int64 `json:"postThinkTime"` 
-	ExecWeight string `json:"execWeight"`
+	HttpMethod    string `json:"httpMethod"`
+	Name          string `json:"name"`
+	Description   string `json:"description"`
+	PreThinkTime  int64  `json:"preThinkTime"`
+	PostThinkTime int64  `json:"postThinkTime"`
+	ExecWeight    string `json:"execWeight"`
 }
 
 func TestCaseCtx(next http.Handler) http.Handler {
@@ -40,7 +41,7 @@ func getTestCaseHeader(req *http.Request) string {
 }
 
 func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
-
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testCasePathDir := getTestCaseHeader(req)
 	if len(testCasePathDir) <= 1 {
 		logrus.Error("No file directory entered")
@@ -56,7 +57,7 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 	testCases := make([]Case, 0)
 
 	for _, file := range files {
-		if filepath.Ext(testCasePathDir +file.Name()) == ".xml" {
+		if filepath.Ext(testCasePathDir+file.Name()) == ".xml" {
 
 			testCase := new(testStrategies.TestDefinition)
 
@@ -81,20 +82,19 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 			//if a Test Case Name can't be assigned, it isn't a Test Case object
 			if testCase.TestName != "" {
 				testCases = append(testCases, Case{
-					Name:        testCase.TestName,
-					Description: testCase.Description,
-					HttpMethod:  testCase.HTTPMethod,
+					Name:          testCase.TestName,
+					Description:   testCase.Description,
+					HttpMethod:    testCase.HTTPMethod,
 					PostThinkTime: testCase.PostThinkTime,
-					PreThinkTime: testCase.PreThinkTime,
-					ExecWeight: testCase.ExecWeight,
-
+					PreThinkTime:  testCase.PreThinkTime,
+					ExecWeight:    testCase.ExecWeight,
 				})
 			}
 		}
 	}
 
 	err = json.NewEncoder(rw).Encode(testCases)
-	if err != nil{
+	if err != nil {
 		logrus.Error("Could not enocde Test Cases")
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
@@ -104,7 +104,7 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 }
 
 func getTestCase(rw http.ResponseWriter, req *http.Request) {
-
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testCasePathDir := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
 

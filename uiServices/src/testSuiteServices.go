@@ -43,6 +43,7 @@ func getTestSuiteHeader(req *http.Request) string {
 }
 
 func postTestSuites(rw http.ResponseWriter, req *http.Request) {
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testSuitePathDir := getTestSuiteHeader(req)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
@@ -109,6 +110,7 @@ func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) boo
 }
 
 func putTestSuites(rw http.ResponseWriter, req *http.Request) {
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	path := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
@@ -150,7 +152,7 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 }
 
 func getTestSuite(rw http.ResponseWriter, req *http.Request) {
-
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testSuitePathDir := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
@@ -193,7 +195,7 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request) {
 }
 
 func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
-
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testSuitePathDir := getTestSuiteHeader(req)
 	if len(testSuitePathDir) <= 1 {
 		logrus.Error("No file directory entered")

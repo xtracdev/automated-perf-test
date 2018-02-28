@@ -8,7 +8,7 @@ import { TestSuitesComponent } from "./test-suites/test-suites.component";
 const routes: Routes = [
   { path: "", redirectTo: "/configurations", pathMatch: "full" },
   { path: "configurations", component: ConfigurationsComponent },
-  // { path: "test-cases", component: TestCasesComponent },
+  { path: "test-cases", component: TestCasesComponent },
   { path: "test-suites", component: TestSuitesComponent }
 ];
 

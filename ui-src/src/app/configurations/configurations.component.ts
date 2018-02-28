@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { AutomatedUIServices } from "../automated-ui-services";
+import { ConfigurationService } from "./configuration.service";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import "rxjs/add/operator/map";
@@ -19,14 +19,14 @@ export class ConfigurationsComponent implements OnInit {
   configSchema = { layout: true };
 
   constructor(
-    private automatedUIServices: AutomatedUIServices,
+    private configurationService: ConfigurationService,
     private toastr: ToastsManager,
 
     private http: HttpClient
   ) {}
 
   ngOnInit() {
-    this.automatedUIServices
+    this.configurationService
       .getSchema$("assets/schema.json")
       .subscribe((data: any) => {
         this.configSchema = data;
@@ -34,7 +34,7 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onSubmit(configData) {
-    this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
+    this.configurationService.postConfig$(configData, this.configPath).subscribe(
       data => {
         this.toastr.success("Your data has been saved!", "Success!");
       },
@@ -65,7 +65,7 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onCancel() {
-    this.automatedUIServices
+    this.configurationService
       .getConfig$(this.configPath, this.xmlFileName)
       .subscribe(
         data => {
@@ -97,7 +97,7 @@ export class ConfigurationsComponent implements OnInit {
     this.xmlFileName = undefined;
   }
   onGetFile() {
-    this.automatedUIServices
+    this.configurationService
       .getConfig$(this.configPath, this.xmlFileName)
       .subscribe(
         data => {
@@ -132,7 +132,7 @@ export class ConfigurationsComponent implements OnInit {
       );
   }
   onUpdate(configData) {
-    this.automatedUIServices
+    this.configurationService
       .putConfig$(this.formData, this.configPath, this.xmlFileName)
       .subscribe(
         data => {

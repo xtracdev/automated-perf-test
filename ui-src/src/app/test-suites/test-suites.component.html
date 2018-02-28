@@ -1,14 +1,14 @@
 <div class="container">
-    <div class="row">
+    <!-- <div class="row">
         <label>Test Suite Directory</label>
         <input class="form-control" type="string" [(ngModel)]="testSuitePath" required>
-    </div>
+    </div> -->
 
 
     <div class="row">
 <!-- --------------------------------BUTTONS------------------------------------------------- -->
-        <div class="column col-md-4">
-            <button class="btn btn-primary " (click)="onAdd()" (click)="getTestCases()">Add</button>
+         <div class="column col-md-4">
+            <!-- <button class="btn btn-primary " (click)="onAdd()" (click)="getTestCases()">Add</button>
             <button class="btn btn-primary " (click)="onDelete()">Delete</button>
             <table>
                 <tr>
@@ -19,56 +19,10 @@
                     <td>{{testSuite.name}}</td>  
                     <td>{{testSuite.description}}</td>
                 </tr>
-            </table>
-        </div>
+            </table> -->
+        </div> 
         <div class="col-md-8">
-            <div class="row">
-                <!--------------------- schema -------------------------------->
-                <json-schema-form [schema]="testSuiteSchema" [(ngModel)]="testSuiteData" framework="bootstrap-4">
-                </json-schema-form>
-                <div class="col-md-5">
-<!--------------------------------- AVAILABLE---------------------------------------->
-                    
-                    <h3>Available</h3>
-                    <table>
-                        <tr>
-                            <th>Name </th>
-                            <th>Description</th>
-                            <th>Http Method</th>
-                        </tr>
-                        <tr *ngFor="let testCase of testCaseData" [class.highlighted]="testCase" (click)="selectedCase(testCase)">
-                            <td>{{testCase.name}}</td>
-                            <td>{{testCase.description}}</td>   
-                            <td>{{testCase.httpMethod}}</td>
-                        </tr>  
-                           
-                    </table>
-                </div>
-                <div class="button-row col-md-1">
-                    <button class="btn btn-primary" (click)="onSelectAll()">>></button>
-                    <button class="btn btn-primary" (click)="onSelectOne()">></button>
-                    <button class="btn btn-primary" (click)="onReverseOne()">
-                        < </button>
-                            <button class="btn btn-primary" (click)="onReverseAll()">
-                                << </button>
-                </div>
-                <div class="col-md-6">
-                    <!--------------------------------- SELECTED-------------------------------------- -->
-                    <h3>Selected</h3>
-                    <table>
-                        <tr>
-                            <th>Name </th>
-                            <th>Description</th>
-                            <th>Http Method</th>
-                        </tr>
-                        <tr *ngFor="let testCase of selectedTestCaseData; let i = index" [class.highlighted]="testCase" (click)="reverseCase(testCase, i)">
-                            <td>{{testCase.name}}</td>
-                            <td>{{testCase.description}}</td>     
-                            <td>{{testCase.httpMethod}}</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
+            <test-cases-selection [testSuiteDirPath]="testSuitePath"></test-cases-selection>
             <div class="button-row">
                 <button class="btn btn-primary push-right" (click)="onCancel()">Cancel</button>
                 <button class="btn btn-primary push-right" (click)="onSave(testSuiteData)">Save</button>
