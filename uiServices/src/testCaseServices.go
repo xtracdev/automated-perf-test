@@ -13,7 +13,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"log"
 )
 
 const testCaseSchema string = "testCase_schema.json"
@@ -140,7 +139,7 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 
 	files, err := ioutil.ReadDir(testCasePathDir)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Error(err)
 	}
 
 	testCases := make([]Case, 0)
@@ -154,16 +153,19 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 
 			file, err := os.Open(fmt.Sprintf("%s%s", testCasePathDir, filename))
 			if err != nil {
+				logrus.Error("Cannot Open File: "+ filename)
 				continue
 			}
 
 			byteValue, err := ioutil.ReadAll(file)
 			if err != nil {
+				logrus.Error("Cannot Read File: "+ filename)
 				continue
 			}
 
 			err = xml.Unmarshal(byteValue, testCase)
 			if err != nil {
+				logrus.Error("Cannot Unmarshall File: "+ filename)
 				continue
 			}
 

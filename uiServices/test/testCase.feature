@@ -359,8 +359,44 @@ Feature: Test Case Scenarios
                                 ###################################
                                 #######    GET ALL REQUESTS #######
                                 ###################################
-
   Scenario: Successful retrieval all test cases with valid "GET" request
+    ##Add additional file first so there are multiple files to GET
+    Given there is no existing test file "GodogTestCase.xml"
+    Given the automated performance ui server is available
+    And the header "testCasePathDir" is "/uiServices/test/"
+    When I send "POST" request to "/test-cases" with a body:
+    """
+      {
+       "testname":"GodogTestCase2",
+       "description":"desc2",
+       "overrideHost":"host",
+       "overridePort":"9191",
+       "httpMethod":"PUT",
+       "baseURI": "path/to/URI",
+       "multipart":false,
+       "payload": "payload",
+       "responseStatusCode":200,
+       "responseContentType": "JSON" ,
+       "preThinkTime": 1000,
+       "postThinkTime":2000,
+       "execWeight": "Sparse",
+       "headers":[{
+   	     "key": "Authorization",
+         "value" :"Header-Value"
+        }],
+      "responseValues":[{
+         "value":"Res-Value",
+         "extractionKey": "Res-Key"
+       }],
+      "multipartPayload":[{
+         "fieldName": "F-Name",
+         "fieldValue":"PayloadName",
+         "fileName": "file-name"
+       }]
+      }
+    """
+    Then the response code should be 201
+    And the response body should be empty
     Given the automated performance ui server is available
     And the header "testCasePathDir" is "/uiServices/test/"
     When I send a "GET" request to "/test-cases"
@@ -372,6 +408,11 @@ Feature: Test Case Scenarios
           "name": "GodogTestCase,
           "description": "Case Desc",
           "httpMethod": "GET"
+          },
+          {
+          "name": "GodogTestCase2,
+          "description": "Case Desc2",
+          "httpMethod": "PUT"
           }
         ]
     """
