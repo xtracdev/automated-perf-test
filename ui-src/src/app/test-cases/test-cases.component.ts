@@ -60,6 +60,36 @@ export class TestCasesComponent implements OnInit {
   }
 
   onDelete() { }
-  onSave(testCaseData) { }
+
+  onSave(testCaseData) {
+    this.automatedUIServices.postTestCases$(testCaseData, this.testCasePath).subscribe(
+      data => {
+        this.toastr.success("Your data has been saved!", "Success!");
+      },
+
+      error => {
+        switch (error.status) {
+          case 500: {
+            this.toastr.error("An error has occurred!", "Check the logs!");
+            break;
+          }
+          case 409: {
+            this.toastr.error("File already exists!", "An error occurred!");
+            break;
+          }
+          case 400: {
+            this.toastr.error(
+              "Some of the fields do not conform to the schema!",
+              "An error occurred!"
+            );
+            break;
+          }
+          default: {
+            this.toastr.error("Your data did not save!", "An error occurred!");
+          }
+        }
+      }
+    );
+  }
   onCancel() { }
 }

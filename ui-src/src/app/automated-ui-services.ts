@@ -50,4 +50,13 @@ export class AutomatedUIServices {
     });
   }
 
+  postTestCases$(testCaseData, testCasePath): Observable<any> {
+    this.headers = this.headers.set("testCasePathDir", testCasePath);
+    return this.http.post(`${environment.apiBaseUrl}test-cases`, testCaseData, {
+      headers: this.headers
+    });
+
+
+  }
+
 }
