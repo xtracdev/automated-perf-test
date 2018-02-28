@@ -106,14 +106,12 @@ func TestValidTestCasePost(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
 
-	if err != nil {
-		t.Error(err)
-	}
+	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusCreated, w.Code, "Error: Did Not Successfully Post")
 }
 
-func TestCasePostWithExitsingFileName(t *testing.T) {
+func TestCasePostWithExistingFileName(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
@@ -127,9 +125,7 @@ func TestCasePostWithExitsingFileName(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
 
-	if err != nil {
-		t.Error(err)
-	}
+	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Should not have Successfully posted")
 }
@@ -148,9 +144,7 @@ func TestCasePostNoHeader(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
 
-	if err != nil {
-		t.Error(err)
-	}
+	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Should not have Successfully posted")
 }
@@ -169,9 +163,7 @@ func TestPostTestCaseMissingRequiredValues(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
 
-	if err != nil {
-		t.Error(err)
-	}
+	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Should not have Successfully posted")
 }

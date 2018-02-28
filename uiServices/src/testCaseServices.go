@@ -11,8 +11,8 @@ import (
 	"github.com/go-chi/chi"
 )
 
-var testCaseSchema string = "testCase_schema.json"
-var structTypeName string = "TestCase "
+const testCaseSchema string = "testCase_schema.json"
+const structTypeName string = "TestCase "
 
 func TestCaseCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -43,11 +43,6 @@ func postTestCase(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCase.TestName) {
-		return
-	}
-
-	if !ValidateJsonWithSchema(buf.Bytes(), testCaseSchema, structTypeName) {
-		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
