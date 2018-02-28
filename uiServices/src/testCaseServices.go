@@ -87,7 +87,7 @@ func putTestCase(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !ValidateJsonWithSchema(buf.Bytes(), testCaseSchema, structTypeName) {
+	if !ValidateJSONWithSchema(buf.Bytes(), testCaseSchema, structTypeName) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
