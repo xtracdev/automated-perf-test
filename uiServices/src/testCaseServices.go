@@ -20,6 +20,12 @@ import (
 const testCaseSchema string = "testCase_schema.json"
 const structTypeName string = "TestCase "
 
+type Case struct {
+	HttpMethod  string `json:"httpMethod"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 func TestCaseCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
