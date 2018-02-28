@@ -15,7 +15,7 @@ import (
 const contentTypeHeader = `Content-Type`
 const htmlType = `text/html`
 
-func StartUIMode() {
+func StartUiMode() {
 	http.ListenAndServe(":9191", GetRouter())
 }
 
@@ -64,9 +64,9 @@ func GetIndexPage() *chi.Mux {
 
 	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 
-		resourceURL := r.URL.String()
+		resourceUrl := r.URL.String()
 
-		path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/ui/" + resourceURL
+		path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/ui/" + resourceUrl
 
 		absPath, err := filepath.Abs(path)
 
@@ -123,8 +123,7 @@ func routeTestSuites() http.Handler {
 func routeTestCases() http.Handler {
 	router := chi.NewRouter()
 	router.Use(TestCaseCtx)
-	router.Get("/", getAllTestCases)
-	router.Get("/{testCaseName}", getTestCase)
+	router.Post("/", postTestCase)
 
 	return router
 }
