@@ -354,3 +354,32 @@ Feature: Test Case Scenarios
     """
     Then the response code should be 204
     And the response body should be empty
+
+
+                                ###################################
+                                #######    GET ALL REQUESTS #######
+                                ###################################
+
+  Scenario: Successful retrieval all test cases with valid "GET" request
+    Given the automated performance ui server is available
+    And the header "testCasePathDir" is "/uiServices/test/"
+    When I send a "GET" request to "/test-cases"
+    Then the response code should be 200
+    And the test case collection response body should match json:
+      """
+        [
+          {
+          "name": "GodogTestCase,
+          "description": "Case Desc",
+          "httpMethod": "GET"
+          }
+        ]
+    """
+
+
+
+  Scenario: Unsuccessful retrieval of test-cases (No Header)
+    Given the automated performance ui server is available
+    And the header "testSuitePathDir" is ""
+    When I send a "GET" request to "/test-cases"
+    Then the response code should be 400
