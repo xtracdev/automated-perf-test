@@ -8,6 +8,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"bytes"
+	"github.com/go-chi/chi"
 )
 
 const testCaseSchema string = "testCase_schema.json"
@@ -65,4 +66,51 @@ func postTestCase(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	rw.WriteHeader(http.StatusCreated)
+}
+
+func putTestCase(rw http.ResponseWriter, req *http.Request) {
+	path := getTestCaseHeader(req)
+	testCaseName := chi.URLParam(req, "testCaseName")
+
+	if !ValidateFileNameAndHeader(rw, req, path, testCaseName) {
+		return
+	}
+
+	testCasePathDir := fmt.Sprintf("%s%s.xml", path, testCaseName)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(req.Body)
+
+	if !FilePathExist(testCasePathDir) {
+		logrus.Error("File path does not exist")
+		rw.WriteHeader(http.StatusNotFound)
+		return
+
+	}
+
+	if !ValidateJSONWithSchema(buf.Bytes(), testCaseSchema, structTypeName) {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	testCase := testStrategies.TestDefinition{}
+	err := json.Unmarshal(buf.Bytes(), &testCase)
+
+	if err != nil {
+		logrus.Error("Cannot Unmarshall Json")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if len(testCase.TestName) < 1{
+		logrus.Error("No TestName Entered")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !testCaseWriterXml(testCase, testCasePathDir) {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
 }
