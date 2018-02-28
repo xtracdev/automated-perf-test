@@ -14,57 +14,48 @@
     "postThinkTime",
     "execWeight",
     "Headers",
-    "ResponseValues",
-    "MultipartPayload"
+    "ResponseValues"
   ],
   "properties": {
-    "overridePort": {
-      "type": "string"
-    },
     "testname": {
       "type": "string"
     },
     "description": {
       "type": "string"
     },
-    "overrideHost": {
+    "BaseURI": {
       "type": "string"
     },
-    "HttpMethod": {
-      "type": "string",
-      "enum": ["POST","GET","PUT","DELETE"]
-    },
-    "BaseURI": {
+    "overrideHost": {
       "type": "string"
     },
     "multipart": {
       "type": "boolean"
     },
+    "overridePort": {
+      "type": "string"
+    },
     "payload": {
       "type": "string"
     },
-    "responseStatusCode": {
-      "type": "number"
-    },
-    "responseContentType": {
-      "type": "string"
-    },
-    "preThinkTime": {
-      "type": "number"
-    },
-    "postThinkTime": {
-      "type": "number"
-    },
-    "execWeight": {
+    "HttpMethod": {
       "type": "string",
-      "enum": ["Sparse","Infrequent"]
+      "enum": [
+        "POST",
+        "GET",
+        "PUT",
+        "DELETE"
+      ]
     },
     "Headers": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["Key", "Value"],
+        "required": [
+          "Key",
+          "Value"
+        ],
         "properties": {
           "Key": {
             "type": "string"
@@ -75,36 +66,40 @@
         }
       }
     },
+    "preThinkTime": {
+      "type": "number"
+    },
+    "postThinkTime": {
+      "type": "number"
+    },
+    "execWeight": {
+      "type": "string",
+      "enum": [
+        "Sparse",
+        "Infrequent"
+      ]
+    },
+    "responseStatusCode": {
+      "type": "number"
+    },
+    "responseContentType": {
+      "type": "string"
+    },
     "ResponseValues": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["Value", "ExtractionKey"],
+        "required": [
+          "Value",
+          "ExtractionKey"
+        ],
         "properties": {
-          "Value": {
-            "type": "string"
-          },
           "ExtractionKey": {
             "type": "string"
-          }
-        }
-      },
-      "MultipartPayload": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "required": ["FieldName", "FieldValue","FileName", "FileContent"],
-          "properties": {
-            "fieldName": {
-              "type": "string"
-            },
-            "FieldValue": {
-              "type": "string"
-            },
-            "FileName": {
-              "type": "string"
-            }
+          },
+          "Value": {
+            "type": "string"
           }
         }
       }
