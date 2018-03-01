@@ -91,5 +91,9 @@ export class TestCasesComponent implements OnInit {
       }
     );
   }
-  onCancel() { }
+  onCancel() {
+
+    this.testCaseData = undefined;
+
+  }
 }
