@@ -315,3 +315,43 @@ func TestNoNameTestCasePut(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no filepath")
 }
+
+
+
+func TestSuccessfulGetAllCases(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodGet, "/test-cases", nil)
+
+	request.Header.Set("testCasePathDir", DirectoryPath)
+	request.Header.Get("testCasePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if assert.NoError(t,err) {
+		assert.Equal(t, http.StatusOK, w.Code, "Did not get all test cases")
+	}
+}
+
+func TestGetAllCasesNoHeader(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	DircetoryPath := ""
+	request, err := http.NewRequest(http.MethodGet, "/test-cases", nil)
+
+	request.Header.Set("testCasePathDir", DircetoryPath)
+	request.Header.Get("testCasePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if assert.NoError(t,err) {
+		assert.Equal(t, http.StatusBadRequest, w.Code, "Did not get all test cases")
+	}
+}
+
+
