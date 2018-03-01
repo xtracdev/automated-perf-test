@@ -30,7 +30,7 @@
             </json-schema-form>
             
         <div class="col-md-8">
-            <test-cases-selection (t1)="onCancel($event)" [availableTestCases]="testCases" [testSuiteDirPath]="testSuitePath"></test-cases-selection>
+            <test-cases-selection (addToSelected)="onAddToSelected($event)" (reverse)="onReverse($event)" [availableTestCases]="testCases" [testSuiteDirPath]="testSuitePath"></test-cases-selection>
             <div class="button-row">
                 <button class="btn btn-primary push-right" (click)="onCancel()">Cancel</button>
                 <button class="btn btn-primary push-right" (click)="onSave(testSuiteData)">Save</button>

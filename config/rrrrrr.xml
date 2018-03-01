@@ -1,8 +1,0 @@
-  <testSuite>
-      <name>rrrrrr</name>
-      <description>rrrrr</description>
-      <testStrategy>SuiteBased</testStrategy>
-      <testCases>
-          <testCase preThinkTime="1000" postThinkTime="2000" execWeight="Sparse">TestCaseService</testCase>
-      </testCases>
-  </testSuite>

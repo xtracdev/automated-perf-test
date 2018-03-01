@@ -1,35 +1,20 @@
-
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter
-} from '@angular/core';
+import { Component, Input, Output, EventEmitter } from "@angular/core";
 
 @Component({
-  selector: 'test-cases-list',
-  templateUrl: './test-cases-list.component.html',
-  styleUrls: ['./test-cases-list.component.css']
+  selector: "test-cases-list",
+  templateUrl: "./test-cases-list.component.html",
+  styleUrls: ["./test-cases-list.component.css"]
 })
-
-
 export class TestCasesListComponent {
   testCaseArray = [];
   selectedTestCaseData = [];
   @Input() testCases;
-  @Output() t = new EventEmitter();
+  @Output() addToSelected = new EventEmitter();
+  @Output() reverse = new EventEmitter();
 
-
-  selectedCase(testCase) {
+  selectedCase(testCase, i) {
     this.selectedTestCaseData.push(testCase);
-    this.testCaseArray = this.selectedTestCaseData;
-    console.log(this.testCaseArray)
-    this.t.emit(this.testCaseArray);
-    
+    this.addToSelected.emit(this.selectedTestCaseData);
+    this.reverse.emit(i);
   }
-  changeValue() {
-    console.log("clicked")
-    this.t.emit("emit this value");
-  }  
-
 }
