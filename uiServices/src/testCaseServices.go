@@ -197,10 +197,18 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 
 	ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName)
 
+	if _, err := os.Stat(fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName)); err != nil {
+		if os.IsNotExist(err) {
+			logrus.Error("Test Case File Not Found: " + testCaseName)
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
+	}
+
 	file, err := os.Open(fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName))
 	if err != nil {
-		logrus.Error("Test Case Name Not Found: " + testCasePathDir + testCaseName)
-		rw.WriteHeader(http.StatusNotFound)
+		logrus.Error("Cannot open: " + testCaseName)
+		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	defer file.Close()
@@ -210,21 +218,21 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 	byteValue, err := ioutil.ReadAll(file)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot Read File")
+		logrus.Error("Cannot Read File", err)
 		return
 	}
 
 	err = xml.Unmarshal(byteValue, &testCase)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot Unmarshall from XML")
+		logrus.Error("Cannot Unmarshall from XML", err)
 		return
 	}
 
 	testSuiteJSON, err := json.MarshalIndent(testCase, "", "")
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot marshall to JSON")
+		logrus.Error("Cannot marshall to JSON", err)
 		return
 	}
 
