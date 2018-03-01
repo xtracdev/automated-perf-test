@@ -446,7 +446,7 @@ Feature: Test Case Scenarios
     Then the response code should be 400
 
   Scenario: Retrieve Test Case file with valid "GET" request
-    Given the file "Case3.xml" exists at "/uiServices/test/"
+    Given the file "GodogTestCase2.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "testCasePathDir" is "/uiServices/test/"
     And the file name is "Case1.xml"
