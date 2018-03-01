@@ -189,3 +189,47 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 
 	rw.WriteHeader(http.StatusOK)
 }
+
+func getTestCase(rw http.ResponseWriter, req *http.Request) {
+
+	testCasePathDir := getTestCaseHeader(req)
+	testCaseName := chi.URLParam(req, "testCaseName")
+
+	ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName)
+
+	file, err := os.Open(fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName))
+	if err != nil {
+		logrus.Error("Test Case Name Not Found: " + testCasePathDir + testCaseName)
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+	var testCase testStrategies.TestDefinition
+
+	byteValue, err := ioutil.ReadAll(file)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Read File")
+		return
+	}
+
+	err = xml.Unmarshal(byteValue, &testCase)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot Unmarshall from XML")
+		return
+	}
+
+	testSuiteJSON, err := json.MarshalIndent(testCase, "", "")
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Cannot marshall to JSON")
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(testSuiteJSON)
+
+}
+
