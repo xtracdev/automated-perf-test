@@ -402,23 +402,61 @@ Feature: Test Suite Creation
                                 #######    DELETE REQUESTS ########
                                 ###################################
 
-Scenario: Unsuccessful deleting of test-suites (No Header)
-  Given the automated performance ui server is available
-  And the header "testSuitePathDir" is ""
-  When I send a "DELETE" request to "/test-suites/deleteTest"
-  Then the response code should be 400
+  Scenario:  Fail to remove Test Case file with "DELETE" request (File Not Found)
+    Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testCasePathDir" is "/uiServices/test/"
+    When I send a "DELETE" request to "/test-cases/xxxx"
+    Then the response code should be 404
 
+  Scenario:  Fail to remove Test Case file with "DELETE" request (No Header)
+    Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testCasePathDir" is ""
+    When I send a "DELETE" request to "/test-cases/xxxx"
+    Then the response code should be 400
 
-Scenario: Unsuccessful deleting of test-suites file (File Not Found)
-  Given the automated performance ui server is available
-  And the header "testSuitePathDir" is "/uiServices/test/"
-  When I send a "DELETE" request to "/test-suites/nonExistentFile"
-  Then the response code should be 404
-   
+  Scenario:  Successful removal Test Case file with "DELETE" request
+    #create file to delete
+    Given there is no existing test file "GodogTestCase3.xml"
+    Given the automated performance ui server is available
+    And the header "testCasePathDir" is "/uiServices/test/"
+    When I send "POST" request to "/test-cases" with a body:
+    """
+      {
+       "testname":"GodogTestCase3",
+       "description":"desc",
+       "overrideHost":"host",
+       "overridePort":"9191",
+       "httpMethod":"GET",
+       "baseURI": "path/to/URI",
+       "multipart":false,
+       "payload": "payload",
+       "responseStatusCode":200,
+       "responseContentType": "JSON" ,
+       "preThinkTime": 1000,
+       "postThinkTime":2000,
+       "execWeight": "Sparse",
+       "headers":[{
+   	     "key": "Authorization",
+         "value" :"Header-Value"
+        }],
+      "responseValues":[{
+         "value":"Res-Value",
+         "extractionKey": "Res-Key"
+       }],
+      "multipartPayload":[{
+         "fieldName": "F-Name",
+         "fieldValue":"PayloadName",
+         "fileName": "file-name"
+       }]
+      }
+    """
+    Then the response code should be 201
+    #Delete
+    Given the file "GodogTestCase3.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testCasePathDir" is "/uiServices/test/"
+    When I send a "DELETE" request to "/test-cases/GodogTestCase3"
+    Then the response code should be 204
 
-Scenario: Successful deleting of test-suite file with DELETE request
-  Given the "deleteTest.xml" has been created at "/uiServices/test/"
-  Given the automated performance ui server is available
-  And the header "testSuitePathDir" is "/uiServices/test/"
-  When I send a "DELETE" request to "/test-suites/deleteTest"
-  Then the response code should be 204
