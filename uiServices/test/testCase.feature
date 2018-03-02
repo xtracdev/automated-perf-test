@@ -361,7 +361,7 @@ Feature: Test Case Scenarios
                                 ###################################
   Scenario: Successful retrieval all test cases with valid "GET" request
     ##Add additional file first so there are multiple files to GET
-    Given there is no existing test file "GodogTestCase.xml"
+    Given there is no existing test file "GodogTestCase2.xml"
     Given the automated performance ui server is available
     And the header "testCasePathDir" is "/uiServices/test/"
     When I send "POST" request to "/test-cases" with a body:
@@ -424,3 +424,56 @@ Feature: Test Case Scenarios
     And the header "testSuitePathDir" is ""
     When I send a "GET" request to "/test-cases"
     Then the response code should be 400
+
+
+
+
+                                ###################################
+                                #######    GET REQUESTS #######
+                                ###################################
+
+  Scenario: Unsuccessful retrieval of test-Cases file (File Not Found)
+    Given the automated performance ui server is available
+    And the header "testCasePathDir" is "/uiServices/test/"
+    When I send a "GET" request to "/test-cases/xxx"
+    Then the response code should be 404
+
+
+  Scenario: Unsuccessful retrieval of test-suites file (No Header)
+    Given the automated performance ui server is available
+    And the header "testCasePathDir" is ""
+    When I send a "GET" request to "/test-suites/GodogTestCase"
+    Then the response code should be 400
+
+  Scenario: Retrieve Test Case file with valid "GET" request
+    Given the file "GodogTestCase2.xml" exists at "/uiServices/test/"
+    Given the automated performance ui server is available
+    And the header "testCasePathDir" is "/uiServices/test/"
+    And the file name is "Case1.xml"
+    When I send a "GET" request to "/test-cases/GodogTestCase2"
+    Then the response code should be 200
+    And the test case response body should match json:
+    """
+   {
+    "XMLName": {
+    "Space": "",
+    "Local": "testDefinition"
+      },
+      "TestName": GodogTestCase",
+      "OverrideHost": "host",
+      "OverridePort": "9191",
+      "HTTPMethod": "GET",
+      "Description": "desc",
+      "BaseURI": "",
+      "Multipart": false,
+      "Payload": "",
+      "MultipartPayload": null,
+      "ResponseStatusCode": 0,
+      "ResponseContentType": "",
+      "Headers": null,
+      "ResponseValues": null,
+      "PreThinkTime": 0,
+      "PostThinkTime": 0,
+      "ExecWeight": ""
+    }
+    """
