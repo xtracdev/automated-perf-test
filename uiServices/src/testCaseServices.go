@@ -241,3 +241,38 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 
 }
 
+
+func deleteTestCase(rw http.ResponseWriter, req *http.Request){
+	testCasePathDir := getTestCaseHeader(req)
+	testCaseName := chi.URLParam(req, "testCaseName")
+	ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName)
+
+	filepath := fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName)
+
+	if _, err := os.Stat(filepath); err != nil {
+		if os.IsNotExist(err) {
+			logrus.Println("File Not Found", err)
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
+	}
+
+	err := os.Remove(filepath)
+	if  err != nil{
+		logrus.Println("File was not deleted", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+
+	}
+
+	if _, err := os.Stat(filepath); err != nil {
+		if os.IsExist(err) {
+			logrus.Println("File Still Exists", err)
+			rw.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
+
+}
