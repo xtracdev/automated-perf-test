@@ -16,7 +16,7 @@
                     <th>Name </th>
                     <th>Description</th>
                 </tr>
-                <tr *ngFor="let testSuite of formData" >
+                <tr *ngFor="let testSuite of testSuites let i = index" [class.highlighted]="testSuite" (click)="onSelectSuite(testSuite, i)" >
                     <td>{{testSuite.name}}</td>  
                     <td>{{testSuite.description}}</td>
                 </tr>
@@ -30,7 +30,7 @@
             </json-schema-form>
             
         <div class="col-md-8">
-            <test-cases-selection (addToSelected)="onAddToSelected($event)" (reverse)="onReverse($event)" [availableTestCases]="testCases" [testSuiteDirPath]="testSuitePath"></test-cases-selection>
+            <test-cases-selection [selectedTestCaseData] (addToSelected)="onAddToSelected($event)" (reverse)="onReverse($event)" [availableTestCases]="testCases" [testSuiteDirPath]="testSuitePath"></test-cases-selection>
             <div class="button-row">
                 <button class="btn btn-primary push-right" (click)="onCancel()">Cancel</button>
                 <button class="btn btn-primary push-right" (click)="onSave(testSuiteData)">Save</button>

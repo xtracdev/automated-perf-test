@@ -11,10 +11,11 @@ const TEST_SUITE_PATH =
 })
 export class TestSuitesComponent {
   testSuitePath = TEST_SUITE_PATH;
-  testCases = [];
+
   testCaseArray = [];
-  formData = [];
-  selectedTestCaseData = [];
+  testSuites = [];
+  testSuiteData = {};
+  @Input()   testCases;
   testSuiteFileName = undefined;
   testSuiteSchema = { layout: true };
 
@@ -35,7 +36,8 @@ export class TestSuitesComponent {
   onAdd() {
     this.testSuiteService.getAllTestSuite$(TEST_SUITE_PATH).subscribe(
       data => {
-        this.formData = data;
+        this.testSuites = data;
+        console.log(this.testSuites)
         this.toastr.success("Your data has been saved!", "Success!");
       },
 
@@ -81,7 +83,8 @@ export class TestSuitesComponent {
   }
 
   onSave(data) {
-    this.testCaseArray["testCases"] = this.selectedTestCaseData;
+  ///  console.log(this.selectedTestCaseData)
+  //  this.testCaseArray["testCases"] = this.selectedTestCaseData;
     console.log(this.testCaseArray);
 
     Object.assign(data, this.testCaseArray);
@@ -115,13 +118,23 @@ export class TestSuitesComponent {
     this.testCaseService
       .getAllTestCases$(TEST_SUITE_PATH)
       .subscribe((data: any) => {
-        this.selectedTestCaseData = data;
-        this.testCaseArray["testCases"] = this.selectedTestCaseData;
+       // this.selectedTestCaseData = data;
+        //this.testCaseArray["testCases"] = this.selectedTestCaseData;
       });
   }
-  onSelectOne() {}
+  onSelectSuite(testSuite,i) {
+    this.testSuiteData = testSuite
+    console.log(this.testCases)
+  //  this.selectedTestCaseData = testSuite.testCases;
+
+
+  }
+  onAddToSelected(e){
+    console.log("*****",e)
+  //  this.selectedTestCaseData = e;
+  }
   onReverseOne() {}
   onReverseAll() {
-    this.selectedTestCaseData = undefined;
+  //  this.selectedTestCaseData = undefined;
   }
 }
