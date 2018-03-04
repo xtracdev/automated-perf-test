@@ -19,16 +19,28 @@
     "reportOutputDir"
   ],
   "properties": {
-    "apiName": { "type": "string" },
-    "targetHost": { "type": "string" },
+    "apiName": {
+      "type": "string"
+    },
+    "targetHost": {
+      "type": "string"
+    },
     "targetPort": {
       "type": "string",
       "minimum": 1,
       "maximum": 65535
     },
-    "memoryEndpoint": { "type": "string" },
-    "numIterations": { "type": "integer", "minimum": 1 },
-    "concurrentUsers": { "type": "integer", "minimum": 1 },
+    "memoryEndpoint": {
+      "type": "string"
+    },
+    "numIterations": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "concurrentUsers": {
+      "type": "integer",
+      "minimum": 1
+    },
     "allowablePeakMemoryVariance": {
       "type": "number",
       "minimum": 0,
@@ -41,24 +53,54 @@
     },
     "testSuite": {
       "type": "string",
-      "enum": ["Default-1", "Default-2", "Default-3"]
+      "enum": [
+        "Default-1",
+        "Default-2",
+        "Default-3"
+      ]
     },
-    "requestDelay": { "type": "integer", "minimum": 1 },
-    "TPSFreq": { "type": "integer", "minimum": 1 },
-    "rampUsers": { "type": "integer", "minimum": 1 },
-    "rampDelay": { "type": "integer", "minimum": 0 },
-    "testCaseDir": { "type": "string" },
-    "testSuiteDir": { "type": "string" },
-    "baseStatsOutputDir": { "type": "string" },
-    "reportOutputDir": { "type": "string" }
+    "requestDelay": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "TPSFreq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "rampUsers": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "rampDelay": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "testCaseDir": {
+      "type": "string"
+    },
+    "testSuiteDir": {
+      "type": "string"
+    },
+    "baseStatsOutputDir": {
+      "type": "string"
+    },
+    "reportOutputDir": {
+      "type": "string"
+    }
   },
-  "layout" : [
+  "layout": [
     {
       "type": "flex",
       "flex-flow": "row wrap",
       "items": [
         "apiName",
+        {
+          "md": 4
+        },
         "numIterations",
+        {
+          "md": 4
+        },
         {
           "key": "requestDelay",
           "title": "Request Delay (ms)"
@@ -70,7 +112,13 @@
       "flex-flow": "row wrap",
       "items": [
         "targetHost",
+        {
+          "md": 4
+        },
         "concurrentUsers",
+        {
+          "md": 4
+        },
         {
           "key": "TPSFreq",
           "title": "TPS Frequency (s)"
@@ -83,8 +131,14 @@
       "items": [
         "targetPort",
         {
+          "md": 4
+        },
+        {
           "key": "allowablePeakMemoryVariance",
           "title": "Memory Variance (%)"
+        },
+        {
+          "md": 4
         },
         "rampUsers"
       ]
@@ -95,8 +149,14 @@
       "items": [
         "memoryEndpoint",
         {
+          "md": 4
+        },
+        {
           "key": "allowableServiceResponseTimeVariance",
           "title": "Service Variance (%)"
+        },
+        {
+          "md": 4
         },
         {
           "key": "rampDelay",
@@ -104,11 +164,24 @@
         }
       ]
     },
-    { "key": "testSuite" },
-    { "key": "testCaseDir", "title": "Test Case Directory" },
-    { "key": "testSuiteDir", "title": "Test Suites Directory" },
-    { "key": "baseStatsOutputDir", "title": "Base Stats Output Directory" },
-    { "key": "reportOutputDir", "title": "Report Output Directory" }
- 
+    {
+      "key": "testSuite"
+    },
+    {
+      "key": "testCaseDir",
+      "title": "Test Case Directory"
+    },
+    {
+      "key": "testSuiteDir",
+      "title": "Test Suites Directory"
+    },
+    {
+      "key": "baseStatsOutputDir",
+      "title": "Base Stats Output Directory"
+    },
+    {
+      "key": "reportOutputDir",
+      "title": "Report Output Directory"
+    }
   ]
 }
