@@ -247,7 +247,9 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 func deleteTestCase(rw http.ResponseWriter, req *http.Request){
 	testCasePathDir := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
-	ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName)
+	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName){
+		return
+	}
 
 	filepath := fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName)
 
