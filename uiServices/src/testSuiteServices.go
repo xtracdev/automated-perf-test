@@ -25,6 +25,9 @@ type Suite struct {
 	File        string `json:"file"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	TestStrategy string `json:"testStrategy"`
+	TestCases []testStrategies.TestCase  `json:"testCases"`
+
 }
 
 func TestSuiteCtx(next http.Handler) http.Handler {
@@ -263,6 +266,8 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
 					Name:        testSuite.Name,
 					Description: testSuite.Description,
 					File:        filename,
+					TestStrategy: testSuite.TestStrategy,
+					TestCases: testSuite.TestCases,
 				})
 			}
 		}

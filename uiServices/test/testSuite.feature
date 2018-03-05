@@ -329,27 +329,27 @@ Feature: Test Suite Creation
     And the test suite response body should match json:
     """
       {
-        "XMLName": {
+      ":": {
+      "Space": "",
+      "Local": "testSuite"
+      },
+      "name": "GodogTestSuite2",
+      "description": "ServiceDesc",
+      "testStrategy": "SuiteBased",
+      "testCases": [
+       {
+        "testCase": {
         "Space": "",
-        "Local": "testSuite"
+        "Local": "testCase"
         },
-         "Name": "GodogTestSuite2",
-         "Description": "ServiceDesc",
-           "TestStrategy": "SuiteBased",
-          "TestCases": [
-           {
-            "XMLName": {
-            "Space": "",
-            "Local": "testCase"
-           },
-            "Name": "file1",
-            "PreThinkTime": 2000,
-            "PostThinkTime": 5000,
-            "ExecWeight": "Infrequent"
-         }
-        ],
-"TestDefinitions": null
-}
+        "Name": "file1",
+        "preThinkTime": 2000,
+        "PostThinkTime": 5000,
+        "execWeight": "Infrequent"
+        }
+      ],
+        "TestDefinitions": null
+      }
     """
 
 
