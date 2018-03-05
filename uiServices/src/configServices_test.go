@@ -3,17 +3,18 @@ package services
 import (
 	"fmt"
 
-	"github.com/go-chi/chi"
-	"github.com/stretchr/testify/assert"
-	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/go-chi/chi"
+	"github.com/stretchr/testify/assert"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 )
 
-const validJson = `{
+const validJSON = `{
         "apiName": "ServiceTestConfig",
        "targetHost": "localhost",
        "targetPort": "9191",
@@ -137,7 +138,7 @@ func TestValidJsonPost(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", postConfigs)
 
 	//remove file if exists
@@ -188,7 +189,7 @@ func TestPostWithInvalidHeader(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", postConfigs)
 
 	filePath := "xxxxxx"
@@ -232,7 +233,7 @@ func TestWhenConfigPathDirEmpty(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", postConfigs)
 
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
@@ -251,7 +252,7 @@ func TestWhenConfigPathDirEmpty(t *testing.T) {
 
 func TestInvalidURL(t *testing.T) {
 	pt := perfTestUtils.Config{}
-	configWriterXml(pt, "/path/xxx")
+	configWriterXML(pt, "/path/xxx")
 }
 
 func TestSuccessfulGet(t *testing.T) {
@@ -259,7 +260,7 @@ func TestSuccessfulGet(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	// create file to GET
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", postConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
@@ -364,7 +365,7 @@ func TestValidJsonPut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
@@ -399,7 +400,7 @@ func TestMissingFieldPut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, http.StatusBadRequest, w.Code,"Sucessfully updated. Field Should be missing so update shouldn't occur")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Sucessfully updated. Field Should be missing so update shouldn't occur")
 }
 
 func TestInvalidJsonPut(t *testing.T) {
@@ -427,7 +428,7 @@ func TestInvalidUrlPut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
@@ -448,7 +449,7 @@ func TestNoUrlPut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
@@ -469,7 +470,7 @@ func TestSuccessfulPutWithNoPathSlash(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
@@ -489,7 +490,7 @@ func TestNoPathPut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := ""
@@ -503,14 +504,14 @@ func TestNoPathPut(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusBadRequest, w.Code,"Successfully updated. Should not have worked due to no filepath")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no filepath")
 }
 
 func TestNoFileNamePut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	reader := strings.NewReader(validJson)
+	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", putConfigs)
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
