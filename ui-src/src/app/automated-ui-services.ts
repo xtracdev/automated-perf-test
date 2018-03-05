@@ -55,8 +55,14 @@ export class AutomatedUIServices {
     return this.http.post(`${environment.apiBaseUrl}test-cases`, testCaseData, {
       headers: this.headers
     });
-
-
   }
+
+  getOneTestCase$(testCasePath, testCaseFileName): Observable<any> {
+    this.headers = this.headers.set("testCasePathDir", testCasePath);
+    return this.http.get(`${environment.apiBaseUrl}test-cases/${testCaseFileName}`, {
+      headers: this.headers
+    });
+  }
+
 
 }

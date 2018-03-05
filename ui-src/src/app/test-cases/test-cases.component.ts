@@ -14,6 +14,7 @@ export class TestCasesComponent implements OnInit {
   testCaseData = {};
   testCasePath = undefined;
   testCaseSchema = { layout: true };
+  testCaseFileName = undefined;
 
   constructor(
     private automatedUIServices: AutomatedUIServices,
@@ -28,6 +29,8 @@ export class TestCasesComponent implements OnInit {
         this.testCaseSchema = data;
       });
   }
+
+
 
 
   onAdd() {
@@ -57,6 +60,13 @@ export class TestCasesComponent implements OnInit {
         }
       }
     );
+  }
+
+
+  onSelectCase(testCase, i) {
+    this.testCaseData = testCase;
+    this.testCaseFileName = testCase.name
+
   }
 
   onDelete() { }
