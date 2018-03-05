@@ -265,14 +265,6 @@ func deleteTestCase(rw http.ResponseWriter, req *http.Request){
 
 	}
 
-	if _, err := os.Stat(filepath); err != nil {
-		if os.IsExist(err) {
-			logrus.Println("File Still Exists", err)
-			rw.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-	}
-
 	rw.WriteHeader(http.StatusNoContent)
 
 }

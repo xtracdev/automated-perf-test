@@ -453,11 +453,8 @@ func TestSuccessfulCaseDelete(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	//create file to be deleted
 	reader := strings.NewReader(TestCaseForDeletion)
 	r.HandleFunc("/test-cases", postTestCase)
-
-	os.Remove(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/TestCaseService2.xml")
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-cases", reader)
@@ -470,7 +467,6 @@ func TestSuccessfulCaseDelete(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, w.Code, "Error: Did Not Successfully Post")
 
-	//delete file
 	filePath = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err = http.NewRequest(http.MethodDelete, "/test-cases/TestCaseService2", nil)
 
