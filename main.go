@@ -5,14 +5,15 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
-	"github.com/xtracdev/automated-perf-test/perfTestUtils"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
-	"github.com/xtracdev/automated-perf-test/uiServices/src"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/xtracdev/automated-perf-test/perfTestUtils"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
+	"github.com/xtracdev/automated-perf-test/uiServices/src"
 )
 
 //----- Globals ------------------------------------------------------------------
@@ -147,7 +148,7 @@ func initConfig(args []string, fs perfTestUtils.FileSystem, exit func(code int))
 
 	// Start server for the User Interface Mode
 	if uiMode {
-		services.StartUiMode()
+		services.StartUIMode()
 	}
 
 	setLogLevel(boolVerbose, boolDebug)

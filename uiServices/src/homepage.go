@@ -126,6 +126,7 @@ func routeTestCases() http.Handler {
 	router.Use(TestCaseCtx)
 	router.Get("/", getAllTestCases)
 	router.Get("/{testCaseName}", getTestCase)
+	router.Delete("/all", deleteAllTestCases)
 
 	return router
 }

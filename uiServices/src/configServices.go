@@ -1,4 +1,3 @@
-
 package services
 
 import (
@@ -35,7 +34,10 @@ func ValidateFileNameAndHeader(rw http.ResponseWriter, req *http.Request, header
 		rw.WriteHeader(http.StatusBadRequest)
 		return false
 	}
+	return true && IsHeaderValid(header, rw)
+}
 
+func IsHeaderValid(header string, rw http.ResponseWriter) bool {
 	if len(header) <= 1 {
 		logrus.Error("No Header Path Found")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -43,7 +45,6 @@ func ValidateFileNameAndHeader(rw http.ResponseWriter, req *http.Request, header
 	}
 	return true
 }
-
 func ConfigCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
@@ -195,19 +196,18 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusNoContent)
 }
 
-
 func putConfigFileName(rw http.ResponseWriter, req *http.Request) {
 	path := getConfigHeader(req)
 	configFileName := chi.URLParam(req, "configFileName")
 	newConfigFileName := chi.URLParam(req, "newConfigFileName")
 
-	if len(newConfigFileName) < 1{
+	if len(newConfigFileName) < 1 {
 		logrus.Error("File path does not exist")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	os.Rename(fmt.Sprintf("%s%s.xml", path, configFileName),fmt.Sprintf("%s%s.xml", path, newConfigFileName))
+	os.Rename(fmt.Sprintf("%s%s.xml", path, configFileName), fmt.Sprintf("%s%s.xml", path, newConfigFileName))
 
 	rw.WriteHeader(http.StatusNoContent)
 }

@@ -10,9 +10,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
 	"github.com/Sirupsen/logrus"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"github.com/go-chi/chi"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
 type Case struct {
@@ -54,7 +55,7 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 	testCases := make([]Case, 0)
 
 	for _, file := range files {
-		if filepath.Ext(testCasePathDir +file.Name()) == ".xml" {
+		if filepath.Ext(testCasePathDir+file.Name()) == ".xml" {
 
 			testCase := new(testStrategies.TestDefinition)
 
@@ -87,7 +88,7 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	err = json.NewEncoder(rw).Encode(testCases)
-	if err != nil{
+	if err != nil {
 		logrus.Error("Could not enocde Test Cases")
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
@@ -137,4 +138,28 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(testSuiteJSON)
 
+}
+
+func deleteAllTestCases(rw http.ResponseWriter, req *http.Request) {
+	testCasePathDir := getTestCaseHeader(req)
+
+	if !IsHeaderValid(testCasePathDir, rw) {
+		return
+	}
+
+	files, err := ioutil.ReadDir(testCasePathDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		err := os.RemoveAll(filepath.Join(testCasePathDir, file.Name()))
+		if err != nil {
+			logrus.Errorf("Error deleting the files from filesystem: %s", err)
+			rw.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		rw.WriteHeader(http.StatusNoContent)
+	}
 }
