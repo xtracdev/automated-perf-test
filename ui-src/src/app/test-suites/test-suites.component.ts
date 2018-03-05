@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from "@angular/core";
 import { TestSuiteService } from "./test-suite.service";
 import { TestCaseService } from "../test-cases/test-case.service";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
+import {TestCasesSelectionComponent} from "../shared/test-cases-selection/test-cases-selection.component"
 const TEST_SUITE_PATH =
   "C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/config";
 @Component({
@@ -11,14 +12,13 @@ const TEST_SUITE_PATH =
 })
 export class TestSuitesComponent {
   testSuitePath = TEST_SUITE_PATH;
-
   testCaseArray = [];
   testSuites = [];
+  selectedTestCaseData = [];
   testSuiteData = {};
-  @Input()   testCases;
+  testCases = [];
   testSuiteFileName = undefined;
   testSuiteSchema = { layout: true };
-
   constructor(
     private testSuiteService: TestSuiteService,
     private testCaseService: TestCaseService,
@@ -66,6 +66,7 @@ export class TestSuitesComponent {
     this.testCaseService
       .getAllTestCases$(TEST_SUITE_PATH)
       .subscribe((data: any) => (this.testCases = data));
+      
   }
 
   onCancel() {
@@ -81,12 +82,43 @@ export class TestSuitesComponent {
     //     }
     //   );
   }
+  onUpdate(data) {
+    this.testCaseArray["testCases"] = this.selectedTestCaseData;
+    Object.assign(data, this.testCaseArray);
+    this.testSuiteService
+      .putTestSuite$(this.testSuiteData, this.testSuitePath, this.testSuiteFileName)
+      .subscribe(
+        data => {
+          this.toastr.success("Success!");
+        },
+        error => {
+          switch (error.status) {
+            case 404: {
+              this.toastr.error("File not found", "An error occured!");
+              break;
+            }
+            case 400: {
+              this.toastr.error(
+                "File must be specified!",
+                "An error occurred!"
+              );
+              break;
+            }
+            case 500: {
+              this.toastr.error("Internal server error!");
+              break;
+            }
+            default: {
+              this.toastr.error("File was not updated!", "An error occurred!");
+            }
+          }
+        }
+      );
+  }
+  
 
   onSave(data) {
-  ///  console.log(this.selectedTestCaseData)
-  //  this.testCaseArray["testCases"] = this.selectedTestCaseData;
-    console.log(this.testCaseArray);
-
+   this.testCaseArray["testCases"] = this.selectedTestCaseData;
     Object.assign(data, this.testCaseArray);
     this.testSuiteService.postTestSuite$(data, TEST_SUITE_PATH).subscribe(
       data => {
@@ -122,16 +154,17 @@ export class TestSuitesComponent {
         //this.testCaseArray["testCases"] = this.selectedTestCaseData;
       });
   }
-  onSelectSuite(testSuite,i) {
-    this.testSuiteData = testSuite
-    console.log(this.testCases)
-  //  this.selectedTestCaseData = testSuite.testCases;
+  onSelectSuite(testSuite, i)
+  {
+    this.testSuiteData = testSuite;
+    this.selectedTestCaseData = testSuite.testCases;
+    this.testSuiteFileName = testSuite.name
 
 
-  }
-  onAddToSelected(e){
-    console.log("*****",e)
-  //  this.selectedTestCaseData = e;
+  } 
+  updateSelected(e){
+    this.selectedTestCaseData = e;
+    console.log(e);
   }
   onReverseOne() {}
   onReverseAll() {

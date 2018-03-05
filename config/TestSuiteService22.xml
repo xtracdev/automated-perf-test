@@ -1,5 +1,5 @@
   <testSuite>
-      <name>TestSuiteService22</name>
+      <name>TestSuiteService21</name>
       <description>Services 22</description>
       <testStrategy>SuiteBased</testStrategy>
       <testCases>
