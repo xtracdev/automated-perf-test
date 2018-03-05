@@ -195,7 +195,9 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 	testCasePathDir := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
 
-	ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName)
+	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName){
+		return
+	}
 
 	if _, err := os.Stat(fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName)); err != nil {
 		if os.IsNotExist(err) {
