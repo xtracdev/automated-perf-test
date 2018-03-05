@@ -1,7 +1,7 @@
 <div class="container">
     <div class="row">
         <label>Test Case Directory</label>
-        <input class="form-control" type="string" [(ngModel)]="testCasePath" required>
+        <input class="form-control" [(ngModel)]="testCasePath" required>
     </div>
 
 
@@ -16,7 +16,7 @@
                     <th>Description</th>
                     <th>Http Method</th>
                 </tr>
-                <tr *ngFor="let testCase of testCaseData  let i = index"  [class.highlighted]="testCase"  (click)="onSelectCase(testCase, i)">
+                <tr *ngFor="let testCase of testCases  let i = index"  [class.highlighted]="testCase"  (click)="onSelectCase(testCase, i)">
                     <td>{{testCase.name}}</td>
                     <td>{{testCase.description}}</td>
                     <td>{{testCase.httpMethod}}</td>

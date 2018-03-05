@@ -15,7 +15,7 @@ export class TestCasesComponent implements OnInit {
   testCasePath = undefined;
   testCaseSchema = { layout: true };
   testCaseFileName = undefined;
-
+  testCases = [];
   constructor(
     private automatedUIServices: AutomatedUIServices,
     private toastr: ToastsManager,
@@ -36,8 +36,7 @@ export class TestCasesComponent implements OnInit {
   onAdd() {
     this.automatedUIServices.getAllCases$(this.testCasePath).subscribe(
       (data: any) => {
-        this.testCaseData = data;
-
+        this.testCases = data;
         this.toastr.success("Your data has been saved!", "Success!");
       },
 
