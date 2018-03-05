@@ -1,0 +1,113 @@
+{
+  "type": "object",
+  "required": [
+    "testname",
+    "overridePort",
+    "overrideHost",
+    "HttpMethod",
+    "BaseURI",
+    "multipart",
+    "payload",
+    "responseStatusCode",
+    "responseContentType",
+    "preThinkTime",
+    "postThinkTime",
+    "execWeight",
+    "Headers",
+    "ResponseValues",
+    "MultipartPayload"
+  ],
+  "properties": {
+    "overridePort": {
+      "type": "string"
+    },
+    "testname": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "overrideHost": {
+      "type": "string"
+    },
+    "HttpMethod": {
+      "type": "string",
+      "enum": ["POST","GET","PUT","DELETE"]
+    },
+    "BaseURI": {
+      "type": "string"
+    },
+    "multipart": {
+      "type": "boolean"
+    },
+    "payload": {
+      "type": "string"
+    },
+    "responseStatusCode": {
+      "type": "number"
+    },
+    "responseContentType": {
+      "type": "string"
+    },
+    "preThinkTime": {
+      "type": "number"
+    },
+    "postThinkTime": {
+      "type": "number"
+    },
+    "execWeight": {
+      "type": "string",
+      "enum": ["Sparse","Infrequent"]
+    },
+    "Headers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["Key", "Value"],
+        "properties": {
+          "Key": {
+            "type": "string"
+          },
+          "Value": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ResponseValues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["Value", "ExtractionKey"],
+        "properties": {
+          "Value": {
+            "type": "string"
+          },
+          "ExtractionKey": {
+            "type": "string"
+          }
+        }
+      },
+      "MultipartPayload": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["FieldName", "FieldValue","FileName", "FileContent"],
+          "properties": {
+            "fieldName": {
+              "type": "string"
+            },
+            "FieldValue": {
+              "type": "string"
+            },
+            "FileName": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
