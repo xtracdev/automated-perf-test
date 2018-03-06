@@ -119,7 +119,7 @@ func (a *apiFeature) theTestCaseResponseBodyShouldMatchJSON(body *gherkin.DocStr
 	var actualSuite testStrategies.TestSuite
 
 	exp :=
-	`"""
+		`"""
             """
    {
     "XMLName": {
@@ -160,8 +160,8 @@ func (a *apiFeature) theTestCaseCollectionResponseBodyShouldMatchJSON(body *gher
 	var expectedCase testStrategies.TestDefinition
 	var actualCase testStrategies.TestDefinition
 
-	exp:=
-	`"""
+	exp :=
+		`"""
         [
           {
            "name": "GodogTestCase,
