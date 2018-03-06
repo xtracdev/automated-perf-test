@@ -182,7 +182,9 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request) {
 	testSuitePathDir := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
-	ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName)
+	if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName){
+		return
+	}
 
 	file, err := os.Open(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName))
 	if err != nil {
