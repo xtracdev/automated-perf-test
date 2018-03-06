@@ -2,7 +2,7 @@
 
 <testDefinition>
 
-<testName>Test222</testName>
+<testName>TestCase222</testName>
 
 <overrideHost>host2222</overrideHost>
 
