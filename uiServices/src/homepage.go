@@ -37,7 +37,7 @@ func GetIndexPage() *chi.Mux {
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 
 		goPath := os.Getenv("GOPATH")
-		absPath, err := filepath.Abs(goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/index.html")
+		absPath, err := filepath.Abs(goPath + "/src/github.com/xtracdev/automated-perf-test/ui/index.html")
 
 		if err != nil {
 			logrus.Error("Unable to find homepage", err)
@@ -66,7 +66,7 @@ func GetIndexPage() *chi.Mux {
 
 		resourceUrl := r.URL.String()
 
-		path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/ui-src/src" + resourceUrl
+		path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/ui/" + resourceUrl
 
 		absPath, err := filepath.Abs(path)
 
