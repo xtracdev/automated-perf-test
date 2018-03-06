@@ -1,1 +1,28 @@
-<p>test-suite works</p>
+
+<div class="container-fluid">
+    <div class ="row">
+       <div class="row">
+                <div class="col-xs-6">
+                    <div class="jumbotron" >
+                       <label for="selecting files to delete">File Select</label>
+                        <div class="custom-file">
+                            <input class="form-control" 
+                                    id="file" type="file" 
+                                    (change)="fileSelector($event)" />
+                        </div>
+                        <hr>
+                        <div class="text-align: center;" >
+                            <button type="button"
+                                    class="btn btn-danger" 
+                                    id="delete-btn"  
+                                    placeholder="Browse Files"
+                                    (click)="onDeleteFile()"> 
+                                Delete</button>                    
+                        </div>   
+                    </div>
+                 </div>
+            <div class="col-xs-6"></div>
+       </div>
+    </div>
+</div>
+
