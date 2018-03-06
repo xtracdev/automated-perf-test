@@ -1,13 +1,13 @@
 package services
 
 import (
-	"testing"
 	"github.com/go-chi/chi"
-	"strings"
-	"os"
-	"net/http/httptest"
 	"github.com/stretchr/testify/assert"
 	"net/http"
+	"net/http/httptest"
+	"os"
+	"strings"
+	"testing"
 )
 
 const validTestCase = `
@@ -88,7 +88,6 @@ const TestCaseMissingRequired = `
    "execWeight": "Sparse"
 }
 `
-
 
 const TestCaseForDeletion = `
 {
@@ -241,7 +240,6 @@ func TestTestCasePutMissingRequired(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Should not have successfully updated")
 }
 
-
 func TestInvalidUrlTestCasePut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -347,8 +345,6 @@ func TestNoNameTestCasePut(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no filepath")
 }
 
-
-
 func TestSuccessfulGetAllCases(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -362,7 +358,7 @@ func TestSuccessfulGetAllCases(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
 
-	if assert.NoError(t,err) {
+	if assert.NoError(t, err) {
 		assert.Equal(t, http.StatusOK, w.Code, "Did not get all test cases")
 	}
 }
@@ -380,12 +376,10 @@ func TestGetAllCasesNoHeader(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
 
-	if assert.NoError(t,err) {
+	if assert.NoError(t, err) {
 		assert.Equal(t, http.StatusBadRequest, w.Code, "Did not get all test cases")
 	}
 }
-
-
 
 func TestSuccessfulGetTestCase(t *testing.T) {
 	r := chi.NewRouter()
@@ -404,7 +398,7 @@ func TestSuccessfulGetTestCase(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusOK, w.Code, "Error. Did not successfully GET")
+	assert.Equal(t, http.StatusOK, w.Code, "Error. Did not successfully GET")
 }
 
 func TestGetTestCaseNoHeader(t *testing.T) {
@@ -424,7 +418,7 @@ func TestGetTestCaseNoHeader(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusBadRequest, w.Code, "Should not return data")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Should not return data")
 }
 
 func TestGetTestCaseFileNotFound(t *testing.T) {
@@ -444,10 +438,8 @@ func TestGetTestCaseFileNotFound(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusNotFound, w.Code, "Should not return data")
+	assert.Equal(t, http.StatusNotFound, w.Code, "Should not return data")
 }
-
-
 
 func TestSuccessfulCaseDelete(t *testing.T) {
 	r := chi.NewRouter()
@@ -480,7 +472,7 @@ func TestSuccessfulCaseDelete(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusNoContent, w.Code, "Error. Did not successfully Delete")
+	assert.Equal(t, http.StatusNoContent, w.Code, "Error. Did not successfully Delete")
 }
 
 func TestDeleteCaseFileNotFound(t *testing.T) {
@@ -500,7 +492,7 @@ func TestDeleteCaseFileNotFound(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusNotFound, w.Code, "Should not have successfully deleted")
+	assert.Equal(t, http.StatusNotFound, w.Code, "Should not have successfully deleted")
 }
 
 func TestDeleteCaseWithNoHeader(t *testing.T) {
@@ -520,5 +512,5 @@ func TestDeleteCaseWithNoHeader(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusBadRequest, w.Code, "Should not have successfully deleted")
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Should not have successfully deleted")
 }
