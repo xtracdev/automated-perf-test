@@ -328,28 +328,28 @@ Feature: Test Suite Creation
     Then the response code should be 200
     And the test suite response body should match json:
     """
-      {
-      ":": {
-      "Space": "",
-      "Local": "testSuite"
-      },
-      "name": "GodogTestSuite2",
-      "description": "ServiceDesc",
-      "testStrategy": "SuiteBased",
-      "testCases": [
        {
+        "XMLName": {
+        "Space": "",
+        "Local": "testSuite"
+        },
+        "name": "GodogTestSuite2",
+        "description": "ServiceDesc",
+        "testStrategy": "SuiteBased",
+        "testCases": [
+        {
         "testCase": {
         "Space": "",
         "Local": "testCase"
         },
         "Name": "file1",
         "preThinkTime": 2000,
-        "PostThinkTime": 5000,
+        "postThinkTime": 5000,
         "execWeight": "Infrequent"
         }
-      ],
+        ],
         "TestDefinitions": null
-      }
+        }
     """
 
 
