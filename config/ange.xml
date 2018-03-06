@@ -9,7 +9,7 @@
       <payload>1</payload>
       <multipartPayload></multipartPayload>
       <responseStatusCode>1</responseStatusCode>
-      <responseContentType>12</responseContentType>
+      <responseContentType>1234</responseContentType>
       <headers>
           <header key="rty">tyr</header>
       </headers>

@@ -19,7 +19,7 @@
                 <tr *ngFor="let testCase of testCases  let i = index"  [class.highlighted]="testCase"  (click)="onSelectCase(testCase, i)">
                     <td>{{testCase.testname}}</td>
                     <td>{{testCase.description}}</td>
-                    <td>{{testCase.HttpMethod}}</td>
+                    <td>{{testCase.httpMethod}}</td>
                 </tr>
             </table>
         </div>

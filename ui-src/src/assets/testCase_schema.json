@@ -4,7 +4,7 @@
     "testname",
     "overridePort",
     "overrideHost",
-    "HttpMethod",
+    "httpMethod",
     "BaseURI",
     "multipart",
     "payload",
@@ -111,15 +111,12 @@
     "BaseURI",
     "overrideHost",
     "overridePort",
-    {
-      "key": "Headers",
-      "type": "array"
-    },
+    "Headers",
     "httpMethod",
     {
       "key": "multipart",
       "condition": {
-        "functionBody": "return model.HttpMethod !== 'GET'"
+        "functionBody": "return model.httpMethod !== 'GET'"
       },
       "require": true,
       "readonly": false
@@ -127,7 +124,7 @@
     {
       "key": "payload",
       "condition": {
-        "functionBody": "return model.HttpMethod !== 'GET'"
+        "functionBody": "return model.httpMethod !== 'GET'"
       },
       "require": true,
       "readonly": false
