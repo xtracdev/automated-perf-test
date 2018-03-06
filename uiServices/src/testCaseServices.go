@@ -20,7 +20,7 @@ const testCaseSchema string = "testCase_schema.json"
 const structTypeName string = "TestCase "
 
 type Case struct {
-	HttpMethod          string                         `json:"HttpMethod"`
+	HttpMethod          string                         `json:"httpMethod"`
 	Name                string                         `json:"testname"`
 	Description         string                         `json:"description"`
 	OverrideHost        string                         `json:"overrideHost"`

@@ -1,5 +1,5 @@
   <testDefinition>
-      <testName>tester</testName>
+      <testName>TestCase</testName>
       <overrideHost>host</overrideHost>
       <overridePort>9191</overridePort>
       <httpMethod>POST</httpMethod>

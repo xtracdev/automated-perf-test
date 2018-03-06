@@ -38,7 +38,7 @@
     "payload": {
       "type": "string"
     },
-    "HttpMethod": {
+    "httpMethod": {
       "type": "string",
       "enum": [
         "POST",
@@ -104,5 +104,39 @@
         }
       }
     }
-  }
+  },
+  "form": [
+    "testname",
+    "description",
+    "BaseURI",
+    "overrideHost",
+    "overridePort",
+    {
+      "key": "Headers",
+      "type": "array"
+    },
+    "httpMethod",
+    {
+      "key": "multipart",
+      "condition": {
+        "functionBody": "return model.HttpMethod !== 'GET'"
+      },
+      "require": true,
+      "readonly": false
+    },
+    {
+      "key": "payload",
+      "condition": {
+        "functionBody": "return model.HttpMethod !== 'GET'"
+      },
+      "require": true,
+      "readonly": false
+    },
+    "preThinkTime",
+    "postThinkTime",
+    "execWeight",
+    "responseStatusCode",
+    "responseContentType",
+    "ResponseValues"
+  ]
 }

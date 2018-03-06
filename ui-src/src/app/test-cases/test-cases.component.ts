@@ -61,7 +61,8 @@ export class TestCasesComponent implements OnInit {
 
   onSelectCase(testCase, i) {
     this.testCaseData = testCase;
-    this.testCaseFileName = testCase.name
+    this.testCaseFileName = testCase.testname
+    console.log(this.testCaseFileName, "------");
   }
 
   onDelete() { }
@@ -99,6 +100,7 @@ export class TestCasesComponent implements OnInit {
 
 
   onUpdate(testCaseData) {
+
     console.log(testCaseData.testname, "in update");
     this.automatedUIServices
       .putTestCase$(testCaseData, this.testCasePath, testCaseData.testname)
@@ -132,18 +134,19 @@ export class TestCasesComponent implements OnInit {
       );
   }
 
-  onCancel(testCaseData) {
-    console.log(testCaseData.testname, "in cancel");
+
+
+
+  onCancel() {
+
     this.automatedUIServices
-      .getOneTestCase$(testCaseData, this.testCasePath, testCaseData.testname)
+      .getOneTestCase$(this.testCasePath, this.testCaseFileName)
       .subscribe(
       data => {
         this.testCaseData = data;
         this.toastr.success("Previous data reloaded!");
       },
-      error => {
-        this.testCaseData = undefined;
-      }
-      );
+
+    );
   }
 }
