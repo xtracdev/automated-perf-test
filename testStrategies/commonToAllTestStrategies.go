@@ -73,8 +73,8 @@ type TestDefinition struct {
 // unmarshal is complete. (See TestDefinition above).
 type TestSuite struct {
 	XMLName         xml.Name   `xml:"testSuite"`
-	Name            string     `xml:"name"`
-	Description     string     `xml:"description"`    
+	Name            string     `xml:"name" json:"name"`
+	Description     string     `xml:"description" json:"description"`    
 	TestStrategy    string     `xml:"testStrategy"`
 	TestCases       []TestCase `xml:"testCases>testCase"`
 	TestDefinitions []*TestDefinition
@@ -86,9 +86,10 @@ type TestSuite struct {
 type TestCase struct {
 	XMLName       xml.Name `xml:"testCase"`
 	Name          string   `xml:",chardata"`
-	PreThinkTime  int64    `xml:"preThinkTime,attr"`
-	PostThinkTime int64    `xml:"postThinkTime,attr"`
-	ExecWeight    string   `xml:"execWeight,attr"`
+	Description   string   `xml:"description,attr" json:"description"`
+	PreThinkTime  int64    `xml:"preThinkTime,attr" json:"preThinkTime"` 
+	PostThinkTime int64    `xml:"postThinkTime,attr" json:"postThinkTime"`
+	ExecWeight    string   `xml:"execWeight,attr" json:"execWeight"`
 }
 
 type multipartFormField struct {

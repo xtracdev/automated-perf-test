@@ -1,14 +1,16 @@
 <div>
     <table>
         <tr>
-            <th>Name </th>
             <th>Description</th>
-            <th>Http Method</th>
+            <th>Pre Think</th>
+            <th>Post Think</th>
+            <th>Exec Weight</th>
         </tr>
         <tr *ngFor="let testCase of testCases; let i = index" [class.highlighted]="testCase" (click)="selectedCase(testCase, i)">
-            <td>{{testCase.name}}</td>
-            <td>{{testCase.description}}</td>   
-            <td>{{testCase.httpMethod}}</td>
+            <td>{{testCase.description}}</td>
+            <td>{{testCase.preThinkTime}}</td>
+            <td>{{testCase.postThinkTime}}</td>   
+            <td>{{testCase.execWeight}}</td>
         </tr>  
     </table>
 </div>

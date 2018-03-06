@@ -9,29 +9,16 @@ import { TestCaseService } from "../../test-cases/test-case.service";
 export class TestCasesSelectionComponent implements OnInit {
   @Input() testSuiteDirPath;
   @Input() availableTestCases;
-  @Input() selectedTestCaseData;
+  @Input() selectedTestCaseData = [];
   @Output() addToSelected = new EventEmitter();
   @Output() reverse = new EventEmitter();
   constructor(private testCaseService: TestCaseService) {}
 
-  ngOnInit() {
-    // this.testCaseService.getAllTestCases$(this.testSuiteDirPath).subscribe( (data) => {
-    //   this.availableTestCases = data;
-    // });
-  }
-
-  selectOne() {}
-
-  deSelectOne() {}
-
-  selectAll() {}
-  selectNone() {}
+  ngOnInit() {}
   onReverse(i) {
-    this.selectedTestCaseData.splice(i, 1);
-    this.addToSelected.emit(this.selectedTestCaseData);
+    this.reverse.emit(i);
   }
-  onAddToSelected(e,i) {
-    this.selectedTestCaseData = e;
+  onAddToSelected(e, i) {
     this.addToSelected.emit(e);
   }
 }

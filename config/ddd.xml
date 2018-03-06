@@ -1,6 +1,0 @@
-  <testSuite>
-      <name>ddd</name>
-      <description>ddd</description>
-      <testStrategy>ServiceBased</testStrategy>
-      <testCases></testCases>
-  </testSuite>

@@ -10,7 +10,7 @@
 <!-- --------------------------------BUTTONS------------------------------------------------- -->
          <div class="column col-md-4">
             <button class="btn btn-primary " (click)="onAdd()" (click)="getTestCases()">Add</button>
-            <button class="btn btn-primary " (click)="onDelete()">Delete</button>
+            <button class="btn btn-primary " (click)="onCancel()">Cancel</button>
             <table>
                 <tr>
                     <th>Name </th>
@@ -29,8 +29,8 @@
             <json-schema-form [schema]="testSuiteSchema" [(ngModel)]="testSuiteData" framework="bootstrap-4">
             </json-schema-form>
             
-        <div class="col-md-8">
-            <test-cases-selection  (addToSelected)="updateSelected($event)" [selectedTestCaseData]="selectedTestCaseData" [availableTestCases]="testCases" [testSuiteDirPath]="testSuitePath"></test-cases-selection>
+        <div class="col-md-12">
+            <test-cases-selection (onSelectSuite)="onSelectSuite($event)" (reverse)="onReverse($event)"  (addToSelected)="updateSelected($event)" [selectedTestCaseData]="selectedTestCaseData" [availableTestCases]="testCases" [testSuiteDirPath]="testSuitePath"></test-cases-selection>
             <div class="button-row">
                 <button class="btn btn-primary push-right" (click)="onUpdate(testSuiteData)">Update</button>   
                 <button class="btn btn-primary push-right" (click)="onSave(testSuiteData)">Save</button>

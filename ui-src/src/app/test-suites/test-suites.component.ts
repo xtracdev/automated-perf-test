@@ -1,8 +1,8 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import { TestSuiteService } from "./test-suite.service";
 import { TestCaseService } from "../test-cases/test-case.service";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
-import {TestCasesSelectionComponent} from "../shared/test-cases-selection/test-cases-selection.component"
+import { TestCasesSelectionComponent } from "../shared/test-cases-selection/test-cases-selection.component";
 const TEST_SUITE_PATH =
   "C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/config";
 @Component({
@@ -18,6 +18,7 @@ export class TestSuitesComponent {
   testSuiteData = {};
   testCases = [];
   testSuiteFileName = undefined;
+  testSuiteFileNameTruncated = undefined;
   testSuiteSchema = { layout: true };
   constructor(
     private testSuiteService: TestSuiteService,
@@ -37,8 +38,8 @@ export class TestSuitesComponent {
     this.testSuiteService.getAllTestSuite$(TEST_SUITE_PATH).subscribe(
       data => {
         this.testSuites = data;
-        console.log(this.testSuites)
-        this.toastr.success("Your data has been saved!", "Success!");
+        console.log(this.testSuites);
+        this.toastr.success("Success!");
       },
 
       error => {
@@ -66,27 +67,39 @@ export class TestSuitesComponent {
     this.testCaseService
       .getAllTestCases$(TEST_SUITE_PATH)
       .subscribe((data: any) => (this.testCases = data));
-      
   }
 
   onCancel() {
-    //clear schema and moving info back into available (get method)
-    // this.testSuiteService.getTestSuite$(TEST_SUITE_PATH, this.testSuiteFileName)
-    //   .subscribe(
-    //     data => {
-    //       this.testSuiteData = data;
-    //       this.toastr.success("Previous data reloaded!");
-    //     },
-    //     error => {
-    //       this.testSuiteData = undefined;
-    //     }
-    //   );
+    this.truncateFileName();
+    this.testSuiteService
+      .getTestSuite$(this.testSuitePath, this.testSuiteFileNameTruncated)
+      .subscribe(
+        data => {
+          this.testSuiteData = data;
+          this.toastr.success("Previous data reloaded!");
+        },
+        error => {
+          this.toastr.success("Your data has been cleared", "Success!");
+          this.testSuiteData = undefined;
+        }
+      );
   }
+
+  truncateFileName() {
+    if (this.testSuiteFileName) {
+      this.testSuiteFileNameTruncated = this.testSuiteFileName.substring(
+        0,
+        this.testSuiteFileName.length - 4
+      );
+    }
+  }
+
   onUpdate(data) {
+    this.truncateFileName();
     this.testCaseArray["testCases"] = this.selectedTestCaseData;
     Object.assign(data, this.testCaseArray);
     this.testSuiteService
-      .putTestSuite$(this.testSuiteData, this.testSuitePath, this.testSuiteFileName)
+      .putTestSuite$(data, this.testSuitePath, this.testSuiteFileNameTruncated)
       .subscribe(
         data => {
           this.toastr.success("Success!");
@@ -115,10 +128,9 @@ export class TestSuitesComponent {
         }
       );
   }
-  
 
   onSave(data) {
-   this.testCaseArray["testCases"] = this.selectedTestCaseData;
+    this.testCaseArray["testCases"] = this.selectedTestCaseData;
     Object.assign(data, this.testCaseArray);
     this.testSuiteService.postTestSuite$(data, TEST_SUITE_PATH).subscribe(
       data => {
@@ -131,7 +143,6 @@ export class TestSuitesComponent {
             break;
           }
           case 400: {
-            console.log(data);
             this.toastr.error(
               "Some of the fields do not conform to the schema!",
               "An error occurred!"
@@ -146,28 +157,15 @@ export class TestSuitesComponent {
     );
   }
 
-  onSelectAll() {
-    this.testCaseService
-      .getAllTestCases$(TEST_SUITE_PATH)
-      .subscribe((data: any) => {
-       // this.selectedTestCaseData = data;
-        //this.testCaseArray["testCases"] = this.selectedTestCaseData;
-      });
-  }
-  onSelectSuite(testSuite, i)
-  {
+  onSelectSuite(testSuite, i) {
     this.testSuiteData = testSuite;
     this.selectedTestCaseData = testSuite.testCases;
-    this.testSuiteFileName = testSuite.name
-
-
-  } 
-  updateSelected(e){
-    this.selectedTestCaseData = e;
-    console.log(e);
+    this.testSuiteFileName = testSuite.file;
   }
-  onReverseOne() {}
-  onReverseAll() {
-  //  this.selectedTestCaseData = undefined;
+  updateSelected(e) {
+    this.selectedTestCaseData.push(e);
+  }
+  onReverse(i) {
+    this.selectedTestCaseData.splice(i, 1);
   }
 }

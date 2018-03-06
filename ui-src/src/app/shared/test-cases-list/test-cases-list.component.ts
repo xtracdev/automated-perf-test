@@ -6,14 +6,13 @@ import { Component, Input, Output, EventEmitter } from "@angular/core";
   styleUrls: ["./test-cases-list.component.css"]
 })
 export class TestCasesListComponent {
-  testCaseArray = [];
   selectedTestCaseData = [];
   @Input() testCases;
   @Output() addToSelected = new EventEmitter();
   @Output() reverse = new EventEmitter();
 
   selectedCase(testCase, i) {
-    this.selectedTestCaseData.push(testCase);
+    this.selectedTestCaseData = testCase;
     this.addToSelected.emit(this.selectedTestCaseData);
     this.reverse.emit(i);
   }
