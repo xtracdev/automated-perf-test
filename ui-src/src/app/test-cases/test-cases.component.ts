@@ -16,6 +16,8 @@ export class TestCasesComponent implements OnInit {
   testCaseSchema = { layout: true };
   testCaseFileName = undefined;
   testCases = [];
+
+
   constructor(
     private automatedUIServices: AutomatedUIServices,
     private toastr: ToastsManager,
@@ -30,16 +32,12 @@ export class TestCasesComponent implements OnInit {
       });
   }
 
-
-
-
   onAdd() {
     this.automatedUIServices.getAllCases$(this.testCasePath).subscribe(
       (data: any) => {
         this.testCases = data;
         this.toastr.success("Your data has been saved!", "Success!");
       },
-
       error => {
         switch (error.status) {
           case 500: {
@@ -61,11 +59,9 @@ export class TestCasesComponent implements OnInit {
     );
   }
 
-
   onSelectCase(testCase, i) {
     this.testCaseData = testCase;
     this.testCaseFileName = testCase.name
-
   }
 
   onDelete() { }
@@ -100,9 +96,54 @@ export class TestCasesComponent implements OnInit {
       }
     );
   }
-  onCancel() {
 
-    this.testCaseData = undefined;
 
+  onUpdate(testCaseData) {
+    console.log(testCaseData.testname, "in update");
+    this.automatedUIServices
+      .putTestCase$(testCaseData, this.testCasePath, testCaseData.testname)
+      .subscribe(
+      data => {
+        this.toastr.success("Success!");
+      },
+      error => {
+        switch (error.status) {
+          case 404: {
+            console.log(this.testCasePath, "404");
+            this.toastr.error("File not found", "An error occured!");
+            break;
+          }
+          case 400: {
+            this.toastr.error(
+              "File must be specified!",
+              "An error occurred!"
+            );
+            break;
+          }
+          case 500: {
+            this.toastr.error("Internal server error!");
+            break;
+          }
+          default: {
+            this.toastr.error("File was not updated!", "An error occurred!");
+          }
+        }
+      }
+      );
+  }
+
+  onCancel(testCaseData) {
+    console.log(testCaseData.testname, "in cancel");
+    this.automatedUIServices
+      .getOneTestCase$(testCaseData, this.testCasePath, testCaseData.testname)
+      .subscribe(
+      data => {
+        this.testCaseData = data;
+        this.toastr.success("Previous data reloaded!");
+      },
+      error => {
+        this.testCaseData = undefined;
+      }
+      );
   }
 }

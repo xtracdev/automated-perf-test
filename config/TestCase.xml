@@ -1,63 +1,22 @@
-<?xml version="1.0"?>
-
-<testDefinition>
-
-<testName>TestCase</testName>
-
-<overrideHost>host</overrideHost>
-
-<overridePort>9191</overridePort>
-
-<httpMethod>GET</httpMethod>
-
-<description>desc</description>
-
-<baseUri>path/to/URI</baseUri>
-
-<multipart>false</multipart>
-
-<payload>payload</payload>
-
-
-<multipartPayload>
-
-
-<multipartFormField>
-
-<fieldName>F-Name</fieldName>
-
-<fieldValue>PayloadName</fieldValue>
-
-<fileName>file-name</fileName>
-
-<fileContent/>
-
-</multipartFormField>
-
-</multipartPayload>
-
-<responseStatusCode>200</responseStatusCode>
-
-<responseContentType>JSON</responseContentType>
-
-
-<headers>
-
-<header key="Authorization">Header-Value</header>
-
-</headers>
-
-
-<responseProperties>
-
-<value extractionKey="Res-Key">Res-Value</value>
-
-</responseProperties>
-
-<PreThinkTime>1000</PreThinkTime>
-
-<PostThinkTime>2000</PostThinkTime>
-
-<ExecWeight>Sparse</ExecWeight>
-
-</testDefinition>
+  <testDefinition>
+      <testName>tester</testName>
+      <overrideHost>host</overrideHost>
+      <overridePort>9191</overridePort>
+      <httpMethod>POST</httpMethod>
+      <description>desc</description>
+      <baseUri>1232</baseUri>
+      <multipart>false</multipart>
+      <payload>payload</payload>
+      <multipartPayload></multipartPayload>
+      <responseStatusCode>200</responseStatusCode>
+      <responseContentType>life</responseContentType>
+      <headers>
+          <header key="1">1</header>
+      </headers>
+      <responseProperties>
+          <value extractionKey="11">1</value>
+      </responseProperties>
+      <PreThinkTime>1</PreThinkTime>
+      <PostThinkTime>1</PostThinkTime>
+      <ExecWeight>Sparse</ExecWeight>
+  </testDefinition>

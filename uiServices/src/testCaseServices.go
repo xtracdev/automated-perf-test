@@ -1,31 +1,41 @@
 package services
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"strings"
-	"github.com/Sirupsen/logrus"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"bytes"
-	"github.com/go-chi/chi"
+	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
 const testCaseSchema string = "testCase_schema.json"
 const structTypeName string = "TestCase "
 
 type Case struct {
-	HttpMethod  string `json:"httpMethod"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	HttpMethod          string                         `json:"HttpMethod"`
+	Name                string                         `json:"testname"`
+	Description         string                         `json:"description"`
+	OverrideHost        string                         `json:"overrideHost"`
+	OverridePort        string                         `json:"overridePort"`
+	BaseURI             string                         `json:"BaseURI"`
+	Multipart           bool                           `json:"multipart"`
+	ResponseStatusCode  int                            `json:"responseStatusCode"`
+	ResponseContentType string                         `json:"responseContentType"`
+	PreThinkTime        int64                          `json:"preThinkTime"`
+	PostThinkTime       int64                          `json:"postThinkTime"`
+	ExecWeight          string                         `json:"execWeight"`
+	Payload             string                         `json:"payload"`
+	Headers             []testStrategies.Header        `json:"Headers"`
+	ResponseValues      []testStrategies.ResponseValue `json:"ResponseValues"`
 }
-
-
-
 
 func TestCaseCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +83,7 @@ func postTestCase(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !testCaseWriterXml(testCase, testCasePathDir + testCase.TestName+".xml") {
+	if !testCaseWriterXml(testCase, testCasePathDir+testCase.TestName+".xml") {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -114,7 +124,7 @@ func putTestCase(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if len(testCase.TestName) < 1{
+	if len(testCase.TestName) < 1 {
 		logrus.Error("No TestName Entered")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
@@ -145,7 +155,7 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 	testCases := make([]Case, 0)
 
 	for _, file := range files {
-		if filepath.Ext(testCasePathDir +file.Name()) == ".xml" {
+		if filepath.Ext(testCasePathDir+file.Name()) == ".xml" {
 
 			testCase := new(testStrategies.TestDefinition)
 
@@ -153,35 +163,47 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 
 			file, err := os.Open(fmt.Sprintf("%s%s", testCasePathDir, filename))
 			if err != nil {
-				logrus.Error("Cannot Open File: "+ filename)
+				logrus.Error("Cannot Open File: " + filename)
 				continue
 			}
 
 			byteValue, err := ioutil.ReadAll(file)
 			if err != nil {
-				logrus.Error("Cannot Read File: "+ filename)
+				logrus.Error("Cannot Read File: " + filename)
 				continue
 			}
 
 			err = xml.Unmarshal(byteValue, testCase)
 			if err != nil {
-				logrus.Error("Cannot Unmarshall File: "+ filename)
+				logrus.Error("Cannot Unmarshall File: " + filename)
 				continue
 			}
 
 			//if a Test Case Name can't be assigned, it isn't a Test Case object
 			if testCase.TestName != "" {
 				testCases = append(testCases, Case{
-					Name:        testCase.TestName,
-					Description: testCase.Description,
-					HttpMethod:  testCase.HTTPMethod,
+					Name:                testCase.TestName,
+					Description:         testCase.Description,
+					HttpMethod:          testCase.HTTPMethod,
+					BaseURI:             testCase.BaseURI,
+					OverrideHost:        testCase.OverrideHost,
+					OverridePort:        testCase.OverridePort,
+					Multipart:           testCase.Multipart,
+					ResponseStatusCode:  testCase.ResponseStatusCode,
+					ResponseContentType: testCase.ResponseContentType,
+					PreThinkTime:        testCase.PreThinkTime,
+					PostThinkTime:       testCase.PostThinkTime,
+					ExecWeight:          testCase.ExecWeight,
+					Headers:             testCase.Headers,
+					ResponseValues:      testCase.ResponseValues,
+					Payload:             testCase.Payload,
 				})
 			}
 		}
 	}
 
 	err = json.NewEncoder(rw).Encode(testCases)
-	if err != nil{
+	if err != nil {
 		logrus.Error("Could not enocde Test Cases")
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
@@ -240,4 +262,3 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 	rw.Write(testSuiteJSON)
 
 }
-
