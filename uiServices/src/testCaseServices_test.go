@@ -325,8 +325,8 @@ func TestSuccessfulGetAllCases(t *testing.T) {
 	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodGet, "/test-cases", nil)
 
-	request.Header.Set("testCasePathDir", DirectoryPath)
-	request.Header.Get("testCasePathDir")
+	request.Header.Set("testSuitePathDir", DirectoryPath)
+	request.Header.Get("testSuitePathDir")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -343,8 +343,8 @@ func TestGetAllCasesNoHeader(t *testing.T) {
 	DircetoryPath := ""
 	request, err := http.NewRequest(http.MethodGet, "/test-cases", nil)
 
-	request.Header.Set("testCasePathDir", DircetoryPath)
-	request.Header.Get("testCasePathDir")
+	request.Header.Set("testSuitePathDir", DircetoryPath)
+	request.Header.Get("testSuitePathDir")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)

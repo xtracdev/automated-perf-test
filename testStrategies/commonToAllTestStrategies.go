@@ -72,11 +72,11 @@ type TestDefinition struct {
 // TestSuite fields get populated from the TestSuiteDefinition after the XML
 // unmarshal is complete. (See TestDefinition above).
 type TestSuite struct {
-	XMLName         xml.Name   `xml:"testSuite" json:":"testSuite"`
+	XMLName         xml.Name   `xml:"testSuite"`
 	Name            string     `xml:"name" json:"name"`
-	Description     string     `xml:"description" json:"description"`
-	TestStrategy    string     `xml:"testStrategy" json:"testStrategy"`
-	TestCases       []TestCase `xml:"testCases>testCase" json:"testCases"`
+	Description     string     `xml:"description" json:"description"`    
+	TestStrategy    string     `xml:"testStrategy"`
+	TestCases       []TestCase `xml:"testCases>testCase"`
 	TestDefinitions []*TestDefinition
 }
 
@@ -86,8 +86,9 @@ type TestSuite struct {
 type TestCase struct {
 	XMLName       xml.Name `xml:"testCase" json:"testCase"`
 	Name          string   `xml:",chardata"`
-	PreThinkTime  int64    `xml:"preThinkTime,attr" json:"preThinkTime"`
-	PostThinkTime int64    `xml:"postThinkTime,attr"," json:"postThinkTime"`
+	Description   string   `xml:"description,attr" json:"description"`
+	PreThinkTime  int64    `xml:"preThinkTime,attr" json:"preThinkTime"` 
+	PostThinkTime int64    `xml:"postThinkTime,attr" json:"postThinkTime"`
 	ExecWeight    string   `xml:"execWeight,attr" json:"execWeight"`
 }
 

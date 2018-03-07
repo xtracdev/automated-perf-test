@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { AutomatedUIServices } from "../automated-ui-services";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
+import {TestCaseService} from "./test-case.service";
+import { ConfigurationService } from "../configurations/configuration.service";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { HttpClient } from "@angular/common/http";
 import "rxjs/add/operator/map";
@@ -19,13 +20,14 @@ export class TestCasesComponent implements OnInit {
 
 
   constructor(
-    private automatedUIServices: AutomatedUIServices,
+    private testCaseService: TestCaseService,
+    private configurationService: ConfigurationService,
     private toastr: ToastsManager,
     private http: HttpClient
   ) { }
 
   ngOnInit() {
-    this.automatedUIServices
+    this.configurationService
       .getSchema$("assets/testCase_schema.json")
       .subscribe((data: any) => {
         this.testCaseSchema = data;
@@ -33,7 +35,7 @@ export class TestCasesComponent implements OnInit {
   }
 
   onAdd() {
-    this.automatedUIServices.getAllCases$(this.testCasePath).subscribe(
+    this.TestCaseService.getAllCases$(this.testCasePath).subscribe(
       (data: any) => {
         this.testCases = data;
         this.toastr.success("Your data has been saved!", "Success!");

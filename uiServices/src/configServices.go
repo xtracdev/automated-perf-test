@@ -50,6 +50,7 @@ func ConfigCtx(next http.Handler) http.Handler {
 }
 
 func postConfigs(rw http.ResponseWriter, req *http.Request) {
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	configPathDir := req.Header.Get("configPathDir")
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
@@ -108,7 +109,7 @@ func FilePathExist(path string) bool {
 }
 
 func getConfigs(rw http.ResponseWriter, req *http.Request) {
-
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	configPathDir := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 

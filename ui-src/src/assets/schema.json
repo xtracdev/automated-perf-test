@@ -182,6 +182,11 @@
     {
       "key": "reportOutputDir",
       "title": "Report Output Directory"
+    },
+    {
+   "options":{"addSubmit":false}
     }
+  
+    
   ]
 }

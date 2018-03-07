@@ -14,14 +14,14 @@ const configFileLocation = "../../../config/";
 
 class ConfigurationPageObject {
   configFilePath = element(by.id("config-file-path"));
-  btnUpdate = element(by.id("update-config-file-btn"));
+  btnUpdate = element(by.id("btn-update"));
   xmlFileName = element(by.id("xml-file-name"));
   applicationName = element(by.name("apiName"));
   targetHost = element(by.name("targetHost"));
   targetPort = element(by.name("targetPort"));
   memoryEndpoint = element(by.name("memoryEndpoint"));
-  submitBtn = element(by.className("btn"));
-  cancelBtn = element(by.id("cancel-btn"));
+  submitBtn = element(by.id("btn-create"));
+  cancelBtn = element(by.id("btn-cancel"));
 
   numIterations = element(by.name("numIterations"));
   concurrentUsers = element(by.name("concurrentUsers"));
@@ -101,7 +101,7 @@ class ConfigurationPageObject {
   setReportDir() {
     return this.reportsDir.sendKeys("./report");
   }
-
+    
   setConfigData() {
     this.setConfigPath();
     this.setApplicationName();
