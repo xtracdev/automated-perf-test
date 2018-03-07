@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { ConfigurationService } from "./configuration.service";
+import { TestSuiteService } from "../test-suites/test-suite.service";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import "rxjs/add/operator/map";
@@ -12,6 +13,9 @@ import "rxjs/add/operator/map";
 })
 export class ConfigurationsComponent implements OnInit {
   formData = {};
+  test = [];
+  test2 = [];
+  testArary =[];
   configPath = undefined;
   xmlFileName = undefined;
   fileName = undefined;
@@ -20,6 +24,7 @@ export class ConfigurationsComponent implements OnInit {
 
   constructor(
     private configurationService: ConfigurationService,
+    private testSuiteService: TestSuiteService,
     private toastr: ToastsManager,
 
     private http: HttpClient
@@ -31,9 +36,45 @@ export class ConfigurationsComponent implements OnInit {
       .subscribe((data: any) => {
         this.configSchema = data;
       });
+      this.testSuiteService.getAllTestSuite$("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/config").subscribe(
+        data => {
+          this.test = data
+          for (var i = 0; i < this.test.length; i++ ) {
+           this.testArary.push(this.test[i].name)
+            this.test2["testSuite"] = this.testArary;
+            console.log(this.test2)
+            this.formData = this.test2
+            console.log("helloo", this.formData)
+          }
+          console.log(this.test[0].name)
+          console.log(this.testArary)
+
+          //this.toastr.success("Success!");
+        },
+  
+        error => {
+          switch (error.status) {
+            case 500: {
+              this.toastr.error("An error has occurred!", "Check the logs!");
+              break;
+            }
+            case 400: {
+              this.toastr.error(
+                "No Test Suite Directory added",
+                "An error occurred!"
+              );
+              break;
+            }
+            default: {
+              this.toastr.error("An error occurred!");
+            }
+          }
+        }
+      );
   }
 
   onSubmit(configData) {
+
     this.configurationService.postConfig$(configData, this.configPath).subscribe(
       data => {
         this.toastr.success("Your data has been saved!", "Success!");
@@ -102,6 +143,7 @@ export class ConfigurationsComponent implements OnInit {
       .subscribe(
         data => {
           this.formData = data;
+          console.log(this.formData)
           this.toastr.success("Success!");
         },
         error => {
