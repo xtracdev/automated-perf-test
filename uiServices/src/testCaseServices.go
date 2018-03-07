@@ -156,10 +156,10 @@ func deleteAllTestCases(rw http.ResponseWriter, req *http.Request) {
 		err := os.RemoveAll(filepath.Join(testCasePathDir, file.Name()))
 		if err != nil {
 			logrus.Errorf("Error deleting the files from filesystem: %s", err)
-			rw.WriteHeader(http.StatusInternalServerError)
+			rw.WriteHeader(http.StatusNotFound)
 			return
 		}
 
-		rw.WriteHeader(http.StatusNoContent)
+		rw.WriteHeader(http.StatusOK)
 	}
 }
