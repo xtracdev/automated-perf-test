@@ -436,7 +436,12 @@ func (a *apiFeature) theUpdatedFileShouldMatchJSON(body *gherkin.DocString) (err
 
 func createNewFile(fileName, path string) error {
 
-	err := ioutil.WriteFile(fmt.Sprintf("%s%s/%s", suitDir, path, fileName), nil, 0666)
+	_, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + path)
+	if err != nil {
+		os.Mkdir(os.Getenv("GOPATH")+"/src/github.com/xtracdev/automated-perf-test"+path, 0777)
+	}
+
+	err = ioutil.WriteFile(fmt.Sprintf("%s%s/%s", suitDir, path, fileName), nil, 0666)
 	if err != nil {
 		logrus.Error(" error creating file ", err)
 		return err
