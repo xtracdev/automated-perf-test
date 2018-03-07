@@ -20,7 +20,7 @@ export class ConfigurationsComponent implements OnInit {
   xmlFileName = undefined;
   fileName = undefined;
   // needed for layout to load
-  configSchema = { layout: true };
+  configSchema = { };
 
   constructor(
     private configurationService: ConfigurationService,
@@ -35,23 +35,24 @@ export class ConfigurationsComponent implements OnInit {
       .getSchema$("assets/schema.json")
       .subscribe((data: any) => {
         this.configSchema = data;
+        console.log("here",this.configSchema)
       });
       this.testSuiteService.getAllTestSuite$("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/config").subscribe(
         data => {
           this.test = data
           for (var i = 0; i < this.test.length; i++ ) {
            this.testArary.push(this.test[i].name)
-            this.test2["testSuite"] = this.testArary;
-            console.log(this.test2)
-            this.formData = this.test2
-            console.log("helloo", this.formData)
+            
+            
+            console.log("helloo", this.configSchema)
           }
-          console.log(this.test[0].name)
+          this.test2 = this.testArary;
+    this.configSchema["properties"].testSuite.enum = this.test2;
           console.log(this.testArary)
-
+          console.log("configSchema", this.configSchema)
           //this.toastr.success("Success!");
         },
-  
+    
         error => {
           switch (error.status) {
             case 500: {
@@ -71,7 +72,46 @@ export class ConfigurationsComponent implements OnInit {
           }
         }
       );
-  }
+    }
+      
+  
+  onGet(){
+  this.testSuiteService.getAllTestSuite$("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/config").subscribe(
+    data => {
+      this.test = data
+      for (var i = 0; i < this.test.length; i++ ) {
+       this.testArary.push(this.test[i].name)
+        
+        
+        console.log("helloo", this.configSchema)
+      }
+      this.test2 = this.testArary;
+this.configSchema["properties"].testSuite.enum = this.test2;
+      console.log(this.testArary)
+      console.log("configSchema", this.configSchema)
+      //this.toastr.success("Success!");
+    },
+
+    error => {
+      switch (error.status) {
+        case 500: {
+          this.toastr.error("An error has occurred!", "Check the logs!");
+          break;
+        }
+        case 400: {
+          this.toastr.error(
+            "No Test Suite Directory added",
+            "An error occurred!"
+          );
+          break;
+        }
+        default: {
+          this.toastr.error("An error occurred!");
+        }
+      }
+    }
+  );
+}
 
   onSubmit(configData) {
 
