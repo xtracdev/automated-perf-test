@@ -156,7 +156,6 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 }
 
 func putConfigs(rw http.ResponseWriter, req *http.Request) {
-	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	path := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 

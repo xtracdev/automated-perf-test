@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import { TestSuiteService } from "./test-suite.service";
 import { TestCaseService } from "../test-cases/test-case.service";
+import { ConfigurationService } from "../configurations/configuration.service";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import { TestCasesSelectionComponent } from "../shared/test-cases-selection/test-cases-selection.component";
 const TEST_SUITE_PATH =
@@ -23,11 +24,12 @@ export class TestSuitesComponent {
   constructor(
     private testSuiteService: TestSuiteService,
     private testCaseService: TestCaseService,
+    private configurationService: ConfigurationService,
     private toastr: ToastsManager
   ) {}
 
   ngOnInit() {
-    this.testSuiteService
+    this.configurationService
       .getSchema$("assets/testSuite_schema.json")
       .subscribe((data: any) => {
         this.testSuiteSchema = data;
@@ -38,8 +40,7 @@ export class TestSuitesComponent {
     this.testSuiteService.getAllTestSuite$(TEST_SUITE_PATH).subscribe(
       data => {
         this.testSuites = data;
-        console.log(this.testSuites);
-        this.toastr.success("Success!");
+        //this.toastr.success("Success!");
       },
 
       error => {
@@ -65,26 +66,31 @@ export class TestSuitesComponent {
 
   getTestCases() {
     this.testCaseService
-      .getAllTestCases$(TEST_SUITE_PATH)
+      .getAllCases$(TEST_SUITE_PATH)
       .subscribe((data: any) => (this.testCases = data));
   }
 
   onCancel() {
-    this.truncateFileName();
-    this.testSuiteService
-      .getTestSuite$(this.testSuitePath, this.testSuiteFileNameTruncated)
-      .subscribe(
-        data => {
-          this.testSuiteData = data;
-          this.toastr.success("Previous data reloaded!");
-        },
-        error => {
-          this.toastr.success("Your data has been cleared", "Success!");
-          this.testSuiteData = undefined;
-        }
-      );
+    // this.truncateFileName();
+    // this.testSuiteService
+    //   .getTestSuite$(this.testSuitePath, this.testSuiteFileNameTruncated)
+    //   .subscribe(
+    //     data => {
+    //       this.testSuiteData = data;
+    //       this.toastr.success("Previous data reloaded!");
+    //     },
+    //     error => {
+    //       this.toastr.success("Your data has been cleared", "Success!");
+    //       this.testSuiteData = undefined;
+    //     }
+    //   );
+    this.toastr.success("Your data has been cleared", "Success!");
+    this.testSuiteData = undefined;
+    this.selectedTestCaseData = [];
+    this.testSuiteFileName = undefined;
+    this.onAdd();
   }
-
+  
   truncateFileName() {
     if (this.testSuiteFileName) {
       this.testSuiteFileNameTruncated = this.testSuiteFileName.substring(
@@ -94,15 +100,16 @@ export class TestSuitesComponent {
     }
   }
 
-  onUpdate(data) {
+  onUpdate(formData) {
     this.truncateFileName();
     this.testCaseArray["testCases"] = this.selectedTestCaseData;
-    Object.assign(data, this.testCaseArray);
+    Object.assign(formData, this.testCaseArray);
     this.testSuiteService
-      .putTestSuite$(data, this.testSuitePath, this.testSuiteFileNameTruncated)
+      .putTestSuite$(formData, this.testSuitePath, this.testSuiteFileNameTruncated)
       .subscribe(
         data => {
           this.toastr.success("Success!");
+          this.onAdd();
         },
         error => {
           switch (error.status) {
@@ -129,12 +136,13 @@ export class TestSuitesComponent {
       );
   }
 
-  onSave(data) {
+  onSave(formData) {
     this.testCaseArray["testCases"] = this.selectedTestCaseData;
-    Object.assign(data, this.testCaseArray);
-    this.testSuiteService.postTestSuite$(data, TEST_SUITE_PATH).subscribe(
+    Object.assign(formData, this.testCaseArray);
+    this.testSuiteService.postTestSuite$(formData, TEST_SUITE_PATH).subscribe(
       data => {
         this.toastr.success("Your data has been saved!", "Success!");
+        this.onAdd();
       },
       error => {
         switch (error.status) {
@@ -154,18 +162,20 @@ export class TestSuitesComponent {
           }
         }
       }
-    );
+    )
   }
 
-  onSelectSuite(testSuite, i) {
+  onSelectSuite(testSuite, selectedIndex) {
+    this.onAdd();
     this.testSuiteData = testSuite;
     this.selectedTestCaseData = testSuite.testCases;
     this.testSuiteFileName = testSuite.file;
   }
-  updateSelected(e) {
-    this.selectedTestCaseData.push(e);
+  updateSelected(testCase) {
+    this.selectedTestCaseData.push(testCase);
+
   }
-  onReverse(i) {
-    this.selectedTestCaseData.splice(i, 1);
+  onReverse(selectedIndex) {
+    this.selectedTestCaseData.splice(selectedIndex, 1);
   }
 }

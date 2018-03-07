@@ -15,10 +15,10 @@ export class TestCasesSelectionComponent implements OnInit {
   constructor(private testCaseService: TestCaseService) {}
 
   ngOnInit() {}
-  onReverse(i) {
-    this.reverse.emit(i);
+  onReverse(selectedIndex) {
+    this.reverse.emit(selectedIndex);
   }
-  onAddToSelected(e, i) {
-    this.addToSelected.emit(e);
+  onAddToSelected(testCase, selectedIndex) {
+    this.addToSelected.emit(testCase);
   }
 }

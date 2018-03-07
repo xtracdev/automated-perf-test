@@ -32,11 +32,6 @@ export class TestSuiteService {
       headers: this.headers
     });
   }
-  getSchema$(location: string): Observable<any> {
-    return this.http
-      .get(`http://localhost:4200/${location}`, {headers: this.headers})
-      .map((data: any) => data);
-  }
 
   putTestSuite$(testSuiteData, testSuitePath, testSuiteFileName): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testSuitePath);

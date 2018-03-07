@@ -12,9 +12,9 @@ export class TestCaseService {
     this.headers = new HttpHeaders({"Content-Type": "application/json"});
   }
 
-  getAllTestCases$(testCasesPath): Observable<any> {
+  getAllCases$(testCasesPath): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testCasesPath);
-    return this.http.get(`${environment.apiBaseUrl}test-suites` + '/a/a', {
+    return this.http.get(`${environment.apiBaseUrl}test-suites` + '/getAllCases/', {
       headers: this.headers
     });
   }

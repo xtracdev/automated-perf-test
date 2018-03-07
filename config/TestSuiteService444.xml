@@ -3,7 +3,7 @@
       <description>Services for XYZ</description>
       <testStrategy>SuiteBased</testStrategy>
       <testCases>
-          <testCase preThinkTime="1000" postThinkTime="2000" execWeight="Infrequent">file1</testCase>
-          <testCase preThinkTime="0" postThinkTime="5" execWeight="">file2</testCase>
+          <testCase description="Example" preThinkTime="1000" postThinkTime="2000" execWeight="Infrequent">file1</testCase>
+          <testCase description="Example" preThinkTime="0" postThinkTime="5" execWeight="">file2</testCase>
       </testCases>
   </testSuite>

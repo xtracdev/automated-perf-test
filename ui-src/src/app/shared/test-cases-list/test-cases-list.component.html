@@ -2,9 +2,9 @@
     <table>
         <tr>
             <th>Description</th>
-            <th>Pre Think</th>
-            <th>Post Think</th>
-            <th>Exec Weight</th>
+            <th>Pre-Think</th>
+            <th>Post-Think</th>
+            <th>Exec-Weight</th>
         </tr>
         <tr *ngFor="let testCase of testCases; let i = index" [class.highlighted]="testCase" (click)="selectedCase(testCase, i)">
             <td>{{testCase.description}}</td>
@@ -14,3 +14,4 @@
         </tr>  
     </table>
 </div>
+   

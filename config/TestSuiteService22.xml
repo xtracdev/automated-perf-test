@@ -1,9 +1,10 @@
   <testSuite>
-      <name>TestSuiteService21</name>
+      <name>TestSuiteServiceTest</name>
       <description>Services 22</description>
       <testStrategy>SuiteBased</testStrategy>
       <testCases>
-          <testCase preThinkTime="2000" postThinkTime="2002" execWeight="Infrequent">file222</testCase>
-          <testCase preThinkTime="2" postThinkTime="0" execWeight="">file2222</testCase>
+          <testCase description="Example" preThinkTime="2000" postThinkTime="2002" execWeight="Infrequent">file222</testCase>
+          <testCase description="Example" preThinkTime="2" postThinkTime="0" execWeight="">file2222</testCase>
+          <testCase description="desc" preThinkTime="1000" postThinkTime="2000" execWeight="Sparse">TestCaseService</testCase>
       </testCases>
   </testSuite>
