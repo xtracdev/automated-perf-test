@@ -104,36 +104,5 @@
         }
       }
     }
-  },
-  "form": [
-    "testname",
-    "description",
-    "BaseURI",
-    "overrideHost",
-    "overridePort",
-    "Headers",
-    "httpMethod",
-    {
-      "key": "multipart",
-      "condition": {
-        "functionBody": "return model.httpMethod !== 'GET'"
-      },
-      "require": true,
-      "readonly": false
-    },
-    {
-      "key": "payload",
-      "condition": {
-        "functionBody": "return model.httpMethod !== 'GET'"
-      },
-      "require": true,
-      "readonly": false
-    },
-    "preThinkTime",
-    "postThinkTime",
-    "execWeight",
-    "responseStatusCode",
-    "responseContentType",
-    "ResponseValues"
-  ]
+  }
 }

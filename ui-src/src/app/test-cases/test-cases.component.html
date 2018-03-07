@@ -1,13 +1,17 @@
 <div class="container">
     <div class="row">
-        <label>Test Case Directory</label>
-        <input class="form-control" [(ngModel)]="testCasePath" required>
+        <div class=" column  col-md-11">
+            <label>Test Case Directory</label>
+            <input class="form-control" [(ngModel)]="testCasePath" required>
+        </div>
+        <div class="load-button column col-md-1">
+            <button class="btn btn-primary " (click)="onLoad()">Load</button>
+        </div>
     </div>
-
-
     <div class="row">
 
         <div class="column col-md-4">
+            <h1>Existing Test Cases</h1>
             <button class="btn btn-primary " (click)="onAdd()">Add</button>
             <button class="btn btn-primary " (click)="onDelete()">Delete</button>
             <table>
@@ -30,9 +34,11 @@
 
             <div class="button-row">
                 <button class="btn btn-primary push-right" (click)="onCancel()">Cancel</button>
-                <button class="btn btn-primary push-right" (click)="onSave(testCaseData)">Save</button>
-                <button class="btn btn-primary push-right" (click)="onUpdate(testCaseData)">Update</button>
+                <button class="btn btn-primary push-right" *ngIf="!testCaseFileName" (click)="onSave(testCaseData)">Save</button>
+                <button class="btn btn-primary push-right" *ngIf="testCaseFileName" (click)="onUpdate(testCaseData)">Update</button>
             </div>
+
+
         </div>
     </div>
 </div>

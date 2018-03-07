@@ -32,11 +32,11 @@ export class TestCasesComponent implements OnInit {
       });
   }
 
-  onAdd() {
+  onLoad() {
     this.automatedUIServices.getAllCases$(this.testCasePath).subscribe(
       (data: any) => {
         this.testCases = data;
-        this.toastr.success("Your data has been saved!", "Success!");
+        this.toastr.success("Your Test Cases have loaded!", "Success!");
       },
       error => {
         switch (error.status) {
@@ -46,7 +46,7 @@ export class TestCasesComponent implements OnInit {
           }
           case 400: {
             this.toastr.error(
-              "No Test Suite Directory added",
+              "No Test Case Directory added",
               "An error occurred!"
             );
             break;
@@ -62,6 +62,11 @@ export class TestCasesComponent implements OnInit {
   onSelectCase(testCase, i) {
     this.testCaseData = testCase;
     this.testCaseFileName = testCase.testname
+  }
+
+  onAdd() {
+    this.testCaseData = undefined;
+    this.testCaseFileName = undefined;
   }
 
   onDelete() { }
@@ -131,7 +136,6 @@ export class TestCasesComponent implements OnInit {
       );
   }
 
-
   onCancel() {
     this.automatedUIServices
       .getOneTestCase$(this.testCasePath, this.testCaseFileName)
@@ -139,12 +143,10 @@ export class TestCasesComponent implements OnInit {
       data => {
         this.testCaseData = data;
         this.toastr.success("Previous data reloaded!");
-
       },
       error => {
         this.testCaseData = undefined;
       }
-
       );
   }
 }
