@@ -3,13 +3,10 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
-<<<<<<< HEAD
 @import "./app/test-cases/test-cases.component.css";
 
-=======
 @import './app/configurations/configurations.component.css';
 @import './app/test-suites/test-suites.component.css';
->>>>>>> 2b63d1351b348876e56466b1e8c5b6168a8f907e
 
 
 body {

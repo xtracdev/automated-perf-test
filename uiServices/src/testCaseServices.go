@@ -20,7 +20,6 @@ const testCaseSchema string = "testCase_schema.json"
 const structTypeName string = "TestCase "
 
 type Case struct {
-<<<<<<< HEAD
 	HttpMethod          string                         `json:"httpMethod"`
 	Name                string                         `json:"testname"`
 	Description         string                         `json:"description"`
@@ -36,14 +35,6 @@ type Case struct {
 	Payload             string                         `json:"payload"`
 	Headers             []testStrategies.Header        `json:"Headers"`
 	ResponseValues      []testStrategies.ResponseValue `json:"ResponseValues"`
-=======
-	HttpMethod    string `json:"httpMethod"`
-	Name          string `json:"name"`
-	Description   string `json:"description"`
-	PreThinkTime  int64  `json:"preThinkTime"`
-	PostThinkTime int64  `json:"postThinkTime"`
-	ExecWeight    string `json:"execWeight"`
->>>>>>> 2b63d1351b348876e56466b1e8c5b6168a8f907e
 }
 
 func TestCaseCtx(next http.Handler) http.Handler {
@@ -191,7 +182,6 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 			//if a Test Case Name can't be assigned, it isn't a Test Case object
 			if testCase.TestName != "" {
 				testCases = append(testCases, Case{
-<<<<<<< HEAD
 					Name:                testCase.TestName,
 					Description:         testCase.Description,
 					HttpMethod:          testCase.HTTPMethod,
@@ -207,14 +197,6 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 					Headers:             testCase.Headers,
 					ResponseValues:      testCase.ResponseValues,
 					Payload:             testCase.Payload,
-=======
-					Name:          testCase.TestName,
-					Description:   testCase.Description,
-					HttpMethod:    testCase.HTTPMethod,
-					PostThinkTime: testCase.PostThinkTime,
-					PreThinkTime:  testCase.PreThinkTime,
-					ExecWeight:    testCase.ExecWeight,
->>>>>>> 2b63d1351b348876e56466b1e8c5b6168a8f907e
 				})
 			}
 		}

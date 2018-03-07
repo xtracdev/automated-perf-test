@@ -27,10 +27,6 @@ type Suite struct {
 	Description string `json:"description"`
 	TestStrategy string `json:"testStrategy"`
 	TestCases []testStrategies.TestCase  `json:"testCases"`
-<<<<<<< HEAD
-
-=======
->>>>>>> 2b63d1351b348876e56466b1e8c5b6168a8f907e
 }
 
 func TestSuiteCtx(next http.Handler) http.Handler {
