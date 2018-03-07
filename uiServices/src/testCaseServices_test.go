@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
-	"strings"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
@@ -357,8 +357,6 @@ func TestGetAllCasesNoHeader(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code, "Did not get all test cases")
 	}
 }
-
-
 
 func TestSuccessfulGetTestCase(t *testing.T) {
 	r := chi.NewRouter()
