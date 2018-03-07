@@ -5,7 +5,6 @@
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
 @import "./app/test-cases/test-cases.component.css";
 @import './app/configurations/configurations.component.css';
-@import './app/test-suites/test-suites.component.css';
 
 
 body {

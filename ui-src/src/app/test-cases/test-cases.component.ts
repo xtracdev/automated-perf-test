@@ -18,13 +18,12 @@ export class TestCasesComponent implements OnInit {
   testCaseFileName = undefined;
   testCases = [];
 
-
   constructor(
     private testCaseService: TestCaseService,
     private configurationService: ConfigurationService,
     private toastr: ToastsManager,
     private http: HttpClient
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.configurationService
@@ -34,11 +33,11 @@ export class TestCasesComponent implements OnInit {
       });
   }
 
-  onAdd() {
+  onLoad() {
     this.testCaseService.getAllCases$(this.testCasePath).subscribe(
       (data: any) => {
         this.testCases = data;
-        this.toastr.success("Your data has been saved!", "Success!");
+        // this.toastr.success("Your Test Cases have loaded!", "Success!");
       },
       error => {
         switch (error.status) {
@@ -48,7 +47,7 @@ export class TestCasesComponent implements OnInit {
           }
           case 400: {
             this.toastr.error(
-              "No Test Suite Directory added",
+              "No Test Case Directory added",
               "An error occurred!"
             );
             break;
@@ -63,90 +62,96 @@ export class TestCasesComponent implements OnInit {
 
   onSelectCase(testCase, i) {
     this.testCaseData = testCase;
-    this.testCaseFileName = testCase.testname
+    this.testCaseFileName = testCase.testname;
   }
 
-  onDelete() { }
+  onAdd() {
+    this.testCaseData = undefined;
+    this.testCaseFileName = undefined;
+  }
 
   onSave(testCaseData) {
-    this.testCaseService.postTestCases$(testCaseData, this.testCasePath).subscribe(
-      data => {
-        this.toastr.success("Your data has been saved!", "Success!");
-      },
+    this.testCaseService
+      .postTestCases$(testCaseData, this.testCasePath)
+      .subscribe(
+        data => {
+          this.onLoad();
+          this.toastr.success("Your data has been saved!", "Success!");
+        },
 
-      error => {
-        switch (error.status) {
-          case 500: {
-            this.toastr.error("An error has occurred!", "Check the logs!");
-            break;
-          }
-          case 409: {
-            this.toastr.error("File already exists!", "An error occurred!");
-            break;
-          }
-          case 400: {
-            this.toastr.error(
-              "Some of the fields do not conform to the schema!",
-              "An error occurred!"
-            );
-            break;
-          }
-          default: {
-            this.toastr.error("Your data did not save!", "An error occurred!");
+        error => {
+          switch (error.status) {
+            case 500: {
+              this.toastr.error("An error has occurred!", "Check the logs!");
+              break;
+            }
+            case 409: {
+              this.toastr.error("File already exists!", "An error occurred!");
+              break;
+            }
+            case 400: {
+              this.toastr.error(
+                "Some of the fields do not conform to the schema!",
+                "An error occurred!"
+              );
+              break;
+            }
+            default: {
+              this.toastr.error(
+                "Your data did not save!",
+                "An error occurred!"
+              );
+            }
           }
         }
-      }
-    );
+      );
   }
-
 
   onUpdate(testCaseData) {
     this.testCaseService
       .putTestCase$(testCaseData, this.testCasePath, testCaseData.testname)
       .subscribe(
-      data => {
-        this.toastr.success("Success!");
-      },
-      error => {
-        switch (error.status) {
-          case 404: {
-            console.log(this.testCasePath, "404");
-            this.toastr.error("File not found", "An error occured!");
-            break;
-          }
-          case 400: {
-            this.toastr.error(
-              "File must be specified!",
-              "An error occurred!"
-            );
-            break;
-          }
-          case 500: {
-            this.toastr.error("Internal server error!");
-            break;
-          }
-          default: {
-            this.toastr.error("File was not updated!", "An error occurred!");
+        data => {
+          this.onLoad();
+          this.toastr.success("Success!");
+        },
+        error => {
+          switch (error.status) {
+            case 404: {
+              console.log(this.testCasePath, "404");
+              this.toastr.error("File not found", "An error occured!");
+              break;
+            }
+            case 400: {
+              this.toastr.error(
+                "File must be specified!",
+                "An error occurred!"
+              );
+              break;
+            }
+            case 500: {
+              this.toastr.error("Internal server error!");
+              break;
+            }
+            default: {
+              this.toastr.error("File was not updated!", "An error occurred!");
+            }
           }
         }
-      }
       );
   }
-
 
   onCancel() {
     this.testCaseService
       .getOneTestCase$(this.testCasePath, this.testCaseFileName)
       .subscribe(
-      data => {
-        this.testCaseData = data;
-        this.toastr.success("Previous data reloaded!");
-
-      },
-      error => {
-        this.testCaseData = undefined;
-      }
-
+        data => {
+          this.testCaseData = data;
+          this.toastr.success("Previous data reloaded!");
+        },
+        error => {
+          this.onAdd();
+        }
       );
   }
 }

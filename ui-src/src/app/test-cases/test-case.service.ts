@@ -23,7 +23,7 @@ export class TestCaseService {
   }
   postTestCases$(testCaseData, testCasePath): Observable<any> {
     this.headers = this.headers.set("testCasePathDir", testCasePath);
-    return this.http.post(`${environment.apiBaseUrl}test-suites`, testCaseData, {
+    return this.http.post(`${environment.apiBaseUrl}test-cases`, testCaseData, {
       headers: this.headers
     });
   }

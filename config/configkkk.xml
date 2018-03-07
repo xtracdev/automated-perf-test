@@ -1,5 +1,5 @@
   <Config>
-      <apiName>config</apiName>
+      <apiName>configkkk</apiName>
       <targetHost>localhost</targetHost>
       <targetPort>8080</targetPort>
       <numIterations>1066666</numIterations>

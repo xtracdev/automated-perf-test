@@ -7,23 +7,16 @@
       <baseUri>path/to/URI</baseUri>
       <multipart>false</multipart>
       <payload>payload</payload>
-      <multipartPayload>
-          <multipartFormField>
-              <fieldName>F-Name</fieldName>
-              <fieldValue>PayloadName</fieldValue>
-              <fileName>file-name</fileName>
-              <fileContent></fileContent>
-          </multipartFormField>
-      </multipartPayload>
+      <multipartPayload></multipartPayload>
       <responseStatusCode>200</responseStatusCode>
-      <responseContentType>JSON</responseContentType>
+      <responseContentType>ccccc</responseContentType>
       <headers>
           <header key="Authorization">Header-Value</header>
       </headers>
       <responseProperties>
           <value extractionKey="Res-Key">Res-Value</value>
       </responseProperties>
-      <preThinkTime>1000</preThinkTime>
-      <postThinkTime>2000</postThinkTime>
-      <execWeight>Sparse</execWeight>
+      <PreThinkTime>55</PreThinkTime>
+      <PostThinkTime>0</PostThinkTime>
+      <ExecWeight>Infrequent</ExecWeight>
   </testDefinition>
