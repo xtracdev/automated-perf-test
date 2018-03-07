@@ -6,5 +6,8 @@
           <testCase description="Example" preThinkTime="2000" postThinkTime="2002" execWeight="Infrequent">file222</testCase>
           <testCase description="Example" preThinkTime="2" postThinkTime="0" execWeight="">file2222</testCase>
           <testCase description="desc" preThinkTime="1000" postThinkTime="2000" execWeight="Sparse">TestCaseService</testCase>
+          <testCase description="desc222" preThinkTime="0" postThinkTime="0" execWeight="Infrequent"></testCase>
+          <testCase description="desc222" preThinkTime="0" postThinkTime="0" execWeight="Infrequent"></testCase>
+          <testCase description="desc222" preThinkTime="0" postThinkTime="0" execWeight="Infrequent"></testCase>
       </testCases>
   </testSuite>

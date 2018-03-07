@@ -14,7 +14,7 @@
           <header key="Authorization">Header-Value</header>
       </headers>
       <responseProperties>
-          <value extractionKey="Res-Key">Res-Value</value>
+          <value extractionKey="Res-Key">Res-Valueeee</value>
       </responseProperties>
       <PreThinkTime>55</PreThinkTime>
       <PostThinkTime>0</PostThinkTime>

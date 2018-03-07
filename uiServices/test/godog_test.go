@@ -119,21 +119,63 @@ func (a *apiFeature) theTestCaseCollectionResponseBodyShouldMatchJSON(body *gher
 	var actualSuite testStrategies.TestSuite
 
 	exp :=
-	`"""
-[
-  {
-  "file": "GodogTestSuite.xml",
-  "name": "GodogTestSuite2,
-  "description": "ServiceDesc",
-  }
-]
-    """`
+		`"""
+            """
+   {
+    "XMLName": {
+    "Space": "",
+    "Local": "testDefinition"
+      },
+      "TestName": GodogTestCase",
+      "OverrideHost": "host",
+      "OverridePort": "9191",
+      "HTTPMethod": "GET",
+      "Description": "desc",
+      "BaseURI": "",
+      "Multipart": false,
+      "Payload": "",
+      "MultipartPayload": null,
+      "ResponseStatusCode": 0,
+      "ResponseContentType": "",
+      "Headers": null,
+      "ResponseValues": null,
+      "PreThinkTime": 0,
+      "PostThinkTime": 0,
+      "ExecWeight": ""
+    }
+    """
+   	 """`
 
 	json.Unmarshal([]byte(body.Content), &actualSuite)
 	json.Unmarshal([]byte(exp), &expectedSuite)
 
 	if !reflect.DeepEqual(expectedSuite, actualSuite) {
 		return fmt.Errorf("Expected :%v ,but actually was :%v", expectedSuite, actualSuite)
+	}
+
+	return nil
+}
+
+func (a *apiFeature) theTestCaseCollectionResponseBodyShouldMatchJSON(body *gherkin.DocString) (err error) {
+	var expectedCase testStrategies.TestDefinition
+	var actualCase testStrategies.TestDefinition
+
+	exp :=
+		`"""
+        [
+          {
+           "name": "GodogTestCase,
+           "description": "Case Desc",
+           "httpMethod": "GET"
+          }
+        ]
+   	 """`
+
+	json.Unmarshal([]byte(body.Content), &actualCase)
+	json.Unmarshal([]byte(exp), &expectedCase)
+
+	if !reflect.DeepEqual(expectedCase, actualCase) {
+		return fmt.Errorf("Expected :%v ,but actually was :%v", expectedCase, actualCase)
 	}
 
 	return nil

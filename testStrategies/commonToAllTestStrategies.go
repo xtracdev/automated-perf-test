@@ -64,7 +64,7 @@ type TestDefinition struct {
 	ResponseContentType string               `xml:"responseContentType" json:"responseContentType"`
 	Headers             []Header             `xml:"headers>header" json:"headers"`
 	ResponseValues      []ResponseValue      `xml:"responseProperties>value" json:"responseValues"`
-	PreThinkTime        int64		 
+	PreThinkTime        int64
 	PostThinkTime       int64
 	ExecWeight          string
 }

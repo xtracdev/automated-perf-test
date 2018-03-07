@@ -5,15 +5,14 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
 const testCaseSchema string = "testCase_schema.json"
@@ -217,7 +216,9 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 	testCasePathDir := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
 
-	ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName)
+	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
+		return
+	}
 
 	if _, err := os.Stat(fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName)); err != nil {
 		if os.IsNotExist(err) {
@@ -260,5 +261,34 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(testSuiteJSON)
+
+}
+
+func deleteTestCase(rw http.ResponseWriter, req *http.Request) {
+	testCasePathDir := getTestCaseHeader(req)
+	testCaseName := chi.URLParam(req, "testCaseName")
+	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
+		return
+	}
+
+	filepath := fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName)
+
+	if _, err := os.Stat(filepath); err != nil {
+		if os.IsNotExist(err) {
+			logrus.Println("File Not Found", err)
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
+	}
+
+	err := os.Remove(filepath)
+	if err != nil {
+		logrus.Println("File was not deleted", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
 
 }
