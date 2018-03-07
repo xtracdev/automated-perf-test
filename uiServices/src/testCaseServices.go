@@ -1,22 +1,22 @@
 package services
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"strings"
-	"github.com/Sirupsen/logrus"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"bytes"
-	"github.com/go-chi/chi"
+	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"github.com/go-chi/chi"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
+	//"github.com/Sirupsen/logrus"
+	//"github.com/xtracdev/automated-perf-test/testStrategies"
+	//"github.com/go-chi/chi"
 )
 
 const testCaseSchema string = "testCase_schema.json"
@@ -27,9 +27,6 @@ type Case struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
-
-
-
 
 func TestCaseCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -77,7 +74,7 @@ func postTestCase(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !testCaseWriterXml(testCase, testCasePathDir + testCase.TestName+".xml") {
+	if !testCaseWriterXml(testCase, testCasePathDir+testCase.TestName+".xml") {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -118,7 +115,7 @@ func putTestCase(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if len(testCase.TestName) < 1{
+	if len(testCase.TestName) < 1 {
 		logrus.Error("No TestName Entered")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
@@ -157,19 +154,19 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 
 			file, err := os.Open(fmt.Sprintf("%s%s", testCasePathDir, filename))
 			if err != nil {
-				logrus.Error("Cannot Open File: "+ filename)
+				logrus.Error("Cannot Open File: " + filename)
 				continue
 			}
 
 			byteValue, err := ioutil.ReadAll(file)
 			if err != nil {
-				logrus.Error("Cannot Read File: "+ filename)
+				logrus.Error("Cannot Read File: " + filename)
 				continue
 			}
 
 			err = xml.Unmarshal(byteValue, testCase)
 			if err != nil {
-				logrus.Error("Cannot Unmarshall File: "+ filename)
+				logrus.Error("Cannot Unmarshall File: " + filename)
 				continue
 			}
 
@@ -254,7 +251,8 @@ func deleteAllTestCases(rw http.ResponseWriter, req *http.Request) {
 
 	files, err := ioutil.ReadDir(testCasePathDir)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Error("Cannot read directory ", err)
+		return
 	}
 
 	for _, file := range files {

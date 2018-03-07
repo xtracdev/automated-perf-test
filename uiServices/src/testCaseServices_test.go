@@ -6,12 +6,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
+
+	//"net/http"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
-	"net/http"
 )
 
 const validTestCase = `
@@ -92,7 +94,6 @@ const TestCaseMissingRequired = `
    "execWeight": "Sparse"
 }
 `
-
 
 func TestValidTestCasePost(t *testing.T) {
 	r := chi.NewRouter()
@@ -214,7 +215,6 @@ func TestTestCasePutMissingRequired(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Should not have successfully updated")
 }
 
-
 func TestInvalidUrlTestCasePut(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -320,8 +320,6 @@ func TestNoNameTestCasePut(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Successfully updated. Should not have worked due to no filepath")
 }
 
-
-
 func TestSuccessfulGetAllCases(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -375,7 +373,7 @@ func TestSuccessfulGetTestCase(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusOK, w.Code, "Error. Did not successfully GET")
+	assert.Equal(t, http.StatusOK, w.Code, "Error. Did not successfully GET")
 }
 
 func TestGetTestCaseNoHeader(t *testing.T) {
