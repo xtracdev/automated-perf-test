@@ -26,7 +26,7 @@ export class TestSuitesComponent {
     private testCaseService: TestCaseService,
     private configurationService: ConfigurationService,
     private toastr: ToastsManager
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.configurationService
@@ -90,7 +90,7 @@ export class TestSuitesComponent {
     this.testSuiteFileName = undefined;
     this.onAdd();
   }
-  
+
   truncateFileName() {
     if (this.testSuiteFileName) {
       this.testSuiteFileNameTruncated = this.testSuiteFileName.substring(
@@ -107,32 +107,32 @@ export class TestSuitesComponent {
     this.testSuiteService
       .putTestSuite$(formData, this.testSuitePath, this.testSuiteFileNameTruncated)
       .subscribe(
-        data => {
-          this.toastr.success("Success!");
-          this.onAdd();
-        },
-        error => {
-          switch (error.status) {
-            case 404: {
-              this.toastr.error("File not found", "An error occured!");
-              break;
-            }
-            case 400: {
-              this.toastr.error(
-                "File must be specified!",
-                "An error occurred!"
-              );
-              break;
-            }
-            case 500: {
-              this.toastr.error("Internal server error!");
-              break;
-            }
-            default: {
-              this.toastr.error("File was not updated!", "An error occurred!");
-            }
+      data => {
+        this.toastr.success("Success!");
+        this.onAdd();
+      },
+      error => {
+        switch (error.status) {
+          case 404: {
+            this.toastr.error("File not found", "An error occured!");
+            break;
+          }
+          case 400: {
+            this.toastr.error(
+              "File must be specified!",
+              "An error occurred!"
+            );
+            break;
+          }
+          case 500: {
+            this.toastr.error("Internal server error!");
+            break;
+          }
+          default: {
+            this.toastr.error("File was not updated!", "An error occurred!");
           }
         }
+      }
       );
   }
 
@@ -165,7 +165,7 @@ export class TestSuitesComponent {
     )
   }
 
-  onSelectSuite(testSuite, selectedIndex) {
+  onSelectSuite(testSuite) {
     this.onAdd();
     this.testSuiteData = testSuite;
     this.selectedTestCaseData = testSuite.testCases;
@@ -179,3 +179,4 @@ export class TestSuitesComponent {
     this.selectedTestCaseData.splice(selectedIndex, 1);
   }
 }
+
