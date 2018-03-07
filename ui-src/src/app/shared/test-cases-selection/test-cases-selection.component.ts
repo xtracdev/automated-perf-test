@@ -18,7 +18,7 @@ export class TestCasesSelectionComponent implements OnInit {
   onReverse(selectedIndex) {
     this.reverse.emit(selectedIndex);
   }
-  onAddToSelected(testCase, selectedIndex) {
+  onAddToSelected(testCase) {
     this.addToSelected.emit(testCase);
   }
 }

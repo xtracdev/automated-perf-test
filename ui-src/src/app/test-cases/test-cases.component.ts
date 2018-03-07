@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
-import {TestCaseService} from "./test-case.service";
+import { TestCaseService } from "./test-case.service";
 import { ConfigurationService } from "../configurations/configuration.service";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { HttpClient } from "@angular/common/http";

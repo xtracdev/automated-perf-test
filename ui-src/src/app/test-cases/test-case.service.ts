@@ -1,15 +1,15 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {TestCasesComponent} from "./test-cases.component";
-import {Observable} from "rxjs/Observable";
-import {environment} from "../../environments/environment.prod";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { TestCasesComponent } from "./test-cases.component";
+import { Observable } from "rxjs/Observable";
+import { environment } from "../../environments/environment.prod";
 
 @Injectable()
 export class TestCaseService {
 
   private headers: HttpHeaders;
   constructor(private http: HttpClient) {
-    this.headers = new HttpHeaders({"Content-Type": "application/json"});
+    this.headers = new HttpHeaders({ "Content-Type": "application/json" });
   }
 
   getAllCases$(testCasesPath): Observable<any> {
@@ -23,7 +23,7 @@ export class TestCaseService {
   }
   postTestCases$(testCaseData, testCasePath): Observable<any> {
     this.headers = this.headers.set("testCasePathDir", testCasePath);
-    return this.http.post(`${environment.apiBaseUrl}test-cases`, testCaseData, {
+    return this.http.post(`${environment.apiBaseUrl}test-suites`, testCaseData, {
       headers: this.headers
     });
   }
@@ -42,5 +42,4 @@ export class TestCaseService {
       { headers: this.headers }
     );
   }
-
 }

@@ -6,35 +6,36 @@
 
 
     <div class="row">
-        
-<!-- --------------------------------BUTTONS------------------------------------------------- -->
-         <div class="column col-md-4">
+
+        <!-- --------------------------------BUTTONS------------------------------------------------- -->
+        <div class="column col-md-4">
             <button class="btn btn-primary " (click)="onAdd()" (click)="getTestCases()">Add</button>
             <table>
                 <tr>
                     <th>Name </th>
                     <th>Description</th>
                 </tr>
-                <tr *ngFor="let testSuite of testSuites let i = index" [class.highlighted]="testSuite" (click)="onSelectSuite(testSuite, i)" >
-                    <td>{{testSuite.name}}</td>  
+                <tr *ngFor="let testSuite of testSuites let i = index" [class.highlighted]="testSuite" (click)="onSelectSuite(testSuite, i)">
+                    <td>{{testSuite.name}}</td>
                     <td>{{testSuite.description}}</td>
                 </tr>
             </table>
-</div>  
+        </div>
 
-<div class="col-md-8">
-        <div class="row">
-            <!--------------------- schema -------------------------------->
-            <json-schema-form [schema]="testSuiteSchema" [(ngModel)]="testSuiteData" framework="bootstrap-4">
-            </json-schema-form>
-            
-        <div class="col-md-12">
-            <test-cases-selection (onSelectSuite)="onSelectSuite($event)" (reverse)="onReverse($event)"  (addToSelected)="updateSelected($event)" [selectedTestCaseData]="selectedTestCaseData" [availableTestCases]="testCases" [testSuiteDirPath]="testSuitePath"></test-cases-selection>
-            <div class="button-row">
-                <button class="btn btn-secondary push-right" *ngIf="testSuiteFileName" (click)="onUpdate(testSuiteData)">Update</button>   
-                <button class="btn btn-secondary push-right" *ngIf="!testSuiteFileName" (click)="onSave(testSuiteData)">Save</button>
-                <button class="btn btn-secondary " (click)="onCancel()">Cancel</button>
+        <div class="col-md-8">
+            <div class="row">
+                <!--------------------- schema -------------------------------->
+                <json-schema-form [schema]="testSuiteSchema" [(ngModel)]="testSuiteData" framework="bootstrap-4">
+                </json-schema-form>
+
+                <div class="col-md-12">
+                    <test-cases-selection (onSelectSuite)="onSelectSuite($event)"  (reverse)="onReverse($event)"  (addToSelected)="updateSelected($event)"
+                         [selectedTestCaseData]="selectedTestCaseData"  [availableTestCases]="testCases"  [testSuiteDirPath]="testSuitePath"></test-cases-selection>
+                        <div class="button-row">
+                            <button class="btn btn-secondary push-right" *ngIf="testSuiteFileName" (click)="onUpdate(testSuiteData)">Update</button>
+                            <button class="btn btn-secondary push-right" *ngIf="!testSuiteFileName" (click)="onSave(testSuiteData)">Save</button>
+                            <button class="btn btn-secondary " (click)="onCancel()">Cancel</button>
+                        </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
