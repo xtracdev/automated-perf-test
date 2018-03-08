@@ -2,7 +2,7 @@
       <apiName>config</apiName>
       <targetHost>localhost</targetHost>
       <targetPort>8080</targetPort>
-      <numIterations>1066666</numIterations>
+      <numIterations>55</numIterations>
       <allowablePeakMemoryVariance>12</allowablePeakMemoryVariance>
       <allowableServiceResponseTimeVariance>15</allowableServiceResponseTimeVariance>
       <testCaseDir>./definitions/testCases</testCaseDir>

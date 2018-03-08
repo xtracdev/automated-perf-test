@@ -3,7 +3,7 @@
       <overrideHost>host</overrideHost>
       <overridePort>x</overridePort>
       <httpMethod>GET</httpMethod>
-      <description>desc</description>
+      <description>desciiii</description>
       <baseUri>path/to/URI</baseUri>
       <multipart>false</multipart>
       <payload>payload</payload>

@@ -35,7 +35,6 @@ export class ConfigurationsComponent implements OnInit {
       .getSchema$("assets/schema.json")
       .subscribe((data: any) => {
         this.configSchema = data;
-        console.log("here",this.configSchema)
       });
     //   this.testSuiteService.getAllTestSuite$("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/config").subscribe(
     //     data => {
@@ -229,7 +228,7 @@ this.configSchema["properties"].testSuite.enum = this.test2;
             }
             case 400: {
               this.toastr.error(
-                "File must be specified!",
+                "Some of the fields do not conform to the schema!",
                 "An error occurred!"
               );
               break;

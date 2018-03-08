@@ -18,6 +18,7 @@
                 <tr>
                     <th>Name </th>
                     <th>Description</th>
+                    <th>Http Method</th>
                 </tr>
                 <tr class="highlight" *ngFor="let testCase of testCases  let i = index"  [class.highlighted]="testCase"  (click)="onSelectCase(testCase, i)">
                     <td>{{testCase.testname}}</td>

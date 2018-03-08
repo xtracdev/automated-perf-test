@@ -61,9 +61,10 @@ export class TestCasesComponent implements OnInit {
     );
   }
 
-  onSelectCase(testCase, i) {
+  onSelectCase(testCase) {
     this.testCaseData = testCase;
     this.testCaseFileName = testCase.testname
+    console.log(testCase)
   }
 
   onAdd() {
@@ -75,8 +76,9 @@ export class TestCasesComponent implements OnInit {
   onSave(testCaseData) {
     this.testCaseService.postTestCases$(testCaseData, this.testCasePath).subscribe(
       data => {
-        this.onLoad
+        
         this.toastr.success("Your data has been saved!", "Success!");
+        this.onLoad
       },
 
       error => {
@@ -107,17 +109,18 @@ export class TestCasesComponent implements OnInit {
 
   onUpdate(testCaseData) {
     this.testCaseService
-      .putTestCase$(testCaseData, this.testCasePath, testCaseData.testname)
+      .putTestCase$(testCaseData, this.testCasePath, this.testCaseFileName)
       .subscribe(
       data => {
         this.toastr.success("Success!");
+        this.onLoad()
       },
       error => {
         switch (error.status) {
           case 404: {
             console.log(this.testCasePath, "404");
             this.toastr.error("File not found", "An error occured!");
-            break;
+
           }
           case 400: {
             this.toastr.error(
