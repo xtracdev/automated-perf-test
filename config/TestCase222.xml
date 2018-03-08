@@ -1,22 +1,22 @@
   <testDefinition>
-      <testName>TestCaseService</testName>
-      <overrideHost>host</overrideHost>
-      <overridePort>x</overridePort>
-      <httpMethod>GET</httpMethod>
-      <description>desciiii</description>
-      <baseUri>path/to/URI</baseUri>
+      <testName>TestCase222ddd</testName>
+      <overrideHost>host222</overrideHost>
+      <overridePort>x222</overridePort>
+      <httpMethod>POST</httpMethod>
+      <description>desc222</description>
+      <baseUri>p22I</baseUri>
       <multipart>false</multipart>
       <payload>payload</payload>
       <multipartPayload></multipartPayload>
       <responseStatusCode>200</responseStatusCode>
-      <responseContentType>ccccc</responseContentType>
+      <responseContentType>JSONgg</responseContentType>
       <headers>
           <header key="Authorization">Header-Value</header>
       </headers>
       <responseProperties>
-          <value extractionKey="Res-Key">Res-Valueeee</value>
+          <value extractionKey="Res-Key">Res-Value</value>
       </responseProperties>
-      <PreThinkTime>55</PreThinkTime>
+      <PreThinkTime>0</PreThinkTime>
       <PostThinkTime>0</PostThinkTime>
       <ExecWeight>Infrequent</ExecWeight>
   </testDefinition>

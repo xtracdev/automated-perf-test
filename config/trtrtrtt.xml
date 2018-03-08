@@ -1,0 +1,8 @@
+  <testSuite>
+      <name>trtrtrtt</name>
+      <description>rtrtrtr</description>
+      <testStrategy>SuiteBased</testStrategy>
+      <testCases>
+          <testCase description="1223423sdasd" preThinkTime="1" postThinkTime="1" execWeight="Sparse"></testCase>
+      </testCases>
+  </testSuite>

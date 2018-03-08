@@ -1,0 +1,22 @@
+  <testDefinition>
+      <testName>ange</testName>
+      <overrideHost>12</overrideHost>
+      <overridePort>32</overridePort>
+      <httpMethod>GET</httpMethod>
+      <description>1223423sdasd</description>
+      <baseUri>12</baseUri>
+      <multipart>false</multipart>
+      <payload>1</payload>
+      <multipartPayload></multipartPayload>
+      <responseStatusCode>1</responseStatusCode>
+      <responseContentType>1234</responseContentType>
+      <headers>
+          <header key="rty">tyr</header>
+      </headers>
+      <responseProperties>
+          <value extractionKey="ty">rty</value>
+      </responseProperties>
+      <PreThinkTime>1</PreThinkTime>
+      <PostThinkTime>1</PostThinkTime>
+      <ExecWeight>Sparse</ExecWeight>
+  </testDefinition>

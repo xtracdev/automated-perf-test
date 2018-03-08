@@ -1,9 +1,9 @@
   <Config>
-      <apiName>config</apiName>
+      <apiName>config2222</apiName>
       <targetHost>localhost</targetHost>
       <targetPort>8080</targetPort>
-      <numIterations>55</numIterations>
-      <allowablePeakMemoryVariance>12</allowablePeakMemoryVariance>
+      <numIterations>1066666</numIterations>
+      <allowablePeakMemoryVariance>15</allowablePeakMemoryVariance>
       <allowableServiceResponseTimeVariance>15</allowableServiceResponseTimeVariance>
       <testCaseDir>./definitions/testCases</testCaseDir>
       <testSuiteDir>./definitions/testSuites</testSuiteDir>

@@ -1,8 +1,8 @@
   <Config>
-      <apiName>config</apiName>
+      <apiName>configkkk</apiName>
       <targetHost>localhost</targetHost>
       <targetPort>8080</targetPort>
-      <numIterations>55</numIterations>
+      <numIterations>1066666</numIterations>
       <allowablePeakMemoryVariance>12</allowablePeakMemoryVariance>
       <allowableServiceResponseTimeVariance>15</allowableServiceResponseTimeVariance>
       <testCaseDir>./definitions/testCases</testCaseDir>
