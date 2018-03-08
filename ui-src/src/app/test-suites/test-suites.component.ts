@@ -4,15 +4,13 @@ import { TestCaseService } from "../test-cases/test-case.service";
 import { ConfigurationService } from "../configurations/configuration.service";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import { TestCasesSelectionComponent } from "../shared/test-cases-selection/test-cases-selection.component";
-const TEST_SUITE_PATH =
-  "C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/config";
 @Component({
   selector: "app-test-suites",
   templateUrl: "./test-suites.component.html",
   styleUrls: ["./test-suites.component.css"]
 })
 export class TestSuitesComponent {
-  testSuitePath = TEST_SUITE_PATH;
+  testSuitePath = undefined
   testCaseArray = [];
   testSuites = [];
   selectedTestCaseData = [];
@@ -37,10 +35,9 @@ export class TestSuitesComponent {
   }
 
   onAdd() {
-    this.testSuiteService.getAllTestSuite$(TEST_SUITE_PATH).subscribe(
+    this.testSuiteService.getAllTestSuite$(this.testSuitePath).subscribe(
       data => {
         this.testSuites = data;
-        //this.toastr.success("Success!");
       },
 
       error => {
@@ -66,24 +63,11 @@ export class TestSuitesComponent {
 
   getTestCases() {
     this.testCaseService
-      .getAllCases$(TEST_SUITE_PATH)
+      .getAllCases$(this.testSuitePath)
       .subscribe((data: any) => (this.testCases = data));
   }
 
   onCancel() {
-    // this.truncateFileName();
-    // this.testSuiteService
-    //   .getTestSuite$(this.testSuitePath, this.testSuiteFileNameTruncated)
-    //   .subscribe(
-    //     data => {
-    //       this.testSuiteData = data;
-    //       this.toastr.success("Previous data reloaded!");
-    //     },
-    //     error => {
-    //       this.toastr.success("Your data has been cleared", "Success!");
-    //       this.testSuiteData = undefined;
-    //     }
-    //   );
     this.toastr.success("Your data has been cleared", "Success!");
     this.testSuiteData = undefined;
     this.selectedTestCaseData = [];
@@ -139,7 +123,7 @@ export class TestSuitesComponent {
   onSave(formData) {
     this.testCaseArray["testCases"] = this.selectedTestCaseData;
     Object.assign(formData, this.testCaseArray);
-    this.testSuiteService.postTestSuite$(formData, TEST_SUITE_PATH).subscribe(
+    this.testSuiteService.postTestSuite$(formData, this.testSuitePath).subscribe(
       data => {
         this.toastr.success("Your data has been saved!", "Success!");
         this.onAdd();

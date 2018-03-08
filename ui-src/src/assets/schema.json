@@ -16,7 +16,7 @@
     "testCaseDir",
     "testSuiteDir",
     "baseStatsOutputDir",
-    "reportOutputDir"
+    "reportOutputDir" 
   ],
   "properties": {
     "apiName": {
@@ -94,7 +94,13 @@
       "flex-flow": "row wrap",
       "items": [
         "apiName",
+        {
+          "md": 4
+        },
         "numIterations",
+        {
+          "md": 4
+        },
         {
           "key": "requestDelay",
           "title": "Request Delay (ms)"
@@ -106,7 +112,13 @@
       "flex-flow": "row wrap",
       "items": [
         "targetHost",
+        {
+          "md": 4
+        },
         "concurrentUsers",
+        {
+          "md": 4
+        },
         {
           "key": "TPSFreq",
           "title": "TPS Frequency (s)"
@@ -119,8 +131,14 @@
       "items": [
         "targetPort",
         {
+          "md": 4
+        },
+        {
           "key": "allowablePeakMemoryVariance",
           "title": "Memory Variance (%)"
+        },
+        {
+          "md": 4
         },
         "rampUsers"
       ]
@@ -131,8 +149,14 @@
       "items": [
         "memoryEndpoint",
         {
+          "md": 4
+        },
+        {
           "key": "allowableServiceResponseTimeVariance",
           "title": "Service Variance (%)"
+        },
+        {
+          "md": 4
         },
         {
           "key": "rampDelay",
@@ -158,11 +182,9 @@
     {
       "key": "reportOutputDir",
       "title": "Report Output Directory"
-    },
-    {
-   "options":{"addSubmit":false}
     }
-  
-    
   ]
 }
+
+
+
