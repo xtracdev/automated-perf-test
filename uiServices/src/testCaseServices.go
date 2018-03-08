@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
 const testCaseSchema string = "testCase_schema.json"
@@ -128,11 +129,16 @@ func putTestCase(rw http.ResponseWriter, req *http.Request) {
 func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 
 	testCasePathDir := getTestCaseHeader(req)
-	if len(testCasePathDir) <= 1 {
-		logrus.Error("No file directory entered")
-		rw.WriteHeader(http.StatusBadRequest)
+
+	if !IsPathDirValid(testCasePathDir, rw) {
 		return
 	}
+
+	// if len(testCasePathDir) <= 1 {
+	// 	logrus.Error("No file directory entered")
+	// 	rw.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
 
 	files, err := ioutil.ReadDir(testCasePathDir)
 	if err != nil {
@@ -243,6 +249,7 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 func deleteTestCase(rw http.ResponseWriter, req *http.Request) {
 	testCasePathDir := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
+
 	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
 		return
 	}

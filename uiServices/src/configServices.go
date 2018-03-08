@@ -49,6 +49,15 @@ func IsNameValid(name string, rw http.ResponseWriter) bool {
 	return true
 }
 
+func IsPathDirValid(name string, rw http.ResponseWriter) bool {
+	if len(name) <= 1 {
+		logrus.Error("No file directory entered")
+		rw.WriteHeader(http.StatusBadRequest)
+		return false
+	}
+	return true
+}
+
 func ConfigCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
@@ -205,13 +214,21 @@ func putConfigFileName(rw http.ResponseWriter, req *http.Request) {
 	configFileName := chi.URLParam(req, "configFileName")
 	newConfigFileName := chi.URLParam(req, "newConfigFileName")
 
-	if len(newConfigFileName) < 1 {
-		logrus.Error("File path does not exist")
-		rw.WriteHeader(http.StatusBadRequest)
+	if !IsHeaderValid(newConfigFileName, rw) {
+		return
+	}
+	if !IsHeaderValid(configFileName, rw) {
 		return
 	}
 
-	os.Rename(fmt.Sprintf("%s%s.xml", path, configFileName), fmt.Sprintf("%s%s.xml", path, newConfigFileName))
+	configFilePath := fmt.Sprintf("%s%s.xml", path, configFileName)
+	newConfigFilePath := fmt.Sprintf("%s%s.xml", path, newConfigFileName)
 
+	err := os.Rename(configFilePath, newConfigFilePath)
+	if err != nil {
+		logrus.Println("File was not updated", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	rw.WriteHeader(http.StatusNoContent)
 }

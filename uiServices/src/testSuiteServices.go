@@ -182,7 +182,7 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request) {
 	testSuitePathDir := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
-	if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName){
+	if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName) {
 		return
 	}
 

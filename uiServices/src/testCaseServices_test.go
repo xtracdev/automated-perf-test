@@ -1,13 +1,14 @@
 package services
 
 import (
-	"github.com/go-chi/chi"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/go-chi/chi"
+	"github.com/stretchr/testify/assert"
 )
 
 const validTestCase = `
