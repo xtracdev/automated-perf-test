@@ -11,16 +11,15 @@
     <div class="row">
 
         <div class="column col-md-4">
-            <h1>Existing Test Cases</h1>
             <button class="btn btn-primary " (click)="onAdd()">Add</button>
             <button class="btn btn-primary ">Delete</button>
+            <h1>Existing Test Cases</h1>
             <table>
                 <tr>
                     <th>Name </th>
                     <th>Description</th>
-                    <th>Http Method</th>
                 </tr>
-                <tr *ngFor="let testCase of testCases  let i = index"  [class.highlighted]="testCase"  (click)="onSelectCase(testCase, i)">
+                <tr class="highlight" *ngFor="let testCase of testCases  let i = index"  [class.highlighted]="testCase"  (click)="onSelectCase(testCase, i)">
                     <td>{{testCase.testname}}</td>
                     <td>{{testCase.description}}</td>
                     <td>{{testCase.httpMethod}}</td>

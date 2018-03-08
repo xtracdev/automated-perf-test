@@ -12,22 +12,23 @@
   table {
    
     font-family: arial, sans-serif;
-    border-collapse: collapse;
     width: 100%;
     margin-bottom: 25px;
 
 }
-
-td, th {
+th {
+  background-color: white !important;
+  cursor: default;
+}
+tr:hover{
+  cursor: pointer;  
+  background-color: rgb(0, 153, 255);
+}
+td, th{
     border: 1px solid #dddddd;
     text-align: left;
     padding: 8px;
 }
-
-tr:nth-child(even) {
-    background-color: #dddddd;
-}
-
 .btn{
   margin-bottom: 25px;
 }

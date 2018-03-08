@@ -15,18 +15,13 @@ table {
   border-collapse: collapse;
   width: 90%;
   margin-bottom: 25px;
-  padding-right: 5px;
+  padding-right: 0px;
 }
 
-td,
-th {
+td,th {
   border: 1px solid #dddddd;
   text-align: left;
   padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #dddddd;
 }
 
 .btn {
@@ -37,4 +32,13 @@ fieldset {
 }
 submit-widget {
   display: none;
+}
+
+h1{
+  font-family: arial, sans-serif;
+  font-weight: bold;
+  margin-top: 0px;
+  font-size: 16px;
+  line-height: 1.42857143;
+  color: #333;
 }

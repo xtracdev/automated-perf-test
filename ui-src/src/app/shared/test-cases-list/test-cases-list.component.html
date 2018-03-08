@@ -7,11 +7,10 @@
             <th>Exec-Weight</th>
         </tr>
         <tr *ngFor="let testCase of testCases; let i = index" [class.highlighted]="testCase" (click)="selectedCase(testCase, i)">
-            <td>{{testCase.description}}</td>
-            <td>{{testCase.preThinkTime}}</td>
-            <td>{{testCase.postThinkTime}}</td>   
-            <td>{{testCase.execWeight}}</td>
-        </tr>  
+            <td id="highlight">{{testCase.description}}</td>
+            <td id="highlight">{{testCase.preThinkTime}}</td>
+            <td id="highlight">{{testCase.postThinkTime}}</td>
+            <td id="highlight">{{testCase.execWeight}}</td>
+        </tr>
     </table>
 </div>
-   
