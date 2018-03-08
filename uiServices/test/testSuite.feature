@@ -405,14 +405,14 @@ Feature: Test Suite Creation
   Scenario:  Fail to remove Test Case file with "DELETE" request (File Not Found)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send a "DELETE" request to "/test-cases/xxxx"
     Then the response code should be 404
 
   Scenario:  Fail to remove Test Case file with "DELETE" request (No Header)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is ""
+    And the header "testSuitePathDir" is ""
     When I send a "DELETE" request to "/test-cases/xxxx"
     Then the response code should be 400
 
@@ -420,7 +420,7 @@ Feature: Test Suite Creation
     #create file to delete
     Given there is no existing test file "GodogTestCase3.xml"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send "POST" request to "/test-cases" with a body:
     """
       {
@@ -456,7 +456,7 @@ Feature: Test Suite Creation
     #Delete
     Given the file "GodogTestCase3.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send a "DELETE" request to "/test-cases/GodogTestCase3"
     Then the response code should be 204
 
