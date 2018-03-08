@@ -82,14 +82,14 @@ export class ConfigurationsComponent implements OnInit {
 
 
   fileSelector(event) {
-    this.fileName  =  event.srcElement.files[0].name;
-    this.xmlFileName  =  this.fileName;
-    this.xmlFileName  =  this.xmlFileName.substring(
+    this.fileName = event.srcElement.files[0].name;
+    this.xmlFileName = this.fileName;
+    this.xmlFileName = this.xmlFileName.substring(
       0,
-      this.xmlFileName.length  -  4);
+      this.xmlFileName.length - 4);
 
     this.onGetFile();
-    (<HTMLInputElement>document.getElementById("file")).value  = "";
+    (<HTMLInputElement>document.getElementById("file")).value = "";
   }
 
 
@@ -149,7 +149,7 @@ export class ConfigurationsComponent implements OnInit {
             break;
           }
           case 500: {
-            this.toastr.error("Internal server error!");
+            this.toastr.error("An error has occurred!", "Check the logs!");
             break;
           }
           default: {

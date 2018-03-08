@@ -33,6 +33,7 @@ export class TestCasesComponent implements OnInit {
   }
 
   onLoad() {
+    console.log(this.testCasePath);
     this.automatedUIServices.getAllCases$(this.testCasePath).subscribe(
       (data: any) => {
         this.testCases = data;
@@ -45,6 +46,7 @@ export class TestCasesComponent implements OnInit {
             break;
           }
           case 400: {
+            console.log(this.testCasePath, 2);
             this.toastr.error(
               "No Test Case Directory added",
               "An error occurred!"
