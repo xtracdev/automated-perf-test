@@ -16,7 +16,7 @@ const validTestCase = `
    "description":"desc",
    "overrideHost":"host",
    "overridePort":"9191",
-   "HttpMethod":"GET",
+   "httpMethod":"GET",
    "BaseURI": "path/to/URI",
    "multipart":false,
    "payload": "payload",
@@ -131,7 +131,7 @@ func TestValidTestCasePost(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-cases", reader)
-	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -150,7 +150,7 @@ func TestCasePostWithExistingFileName(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-cases", reader)
-	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -169,7 +169,7 @@ func TestCasePostNoHeader(t *testing.T) {
 
 	filePath := ""
 	request, err := http.NewRequest(http.MethodPost, "/test-cases", reader)
-	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -188,7 +188,7 @@ func TestPostTestCaseMissingRequiredValues(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-cases", reader)
-	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -207,7 +207,7 @@ func TestValidTestCasePut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "/test-cases/TestCaseService", reader)
-	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -228,7 +228,7 @@ func TestTestCasePutMissingRequired(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "/test-cases/TestCaseService", reader)
-	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -249,7 +249,7 @@ func TestInvalidUrlTestCasePut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "/test-cases/xxxxxxxxxxxzzx", reader)
-	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -270,7 +270,7 @@ func TestNoUrlTestCasePut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "", reader)
-	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -291,7 +291,7 @@ func TestCasePutWithNoPathSlash(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPut, "/test-cases/TestCaseService", reader)
-	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -312,7 +312,7 @@ func TestNoPathTestCasePut(t *testing.T) {
 
 	filePath := ""
 	request, err := http.NewRequest(http.MethodPut, "/test-cases/TestCaseService", reader)
-	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -333,7 +333,7 @@ func TestNoNameTestCasePut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPut, "/test-cases/TestCaseService", reader)
-	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -388,8 +388,8 @@ func TestSuccessfulGetTestCase(t *testing.T) {
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodGet, "/test-cases/TestCaseService", nil)
 
-	request.Header.Set("testCasePathDir", filePath)
-	request.Header.Get("testCasePathDir")
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -408,8 +408,8 @@ func TestGetTestCaseNoHeader(t *testing.T) {
 	filePath := ""
 	request, err := http.NewRequest(http.MethodGet, "/test-cases/TestCaseService", nil)
 
-	request.Header.Set("testCasePathDir", filePath)
-	request.Header.Get("testCasePathDir")
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -428,8 +428,8 @@ func TestGetTestCaseFileNotFound(t *testing.T) {
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodGet, "/test-cases/xxx", nil)
 
-	request.Header.Set("testCasePathDir", filePath)
-	request.Header.Get("testCasePathDir")
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -450,7 +450,7 @@ func TestSuccessfulCaseDelete(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-cases", reader)
-	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Set("testSuitePathDir", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -462,8 +462,8 @@ func TestSuccessfulCaseDelete(t *testing.T) {
 	filePath = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err = http.NewRequest(http.MethodDelete, "/test-cases/TestCaseService2", nil)
 
-	request.Header.Set("testCasePathDir", filePath)
-	request.Header.Get("testCasePathDir")
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
 
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -482,8 +482,8 @@ func TestDeleteCaseFileNotFound(t *testing.T) {
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodDelete, "/test-cases/xxx", nil)
 
-	request.Header.Set("testCasePathDir", filePath)
-	request.Header.Get("testCasePathDir")
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -502,8 +502,8 @@ func TestDeleteCaseWithNoHeader(t *testing.T) {
 	filePath := ""
 	request, err := http.NewRequest(http.MethodDelete, "/test-cases/TestCaseService", nil)
 
-	request.Header.Set("testCasePathDir", filePath)
-	request.Header.Get("testCasePathDir")
+	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Get("testSuitePathDir")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)

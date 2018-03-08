@@ -11,7 +11,7 @@ Feature: Test Case Scenarios
   Scenario: Successful creation of Test Case
     Given there is no existing test file "GodogTestCase.xml"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send "POST" request to "/test-cases" with a body:
     """
       {
@@ -122,7 +122,7 @@ Feature: Test Case Scenarios
 
   Scenario: Unsuccessful creation of Test Case ( No header defined )
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is ""
+    And the header "testSuitePathDir" is ""
     When I send "POST" request to "/test-cases" with a body:
        """
       {
@@ -165,7 +165,7 @@ Feature: Test Case Scenarios
   Scenario: Unsuccessful update of test-case file with PUT request (No File Path)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is ""
+    And the header "testSuitePathDir" is ""
     When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
   """
      {
@@ -204,7 +204,7 @@ Feature: Test Case Scenarios
   Scenario: Unsuccessful update of test-case file with PUT request (Incorrect File Name)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send "PUT" request to "/test-cases/xxx" with body:
     """
      {
@@ -243,7 +243,7 @@ Feature: Test Case Scenarios
   Scenario: Unsuccessful update of test-case file with PUT request (No File Name)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send "PUT" request to "/test-suites/" with body:
     """
      {
@@ -281,7 +281,7 @@ Feature: Test Case Scenarios
   Scenario: Unsuccessful update of test-suite file with PUT request (Missing Required Fields)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send "PUT" request to "/test-suites/GodogTestCase" with body:
     """
      {
@@ -319,7 +319,7 @@ Feature: Test Case Scenarios
   Scenario: Successful update of test-case file with PUT request
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send "PUT" request to "/test-cases/GodogTestCase" with body:
      """
      {
@@ -327,7 +327,7 @@ Feature: Test Case Scenarios
    "description":"desc",
    "overrideHost":"host",
    "overridePort":"1001",
-   "HttpMethod":"POST",
+   "httpMethod":"POST",
    "BaseURI": "path/to/URI",
    "multipart":false,
    "payload": "payload",
@@ -363,7 +363,7 @@ Feature: Test Case Scenarios
     ##Add additional file first so there are multiple files to GET
     Given there is no existing test file "GodogTestCase2.xml"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send "POST" request to "/test-cases" with a body:
     """
       {
@@ -434,21 +434,21 @@ Feature: Test Case Scenarios
 
   Scenario: Unsuccessful retrieval of test-Cases file (File Not Found)
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send a "GET" request to "/test-cases/xxx"
     Then the response code should be 404
 
 
   Scenario: Unsuccessful retrieval of test-suites file (No Header)
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is ""
+    And the header "testSuitePathDir" is ""
     When I send a "GET" request to "/test-suites/GodogTestCase"
     Then the response code should be 400
 
   Scenario: Retrieve Test Case file with valid "GET" request
     Given the file "GodogTestCase2.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     And the file name is "Case1.xml"
     When I send a "GET" request to "/test-cases/GodogTestCase2"
     Then the response code should be 200
@@ -486,14 +486,14 @@ Feature: Test Case Scenarios
   Scenario:  Fail to remove Test Case file with "DELETE" request (File Not Found)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send a "DELETE" request to "/test-cases/xxxx"
     Then the response code should be 404
 
   Scenario:  Fail to remove Test Case file with "DELETE" request (No Header)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is ""
+    And the header "testSuitePathDir" is ""
     When I send a "DELETE" request to "/test-cases/xxxx"
     Then the response code should be 400
 
@@ -501,7 +501,7 @@ Feature: Test Case Scenarios
     #create file to delete
     Given there is no existing test file "GodogTestCase3.xml"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send "POST" request to "/test-cases" with a body:
     """
       {
@@ -537,7 +537,7 @@ Feature: Test Case Scenarios
     #Delete
     Given the file "GodogTestCase3.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "testSuitePathDir" is "/uiServices/test/"
     When I send a "DELETE" request to "/test-cases/GodogTestCase3"
     Then the response code should be 204
 
