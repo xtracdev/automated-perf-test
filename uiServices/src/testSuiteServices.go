@@ -22,12 +22,11 @@ var schemaFile string = "testSuite_schema.json"
 var structType string = "TestSuite"
 
 type Suite struct {
-	File        string `json:"file"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	TestStrategy string `json:"testStrategy"`
-	TestCases []testStrategies.TestCase  `json:"testCases"`
-
+	File         string                    `json:"file"`
+	Name         string                    `json:"name"`
+	Description  string                    `json:"description"`
+	TestStrategy string                    `json:"testStrategy"`
+	TestCases    []testStrategies.TestCase `json:"testCases"`
 }
 
 func TestSuiteCtx(next http.Handler) http.Handler {
@@ -263,11 +262,11 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
 			//if a Test Suite Name can't be assigned, it isn't a Test Suite object
 			if testSuite.Name != "" {
 				testSuites = append(testSuites, Suite{
-					Name:        testSuite.Name,
-					Description: testSuite.Description,
-					File:        filename,
+					Name:         testSuite.Name,
+					Description:  testSuite.Description,
+					File:         filename,
 					TestStrategy: testSuite.TestStrategy,
-					TestCases: testSuite.TestCases,
+					TestCases:    testSuite.TestCases,
 				})
 			}
 		}
