@@ -33,7 +33,6 @@ export class TestCasesComponent implements OnInit {
   }
 
   onLoad() {
-    console.log(this.testCasePath);
     this.automatedUIServices.getAllCases$(this.testCasePath).subscribe(
       (data: any) => {
         this.testCases = data;
@@ -46,7 +45,6 @@ export class TestCasesComponent implements OnInit {
             break;
           }
           case 400: {
-            console.log(this.testCasePath, 2);
             this.toastr.error(
               "No Test Case Directory added",
               "An error occurred!"
@@ -116,7 +114,6 @@ export class TestCasesComponent implements OnInit {
       error => {
         switch (error.status) {
           case 404: {
-            console.log(this.testCasePath, "404");
             this.toastr.error("File not found", "An error occured!");
 
             break;
