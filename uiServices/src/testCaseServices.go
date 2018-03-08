@@ -5,36 +5,23 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
 const testCaseSchema string = "testCase_schema.json"
 const structTypeName string = "TestCase "
 
 type Case struct {
-	HttpMethod          string                         `json:"httpMethod"`
-	Name                string                         `json:"testname"`
-	Description         string                         `json:"description"`
-	OverrideHost        string                         `json:"overrideHost"`
-	OverridePort        string                         `json:"overridePort"`
-	BaseURI             string                         `json:"BaseURI"`
-	Multipart           bool                           `json:"multipart"`
-	ResponseStatusCode  int                            `json:"responseStatusCode"`
-	ResponseContentType string                         `json:"responseContentType"`
-	PreThinkTime        int64                          `json:"preThinkTime"`
-	PostThinkTime       int64                          `json:"postThinkTime"`
-	ExecWeight          string                         `json:"execWeight"`
-	Payload             string                         `json:"payload"`
-	Headers             []testStrategies.Header        `json:"Headers"`
-	ResponseValues      []testStrategies.ResponseValue `json:"ResponseValues"`
+	HttpMethod  string `json:"httpMethod"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 func TestCaseCtx(next http.Handler) http.Handler {
@@ -182,21 +169,9 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 			//if a Test Case Name can't be assigned, it isn't a Test Case object
 			if testCase.TestName != "" {
 				testCases = append(testCases, Case{
-					Name:                testCase.TestName,
-					Description:         testCase.Description,
-					HttpMethod:          testCase.HTTPMethod,
-					BaseURI:             testCase.BaseURI,
-					OverrideHost:        testCase.OverrideHost,
-					OverridePort:        testCase.OverridePort,
-					Multipart:           testCase.Multipart,
-					ResponseStatusCode:  testCase.ResponseStatusCode,
-					ResponseContentType: testCase.ResponseContentType,
-					PreThinkTime:        testCase.PreThinkTime,
-					PostThinkTime:       testCase.PostThinkTime,
-					ExecWeight:          testCase.ExecWeight,
-					Headers:             testCase.Headers,
-					ResponseValues:      testCase.ResponseValues,
-					Payload:             testCase.Payload,
+					Name:        testCase.TestName,
+					Description: testCase.Description,
+					HttpMethod:  testCase.HTTPMethod,
 				})
 			}
 		}
@@ -217,7 +192,9 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 	testCasePathDir := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
 
-	ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName)
+	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
+		return
+	}
 
 	if _, err := os.Stat(fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName)); err != nil {
 		if os.IsNotExist(err) {
@@ -260,5 +237,34 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(testSuiteJSON)
+
+}
+
+func deleteTestCase(rw http.ResponseWriter, req *http.Request) {
+	testCasePathDir := getTestCaseHeader(req)
+	testCaseName := chi.URLParam(req, "testCaseName")
+	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
+		return
+	}
+
+	filepath := fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName)
+
+	if _, err := os.Stat(filepath); err != nil {
+		if os.IsNotExist(err) {
+			logrus.Println("File Not Found", err)
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
+	}
+
+	err := os.Remove(filepath)
+	if err != nil {
+		logrus.Println("File was not deleted", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
 
 }

@@ -1,13 +1,13 @@
 package services
 
 import (
+	"github.com/go-chi/chi"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
-	"github.com/go-chi/chi"
-	"github.com/stretchr/testify/assert"
 )
 
 const validTestSuite = `
@@ -96,6 +96,7 @@ const validTestSuiteForDelete = `
   ]
 }
 `
+
 func TestValidTestSuitePost(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -516,8 +517,6 @@ func TestSuccessfulDeleteTestSuite(t *testing.T) {
 	}
 
 	assert.Equal(t, http.StatusCreated, w.Code, "Error: Did Not Successfully Post")
-
-
 
 	filePath = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err = http.NewRequest(http.MethodDelete, "/test-suites/TestSuiteA", nil)
