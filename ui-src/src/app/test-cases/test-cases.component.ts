@@ -105,16 +105,18 @@ export class TestCasesComponent implements OnInit {
 
   onUpdate(testCaseData) {
     this.automatedUIServices
-      .putTestCase$(testCaseData, this.testCasePath, testCaseData.testname)
+      .putTestCase$(testCaseData, this.testCasePath, this.testCaseFileName)
       .subscribe(
       data => {
         this.toastr.success("Success!");
+        this.onLoad();
       },
       error => {
         switch (error.status) {
           case 404: {
             console.log(this.testCasePath, "404");
             this.toastr.error("File not found", "An error occured!");
+
             break;
           }
           case 400: {
@@ -145,7 +147,7 @@ export class TestCasesComponent implements OnInit {
         this.toastr.success("Previous data reloaded!");
       },
       error => {
-        this.testCaseData = undefined;
+        this.onAdd();
       }
       );
   }
