@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
 const testCaseSchema string = "testCase_schema.json"

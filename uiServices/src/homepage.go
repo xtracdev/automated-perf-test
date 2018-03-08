@@ -4,12 +4,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
-
+	"os"
+	
 	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 
-	"os"
+	
 )
 
 const contentTypeHeader = `Content-Type`

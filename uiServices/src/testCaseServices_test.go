@@ -449,10 +449,6 @@ func TestDeleteAllCasesSuccess(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	// //create directory to be deleted
-	// reader := strings.NewReader(validTestCaseForDelete)
-	// r.HandleFunc("/test-cases", postTestCase)
-
 	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/cases"
 	err := ioutil.WriteFile(fmt.Sprintf("%s%s.xml", DirectoryPath, "test"), nil, 0666)
 	if err != nil {
