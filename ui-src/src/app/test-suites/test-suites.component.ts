@@ -4,15 +4,13 @@ import { TestCaseService } from "../test-cases/test-case.service";
 import { ConfigurationService } from "../configurations/configuration.service";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import { TestCasesSelectionComponent } from "../shared/test-cases-selection/test-cases-selection.component";
-const TEST_SUITE_PATH =
-  "C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/config";
 @Component({
   selector: "app-test-suites",
   templateUrl: "./test-suites.component.html",
   styleUrls: ["./test-suites.component.css"]
 })
 export class TestSuitesComponent {
-  testSuitePath = TEST_SUITE_PATH;
+  testSuitePath = undefined;
   testCaseArray = [];
   testSuites = [];
   selectedTestCaseData = [];
@@ -35,9 +33,13 @@ export class TestSuitesComponent {
         this.testSuiteSchema = data;
       });
   }
+  onAdd(){
+    this.testSuiteData = undefined;    
+    this.testSuiteFileName = undefined;
+  }
 
-  onAdd() {
-    this.testSuiteService.getAllTestSuite$(TEST_SUITE_PATH).subscribe(
+  onLoad() {
+    this.testSuiteService.getAllTestSuite$(this.testSuitePath).subscribe(
       data => {
         this.testSuites = data;
         //this.toastr.success("Success!");
@@ -66,7 +68,7 @@ export class TestSuitesComponent {
 
   getTestCases() {
     this.testCaseService
-      .getAllCases$(TEST_SUITE_PATH)
+      .getAllCases$(this.testSuitePath)
       .subscribe((data: any) => (this.testCases = data));
   }
 
@@ -141,7 +143,7 @@ export class TestSuitesComponent {
     console.log("array",this.testCaseArray)
     console.log("from", formData)
     Object.assign(formData, this.testCaseArray);
-    this.testSuiteService.postTestSuite$(formData, TEST_SUITE_PATH).subscribe(
+    this.testSuiteService.postTestSuite$(formData, this.testSuitePath).subscribe(
       data => {
         this.toastr.success("Your data has been saved!", "Success!");
         this.onAdd();

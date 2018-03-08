@@ -1,0 +1,22 @@
+  <testDefinition>
+      <testName>test123</testName>
+      <overrideHost>host</overrideHost>
+      <overridePort>9191</overridePort>
+      <httpMethod>POST</httpMethod>
+      <description>desciiiiffffffsadasd</description>
+      <baseUri>/xtrac/api/v1/work-list</baseUri>
+      <multipart>false</multipart>
+      <payload>&#xA;        &#xA;        {&#xA;        &#34;queue&#34;: &#34;XAPI-01&#34;,&#xA;        &#34;resultTypesOrder&#34;: [&#xA;          &#34;WorkItems&#34;,&#xA;          &#34;FrozenItems&#34;,&#xA;          &#34;SuspendedItems&#34;,&#xA;          &#34;Communications&#34;,&#xA;          &#34;InternalMessages&#34;&#xA;        ],&#xA;        &#34;startRows&#34;: {&#xA;          &#34;workItems&#34;: 0,&#xA;          &#34;communications&#34;: 0,&#xA;          &#34;suspendedItems&#34;: 0,&#xA;          &#34;frozenItems&#34;: 0,&#xA;          &#34;internalMessages&#34;: 0&#xA;        },&#xA;        &#34;resultFields&#34;: [&#xA;          &#34;AccountNo&#34;&#xA;        ],&#xA;        &#34;sortFields&#34;: [&#xA;          {&#xA;            &#34;name&#34;: &#34;AccountNo&#34;,&#xA;            &#34;order&#34;: &#34;asc&#34;&#xA;          }&#xA;        ],&#xA;        &#34;maxRows&#34;: 50&#xA;      }&#xA;&#xA;      &#xA;    </payload>
+      <multipartPayload></multipartPayload>
+      <responseStatusCode>200</responseStatusCode>
+      <responseContentType>ccccc</responseContentType>
+      <headers>
+          <header key="Content-Type">application/json</header>
+      </headers>
+      <responseProperties>
+          <value extractionKey="workItemNumbers">data.workItems[*].workItemNumber</value>
+      </responseProperties>
+      <PreThinkTime>55</PreThinkTime>
+      <PostThinkTime>0</PostThinkTime>
+      <ExecWeight>Infrequent</ExecWeight>
+  </testDefinition>

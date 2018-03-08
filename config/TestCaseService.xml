@@ -1,9 +1,9 @@
   <testDefinition>
-      <testName>TestCaseService</testName>
+      <testName>TestCaseService-200</testName>
       <overrideHost>host</overrideHost>
       <overridePort>x</overridePort>
       <httpMethod>GET</httpMethod>
-      <description>desciiii</description>
+      <description>desciiiiffffff</description>
       <baseUri>path/to/URI</baseUri>
       <multipart>false</multipart>
       <payload>payload</payload>
@@ -12,6 +12,7 @@
       <responseContentType>ccccc</responseContentType>
       <headers>
           <header key="Authorization">Header-Value</header>
+          <header key="1">1</header>
       </headers>
       <responseProperties>
           <value extractionKey="Res-Key">Res-Valueeee</value>

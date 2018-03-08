@@ -15,7 +15,7 @@ export class TestCasesComponent implements OnInit {
   testCaseData = {};
   testCasePath = undefined;
   testCaseSchema = { layout: true };
-  testCaseFileName = undefined;
+  testCaseFileName = "";
   testCases = [];
 
 
@@ -63,12 +63,13 @@ export class TestCasesComponent implements OnInit {
 
   onSelectCase(testCase) {
     this.testCaseData = testCase;
+    console.log("1",testCase)
     this.testCaseFileName = testCase.testname
-    console.log(testCase)
+    console.log("3",this.testCaseFileName)
   }
 
   onAdd() {
-    this.testCaseData = undefined;
+    this.testCaseData = undefined;    
     this.testCaseFileName = undefined;
   }
 
@@ -108,6 +109,7 @@ export class TestCasesComponent implements OnInit {
 
 
   onUpdate(testCaseData) {
+    console.log(this.testCaseFileName)
     this.testCaseService
       .putTestCase$(testCaseData, this.testCasePath, this.testCaseFileName)
       .subscribe(

@@ -1,9 +1,14 @@
 <div class="container">
+   
     <div class="row">
-        <label>Test Suite Directory</label>
-        <input class="form-control" type="string" [(ngModel)]="testSuitePath" required>
-    </div>
-
+            <div class=" column  col-md-11">
+                    <label>Test Suite Directory</label>
+                    <input class="form-control" type="string" [(ngModel)]="testSuitePath" required>
+            </div>
+            <div class="load-button column col-md-1">
+                <button class="btn btn-primary " (click)="onLoad()">Load</button>
+            </div>
+        </div>
 
     <div class="row">
 

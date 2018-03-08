@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <apiName>XTRAC-API</apiName>
+
+    <!--Target API under test-->
+    <targetHost>localhost</targetHost>
+    <targetPort>8282</targetPort>
+
+    <!--Allowed vairance as a percentage over base value-->
+    <allowablePeakMemoryVariance>15</allowablePeakMemoryVariance>
+    <allowableServiceResponseTimeVariance>15</allowableServiceResponseTimeVariance>
+
+    <!--The number of time each test case is executed-->
+    <numIterations>1000</numIterations>
+    <!-- Concurrent users per service test -->
+    <concurrentUsers>3</concurrentUsers>
+
+    <!--Location of directory where test cases reside-->
+    <testCaseDir>/go/src/xtrac/api/test/performance/definitions/mock/testCases</testCaseDir>
+
+    <!--Output locations for generated files-->
+    <baseStatsOutputDir>/home/api/var/www/api_perf_report/envStats</baseStatsOutputDir>
+    <reportOutputDir>/home/api/var/www/api_perf_report/report</reportOutputDir>
+
+</config>

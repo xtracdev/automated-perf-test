@@ -35,44 +35,42 @@ export class ConfigurationsComponent implements OnInit {
       .getSchema$("assets/schema.json")
       .subscribe((data: any) => {
         this.configSchema = data;
+        console.log("here",this.configSchema)
       });
-    //   this.testSuiteService.getAllTestSuite$("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/config").subscribe(
-    //     data => {
-    //       this.test = data
-    //       for (var i = 0; i < this.test.length; i++ ) {
-    //        this.testArary.push(this.test[i].name)
+      this.testSuiteService.getAllTestSuite$("C:/Users/A586754/go/src/github.com/xtracdev/automated-perf-test/config").subscribe(
+        data => {
+          this.test = data
+          for (var i = 0; i < this.test.length; i++ ) {
+           this.testArary.push(this.test[i].name)
             
             
-    //         console.log("helloo", this.configSchema)
-    //       }
-    // this.configSchema["properties"].testSuite.enum = this.testArary
-    // this.test2 = this.configSchema["properties"].testSuite.enum
-    // this.formData["testSuite"] = this.test2
-    //       console.log("bye",this.formData)
-    //       console.log(this.testArary)
-    //       console.log("configSchema", this.configSchema)
-    //       //this.toastr.success("Success!");
-    //     },
+            console.log("helloo", this.configSchema)
+          }
+    this.configSchema["properties"].testSuite.enum = this.testArary
     
-    //     error => {
-    //       switch (error.status) {
-    //         case 500: {
-    //           this.toastr.error("An error has occurred!", "Check the logs!");
-    //           break;
-    //         }
-    //         case 400: {
-    //           this.toastr.error(
-    //             "No Test Suite Directory added",
-    //             "An error occurred!"
-    //           );
-    //           break;
-    //         }
-    //         default: {
-    //           this.toastr.error("An error occurred!");
-    //         }
-    //       }
-    //     }
-    //   );
+          console.log(this.testArary)
+          console.log("configSchema", this.configSchema)
+        },
+    
+        error => {
+          switch (error.status) {
+            case 500: {
+              this.toastr.error("An error has occurred!", "Check the logs!");
+              break;
+            }
+            case 400: {
+              this.toastr.error(
+                "No Test Suite Directory added",
+                "An error occurred!"
+              );
+              break;
+            }
+            default: {
+              this.toastr.error("An error occurred!");
+            }
+          }
+        }
+      );
     }   
   
   onGet(){

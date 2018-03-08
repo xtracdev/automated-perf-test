@@ -28,15 +28,15 @@
     },
     "overrideHost": {
       "type": "string"
-    },
-    "multipart": {
-      "type": "boolean"
-    },
+    }, 
     "overridePort": {
       "type": "string"
     },
     "payload": {
       "type": "string"
+    },
+    "multipart": {
+      "type": "boolean"
     },
     "httpMethod": {
       "type": "string",

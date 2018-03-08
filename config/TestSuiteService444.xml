@@ -4,6 +4,7 @@
       <testStrategy>SuiteBased</testStrategy>
       <testCases>
           <testCase description="Example" preThinkTime="1000" postThinkTime="2000" execWeight="Infrequent">file1</testCase>
-          <testCase description="Example" preThinkTime="0" postThinkTime="5" execWeight="">file2</testCase>
+          <testCase description="desciiiiffffff" preThinkTime="55" postThinkTime="0" execWeight="Infrequent"></testCase>
+          <testCase description="desc222" preThinkTime="0" postThinkTime="0" execWeight=""></testCase>
       </testCases>
   </testSuite>
