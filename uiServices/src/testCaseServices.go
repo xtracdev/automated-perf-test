@@ -53,7 +53,17 @@ func postTestCase(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCase.TestName) {
+	// if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCase.TestName) {
+	// 	return
+	// }
+
+	if err := IsHeaderValid(testCasePathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(testCase.TestName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -83,7 +93,16 @@ func putTestCase(rw http.ResponseWriter, req *http.Request) {
 	path := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
 
-	if !ValidateFileNameAndHeader(rw, req, path, testCaseName) {
+	// if !ValidateFileNameAndHeader(rw, req, path, testCaseName) {
+	// 	return
+	// }
+
+	if err := IsHeaderValid(path); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if err := IsNameValid(testCaseName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -192,7 +211,17 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 	testCasePathDir := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
 
-	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
+	// if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
+	// 	return
+	// }
+
+	if err := IsHeaderValid(testCasePathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(testCaseName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -244,7 +273,17 @@ func deleteTestCase(rw http.ResponseWriter, req *http.Request) {
 	testCasePathDir := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
 
-	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
+	// if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
+	// 	return
+	// }
+
+	if err := IsHeaderValid(testCasePathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(testCaseName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 

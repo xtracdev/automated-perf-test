@@ -126,7 +126,17 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 	configPathDir := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 
-	if !ValidateFileNameAndHeader(rw, req, configPathDir, configName) {
+	// if !ValidateFileNameAndHeader(rw, req, configPathDir, configName) {
+	// 	return
+	// }
+
+	if err := IsHeaderValid(configPathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(configName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -172,7 +182,17 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 	path := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 
-	if !ValidateFileNameAndHeader(rw, req, path, configName) {
+	// if !ValidateFileNameAndHeader(rw, req, path, configName) {
+	// 	return
+	// }
+
+	if err := IsHeaderValid(path); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(configName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -213,10 +233,18 @@ func putConfigFileName(rw http.ResponseWriter, req *http.Request) {
 	configFileName := chi.URLParam(req, "configFileName")
 	newConfigFileName := chi.URLParam(req, "newConfigFileName")
 
-	if !IsHeaderValid(newConfigFileName, rw) {
+	if err := IsHeaderValid(path); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if !IsHeaderValid(configFileName, rw) {
+
+	if err := IsNameValid(configFileName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(newConfigFileName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 

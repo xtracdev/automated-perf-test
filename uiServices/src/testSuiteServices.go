@@ -57,7 +57,17 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuite.Name) {
+	// if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuite.Name) {
+	// 	return
+	// }
+
+	if err := IsHeaderValid(testSuitePathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(testSuite.Name); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -114,7 +124,17 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 	path := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
-	if !ValidateFileNameAndHeader(rw, req, path, testSuiteName) {
+	// if !ValidateFileNameAndHeader(rw, req, path, testSuiteName) {
+	// 	return
+	// }
+
+	if err := IsHeaderValid(path); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(testSuiteName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -155,7 +175,17 @@ func deleteTestSuite(rw http.ResponseWriter, req *http.Request) {
 	testSuitePathDir := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
-	if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName) {
+	// if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName) {
+	// 	return
+	// }
+
+	if err := IsHeaderValid(testSuitePathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(testSuiteName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -191,7 +221,7 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if  err:= IsNameValid(testSuiteName); err != nil {
+	if err := IsNameValid(testSuiteName); err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
