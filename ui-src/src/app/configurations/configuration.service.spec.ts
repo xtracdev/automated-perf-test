@@ -1,4 +1,4 @@
-import {TestBed, inject, getTestBed} from '@angular/core/testing';
+import {TestBed, inject, getTestBed} from "@angular/core/testing";
 import {HttpClientModule} from "@angular/common/http";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {environment} from "../../environments/environment.prod";
@@ -7,9 +7,9 @@ import {
   HttpTestingController
 } from "@angular/common/http/testing";
 
-import {ConfigurationService} from './configuration.service';
+import {ConfigurationService} from "./configuration.service";
 
-describe('ConfigurationService', () => {
+describe("ConfigurationService", () => {
   let injector;
   let service;
   let httpInterceptor: HttpTestingController;

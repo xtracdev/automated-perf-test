@@ -1,16 +1,16 @@
-import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
-import { TestSuiteService } from "./test-suite.service";
-import { TestCaseService } from "../test-cases/test-case.service";
-import { ConfigurationService } from "../configurations/configuration.service";
-import { ToastsManager } from "ng2-toastr/ng2-toastr";
-import { TestCasesSelectionComponent } from "../shared/test-cases-selection/test-cases-selection.component";
+import {Component, OnInit, Input, Output, EventEmitter} from "@angular/core";
+import {TestSuiteService} from "./test-suite.service";
+import {TestCaseService} from "../test-cases/test-case.service";
+import {ConfigurationService} from "../configurations/configuration.service";
+import {ToastsManager} from "ng2-toastr/ng2-toastr";
+import {TestCasesSelectionComponent} from "../shared/test-cases-selection/test-cases-selection.component";
 @Component({
   selector: "app-test-suites",
   templateUrl: "./test-suites.component.html",
   styleUrls: ["./test-suites.component.css"]
 })
-export class TestSuitesComponent {
-  testSuitePath = undefined
+export class TestSuitesComponent implements OnInit {
+  testSuitePath = undefined;
   testCaseArray = [];
   testSuites = [];
   selectedTestCaseData = [];
@@ -18,7 +18,7 @@ export class TestSuitesComponent {
   testCases = [];
   testSuiteFileName = undefined;
   testSuiteFileNameTruncated = undefined;
-  testSuiteSchema = { layout: true };
+  testSuiteSchema = {layout: true};
   constructor(
     private testSuiteService: TestSuiteService,
     private testCaseService: TestCaseService,
@@ -74,7 +74,7 @@ export class TestSuitesComponent {
     this.testSuiteFileName = undefined;
     this.onAdd();
   }
-  
+
   truncateFileName() {
     if (this.testSuiteFileName) {
       this.testSuiteFileNameTruncated = this.testSuiteFileName.substring(
@@ -146,7 +146,7 @@ export class TestSuitesComponent {
           }
         }
       }
-    )
+    );
   }
 
   onSelectSuite(testSuite, selectedIndex) {

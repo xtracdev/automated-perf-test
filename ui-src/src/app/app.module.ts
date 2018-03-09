@@ -14,8 +14,8 @@ import { TestCaseService } from "./test-cases/test-case.service";
 import { TestSuiteService } from "./test-suites/test-suite.service";
 import { HttpClientModule, HttpClient } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
-import { TestCasesSelectionComponent } from './shared/test-cases-selection/test-cases-selection.component';
-import { TestCasesListComponent } from './shared/test-cases-list/test-cases-list.component';
+import { TestCasesSelectionComponent } from "./shared/test-cases-selection/test-cases-selection.component";
+import { TestCasesListComponent } from "./shared/test-cases-list/test-cases-list.component";
 
 @NgModule({
   declarations: [

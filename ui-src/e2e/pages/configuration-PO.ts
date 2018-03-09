@@ -101,7 +101,7 @@ class ConfigurationPageObject {
   setReportDir() {
     return this.reportsDir.sendKeys("./report");
   }
-    
+
   setConfigData() {
     this.setConfigPath();
     this.setApplicationName();

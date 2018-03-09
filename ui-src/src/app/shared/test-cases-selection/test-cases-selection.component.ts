@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import { TestCaseService } from "../../test-cases/test-case.service";
 
 @Component({
-  selector: "test-cases-selection",
+  selector: "app-test-cases-selection",
   templateUrl: "./test-cases-selection.component.html",
   styleUrls: ["./test-cases-selection.component.css"]
 })

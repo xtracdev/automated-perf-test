@@ -79,7 +79,7 @@ describe("configuration component", () => {
     expect(configPO.serviceVariance.getAttribute("value")).toEqual("15");
     expect(configPO.concurrentUsers.getAttribute("value")).toEqual("50");
     expect(configPO.requestDelay.getAttribute("value")).toEqual("5000");
-    expect(configPO.tpsFreq.getAttribute("value")).toEqual("30");   
+    expect(configPO.tpsFreq.getAttribute("value")).toEqual("30");
     expect(configPO.rampDelay.getAttribute("value")).toEqual("15");
     expect(configPO.rampUsers.getAttribute("value")).toEqual("15");
   });
@@ -118,7 +118,7 @@ describe("configuration component", () => {
       .expect(configPO.requiredFields.get(6).getText())
       .toContain("This field is required.");
     since("(requestDelay) #{actual} =/= #{expected}")
-      .expect(configPO.requiredFields.get(7).getText())  
+      .expect(configPO.requiredFields.get(7).getText())
       .toContain("This field is required.");
     since("(tpsFreq) #{actual} =/= #{expected}")
       .expect(configPO.requiredFields.get(8).getText())
@@ -237,4 +237,4 @@ describe("configuration component", () => {
   it("should show update button is disabled when Xml File Name is blank", () => {
     expect(configPO.btnUpdate.isPresent()).toBe(false);
   });
-});  
+});

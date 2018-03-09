@@ -1,10 +1,10 @@
 <div class="row">
     <div class="col-md-6">
         <h3>Available</h3>
-        <test-cases-list (addToSelected)="onAddToSelected($event)" [testCases]="availableTestCases"></test-cases-list>
+        <app-test-cases-list (addToSelected)="onAddToSelected($event)" [testCases]="availableTestCases"></app-test-cases-list>
     </div>
     <div class="col-md-6">
         <h3>Selected</h3>
-        <test-cases-list (reverse)="onReverse($event)" [testCases]="selectedTestCaseData"></test-cases-list>
+        <app-test-cases-list (reverse)="onReverse($event)" [testCases]="selectedTestCaseData"></app-test-cases-list>
     </div>
 </div>

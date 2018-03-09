@@ -20,7 +20,7 @@ export class ConfigurationService {
 
 
   }
-  
+
   getConfig$(configPath, xmlFileName): Observable<any> {
     this.headers = this.headers.set("configPathDir", configPath);
     return this.http.get(`${environment.apiBaseUrl}configs/${xmlFileName}`, {
@@ -42,35 +42,4 @@ export class ConfigurationService {
       .get(`http://localhost:4200/${location}`, {headers: this.headers})
       .map((data: any) => data);
   }
-
-  getAllCases$(testCasePath): Observable<any> {
-    this.headers = this.headers.set("testSuitePathDir", testCasePath);
-    return this.http.get(`${environment.apiBaseUrl}test-cases`, {
-      headers: this.headers
-    });
-  }
-
-  postTestCases$(testCaseData, testCasePath): Observable<any> {
-    this.headers = this.headers.set("testSuitePathDir", testCasePath);
-    return this.http.post(`${environment.apiBaseUrl}test-cases`, testCaseData, {
-      headers: this.headers
-    });
-  }
-
-  getOneTestCase$(testCasePath, testCaseFileName): Observable<any> {
-    this.headers = this.headers.set("testSuitePathDir", testCasePath);
-    return this.http.get(`${environment.apiBaseUrl}test-cases/${testCaseFileName}`, {
-      headers: this.headers
-    });
-  }
-
-  putTestCase$(testCaseData, testCasePath, testCaseFileName): Observable<any> {
-    this.headers = this.headers.set("testSuitePathDir", testCasePath);
-    return this.http.put(
-      `${environment.apiBaseUrl}test-cases/${testCaseFileName}`,
-      testCaseData,
-      { headers: this.headers }
-    );
-  }
-
 }

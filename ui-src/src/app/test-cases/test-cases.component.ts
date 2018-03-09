@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { AutomatedUIServices } from "../automated-ui-services";
+import { ConfigurationService } from "../configurations/configuration.service";
+import { TestCaseService } from "./test-case.service";
 import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { HttpClient } from "@angular/common/http";
@@ -19,13 +20,14 @@ export class TestCasesComponent implements OnInit {
 
 
   constructor(
-    private automatedUIServices: AutomatedUIServices,
+    private configurationService: ConfigurationService,
+    private testCaseService: TestCaseService,
     private toastr: ToastsManager,
     private http: HttpClient
   ) { }
 
   ngOnInit() {
-    this.automatedUIServices
+    this.configurationService
       .getSchema$("assets/testCase_schema.json")
       .subscribe((data: any) => {
         this.testCaseSchema = data;
@@ -33,7 +35,7 @@ export class TestCasesComponent implements OnInit {
   }
 
   onLoad() {
-    this.automatedUIServices.getAllCases$(this.testCasePath).subscribe(
+    this.testCaseService.getAllCases$(this.testCasePath).subscribe(
       (data: any) => {
         this.testCases = data;
         this.toastr.success("Your Test Cases have loaded!", "Success!");
@@ -61,7 +63,7 @@ export class TestCasesComponent implements OnInit {
 
   onSelectCase(testCase, i) {
     this.testCaseData = testCase;
-    this.testCaseFileName = testCase.testname
+    this.testCaseFileName = testCase.testname;
   }
 
   onAdd() {
@@ -72,7 +74,7 @@ export class TestCasesComponent implements OnInit {
   onDelete() { }
 
   onSave(testCaseData) {
-    this.automatedUIServices.postTestCases$(testCaseData, this.testCasePath).subscribe(
+    this.testCaseService.postTestCases$(testCaseData, this.testCasePath).subscribe(
       data => {
         this.toastr.success("Your data has been saved!", "Success!");
       },
@@ -104,7 +106,7 @@ export class TestCasesComponent implements OnInit {
 
 
   onUpdate(testCaseData) {
-    this.automatedUIServices
+    this.testCaseService
       .putTestCase$(testCaseData, this.testCasePath, this.testCaseFileName)
       .subscribe(
       data => {
@@ -138,7 +140,7 @@ export class TestCasesComponent implements OnInit {
   }
 
   onCancel() {
-    this.automatedUIServices
+    this.testCaseService
       .getOneTestCase$(this.testCasePath, this.testCaseFileName)
       .subscribe(
       data => {
