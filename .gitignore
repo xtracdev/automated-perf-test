@@ -5,3 +5,4 @@ main
 ui/
 **/node_modules
 /.editorconfig
+automated-perf-test
