@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {ConfigurationsComponent} from "./configurations.component";
 import {Observable} from "rxjs/Observable";
-import {environment} from "../../environments/environment.prod";
+import { environment } from '../../environments/environment';
 
 
 @Injectable()
@@ -14,7 +14,7 @@ export class ConfigurationService {
 
   postConfig$(configData, configPath): Observable<any> {
     this.headers = this.headers.set("configPathDir", configPath);
-    return this.http.post(`${environment.apiBaseUrl}configs`, configData, {
+    return this.http.post(`${environment.API_BASE_URL}configs`, configData, {
       headers: this.headers
     });
 
@@ -23,7 +23,7 @@ export class ConfigurationService {
 
   getConfig$(configPath, xmlFileName): Observable<any> {
     this.headers = this.headers.set("configPathDir", configPath);
-    return this.http.get(`${environment.apiBaseUrl}configs/${xmlFileName}`, {
+    return this.http.get(`${environment.API_BASE_URL}configs/${xmlFileName}`, {
       headers: this.headers
     });
   }
@@ -31,7 +31,7 @@ export class ConfigurationService {
   putConfig$(configData, configPath, xmlFileName): Observable<any> {
     this.headers = this.headers.set("configPathDir", configPath);
     return this.http.put(
-      `${environment.apiBaseUrl}configs/${xmlFileName}`,
+      `${environment.API_BASE_URL}configs/${xmlFileName}`,
       configData,
       {headers: this.headers}
     );
@@ -39,7 +39,7 @@ export class ConfigurationService {
 
   getSchema$(location: string): Observable<any> {
     return this.http
-      .get(`http://localhost:4200/${location}`, {headers: this.headers})
+      .get(`${environment.ASSESTS_BASE_URL}${location}`, {headers: this.headers})
       .map((data: any) => data);
   }
 }

@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {TestSuitesComponent} from "./test-suites.component";
 import {Observable} from "rxjs/Observable";
-import {environment} from "../../environments/environment.prod";
+import {environment} from "../../environments/environment";
 
 @Injectable()
 export class TestSuiteService {
@@ -14,21 +14,21 @@ export class TestSuiteService {
 
   postTestSuite$(testSuiteData, testSuitePath): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testSuitePath);
-    return this.http.post(`${environment.apiBaseUrl}test-suites`, testSuiteData, {
+    return this.http.post(`${environment.API_BASE_URL}test-suites`, testSuiteData, {
       headers: this.headers
     });
   }
 
   getTestSuite$(testSuitePath, testSuiteFileName): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testSuitePath);
-    return this.http.get(`${environment.apiBaseUrl}test-suites/${testSuiteFileName}`, {
+    return this.http.get(`${environment.API_BASE_URL}test-suites/${testSuiteFileName}`, {
       headers: this.headers
     });
   }
 
   getAllTestSuite$(testSuitePath): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testSuitePath);
-    return this.http.get(`${environment.apiBaseUrl}test-suites`, {
+    return this.http.get(`${environment.API_BASE_URL}test-suites`, {
       headers: this.headers
     });
   }
@@ -36,7 +36,7 @@ export class TestSuiteService {
   putTestSuite$(testSuiteData, testSuitePath, testSuiteFileName): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testSuitePath);
     return this.http.put(
-      `${environment.apiBaseUrl}test-suites/${testSuiteFileName}`,
+      `${environment.API_BASE_URL}test-suites/${testSuiteFileName}`,
       testSuiteData,
       {headers: this.headers}
     );
