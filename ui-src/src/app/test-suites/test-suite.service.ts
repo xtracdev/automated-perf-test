@@ -26,7 +26,7 @@ export class TestSuiteService {
     });
   }
 
-  getAllTestSuite$(testSuitePath): Observable<any> {
+  getTestSuites$(testSuitePath): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testSuitePath);
     return this.http.get(`${environment.API_BASE_URL}test-suites`, {
       headers: this.headers

@@ -1,7 +1,7 @@
 import {TestBed, inject, getTestBed} from "@angular/core/testing";
 import {HttpClientModule} from "@angular/common/http";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {environment} from "../../environments/environment.prod";
+import {environment} from "../../environments/environment";
 import {
   HttpClientTestingModule,
   HttpTestingController
@@ -37,7 +37,7 @@ describe("ConfigurationService", () => {
     headers = headers.set("Content-Type", "application/json;");
     headers = headers.append("configPathDir", "data2");
 
-    const req = httpInterceptor.expectOne(`${environment.apiBaseUrl}configs`);
+    const req = httpInterceptor.expectOne(`${environment.API_BASE_URL}configs`);
     expect(req.request.method).toBe("POST");
     expect(req.request.headers.getAll).toBe(headers.getAll);
     expect(req.request.body).toEqual({data: "data1"});
@@ -52,7 +52,7 @@ describe("ConfigurationService", () => {
     headers = headers.set("Content-Type", "application/json;");
     headers = headers.append("configPathDir", "direct path");
 
-    const req = httpInterceptor.expectOne(`${environment.apiBaseUrl}configs/fileName.xml`);
+    const req = httpInterceptor.expectOne(`${environment.API_BASE_URL}configs/fileName.xml`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.headers.getAll).toBe(headers.getAll);
     expect(req.request.body).toEqual({data: "data1"});
@@ -67,7 +67,7 @@ describe("ConfigurationService", () => {
     headers = headers.set("Content-Type", "application/json;");
     headers = headers.append("configPathDir", "direct path");
 
-    const req = httpInterceptor.expectOne(`${environment.apiBaseUrl}configs/fileName.xml`);
+    const req = httpInterceptor.expectOne(`${environment.API_BASE_URL}configs/fileName.xml`);
     expect(req.request.method).toBe("GET");
     expect(req.request.headers.getAll).toBe(headers.getAll);
     expect(req.request.body).toBeNull();

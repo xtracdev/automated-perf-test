@@ -12,6 +12,7 @@ export class TestCasesSelectionComponent implements OnInit {
   @Input() selectedTestCaseData = [];
   @Output() addToSelected = new EventEmitter();
   @Output() reverse = new EventEmitter();
+  
   constructor(private testCaseService: TestCaseService) {}
 
   ngOnInit() {}

@@ -35,7 +35,7 @@ export class TestCasesComponent implements OnInit {
   }
 
   onLoad() {
-    this.testCaseService.getAllCases$(this.testCasePath).subscribe(
+    this.testCaseService.getTestCases$(this.testCasePath).subscribe(
       (data: any) => {
         this.testCases = data;
         this.toastr.success("Your Test Cases have loaded!", "Success!");
@@ -74,7 +74,7 @@ export class TestCasesComponent implements OnInit {
   onDelete() { }
 
   onSave(testCaseData) {
-    this.testCaseService.postTestCases$(testCaseData, this.testCasePath).subscribe(
+    this.testCaseService.postTestCase$(testCaseData, this.testCasePath).subscribe(
       data => {
         this.toastr.success("Your data has been saved!", "Success!");
       },
@@ -141,7 +141,7 @@ export class TestCasesComponent implements OnInit {
 
   onCancel() {
     this.testCaseService
-      .getOneTestCase$(this.testCasePath, this.testCaseFileName)
+      .getTestCase$(this.testCasePath, this.testCaseFileName)
       .subscribe(
       data => {
         this.testCaseData = data;

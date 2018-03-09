@@ -17,8 +17,6 @@ export class ConfigurationService {
     return this.http.post(`${environment.API_BASE_URL}configs`, configData, {
       headers: this.headers
     });
-
-
   }
 
   getConfig$(configPath, xmlFileName): Observable<any> {

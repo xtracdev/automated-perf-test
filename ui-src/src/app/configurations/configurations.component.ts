@@ -19,14 +19,12 @@ export class ConfigurationsComponent implements OnInit {
   configPath = undefined;
   xmlFileName = undefined;
   fileName = undefined;
-  // needed for layout to load
   configSchema = {};
 
   constructor(
     private configurationService: ConfigurationService,
     private testSuiteService: TestSuiteService,
     private toastr: ToastsManager,
-
     private http: HttpClient
   ) {}
 
@@ -36,13 +34,9 @@ export class ConfigurationsComponent implements OnInit {
       .subscribe((data: any) => {
         this.configSchema = data;
       });
-
   }
 
-
-
   onSubmit(configData) {
-
     this.configurationService.postConfig$(configData, this.configPath).subscribe(
       data => {
         this.toastr.success("Your data has been saved!", "Success!");
@@ -104,6 +98,7 @@ export class ConfigurationsComponent implements OnInit {
   onClearFile() {
     this.xmlFileName = undefined;
   }
+
   onGetFile() {
     this.configurationService
       .getConfig$(this.configPath, this.xmlFileName)
@@ -139,6 +134,7 @@ export class ConfigurationsComponent implements OnInit {
         }
       );
   }
+  
   onUpdate(configData) {
     this.configurationService
       .putConfig$(this.formData, this.configPath, this.xmlFileName)

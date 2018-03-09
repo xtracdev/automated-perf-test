@@ -19,6 +19,7 @@ export class TestSuitesComponent implements OnInit {
   testSuiteFileName = undefined;
   testSuiteFileNameTruncated = undefined;
   testSuiteSchema = {layout: true};
+  
   constructor(
     private testSuiteService: TestSuiteService,
     private testCaseService: TestCaseService,
@@ -35,7 +36,7 @@ export class TestSuitesComponent implements OnInit {
   }
 
   onAdd() {
-    this.testSuiteService.getAllTestSuite$(this.testSuitePath).subscribe(
+    this.testSuiteService.getTestSuites$(this.testSuitePath).subscribe(
       data => {
         this.testSuites = data;
       },
@@ -63,7 +64,7 @@ export class TestSuitesComponent implements OnInit {
 
   getTestCases() {
     this.testCaseService
-      .getAllCases$(this.testSuitePath)
+      .getTestCases$(this.testSuitePath)
       .subscribe((data: any) => (this.testCases = data));
   }
 

@@ -12,21 +12,21 @@ export class TestCaseService {
     this.headers = new HttpHeaders({"Content-Type": "application/json"});
   }
 
-  getAllCases$(testCasePath): Observable<any> {
+  getTestCases$(testCasePath): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testCasePath);
     return this.http.get(`${environment.API_BASE_URL}test-cases`, {
       headers: this.headers
     });
   }
 
-  postTestCases$(testCaseData, testCasePath): Observable<any> {
+  postTestCase$(testCaseData, testCasePath): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testCasePath);
     return this.http.post(`${environment.API_BASE_URL}test-cases`, testCaseData, {
       headers: this.headers
     });
   }
 
-  getOneTestCase$(testCasePath, testCaseFileName): Observable<any> {
+  getTestCase$(testCasePath, testCaseFileName): Observable<any> {
     this.headers = this.headers.set("testSuitePathDir", testCasePath);
     return this.http.get(`${environment.API_BASE_URL}test-cases/${testCaseFileName}`, {
       headers: this.headers
