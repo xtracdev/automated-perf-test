@@ -5,22 +5,21 @@
             <input class="form-control" type="string" [(ngModel)]="configPath" id="config-file-path" required>
 
         </div>
-        <div class=" column col-md-3">
-            <label>Update Existing File</label>
-            <input class="form-control" id="xml-file-name" placeholder="Click to Browse Files" [(ngModel)]="xmlFileName" type="string"
-                onclick="javascript:document.getElementById('file').click();">
-        </div>
-        <div class=" row col-md-1">
-            <button class="btn btn-primary clear"(click)= "onClearFile()" id="btn btn-primary">Clear</button>
-            <input id="file" type="file" (change)="fileSelector($event)" />
-        </div>
-
+      <div class=" column col-md-3">
+        <label>Update Existing File</label>
+        <input class="form-control" id="xml-file-name" placeholder="Click to Browse Files" [(ngModel)]="xmlFileName" type="string"
+               onclick="javascript:document.getElementById('file').click();">
+      </div>
+      <div class=" row col-md-1">
+        <button class="btn btn-primary clear"(click)= "onClearFile()" id="btn btn-primary">Clear</button>
+        <input id="file" type="file" (change)="fileSelector($event)" />
+      </div>
     </div>
     <json-schema-form [schema]="configSchema" [(ngModel)]="formData" [layout]="configSchema.layout" framework="bootstrap-4" >
     </json-schema-form>
     <button class="btn btn-primary" id="btn-update" *ngIf="xmlFileName" (click)="onUpdate(formData)">Update</button>
     <button class="btn btn-primary" id="btn-create" *ngIf="!xmlFileName"  (click)="onSubmit(formData)">Create</button>
- 
- 
+
+
     <button class="btn btn-primary" id="btn-cancel" (click)="onCancel()">Cancel</button>
 </div>

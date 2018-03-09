@@ -1,0 +1,108 @@
+{
+  "type": "object",
+  "required": [
+    "testname",
+    "overridePort",
+    "overrideHost",
+    "httpMethod",
+    "BaseURI",
+    "multipart",
+    "payload",
+    "responseStatusCode",
+    "responseContentType",
+    "preThinkTime",
+    "postThinkTime",
+    "execWeight",
+    "Headers",
+    "ResponseValues"
+  ],
+  "properties": {
+    "testname": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "BaseURI": {
+      "type": "string"
+    },
+    "overrideHost": {
+      "type": "string"
+    },
+    "multipart": {
+      "type": "boolean"
+    },
+    "overridePort": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "string"
+    },
+    "httpMethod": {
+      "type": "string",
+      "enum": [
+        "POST",
+        "GET",
+        "PUT",
+        "DELETE"
+      ]
+    },
+    "Headers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "Key",
+          "Value"
+        ],
+        "properties": {
+          "Key": {
+            "type": "string"
+          },
+          "Value": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "preThinkTime": {
+      "type": "number"
+    },
+    "postThinkTime": {
+      "type": "number"
+    },
+    "execWeight": {
+      "type": "string",
+      "enum": [
+        "Sparse",
+        "Infrequent"
+      ]
+    },
+    "responseStatusCode": {
+      "type": "number"
+    },
+    "responseContentType": {
+      "type": "string"
+    },
+    "ResponseValues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "Value",
+          "ExtractionKey"
+        ],
+        "properties": {
+          "ExtractionKey": {
+            "type": "string"
+          },
+          "Value": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
