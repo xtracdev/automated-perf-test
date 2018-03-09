@@ -1,0 +1,11 @@
+  <testSuite>
+      <name>CI Suite</name>
+      <description>CI  </description>
+      <testStrategy>SuiteBased</testStrategy>
+      <testCases>
+          <testCase description="GetNodes" preThinkTime="0" postThinkTime="5000" execWeight="Infrequent">suiteA.xml</testCase>
+          <testCase description="GetFields" preThinkTime="1000" postThinkTime="1000" execWeight="Sparce">suiteB.xml</testCase>
+          <testCase description="Post Login" preThinkTime="1000" postThinkTime="3000" execWeight="Sparse"></testCase>
+          <testCase description="Post Login" preThinkTime="1000" postThinkTime="3000" execWeight="Sparse"></testCase>
+      </testCases>
+  </testSuite>

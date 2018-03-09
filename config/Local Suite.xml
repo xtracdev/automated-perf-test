@@ -1,0 +1,8 @@
+  <testSuite>
+      <name>Local Suite</name>
+      <description>Services for XYZ</description>
+      <testStrategy>SuiteBased</testStrategy>
+      <testCases>
+          <testCase description="GetData" preThinkTime="1000" postThinkTime="2000" execWeight="Infrequent">local.xml</testCase>
+      </testCases>
+  </testSuite>

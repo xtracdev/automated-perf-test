@@ -1,0 +1,29 @@
+  <testDefinition>
+      <testName>Get_Fields_Success</testName>
+      <overrideHost>localhost</overrideHost>
+      <overridePort>9090</overridePort>
+      <httpMethod>POST</httpMethod>
+      <description>Get Fields</description>
+      <baseUri>path/</baseUri>
+      <multipart>true</multipart>
+      <payload>payload</payload>
+      <multipartPayload>
+          <multipartFormField>
+              <fieldName>FieldVar</fieldName>
+              <fieldValue>MultiValue</fieldValue>
+              <fileName>file-name</fileName>
+              <fileContent></fileContent>
+          </multipartFormField>
+      </multipartPayload>
+      <responseStatusCode>400</responseStatusCode>
+      <responseContentType>JSON</responseContentType>
+      <headers>
+          <header key="Authorization">HeaderName</header>
+      </headers>
+      <responseProperties>
+          <value extractionKey="Res">OK</value>
+      </responseProperties>
+      <PreThinkTime>6000</PreThinkTime>
+      <PostThinkTime>5000</PostThinkTime>
+      <ExecWeight>Sparse</ExecWeight>
+  </testDefinition>

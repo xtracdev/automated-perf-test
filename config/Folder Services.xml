@@ -1,0 +1,10 @@
+  <testSuite>
+      <name>Folder Services</name>
+      <description>Service for Folders</description>
+      <testStrategy>ServiceBased</testStrategy>
+      <testCases>
+          <testCase description="PostList" preThinkTime="2000" postThinkTime="4000" execWeight="Infrequent">service1.xml</testCase>
+          <testCase description="PutList" preThinkTime="3000" postThinkTime="1000" execWeight="Sparce">service2.xml</testCase>
+          <testCase description="Get Fields" preThinkTime="6000" postThinkTime="5000" execWeight="Sparse"></testCase>
+      </testCases>
+  </testSuite>

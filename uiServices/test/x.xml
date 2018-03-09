@@ -1,19 +1,19 @@
   <Config>
-      <apiName>configkkk</apiName>
+      <apiName>x</apiName>
       <targetHost>localhost</targetHost>
-      <targetPort>8080</targetPort>
-      <numIterations>1066666</numIterations>
-      <allowablePeakMemoryVariance>12</allowablePeakMemoryVariance>
-      <allowableServiceResponseTimeVariance>15</allowableServiceResponseTimeVariance>
+      <targetPort>9191</targetPort>
+      <numIterations>1000</numIterations>
+      <allowablePeakMemoryVariance>30</allowablePeakMemoryVariance>
+      <allowableServiceResponseTimeVariance>30</allowableServiceResponseTimeVariance>
       <testCaseDir>./definitions/testCases</testCaseDir>
       <testSuiteDir>./definitions/testSuites</testSuiteDir>
       <baseStatsOutputDir>./envStats</baseStatsOutputDir>
-      <reportOutputDir>.efreefef</reportOutputDir>
+      <reportOutputDir>./report</reportOutputDir>
       <concurrentUsers>50</concurrentUsers>
       <testSuite>Default-1</testSuite>
       <memoryEndpoint>/alt/debug/vars</memoryEndpoint>
       <requestDelay>5000</requestDelay>
       <TPSFreq>30</TPSFreq>
-      <rampUsers>15</rampUsers>
+      <rampUsers>5</rampUsers>
       <rampDelay>15</rampDelay>
   </Config>

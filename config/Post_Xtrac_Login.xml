@@ -1,0 +1,29 @@
+  <testDefinition>
+      <testName>Post_Xtrac_Login</testName>
+      <overrideHost>localhost</overrideHost>
+      <overridePort>1001</overridePort>
+      <httpMethod>PUT</httpMethod>
+      <description>Post Login</description>
+      <baseUri>path/to/</baseUri>
+      <multipart>true</multipart>
+      <payload>payload</payload>
+      <multipartPayload>
+          <multipartFormField>
+              <fieldName>MultiName</fieldName>
+              <fieldValue>Multi-Value</fieldValue>
+              <fileName>file-Title</fileName>
+              <fileContent></fileContent>
+          </multipartFormField>
+      </multipartPayload>
+      <responseStatusCode>500</responseStatusCode>
+      <responseContentType>XML</responseContentType>
+      <headers>
+          <header key="Content-Type">xml</header>
+      </headers>
+      <responseProperties>
+          <value extractionKey="R-Key">R-Val</value>
+      </responseProperties>
+      <PreThinkTime>1000</PreThinkTime>
+      <PostThinkTime>3000</PostThinkTime>
+      <ExecWeight>Sparse</ExecWeight>
+  </testDefinition>

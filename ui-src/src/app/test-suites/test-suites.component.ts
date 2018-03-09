@@ -39,10 +39,10 @@ export class TestSuitesComponent {
   }
 
   onLoad() {
+    this.getTestCases()
     this.testSuiteService.getAllTestSuite$(this.testSuitePath).subscribe(
       data => {
         this.testSuites = data;
-        //this.toastr.success("Success!");
       },
 
       error => {
@@ -111,7 +111,7 @@ export class TestSuitesComponent {
       .subscribe(
       data => {
         this.toastr.success("Success!");
-        this.onAdd();
+        this.onLoad();
       },
       error => {
         switch (error.status) {
@@ -140,13 +140,11 @@ export class TestSuitesComponent {
 
   onSave(formData) {
     this.testCaseArray["testCases"] = this.selectedTestCaseData;
-    console.log("array",this.testCaseArray)
-    console.log("from", formData)
     Object.assign(formData, this.testCaseArray);
     this.testSuiteService.postTestSuite$(formData, this.testSuitePath).subscribe(
       data => {
         this.toastr.success("Your data has been saved!", "Success!");
-        this.onAdd();
+        this.onLoad();
       },
       error => {
         switch (error.status) {

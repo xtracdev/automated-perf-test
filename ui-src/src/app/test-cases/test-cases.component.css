@@ -22,7 +22,7 @@ th {
 }
 tr:hover{
   cursor: pointer;  
-  background-color: rgb(0, 153, 255);
+  background-color: rgb(131, 202, 250);
 }
 td, th{
     border: 1px solid #dddddd;
