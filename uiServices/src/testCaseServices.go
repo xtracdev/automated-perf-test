@@ -134,12 +134,6 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// if len(testCasePathDir) <= 1 {
-	// 	logrus.Error("No file directory entered")
-	// 	rw.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-
 	files, err := ioutil.ReadDir(testCasePathDir)
 	if err != nil {
 		logrus.Error(err)

@@ -27,26 +27,25 @@ func getConfigHeader(req *http.Request) string {
 	return configPathDir
 }
 
-func ValidateFileNameAndHeader(rw http.ResponseWriter, req *http.Request, header, name string) bool {
-	return IsNameValid(name, rw) && IsHeaderValid(header, rw)
-}
+// func ValidateRequest(header string, name string) error {
+// 	 IsNameValid(name)
+// 	 IsHeaderValid(header)
+// }
 
-func IsHeaderValid(header string, rw http.ResponseWriter) bool {
+func IsHeaderValid(header string) error {
 	if len(header) <= 1 {
 		logrus.Error("No Header Path Found")
-		rw.WriteHeader(http.StatusBadRequest)
-		return false
+		return fmt.Errorf("No Header Path Found")
 	}
-	return true
+	return nil
 }
 
-func IsNameValid(name string, rw http.ResponseWriter) bool {
+func IsNameValid(name string) error {
 	if len(name) < 1 {
 		logrus.Error("File Name is Empty")
-		rw.WriteHeader(http.StatusBadRequest)
-		return false
+		return fmt.Errorf("File Name is Empty")
 	}
-	return true
+	return nil
 }
 
 func IsPathDirValid(name string, rw http.ResponseWriter) bool {
@@ -226,7 +225,7 @@ func putConfigFileName(rw http.ResponseWriter, req *http.Request) {
 
 	err := os.Rename(configFilePath, newConfigFilePath)
 	if err != nil {
-		logrus.Println("File was not updated", err)
+		logrus.Error("File was not updated", err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
