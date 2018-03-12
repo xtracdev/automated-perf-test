@@ -474,10 +474,11 @@ Feature: Test Case Scenarios
     }
     """
 
-
-                                 ###################################
-                                #######    DELETE REQUESTS #######
                                 ###################################
+                                #######    DELETE REQUESTS ########
+                                ###################################
+
+  
 
   Scenario:  Fail to remove Test Case file with "DELETE" request (File Not Found)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
@@ -537,3 +538,24 @@ Feature: Test Case Scenarios
     When I send a "DELETE" request to "/test-cases/GodogTestCase3"
     Then the response code should be 204
 
+
+Scenario: Unsuccessful deleting of test-case (No Header)
+  Given the automated performance ui server is available
+  And the header "testCasePathDir" is ""
+  When I send a "DELETE" request to "/test-cases/all"
+  Then the response code should be 400
+
+
+Scenario: Unsuccessful deleting of test-case file (Empty Directory)
+  Given the automated performance ui server is available
+  And the header "testCasePathDir" is "/uiServices/test/cases"
+  When I send a "DELETE" request to "/test-cases/"
+  Then the response code should be 404
+   
+
+Scenario: Successful deleting of test-case file with DELETE request
+  Given the "deleteTest.xml" has been created at "/uiServices/test/cases"
+  Given the automated performance ui server is available
+  And the header "testCasePathDir" is "/uiServices/test/cases"
+  When I send a "DELETE" request to "/test-cases/all"
+  Then the response code should be 200

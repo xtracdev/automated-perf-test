@@ -293,3 +293,27 @@ func deleteTestCase(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusNoContent)
 
 }
+func deleteAllTestCases(rw http.ResponseWriter, req *http.Request) {
+	testCasePathDir := getTestCaseHeader(req)
+
+	if !IsHeaderValid(testCasePathDir, rw) {
+		return
+	}
+
+	files, err := ioutil.ReadDir(testCasePathDir)
+	if err != nil {
+		logrus.Error("Cannot read directory ", err)
+		return
+	}
+
+	for _, file := range files {
+		err := os.RemoveAll(filepath.Join(testCasePathDir, file.Name()))
+		if err != nil {
+			logrus.Errorf("Error deleting the files from filesystem: %s", err)
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		rw.WriteHeader(http.StatusOK)
+	}
+}

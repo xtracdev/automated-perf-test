@@ -1,0 +1,8 @@
+  <testSuite>
+      <name>GodogTestSuite2</name>
+      <description>ServiceDesc</description>
+      <testStrategy>SuiteBased</testStrategy>
+      <testCases>
+          <testCase preThinkTime="2000" postThinkTime="5000" execWeight="Infrequent">file1</testCase>
+      </testCases>
+  </testSuite>

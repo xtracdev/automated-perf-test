@@ -1,11 +1,13 @@
 package services
 
 import (
+	"github.com/go-chi/chi"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
-
+	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
 )
@@ -409,7 +411,7 @@ func TestGetTestCaseFileNotFound(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/cases"
 	request, err := http.NewRequest(http.MethodGet, "/test-cases/xxx", nil)
 
 	request.Header.Set("testCasePathDir", filePath)
@@ -422,5 +424,138 @@ func TestGetTestCaseFileNotFound(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t,http.StatusNotFound, w.Code, "Should not return data")
+	assert.Equal(t, http.StatusNotFound, w.Code, "Should not return data")
+}
+
+func TestDeleteAllCasesSuccess(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/cases"
+	err := ioutil.WriteFile(fmt.Sprintf("%s%s.xml", DirectoryPath, "test"), nil, 0666)
+	if err != nil {
+		logrus.Errorf("Error trying to create a file: %s", err)
+	}
+
+	request, err := http.NewRequest(http.MethodDelete, "/test-cases/all", nil)
+	if err != nil {
+		logrus.Warnf("Error creating the request %s", err)
+	}
+	request.Header.Set("testCasePathDir", DirectoryPath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	assert.Equal(t, http.StatusOK, w.Code, "All files have been DELETED")
+
+}
+
+func TestDeleteAllCasesNoHeader(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	DirectoryPath := ""
+	request, err := http.NewRequest(http.MethodDelete, "/test-cases/all", nil)
+	if err != nil {
+		logrus.Warnf("Error creating the request %s", err)
+	}
+
+	request.Header.Set("testCasePathDir", DirectoryPath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Did not DELETE the files")
+}
+
+func TestDeleteAllCasesEmptyDirectory(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/cases"
+	request, err := http.NewRequest(http.MethodDelete, "/test-cases/", nil)
+	if err != nil {
+		logrus.Warnf("Error creating the request %s", err)
+	}
+
+	request.Header.Set("testCasePathDir", DirectoryPath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	assert.Equal(t, http.StatusNotFound, w.Code, "Empty Directory")
+}
+
+func TestSuccessfulCaseDelete(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	reader := strings.NewReader(TestCaseForDeletion)
+	r.HandleFunc("/test-cases", postTestCase)
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+	request, err := http.NewRequest(http.MethodPost, "/test-cases", reader)
+	request.Header.Set("testCasePathDir", filePath)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	assert.NoError(t, err)
+
+	assert.Equal(t, http.StatusCreated, w.Code, "Error: Did Not Successfully Post")
+
+	filePath = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err = http.NewRequest(http.MethodDelete, "/test-cases/TestCaseService2", nil)
+
+	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Get("testCasePathDir")
+
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusNoContent, w.Code, "Error. Did not successfully Delete")
+}
+
+func TestDeleteCaseFileNotFound(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
+	request, err := http.NewRequest(http.MethodDelete, "/test-cases/xxx", nil)
+
+	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Get("testCasePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusNotFound, w.Code, "Should not have successfully deleted")
+}
+
+func TestDeleteCaseWithNoHeader(t *testing.T) {
+	r := chi.NewRouter()
+	r.Mount("/", GetIndexPage())
+
+	filePath := ""
+	request, err := http.NewRequest(http.MethodDelete, "/test-cases/TestCaseService", nil)
+
+	request.Header.Set("testCasePathDir", filePath)
+	request.Header.Get("testCasePathDir")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Should not have successfully deleted")
 }

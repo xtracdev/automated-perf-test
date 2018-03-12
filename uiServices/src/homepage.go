@@ -4,23 +4,19 @@ import (
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
-<<<<<<< HEAD
     "github.com/go-chi/cors"
-=======
-
 	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 
->>>>>>> 3739ecf74b1ebdd56489c07d1e556eb8b43fb1fd
 	"os"
 )
 
 const contentTypeHeader = `Content-Type`
 const htmlType = `text/html`
 
-func StartUiMode() {
+func StartUIMode() {
 	http.ListenAndServe(":9191", GetRouter())
 }
 
@@ -79,9 +75,9 @@ func GetIndexPage() *chi.Mux {
 
 	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 
-		resourceUrl := r.URL.String()
+		resourceURL := r.URL.String()
 
-		path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/ui/" + resourceUrl
+		path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/ui/" + resourceURL
 
 		absPath, err := filepath.Abs(path)
 
@@ -119,6 +115,7 @@ func routeConfigs() http.Handler {
 	router.Post("/", postConfigs)
 	router.Get("/{configName}", getConfigs)
 	router.Put("/{configName}", putConfigs)
+	router.Put("/filename/{configFileName}/{newConfigFileName}", putConfigFileName)
 
 	return router
 }
@@ -139,6 +136,8 @@ func routeTestCases() http.Handler {
 	router.Use(TestCaseCtx)
 	router.Get("/", getAllTestCases)
 	router.Get("/{testCaseName}", getTestCase)
+	router.Delete("/{testCaseName}", deleteTestCase)
+	router.Delete("/all", deleteAllTestCases)
 
 	return router
 }
