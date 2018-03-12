@@ -11,5 +11,10 @@ main
 ui/
 **/node_modules
 /.editorconfig
-config/
-automated-perf-test.exe
+config/*.xml
+!config/config.xml
+*.iml
+.idea
+ui/
+automated-perf-test
+uiServices/test/*.xml
