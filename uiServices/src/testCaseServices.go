@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
 const testCaseSchema string = "testCase_schema.json"
@@ -52,7 +53,13 @@ func postTestCase(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCase.TestName) {
+	if err := IsHeaderValid(testCasePathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(testCase.TestName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -82,7 +89,12 @@ func putTestCase(rw http.ResponseWriter, req *http.Request) {
 	path := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
 
-	if !ValidateFileNameAndHeader(rw, req, path, testCaseName) {
+	if err := IsHeaderValid(path); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if err := IsNameValid(testCaseName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -128,9 +140,8 @@ func putTestCase(rw http.ResponseWriter, req *http.Request) {
 func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 
 	testCasePathDir := getTestCaseHeader(req)
-	if len(testCasePathDir) <= 1 {
-		logrus.Error("No file directory entered")
-		rw.WriteHeader(http.StatusBadRequest)
+
+	if !IsPathDirValid(testCasePathDir, rw) {
 		return
 	}
 
@@ -192,7 +203,13 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 	testCasePathDir := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
 
-	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
+	if err := IsHeaderValid(testCasePathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(testCaseName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -243,7 +260,14 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 func deleteTestCase(rw http.ResponseWriter, req *http.Request) {
 	testCasePathDir := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
-	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
+
+	if err := IsHeaderValid(testCasePathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(testCaseName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
