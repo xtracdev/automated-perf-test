@@ -185,7 +185,8 @@ func deleteTestSuite(rw http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	err := os.Remove(filepath)
+	filePath := fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName)
+	err := os.Remove(filePath)
 	if err != nil {
 		logrus.Errorf("Error deleting the file from filesystem: %s", err)
 		rw.WriteHeader(http.StatusInternalServerError)

@@ -1,13 +1,13 @@
 package services
 
 import (
-	"io/ioutil"
-	"net/http"
-	"path/filepath"
-    "github.com/go-chi/cors"
 	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
+	"io/ioutil"
+	"net/http"
+	"path/filepath"
 
 	"os"
 )

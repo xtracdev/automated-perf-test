@@ -220,22 +220,6 @@ func putConfigFileName(rw http.ResponseWriter, req *http.Request) {
 	configFileName := chi.URLParam(req, "configFileName")
 	newConfigFileName := chi.URLParam(req, "newConfigFileName")
 
-	if len(newConfigFileName) < 1 {
-		logrus.Error("File path does not exist")
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	os.Rename(fmt.Sprintf("%s%s.xml", path, configFileName), fmt.Sprintf("%s%s.xml", path, newConfigFileName))
-
-	rw.WriteHeader(http.StatusNoContent)
-}
-
-func putConfigFileName(rw http.ResponseWriter, req *http.Request) {
-	path := getConfigHeader(req)
-	configFileName := chi.URLParam(req, "configFileName")
-	newConfigFileName := chi.URLParam(req, "newConfigFileName")
-
 	if err := IsHeaderValid(path); err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
 		return

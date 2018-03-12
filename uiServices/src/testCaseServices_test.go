@@ -1,16 +1,16 @@
 package services
 
 import (
+	"fmt"
+	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/stretchr/testify/assert"
 )
 
 const validTestCase = `

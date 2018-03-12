@@ -295,7 +295,8 @@ func deleteTestCase(rw http.ResponseWriter, req *http.Request) {
 func deleteAllTestCases(rw http.ResponseWriter, req *http.Request) {
 	testCasePathDir := getTestCaseHeader(req)
 
-	if !IsHeaderValid(testCasePathDir, rw) {
+	if err := IsHeaderValid(testCasePathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
