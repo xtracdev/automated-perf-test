@@ -314,7 +314,6 @@ func deleteAllTestCases(rw http.ResponseWriter, req *http.Request) {
 			rw.WriteHeader(http.StatusNotFound)
 			return
 		}
-
-		rw.WriteHeader(http.StatusOK)
 	}
+	rw.WriteHeader(http.StatusOK)
 }
