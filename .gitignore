@@ -1,4 +1,10 @@
-
+config/*.xml
+ !config/config.xml
+ *.iml
+ .idea
+ ui/
+ automated-perf-test
+ uiServices/test/*.xml
 *.bak
 main
 .idea

@@ -16,8 +16,9 @@
     "testCaseDir",
     "testSuiteDir",
     "baseStatsOutputDir",
-    "reportOutputDir" 
+    "reportOutputDir"
   ],
+  "additionalProperties": false,
   "properties": {
     "apiName": {
       "type": "string"

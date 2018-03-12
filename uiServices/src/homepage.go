@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
-    "github.com/go-chi/cors"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -70,7 +70,7 @@ func GetIndexPage() *chi.Mux {
 	})
 
 	router.Mount("/configs", routeConfigs())
-	router.Mount("/test-suites/getAllCases/", routeTestCases())
+	router.Mount("/test-cases", routeTestCases())
 	router.Mount("/test-suites", routeTestSuites())
 
 	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
@@ -127,6 +127,7 @@ func routeTestSuites() http.Handler {
 	router.Put("/{testSuiteName}", putTestSuites)
 	router.Get("/{testSuiteName}", getTestSuite)
 	router.Get("/", getAllTestSuites)
+	router.Delete("/{testSuiteName}", deleteTestSuite)
 
 	return router
 }
@@ -134,10 +135,12 @@ func routeTestSuites() http.Handler {
 func routeTestCases() http.Handler {
 	router := chi.NewRouter()
 	router.Use(TestCaseCtx)
+	router.Post("/", postTestCase)
 	router.Get("/", getAllTestCases)
 	router.Get("/{testCaseName}", getTestCase)
 	router.Delete("/{testCaseName}", deleteTestCase)
-	router.Delete("/all", deleteAllTestCases)
+	router.Delete("/", deleteAllTestCases)
+	router.Put("/{testCaseName}", putTestCase)
 
 	return router
 }

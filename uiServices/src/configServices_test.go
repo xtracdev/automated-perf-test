@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -93,22 +92,6 @@ const validJsonWithOneCharName = `{
        "rampDelay": 15
        }`
 
-func TestFilePathExist(t *testing.T) {
-	path := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
-	actual := false
-	fmt.Println(path)
-	actual = FilePathExist(path)
-	expected := true
-	assert.Equal(t, expected, actual)
-}
-
-func TestFilePathDoesNotExist(t *testing.T) {
-	path := "((((((("
-	actual := FilePathExist(path)
-	expected := false
-	assert.Equal(t, expected, actual)
-}
-
 func TestInvalidJsonPostMissingRequiredField(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -118,7 +101,7 @@ func TestInvalidJsonPostMissingRequiredField(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -144,18 +127,16 @@ func TestValidJsonPost(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
-	request.Header.Set("configPathDir", filePath)
+
+	assert.NoError(t, err)
+
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
 
-	if err != nil {
-		t.Error(err)
-	}
+	assert.Equal(t, http.StatusCreated, w.Code)
 
-	if w.Code != http.StatusCreated {
-		t.Error("TestValidJsonPost. Expected:", http.StatusCreated, " Got:", w.Code, "  Error. Did not succesfully post")
-	}
 }
 
 func TestPostWithOneCharName(t *testing.T) {
@@ -169,7 +150,7 @@ func TestPostWithOneCharName(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -191,7 +172,7 @@ func TestPostWithInvalidHeader(t *testing.T) {
 
 	filePath := "xxxxxx"
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -226,7 +207,7 @@ func TestInvalidJsonPost(t *testing.T) {
 	}
 }
 
-func TestWhenConfigPathDirEmpty(t *testing.T) {
+func TestWhenpathEmpty(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
@@ -243,7 +224,7 @@ func TestWhenConfigPathDirEmpty(t *testing.T) {
 	}
 
 	if w.Code != http.StatusBadRequest {
-		t.Error("TestWhenConfigPathDirEmpty.  Expected:", http.StatusBadRequest, " Got:", w.Code, "Error. ConfigPathDir is Empty ")
+		t.Error("TestWhenpathEmpty.  Expected:", http.StatusBadRequest, " Got:", w.Code, "Error. path is Empty ")
 	}
 }
 
@@ -262,7 +243,7 @@ func TestSuccessfulGet(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPost, "/configs", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -270,8 +251,8 @@ func TestSuccessfulGet(t *testing.T) {
 	filePath = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err = http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig", nil)
 
-	request.Header.Set("configPathDir", filePath)
-	request.Header.Get("configPathDir")
+	request.Header.Set("path", filePath)
+	request.Header.Get("path")
 
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -294,8 +275,8 @@ func TestSuccessfulGetPathWihoutSlash(t *testing.T) {
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig", nil)
 
-	request.Header.Set("configPathDir", filePath)
-	request.Header.Get("configPathDir")
+	request.Header.Set("path", filePath)
+	request.Header.Get("path")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -318,8 +299,8 @@ func TestGetNoHeaderPath(t *testing.T) {
 	filePath := ""
 	request, err := http.NewRequest(http.MethodGet, "/configs/serviceTestConfig", nil)
 
-	request.Header.Set("configPathDir", filePath)
-	request.Header.Get("configPathDir")
+	request.Header.Set("path", filePath)
+	request.Header.Get("path")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -342,8 +323,8 @@ func TestGetFileNotFound(t *testing.T) {
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodGet, "/configs/xxx.java", nil)
 
-	request.Header.Set("configPathDir", filePath)
-	request.Header.Get("configPathDir")
+	request.Header.Set("path", filePath)
+	request.Header.Get("path")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -366,7 +347,7 @@ func TestValidJsonPut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -387,7 +368,7 @@ func TestMissingFieldPut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -408,7 +389,7 @@ func TestInvalidJsonPut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -429,7 +410,7 @@ func TestInvalidUrlPut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "/configs/xxx", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -450,7 +431,7 @@ func TestNoUrlPut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -471,7 +452,7 @@ func TestSuccessfulPutWithNoPathSlash(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -491,7 +472,7 @@ func TestNoPathPut(t *testing.T) {
 
 	filePath := ""
 	request, err := http.NewRequest(http.MethodPut, "/configs/ServiceTestConfig", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -512,7 +493,7 @@ func TestNoFileNamePut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPut, "/configs", reader)
-	request.Header.Set("configPathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)

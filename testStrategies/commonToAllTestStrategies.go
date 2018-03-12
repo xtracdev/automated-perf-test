@@ -64,9 +64,9 @@ type TestDefinition struct {
 	ResponseContentType string               `xml:"responseContentType"`
 	Headers             []Header             `xml:"headers>header"`
 	ResponseValues      []ResponseValue      `xml:"responseProperties>value"`
-	PreThinkTime        int64				 `xml:"preThinkTime"`
-	PostThinkTime       int64				 `xml:"postThinkTime"`
-	ExecWeight          string				 `xml:"execWeight"`
+	PreThinkTime        int64                `xml:"preThinkTime"`
+	PostThinkTime       int64                `xml:"postThinkTime"`
+	ExecWeight          string               `xml:"execWeight"`
 }
 
 // TestSuite fields get populated from the TestSuiteDefinition after the XML
@@ -74,7 +74,7 @@ type TestDefinition struct {
 type TestSuite struct {
 	XMLName         xml.Name   `xml:"testSuite"`
 	Name            string     `xml:"name" json:"name"`
-	Description     string     `xml:"description" json:"description"`    
+	Description     string     `xml:"description" json:"description"`
 	TestStrategy    string     `xml:"testStrategy"`
 	TestCases       []TestCase `xml:"testCases>testCase"`
 	TestDefinitions []*TestDefinition
@@ -87,7 +87,7 @@ type TestCase struct {
 	XMLName       xml.Name `xml:"testCase"`
 	Name          string   `xml:",chardata"`
 	Description   string   `xml:"description,attr" json:"description"`
-	PreThinkTime  int64    `xml:"preThinkTime,attr" json:"preThinkTime"` 
+	PreThinkTime  int64    `xml:"preThinkTime,attr" json:"preThinkTime"`
 	PostThinkTime int64    `xml:"postThinkTime,attr" json:"postThinkTime"`
 	ExecWeight    string   `xml:"execWeight,attr" json:"execWeight"`
 }

@@ -23,7 +23,7 @@
       <responseProperties>
           <value extractionKey="Res-Key">Res-Value</value>
       </responseProperties>
-      <PreThinkTime>1000</PreThinkTime>
-      <PostThinkTime>2000</PostThinkTime>
-      <ExecWeight>Sparse</ExecWeight>
+      <preThinkTime>1000</preThinkTime>
+      <postThinkTime>2000</postThinkTime>
+      <execWeight>Sparse</execWeight>
   </testDefinition>

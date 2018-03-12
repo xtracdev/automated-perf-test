@@ -5,17 +5,19 @@
     "overridePort",
     "overrideHost",
     "httpMethod",
-    "BaseURI",
+    "baseUri",
     "multipart",
+    "multipartPayload",
     "payload",
     "responseStatusCode",
     "responseContentType",
     "preThinkTime",
     "postThinkTime",
     "execWeight",
-    "Headers",
-    "ResponseValues"
+    "headers",
+    "responseValues"
   ],
+  "additionalProperties": false,
   "properties": {
     "testname": {
       "type": "string"
@@ -23,7 +25,7 @@
     "description": {
       "type": "string"
     },
-    "BaseURI": {
+    "baseUri": {
       "type": "string"
     },
     "overrideHost": {
@@ -47,20 +49,20 @@
         "DELETE"
       ]
     },
-    "Headers": {
+    "headers": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "Key",
-          "Value"
+          "key",
+          "value"
         ],
         "properties": {
-          "Key": {
+          "key": {
             "type": "string"
           },
-          "Value": {
+          "value": {
             "type": "string"
           }
         }
@@ -85,20 +87,38 @@
     "responseContentType": {
       "type": "string"
     },
-    "ResponseValues": {
+    "multipartPayload": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fieldName": {
+            "type": "string"
+          },
+          "fieldValue":{
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "responseValues": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "Value",
-          "ExtractionKey"
+          "value",
+          "extractionKey"
         ],
         "properties": {
-          "ExtractionKey": {
+          "extractionKey": {
             "type": "string"
           },
-          "Value": {
+          "value": {
             "type": "string"
           }
         }

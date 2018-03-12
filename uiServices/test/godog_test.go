@@ -17,8 +17,8 @@ import (
 	"github.com/DATA-DOG/godog/gherkin"
 	"github.com/Sirupsen/logrus"
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
-	"github.com/xtracdev/automated-perf-test/uiServices/src"
 	"github.com/xtracdev/automated-perf-test/testStrategies"
+	"github.com/xtracdev/automated-perf-test/uiServices/src"
 )
 
 type apiFeature struct {
@@ -92,7 +92,7 @@ func (a *apiFeature) theTestSuiteCollectionResponseBodyShouldMatchJSON(body *ghe
 	var actualSuite testStrategies.TestSuite
 
 	exp :=
-	`"""
+		`"""
         [
           {
           "file": "GodogTestSuite.xml",
@@ -117,7 +117,7 @@ func (a *apiFeature) theTestCaseResponseBodyShouldMatchJSON(body *gherkin.DocStr
 	var actualSuite testStrategies.TestSuite
 
 	exp :=
-	`"""
+		`"""
             """
    {
     "XMLName": {
@@ -158,8 +158,8 @@ func (a *apiFeature) theTestCaseCollectionResponseBodyShouldMatchJSON(body *gher
 	var expectedCase testStrategies.TestDefinition
 	var actualCase testStrategies.TestDefinition
 
-	exp:=
-	`"""
+	exp :=
+		`"""
         [
           {
            "name": "GodogTestCase,
@@ -246,7 +246,7 @@ func makePostRequest(client *http.Client, method, endpoint, body string, headerP
 	if headerPath == "" {
 		req.Header.Set(headerName, "")
 	} else {
-		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test%s", os.Getenv("GOPATH"), headerPath))
 	}
 	if err != nil {
 		return nil, err
@@ -274,7 +274,7 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^the header "([^"]*)" is "([^"]*)"$`, api.theHeaderIs)
 	s.Step(`^the response body should match json:$`, api.theResponseBodyShouldMatchJSON)
 	s.Step(`^the response body should be empty$`, api.theResponseBodyShouldBeEmpty)
-	s.Step(`^the config file was created at location defined by configsPathDir$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir)
+	s.Step(`^the config file was created at location defined by path`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir)
 	s.Step(`^the automated performance ui server is available$`, theAutomatedPerformanceUiServerIsAvailable)
 	s.Step(`^I send "([^"]*)" request to "([^"]*)" with a body:$`, api.iSendRequestToWithABody)
 	s.Step(`^the file name is "([^"]*)"$`, api.theFileNameis)
@@ -370,6 +370,9 @@ func makeGetRequest(client *http.Client, method, endpoint string, filename strin
 }
 
 func theFileExistsAt(filename, path string) error {
+
+	os.Create(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + path + filename)
+
 	_, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + path + filename)
 	if err != nil {
 		fmt.Println("Error. File Not Found at location : " + path + filename)
@@ -429,19 +432,4 @@ func (a *apiFeature) theUpdatedFileShouldMatchJSON(body *gherkin.DocString) (err
 	}
 
 	return nil
-}
-
-func createNewFile(fileName, path string) error {
-
-	_, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + path)
-	if err != nil {
-		os.Mkdir(os.Getenv("GOPATH")+"/src/github.com/xtracdev/automated-perf-test"+path, 0777)
-	}
-
-	err = ioutil.WriteFile(fmt.Sprintf("%s%s/%s", suitDir, path, fileName), nil, 0666)
-	if err != nil {
-		logrus.Error(" error creating file ", err)
-		return err
-	}
-	return err
 }

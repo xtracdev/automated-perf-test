@@ -11,7 +11,7 @@ Feature: Test Case Scenarios
   Scenario: Successful creation of Test Case
     Given there is no existing test file "GodogTestCase.xml"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send "POST" request to "/test-cases" with a body:
     """
       {
@@ -20,7 +20,7 @@ Feature: Test Case Scenarios
        "overrideHost":"host",
        "overridePort":"9191",
        "httpMethod":"GET",
-       "baseURI": "path/to/URI",
+       "baseUri": "path/to/URI",
        "multipart":false,
        "payload": "payload",
        "responseStatusCode":200,
@@ -48,7 +48,7 @@ Feature: Test Case Scenarios
 
   Scenario: Unsuccessful creation of Test Case (file already exists )
     Given the automated performance ui server is available
-    And the header "testSuitePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send "POST" request to "/test-cases" with a body:
     """
       {
@@ -57,7 +57,7 @@ Feature: Test Case Scenarios
        "overrideHost":"host",
        "overridePort":"9191",
        "httpMethod":"GET",
-       "baseURI": "path/to/URI",
+       "baseUri": "path/to/URI",
        "multipart":false,
        "payload": "payload",
        "responseStatusCode":200,
@@ -85,7 +85,7 @@ Feature: Test Case Scenarios
 
   Scenario: Unsuccessful creation of test Case ( Missing Required Fields )
     Given the automated performance ui server is available
-    And the header "testSuitePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send "POST" request to "/test-suites" with a body:
        """
       {
@@ -94,7 +94,7 @@ Feature: Test Case Scenarios
        "overrideHost":"host",
        "overridePort":"9191",
        "HttpMethod":"GET",
-       "BaseURI": "path/to/URI",
+       "baseUri": "path/to/URI",
        "multipart":false,
        "payload": "payload",
        "responseStatusCode":200,
@@ -102,11 +102,11 @@ Feature: Test Case Scenarios
        "preThinkTime": 1000,
        "postThinkTime":2000,
        "execWeight": "Sparse",
-       "Headers":[{
+       "headers":[{
    	     "Key": "Authorization",
          "Value" :"Header-Value"
         }],
-      "ResponseValues":[{
+      "responseValues":[{
          "Value":"Res-Value",
          "ExtractionKey": "Res-Key"
        }],
@@ -122,7 +122,7 @@ Feature: Test Case Scenarios
 
   Scenario: Unsuccessful creation of Test Case ( No header defined )
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is ""
+    And the header "path" is ""
     When I send "POST" request to "/test-cases" with a body:
        """
       {
@@ -131,7 +131,7 @@ Feature: Test Case Scenarios
        "overrideHost":"host",
        "overridePort":"9191",
        "HttpMethod":"GET",
-       "BaseURI": "path/to/URI",
+       "baseUri": "path/to/URI",
        "multipart":false,
        "payload": "payload",
        "responseStatusCode":200,
@@ -139,11 +139,11 @@ Feature: Test Case Scenarios
        "preThinkTime": 1000,
        "postThinkTime":2000,
        "execWeight": "Sparse",
-       "Headers":[{
+       "headers":[{
    	     "Key": "Authorization",
          "Value" :"Header-Value"
         }],
-      "ResponseValues":[{
+      "responseValues":[{
          "Value":"Res-Value",
          "ExtractionKey": "Res-Key"
        }],
@@ -165,7 +165,7 @@ Feature: Test Case Scenarios
   Scenario: Unsuccessful update of test-case file with PUT request (No File Path)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is ""
+    And the header "path" is ""
     When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
   """
      {
@@ -174,7 +174,7 @@ Feature: Test Case Scenarios
    "overrideHost":"host",
    "overridePort":"9191",
    "HttpMethod":"GET",
-   "BaseURI": "path/to/URI",
+   "baseUri": "path/to/URI",
    "multipart":false,
    "payload": "payload",
    "responseStatusCode":200,
@@ -182,11 +182,11 @@ Feature: Test Case Scenarios
    "preThinkTime": 1000,
    "postThinkTime":2000,
    "execWeight": "Sparse",
-   "Headers":[{
+   "headers":[{
    	 "Key": "Authorization",
      "Value" :"Header-Value"
    }],
-  "ResponseValues":[{
+  "responseValues":[{
      "Value":"Res-Value",
      "ExtractionKey": "Res-Key"
   }],
@@ -204,7 +204,7 @@ Feature: Test Case Scenarios
   Scenario: Unsuccessful update of test-case file with PUT request (Incorrect File Name)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send "PUT" request to "/test-cases/xxx" with body:
     """
      {
@@ -213,7 +213,7 @@ Feature: Test Case Scenarios
    "overrideHost":"host",
    "overridePort":"9191",
    "HttpMethod":"GET",
-   "BaseURI": "path/to/URI",
+   "baseUri": "path/to/URI",
    "multipart":false,
    "payload": "payload",
    "responseStatusCode":200,
@@ -221,11 +221,11 @@ Feature: Test Case Scenarios
    "preThinkTime": 1000,
    "postThinkTime":2000,
    "execWeight": "Sparse",
-   "Headers":[{
+   "headers":[{
    	 "Key": "Authorization",
      "Value" :"Header-Value"
    }],
-  "ResponseValues":[{
+  "responseValues":[{
      "Value":"Res-Value",
      "ExtractionKey": "Res-Key"
   }],
@@ -243,7 +243,7 @@ Feature: Test Case Scenarios
   Scenario: Unsuccessful update of test-case file with PUT request (No File Name)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send "PUT" request to "/test-suites/" with body:
     """
      {
@@ -252,7 +252,7 @@ Feature: Test Case Scenarios
    "overrideHost":"host",
    "overridePort":"9191",
    "HttpMethod":"GET",
-   "BaseURI": "path/to/URI",
+   "baseUri": "path/to/URI",
    "multipart":false,
    "payload": "payload",
    "responseStatusCode":200,
@@ -260,11 +260,11 @@ Feature: Test Case Scenarios
    "preThinkTime": 1000,
    "postThinkTime":2000,
    "execWeight": "Sparse",
-   "Headers":[{
+   "headers":[{
    	 "Key": "Authorization",
      "Value" :"Header-Value"
    }],
-  "ResponseValues":[{
+  "responseValues":[{
      "Value":"Res-Value",
      "ExtractionKey": "Res-Key"
   }],
@@ -281,7 +281,7 @@ Feature: Test Case Scenarios
   Scenario: Unsuccessful update of test-suite file with PUT request (Missing Required Fields)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send "PUT" request to "/test-suites/GodogTestCase" with body:
     """
      {
@@ -289,7 +289,7 @@ Feature: Test Case Scenarios
    "description":"",
    "overridePort":"",
    "HttpMethod":"",
-   "BaseURI": "path/to/URI",
+   "baseUri": "path/to/URI",
    "multipart":false,
    "payload": "payload",
    "responseStatusCode":200,
@@ -297,11 +297,11 @@ Feature: Test Case Scenarios
    "preThinkTime": 1000,
    "postThinkTime":2000,
    "execWeight": "Sparse",
-   "Headers":[{
+   "headers":[{
    	 "Key": "Authorization",
      "Value" :"Header-Value"
    }],
-  "ResponseValues":[{
+  "responseValues":[{
      "Value":"Res-Value",
      "ExtractionKey": "Res-Key"
   }],
@@ -319,7 +319,7 @@ Feature: Test Case Scenarios
   Scenario: Successful update of test-case file with PUT request
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send "PUT" request to "/test-cases/GodogTestCase" with body:
      """
      {
@@ -328,7 +328,7 @@ Feature: Test Case Scenarios
    "overrideHost":"host",
    "overridePort":"1001",
    "httpMethod":"POST",
-   "BaseURI": "path/to/URI",
+   "baseUri": "path/to/URI",
    "multipart":false,
    "payload": "payload",
    "responseStatusCode":200,
@@ -336,11 +336,11 @@ Feature: Test Case Scenarios
    "preThinkTime": 1000,
    "postThinkTime":2000,
    "execWeight": "Sparse",
-   "Headers":[{
+   "headers":[{
    	 "Key": "Authorization",
      "Value" :"Header-Value"
    }],
-  "ResponseValues":[{
+  "responseValues":[{
      "Value":"Res-Value",
      "ExtractionKey": "Res-Key"
   }],
@@ -363,7 +363,7 @@ Feature: Test Case Scenarios
     ##Add additional file first so there are multiple files to GET
     Given there is no existing test file "GodogTestCase2.xml"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send "POST" request to "/test-cases" with a body:
     """
       {
@@ -372,7 +372,7 @@ Feature: Test Case Scenarios
        "overrideHost":"host",
        "overridePort":"9191",
        "httpMethod":"PUT",
-       "baseURI": "path/to/URI",
+       "baseUri": "path/to/URI",
        "multipart":false,
        "payload": "payload",
        "responseStatusCode":200,
@@ -398,7 +398,7 @@ Feature: Test Case Scenarios
     Then the response code should be 201
     And the response body should be empty
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send a "GET" request to "/test-cases"
     Then the response code should be 200
     And the test case collection response body should match json:
@@ -420,7 +420,7 @@ Feature: Test Case Scenarios
 
   Scenario: Unsuccessful retrieval of test-cases (No Header)
     Given the automated performance ui server is available
-    And the header "testSuitePathDir" is ""
+    And the header "path" is ""
     When I send a "GET" request to "/test-cases"
     Then the response code should be 400
 
@@ -430,44 +430,40 @@ Feature: Test Case Scenarios
 
   Scenario: Unsuccessful retrieval of test-Cases file (File Not Found)
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send a "GET" request to "/test-cases/xxx"
     Then the response code should be 404
 
 
   Scenario: Unsuccessful retrieval of test-suites file (No Header)
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is ""
+    And the header "path" is ""
     When I send a "GET" request to "/test-suites/GodogTestCase"
     Then the response code should be 400
 
   Scenario: Retrieve Test Case file with valid "GET" request
-    Given the file "Case3.xml" exists at "/uiServices/test/"
+    Given the file "testCase.xml" exists at "/uiServices/test/samples/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
-    And the file name is "Case1.xml"
-    When I send a "GET" request to "/test-cases/Case1"
+    And the header "path" is "/uiServices/test/samples/"
+    And the file name is "testCase.xml"
+    When I send a "GET" request to "/test-cases/testCase"
     Then the response code should be 200
     And the test case response body should match json:
     """
    {
-    "XMLName": {
-    "Space": "",
-    "Local": "testDefinition"
-      },
       "TestName": GodogTestCase",
       "OverrideHost": "host",
       "OverridePort": "9191",
       "HTTPMethod": "GET",
       "Description": "desc",
-      "BaseURI": "",
+      "baseUri": "",
       "Multipart": false,
       "Payload": "",
       "MultipartPayload": null,
       "ResponseStatusCode": 0,
       "ResponseContentType": "",
-      "Headers": null,
-      "ResponseValues": null,
+      "headers": null,
+      "responseValues": null,
       "PreThinkTime": 0,
       "PostThinkTime": 0,
       "ExecWeight": ""
@@ -478,19 +474,19 @@ Feature: Test Case Scenarios
                                 #######    DELETE REQUESTS ########
                                 ###################################
 
-  
+
 
   Scenario:  Fail to remove Test Case file with "DELETE" request (File Not Found)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send a "DELETE" request to "/test-cases/xxxx"
     Then the response code should be 404
 
   Scenario:  Fail to remove Test Case file with "DELETE" request (No Header)
     Given the file "GodogTestCase.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is ""
+    And the header "path" is ""
     When I send a "DELETE" request to "/test-cases/xxxx"
     Then the response code should be 400
 
@@ -498,7 +494,7 @@ Feature: Test Case Scenarios
     #create file to delete
     Given there is no existing test file "GodogTestCase3.xml"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send "POST" request to "/test-cases" with a body:
     """
       {
@@ -507,7 +503,7 @@ Feature: Test Case Scenarios
        "overrideHost":"host",
        "overridePort":"9191",
        "httpMethod":"GET",
-       "baseURI": "path/to/URI",
+       "baseUri": "path/to/URI",
        "multipart":false,
        "payload": "payload",
        "responseStatusCode":200,
@@ -534,28 +530,28 @@ Feature: Test Case Scenarios
     #Delete
     Given the file "GodogTestCase3.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "testCasePathDir" is "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
     When I send a "DELETE" request to "/test-cases/GodogTestCase3"
     Then the response code should be 204
 
 
 Scenario: Unsuccessful deleting of test-case (No Header)
   Given the automated performance ui server is available
-  And the header "testCasePathDir" is ""
-  When I send a "DELETE" request to "/test-cases/all"
+  And the header "path" is ""
+  When I send a "DELETE" request to "/test-cases"
   Then the response code should be 400
 
 
 Scenario: Unsuccessful deleting of test-case file (Empty Directory)
   Given the automated performance ui server is available
-  And the header "testCasePathDir" is "/uiServices/test/cases"
+  And the header "path" is "/uiServices/test/cases"
   When I send a "DELETE" request to "/test-cases/"
   Then the response code should be 404
-   
+
 
 Scenario: Successful deleting of test-case file with DELETE request
-  Given the "deleteTest.xml" has been created at "/uiServices/test/cases"
+  Given the file "deleteTest.xml" exists at "/uiServices/test/cases"
   Given the automated performance ui server is available
-  And the header "testCasePathDir" is "/uiServices/test/cases"
-  When I send a "DELETE" request to "/test-cases/all"
+  And the header "path" is "/uiServices/test/cases"
+  When I send a "DELETE" request to "/test-cases"
   Then the response code should be 200

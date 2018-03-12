@@ -15,17 +15,10 @@ import (
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 )
 
-var schemaFilename string = "schema.json"
-var structName string = "Config"
-
-func getConfigHeader(req *http.Request) string {
-	configPathDir := req.Header.Get("configPathDir")
-
-	if !strings.HasSuffix(configPathDir, "/") {
-		configPathDir = configPathDir + "/"
-	}
-	return configPathDir
-}
+const (
+	configSchema = "schema.json"
+	configStruct = "Config"
+)
 
 func IsHeaderValid(header string) error {
 	if len(header) <= 1 {
@@ -60,11 +53,11 @@ func ConfigCtx(next http.Handler) http.Handler {
 
 func postConfigs(rw http.ResponseWriter, req *http.Request) {
 	rw.Header().Set("Access-Control-Allow-Origin", "*")
-	configPathDir := req.Header.Get("configPathDir")
+	configPathDir := getPathHeader(req)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
-	if !ValidateJsonWithSchema(buf.Bytes(), "schema.json", "Configurations") {
+	if !validateJSONWithSchema(buf.Bytes(), "schema.json", "Configurations") {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -103,7 +96,7 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !configWriterXML(config, configPathDir+config.APIName+".xml") {
+	if !writeXml(config, configPathDir+config.APIName+".xml") {
 
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
@@ -112,14 +105,9 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusCreated)
 }
 
-func FilePathExist(path string) bool {
-	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
-}
-
 func getConfigs(rw http.ResponseWriter, req *http.Request) {
 	rw.Header().Set("Access-Control-Allow-Origin", "*")
-	configPathDir := getConfigHeader(req)
+	configPathDir := getPathHeader(req)
 	configName := chi.URLParam(req, "configName")
 
 	if err := IsHeaderValid(configPathDir); err != nil {
@@ -153,14 +141,14 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 	err = xml.Unmarshal(byteValue, &config)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot Unmarshall")
+		logrus.Error("Cannot Unmarshall XML", err)
 		return
 	}
 
 	configJson, err := json.MarshalIndent(config, "", "")
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot Marshall")
+		logrus.Error("Cannot Marshall JSON", err)
 		return
 	}
 
@@ -171,7 +159,7 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 }
 
 func putConfigs(rw http.ResponseWriter, req *http.Request) {
-	path := getConfigHeader(req)
+	path := getPathHeader(req)
 	configName := chi.URLParam(req, "configName")
 
 	if err := IsHeaderValid(path); err != nil {
@@ -188,7 +176,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
-	if !ValidateJsonWithSchema(buf.Bytes(), schemaFilename, structName) {
+	if !validateJSONWithSchema(buf.Bytes(), configSchema, configStruct) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -208,7 +196,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !configWriterXml(config, configPathDir) {
+	if !writeXml(config, configPathDir) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -217,23 +205,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 }
 
 func putConfigFileName(rw http.ResponseWriter, req *http.Request) {
-	path := getConfigHeader(req)
-	configFileName := chi.URLParam(req, "configFileName")
-	newConfigFileName := chi.URLParam(req, "newConfigFileName")
-
-	if len(newConfigFileName) < 1 {
-		logrus.Error("File path does not exist")
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	os.Rename(fmt.Sprintf("%s%s.xml", path, configFileName), fmt.Sprintf("%s%s.xml", path, newConfigFileName))
-
-	rw.WriteHeader(http.StatusNoContent)
-}
-
-func putConfigFileName(rw http.ResponseWriter, req *http.Request) {
-	path := getConfigHeader(req)
+	path := getPathHeader(req)
 	configFileName := chi.URLParam(req, "configFileName")
 	newConfigFileName := chi.URLParam(req, "newConfigFileName")
 
