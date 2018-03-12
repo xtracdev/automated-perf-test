@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
 const testCaseSchema string = "testCase_schema.json"
@@ -150,19 +151,22 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 
 			file, err := os.Open(fmt.Sprintf("%s%s", testCasePathDir, filename))
 			if err != nil {
-				logrus.Error("Cannot Open File: " + filename)
+				logrus.Error("File not found: " + filename)
+				rw.WriteHeader(http.StatusNotFound)
 				continue
 			}
 
 			byteValue, err := ioutil.ReadAll(file)
 			if err != nil {
-				logrus.Error("Cannot Read File: " + filename)
+				logrus.Error("An error has occured : " + filename)
+				rw.WriteHeader(http.StatusInternalServerError)
 				continue
 			}
 
 			err = xml.Unmarshal(byteValue, testCase)
 			if err != nil {
-				logrus.Error("Cannot Unmarshall File: " + filename)
+				logrus.Error("Bad request: " + filename)
+				rw.WriteHeader(http.StatusBadRequest)
 				continue
 			}
 

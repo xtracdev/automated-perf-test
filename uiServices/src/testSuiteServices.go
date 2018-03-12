@@ -245,17 +245,20 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 			file, err := os.Open(fmt.Sprintf("%s%s", testSuitePathDir, filename))
 			if err != nil {
-				logrus.Error("Cannot open file: ", filename)
+				logrus.Error("File not found: ", filename)
+				rw.WriteHeader(http.StatusNotFound)
 			}
 
 			byteValue, err := ioutil.ReadAll(file)
 			if err != nil {
-				logrus.Error("Cannot Read File: ", filename)
+				logrus.Error("An error has occured: ", filename)
+				rw.WriteHeader(http.StatusInternalServerError)
 			}
 
 			err = xml.Unmarshal(byteValue, testSuite)
 			if err != nil {
-				logrus.Error("Cannot Unmarshall: ", filename)
+				logrus.Error("Bad request: ", filename)
+				rw.WriteHeader(http.StatusBadRequest)
 
 			}
 
