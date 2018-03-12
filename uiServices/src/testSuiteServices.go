@@ -57,7 +57,13 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuite.Name) {
+	if err := IsHeaderValid(testSuitePathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(testSuite.Name); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -114,7 +120,13 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 	path := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
-	if !ValidateFileNameAndHeader(rw, req, path, testSuiteName) {
+	if err := IsHeaderValid(path); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(testSuiteName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -155,12 +167,17 @@ func deleteTestSuite(rw http.ResponseWriter, req *http.Request) {
 	testSuitePathDir := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
-	if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName) {
+	if err := IsHeaderValid(testSuitePathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	filepath := fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName)
-	if _, err := os.Stat(filepath); err != nil {
+	if err := IsNameValid(testSuiteName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if _, err := os.Stat(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName)); err != nil {
 		if os.IsNotExist(err) {
 			logrus.Error("Test Suite File Not Found: ", err)
 			rw.WriteHeader(http.StatusNotFound)
@@ -183,7 +200,13 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request) {
 	testSuitePathDir := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
-	if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName) {
+	if err := IsHeaderValid(testSuitePathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(testSuiteName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 

@@ -140,7 +140,6 @@ func TestValidJsonPost(t *testing.T) {
 	reader := strings.NewReader(validJSON)
 	r.HandleFunc("/configs", postConfigs)
 
-	//remove file if exists
 	os.Remove(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/ServiceTestConfig.xml")
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
@@ -166,7 +165,6 @@ func TestPostWithOneCharName(t *testing.T) {
 	reader := strings.NewReader(validJsonWithOneCharName)
 	r.HandleFunc("/configs", postConfigs)
 
-	//remove file if exists
 	os.Remove(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/x.xml")
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
@@ -269,7 +267,6 @@ func TestSuccessfulGet(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
 
-	//prepare GET request
 	filePath = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err = http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig", nil)
 
@@ -293,7 +290,7 @@ func TestSuccessfulGetPathWihoutSlash(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	r.HandleFunc("/configs", getConfigs)
-	//no slash at end of filepath header
+
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodGet, "/configs/ServiceTestConfig", nil)
 

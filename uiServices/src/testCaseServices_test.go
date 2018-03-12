@@ -1,14 +1,13 @@
 package services
 
 import (
-	"fmt"
-	"io/ioutil"
+	"github.com/go-chi/chi"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
-
 	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
