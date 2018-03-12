@@ -27,11 +27,6 @@ func getConfigHeader(req *http.Request) string {
 	return configPathDir
 }
 
-// func ValidateRequest(header string, name string) error {
-// 	 IsNameValid(name)
-// 	 IsHeaderValid(header)
-// }
-
 func IsHeaderValid(header string) error {
 	if len(header) <= 1 {
 		logrus.Error("No Header Path Found")
@@ -106,7 +101,7 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 		return
 
 	}
-	//Create file once checks are complete
+
 	if !configWriterXML(config, configPathDir+config.APIName+".xml") {
 
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -125,10 +120,6 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	configPathDir := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
-
-	// if !ValidateFileNameAndHeader(rw, req, configPathDir, configName) {
-	// 	return
-	// }
 
 	if err := IsHeaderValid(configPathDir); err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
@@ -181,10 +172,6 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 func putConfigs(rw http.ResponseWriter, req *http.Request) {
 	path := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
-
-	// if !ValidateFileNameAndHeader(rw, req, path, configName) {
-	// 	return
-	// }
 
 	if err := IsHeaderValid(path); err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
