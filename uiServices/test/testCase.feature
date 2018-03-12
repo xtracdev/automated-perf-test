@@ -327,7 +327,7 @@ Feature: Test Case Scenarios
    "description":"desc",
    "overrideHost":"host",
    "overridePort":"1001",
-   "HttpMethod":"POST",
+   "httpMethod":"POST",
    "BaseURI": "path/to/URI",
    "multipart":false,
    "payload": "payload",

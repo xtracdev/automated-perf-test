@@ -17,7 +17,7 @@ const validTestCase = `
    "description":"desc",
    "overrideHost":"host",
    "overridePort":"9191",
-   "HttpMethod":"GET",
+   "httpMethod":"GET",
    "BaseURI": "path/to/URI",
    "multipart":false,
    "payload": "payload",
