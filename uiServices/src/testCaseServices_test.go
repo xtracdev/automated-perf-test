@@ -2,15 +2,16 @@ package services
 
 import (
 	"fmt"
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/stretchr/testify/assert"
 )
 
 const validTestCase = `
@@ -454,7 +455,7 @@ func TestDeleteAllCasesSuccess(t *testing.T) {
 		logrus.Errorf("Error trying to create a file: %s", err)
 	}
 
-	request, err := http.NewRequest(http.MethodDelete, "/test-cases/all", nil)
+	request, err := http.NewRequest(http.MethodDelete, "/test-cases/", nil)
 	if err != nil {
 		logrus.Warnf("Error creating the request %s", err)
 	}
@@ -472,7 +473,7 @@ func TestDeleteAllCasesNoHeader(t *testing.T) {
 	r.Mount("/", GetIndexPage())
 
 	DirectoryPath := ""
-	request, err := http.NewRequest(http.MethodDelete, "/test-cases/all", nil)
+	request, err := http.NewRequest(http.MethodDelete, "/test-cases/", nil)
 	if err != nil {
 		logrus.Warnf("Error creating the request %s", err)
 	}

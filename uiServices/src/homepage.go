@@ -139,7 +139,7 @@ func routeTestCases() http.Handler {
 	router.Get("/", getAllTestCases)
 	router.Get("/{testCaseName}", getTestCase)
 	router.Delete("/{testCaseName}", deleteTestCase)
-	router.Delete("/all", deleteAllTestCases)
+	router.Delete("/", deleteAllTestCases)
 
 	return router
 }
