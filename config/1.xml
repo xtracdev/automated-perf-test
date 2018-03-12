@@ -1,0 +1,22 @@
+  <testDefinition>
+      <testName>1</testName>
+      <overrideHost>1</overrideHost>
+      <overridePort>1</overridePort>
+      <httpMethod>POST</httpMethod>
+      <description>1</description>
+      <baseUri>1</baseUri>
+      <multipart>false</multipart>
+      <payload>1</payload>
+      <multipartPayload></multipartPayload>
+      <responseStatusCode>1</responseStatusCode>
+      <responseContentType>55555</responseContentType>
+      <headers>
+          <header key="Authorization">Header-Value</header>
+      </headers>
+      <responseProperties>
+          <value extractionKey="Res-Key">Res-Value</value>
+      </responseProperties>
+      <PreThinkTime>1</PreThinkTime>
+      <PostThinkTime>11</PostThinkTime>
+      <ExecWeight>Sparse</ExecWeight>
+  </testDefinition>

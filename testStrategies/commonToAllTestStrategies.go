@@ -50,23 +50,23 @@ type ResponseValue struct {
 
 // TestDefinition encapsulates the XML data.
 type TestDefinition struct {
-	XMLName             xml.Name             `xml:"testDefinition" json:"testDefinition"`
-	TestName            string               `xml:"testName" json:"testName"`
-	OverrideHost        string               `xml:"overrideHost" json:"overrideHost"`
-	OverridePort        string               `xml:"overridePort" json:"overridePort"`
-	HTTPMethod          string               `xml:"httpMethod" json:"httpMethod"`
-	Description         string               `xml:"description" json:"description"`
-	BaseURI             string               `xml:"baseUri" json:"baseUri"`
-	Multipart           bool                 `xml:"multipart" json:"multipart"`
-	Payload             string               `xml:"payload" json:"payload"`
-	MultipartPayload    []multipartFormField `xml:"multipartPayload>multipartFormField" json:"multipartPayload"`
-	ResponseStatusCode  int                  `xml:"responseStatusCode" json:"responseStatusCode"`
-	ResponseContentType string               `xml:"responseContentType" json:"responseContentType"`
-	Headers             []Header             `xml:"headers>header" json:"headers"`
-	ResponseValues      []ResponseValue      `xml:"responseProperties>value" json:"responseValues"`
-	PreThinkTime        int64
-	PostThinkTime       int64
-	ExecWeight          string
+	XMLName             xml.Name             `xml:"testDefinition"`
+	TestName            string               `xml:"testName"`
+	OverrideHost        string               `xml:"overrideHost"`
+	OverridePort        string               `xml:"overridePort"`
+	HTTPMethod          string               `xml:"httpMethod"`
+	Description         string               `xml:"description"`
+	BaseURI             string               `xml:"baseUri"`
+	Multipart           bool                 `xml:"multipart"`
+	Payload             string               `xml:"payload"`
+	MultipartPayload    []multipartFormField `xml:"multipartPayload>multipartFormField"`
+	ResponseStatusCode  int                  `xml:"responseStatusCode"`
+	ResponseContentType string               `xml:"responseContentType"`
+	Headers             []Header             `xml:"headers>header"`
+	ResponseValues      []ResponseValue      `xml:"responseProperties>value"`
+	PreThinkTime        int64				 `xml:"preThinkTime"`
+	PostThinkTime       int64				 `xml:"postThinkTime"`
+	ExecWeight          string				 `xml:"execWeight"`
 }
 
 // TestSuite fields get populated from the TestSuiteDefinition after the XML
@@ -74,9 +74,9 @@ type TestDefinition struct {
 type TestSuite struct {
 	XMLName         xml.Name   `xml:"testSuite"`
 	Name            string     `xml:"name" json:"name"`
-	Description     string     `xml:"description" json:"description"`
-	TestStrategy    string     `xml:"testStrategy" json:"testStrategy"`
-	TestCases       []TestCase `xml:"testCases>testCase" json:"testCases"`
+	Description     string     `xml:"description" json:"description"`    
+	TestStrategy    string     `xml:"testStrategy"`
+	TestCases       []TestCase `xml:"testCases>testCase"`
 	TestDefinitions []*TestDefinition
 }
 
@@ -84,9 +84,10 @@ type TestSuite struct {
 // <testSuite> XML file. This data will then be consolidated into
 // the TestSuite/TestDefinition data structure for usage.
 type TestCase struct {
-	XMLName       xml.Name `xml:"testCase" json:"testCase"`
+	XMLName       xml.Name `xml:"testCase"`
 	Name          string   `xml:",chardata"`
-	PreThinkTime  int64    `xml:"preThinkTime,attr" json:"preThinkTime"`
+	Description   string   `xml:"description,attr" json:"description"`
+	PreThinkTime  int64    `xml:"preThinkTime,attr" json:"preThinkTime"` 
 	PostThinkTime int64    `xml:"postThinkTime,attr" json:"postThinkTime"`
 	ExecWeight    string   `xml:"execWeight,attr" json:"execWeight"`
 }

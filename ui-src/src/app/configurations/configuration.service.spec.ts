@@ -1,15 +1,15 @@
-import {TestBed, inject, getTestBed} from "@angular/core/testing";
+import {TestBed, inject, getTestBed} from '@angular/core/testing';
 import {HttpClientModule} from "@angular/common/http";
-import {AutomatedUIServices} from "./automated-ui-services";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import {environment} from "../environments/environment.prod";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {environment} from "../../environments/environment.prod";
 import {
   HttpClientTestingModule,
   HttpTestingController
 } from "@angular/common/http/testing";
 
-describe("AutomatedUIServices", () => {
+import {ConfigurationService} from './configuration.service';
 
+describe('ConfigurationService', () => {
   let injector;
   let service;
   let httpInterceptor: HttpTestingController;
@@ -17,11 +17,11 @@ describe("AutomatedUIServices", () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientModule, HttpClientTestingModule],
-      providers: [AutomatedUIServices]
+      providers: [ConfigurationService]
     });
 
     injector = getTestBed();
-    service = injector.get(AutomatedUIServices);
+    service = injector.get(ConfigurationService);
     httpInterceptor = injector.get(HttpTestingController);
   });
 
@@ -40,7 +40,7 @@ describe("AutomatedUIServices", () => {
     const req = httpInterceptor.expectOne(`${environment.apiBaseUrl}configs`);
     expect(req.request.method).toBe("POST");
     expect(req.request.headers.getAll).toBe(headers.getAll);
-    expect(req.request.body).toEqual({ data: "data1" });
+    expect(req.request.body).toEqual({data: "data1"});
     req.flush({});
   });
 
@@ -55,7 +55,7 @@ describe("AutomatedUIServices", () => {
     const req = httpInterceptor.expectOne(`${environment.apiBaseUrl}configs/fileName.xml`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.headers.getAll).toBe(headers.getAll);
-    expect(req.request.body).toEqual({ data: "data1" });
+    expect(req.request.body).toEqual({data: "data1"});
     req.flush({});
   });
 

@@ -1,0 +1,22 @@
+  <testDefinition>
+      <testName>2</testName>
+      <overrideHost>1</overrideHost>
+      <overridePort>1</overridePort>
+      <httpMethod>GET</httpMethod>
+      <description>1</description>
+      <baseUri>1</baseUri>
+      <multipart>true</multipart>
+      <payload>1</payload>
+      <multipartPayload></multipartPayload>
+      <responseStatusCode>1</responseStatusCode>
+      <responseContentType>11</responseContentType>
+      <headers>
+          <header key="1">1</header>
+      </headers>
+      <responseProperties>
+          <value extractionKey="1">1</value>
+      </responseProperties>
+      <PreThinkTime>1</PreThinkTime>
+      <PostThinkTime>1</PostThinkTime>
+      <ExecWeight>Sparse</ExecWeight>
+  </testDefinition>

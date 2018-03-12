@@ -8,7 +8,7 @@
     background-color: #337ab7;
     border-color: #2e6da4;
 }
-
+.btn { margin-top: -12px;}
 .btn-info{
   visibility: hidden;
 }
@@ -18,9 +18,9 @@
 }
 .button {
     display: inline-block;
-    padding: 6px 12px;
+    padding: 7px 18px;
     margin-bottom: 0;
-    margin-top: 25px;
+    margin-top: 0px;
     font-size: 14px;
     font-weight: 400;
     line-height: 1.42857143;
@@ -44,3 +44,8 @@
   box-shadow: none;
   opacity: .65;
 }
+submit-widget{
+  display : none;
+}
+
+

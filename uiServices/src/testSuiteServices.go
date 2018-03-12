@@ -22,11 +22,11 @@ var schemaFile string = "testSuite_schema.json"
 var structType string = "TestSuite"
 
 type Suite struct {
-	File         string                    `json:"file"`
-	Name         string                    `json:"name"`
-	Description  string                    `json:"description"`
-	TestStrategy string                    `json:"testStrategy"`
-	TestCases    []testStrategies.TestCase `json:"testCases"`
+	File        string `json:"file"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	TestStrategy string `json:"testStrategy"`
+	TestCases []testStrategies.TestCase  `json:"testCases"`
 }
 
 func TestSuiteCtx(next http.Handler) http.Handler {
@@ -45,6 +45,7 @@ func getTestSuiteHeader(req *http.Request) string {
 }
 
 func postTestSuites(rw http.ResponseWriter, req *http.Request) {
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testSuitePathDir := getTestSuiteHeader(req)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
@@ -61,7 +62,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateJSONWithSchema(buf.Bytes(), schemaFile, structType) {
+	if !ValidateJsonWithSchema(buf.Bytes(), schemaFile, structType) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -80,7 +81,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !testSuiteWriterXML(testSuite, testSuitePathDir+testSuite.Name+".xml") {
+	if !testSuiteWriterXml(testSuite, testSuitePathDir+testSuite.Name+".xml") {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -88,7 +89,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusCreated)
 }
 
-func ValidateJSONWithSchema(testSuite []byte, schemaName, structType string) bool {
+func ValidateJsonWithSchema(testSuite []byte, schemaName, structType string) bool {
 	goPath := os.Getenv("GOPATH")
 	schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/" + schemaName)
 	documentLoader := gojsonschema.NewBytesLoader(testSuite)
@@ -111,6 +112,7 @@ func ValidateJSONWithSchema(testSuite []byte, schemaName, structType string) boo
 }
 
 func putTestSuites(rw http.ResponseWriter, req *http.Request) {
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	path := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
@@ -129,7 +131,7 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !ValidateJSONWithSchema(buf.Bytes(), schemaFile, structType) {
+	if !ValidateJsonWithSchema(buf.Bytes(), schemaFile, structType) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -143,33 +145,7 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !testSuiteWriterXML(testSuite, testSuitePathDir) {
-		rw.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	rw.WriteHeader(http.StatusNoContent)
-}
-
-func deleteTestSuite(rw http.ResponseWriter, req *http.Request) {
-	testSuitePathDir := getTestSuiteHeader(req)
-	testSuiteName := chi.URLParam(req, "testSuiteName")
-
-	if !ValidateFileNameAndHeader(rw, req, testSuitePathDir, testSuiteName) {
-		return
-	}
-
-	if _, err := os.Stat(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName)); err != nil {
-		if os.IsNotExist(err) {
-			logrus.Error("Test Suite File Not Found: " + testSuitePathDir + testSuiteName)
-			rw.WriteHeader(http.StatusNotFound)
-			return
-		}
-	}
-
-	err := os.Remove(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName))
-	if err != nil {
-		logrus.Errorf("Error deleting the file from filesystem: %s", err)
+	if !testSuiteWriterXml(testSuite, testSuitePathDir) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -178,7 +154,7 @@ func deleteTestSuite(rw http.ResponseWriter, req *http.Request) {
 }
 
 func getTestSuite(rw http.ResponseWriter, req *http.Request) {
-
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testSuitePathDir := getTestSuiteHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
@@ -221,7 +197,7 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request) {
 }
 
 func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
-
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testSuitePathDir := getTestSuiteHeader(req)
 	if len(testSuitePathDir) <= 1 {
 		logrus.Error("No file directory entered")
@@ -262,11 +238,11 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
 			//if a Test Suite Name can't be assigned, it isn't a Test Suite object
 			if testSuite.Name != "" {
 				testSuites = append(testSuites, Suite{
-					Name:         testSuite.Name,
-					Description:  testSuite.Description,
-					File:         filename,
+					Name:        testSuite.Name,
+					Description: testSuite.Description,
+					File:        filename,
 					TestStrategy: testSuite.TestStrategy,
-					TestCases:    testSuite.TestCases,
+					TestCases: testSuite.TestCases,
 				})
 			}
 		}

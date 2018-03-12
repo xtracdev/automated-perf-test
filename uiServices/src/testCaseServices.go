@@ -1,27 +1,28 @@
 package services
 
 import (
-	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/Sirupsen/logrus"
-	"github.com/go-chi/chi"
-	"github.com/xtracdev/automated-perf-test/testStrategies"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
+	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
-const testCaseSchema string = "testCase_schema.json"
-const structTypeName string = "TestCase "
-
 type Case struct {
-	HttpMethod  string `json:"httpMethod"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	HttpMethod    string `json:"httpMethod"`
+	Name          string `json:"name"`
+	Description   string `json:"description"`
+	PreThinkTime  int64  `json:"preThinkTime"`
+	PostThinkTime int64  `json:"postThinkTime"`
+	ExecWeight    string `json:"execWeight"`
 }
 
 func TestCaseCtx(next http.Handler) http.Handler {
@@ -31,7 +32,7 @@ func TestCaseCtx(next http.Handler) http.Handler {
 
 }
 func getTestCaseHeader(req *http.Request) string {
-	testCasePathDir := req.Header.Get("testCasePathDir")
+	testCasePathDir := req.Header.Get("testSuitePathDir")
 
 	if !strings.HasSuffix(testCasePathDir, "/") {
 		testCasePathDir = testCasePathDir + "/"
@@ -39,94 +40,8 @@ func getTestCaseHeader(req *http.Request) string {
 	return testCasePathDir
 }
 
-func postTestCase(rw http.ResponseWriter, req *http.Request) {
-	testCasePathDir := getTestCaseHeader(req)
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(req.Body)
-
-	testCase := testStrategies.TestDefinition{}
-	err := json.Unmarshal(buf.Bytes(), &testCase)
-	if err != nil {
-		logrus.Error("Failed to unmarshall json body")
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCase.TestName) {
-		return
-	}
-
-	if !FilePathExist(testCasePathDir) {
-		logrus.Error("Directory path does not exist")
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-
-	}
-
-	if FilePathExist(fmt.Sprintf("%s%s.xml", testCasePathDir, testCase.TestName)) {
-		logrus.Error("File already exists")
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-
-	}
-
-	if !testCaseWriterXml(testCase, testCasePathDir+testCase.TestName+".xml") {
-		rw.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	rw.WriteHeader(http.StatusCreated)
-}
-
-func putTestCase(rw http.ResponseWriter, req *http.Request) {
-	path := getTestCaseHeader(req)
-	testCaseName := chi.URLParam(req, "testCaseName")
-
-	if !ValidateFileNameAndHeader(rw, req, path, testCaseName) {
-		return
-	}
-
-	testCasePathDir := fmt.Sprintf("%s%s.xml", path, testCaseName)
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(req.Body)
-
-	if !FilePathExist(testCasePathDir) {
-		logrus.Error("File path does not exist")
-		rw.WriteHeader(http.StatusNotFound)
-		return
-
-	}
-
-	if !ValidateJSONWithSchema(buf.Bytes(), testCaseSchema, structTypeName) {
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	testCase := testStrategies.TestDefinition{}
-	err := json.Unmarshal(buf.Bytes(), &testCase)
-
-	if err != nil {
-		logrus.Error("Cannot Unmarshall Json")
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if len(testCase.TestName) < 1 {
-		logrus.Error("No TestName Entered")
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if !testCaseWriterXml(testCase, testCasePathDir) {
-		rw.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	rw.WriteHeader(http.StatusNoContent)
-}
-
 func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
-
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testCasePathDir := getTestCaseHeader(req)
 	if len(testCasePathDir) <= 1 {
 		logrus.Error("No file directory entered")
@@ -136,7 +51,7 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 
 	files, err := ioutil.ReadDir(testCasePathDir)
 	if err != nil {
-		logrus.Error(err)
+		log.Fatal(err)
 	}
 
 	testCases := make([]Case, 0)
@@ -150,28 +65,29 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 
 			file, err := os.Open(fmt.Sprintf("%s%s", testCasePathDir, filename))
 			if err != nil {
-				logrus.Error("Cannot Open File: " + filename)
-				continue
+				logrus.Error("Cannot open file: ", filename)
 			}
 
 			byteValue, err := ioutil.ReadAll(file)
 			if err != nil {
-				logrus.Error("Cannot Read File: " + filename)
-				continue
+				logrus.Error("Cannot Read File: ", filename)
 			}
 
 			err = xml.Unmarshal(byteValue, testCase)
 			if err != nil {
-				logrus.Error("Cannot Unmarshall File: " + filename)
-				continue
+				logrus.Error("Cannot Unmarshall: ", filename)
+
 			}
 
 			//if a Test Case Name can't be assigned, it isn't a Test Case object
 			if testCase.TestName != "" {
 				testCases = append(testCases, Case{
-					Name:        testCase.TestName,
-					Description: testCase.Description,
-					HttpMethod:  testCase.HTTPMethod,
+					Name:          testCase.TestName,
+					Description:   testCase.Description,
+					HttpMethod:    testCase.HTTPMethod,
+					PostThinkTime: testCase.PostThinkTime,
+					PreThinkTime:  testCase.PreThinkTime,
+					ExecWeight:    testCase.ExecWeight,
 				})
 			}
 		}
@@ -188,26 +104,16 @@ func getAllTestCases(rw http.ResponseWriter, req *http.Request) {
 }
 
 func getTestCase(rw http.ResponseWriter, req *http.Request) {
-
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testCasePathDir := getTestCaseHeader(req)
 	testCaseName := chi.URLParam(req, "testCaseName")
 
-	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
-		return
-	}
-
-	if _, err := os.Stat(fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName)); err != nil {
-		if os.IsNotExist(err) {
-			logrus.Error("Test Case File Not Found: " + testCaseName)
-			rw.WriteHeader(http.StatusNotFound)
-			return
-		}
-	}
+	ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName)
 
 	file, err := os.Open(fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName))
 	if err != nil {
-		logrus.Error("Cannot open: " + testCaseName)
-		rw.WriteHeader(http.StatusInternalServerError)
+		logrus.Error("Test Case Name Not Found: " + testCasePathDir + testCaseName)
+		rw.WriteHeader(http.StatusNotFound)
 		return
 	}
 	defer file.Close()
@@ -217,54 +123,25 @@ func getTestCase(rw http.ResponseWriter, req *http.Request) {
 	byteValue, err := ioutil.ReadAll(file)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot Read File", err)
+		logrus.Error("Cannot Read File")
 		return
 	}
 
 	err = xml.Unmarshal(byteValue, &testCase)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot Unmarshall from XML", err)
+		logrus.Error("Cannot Unmarshall from XML")
 		return
 	}
 
 	testSuiteJSON, err := json.MarshalIndent(testCase, "", "")
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot marshall to JSON", err)
+		logrus.Error("Cannot marshall to JSON")
 		return
 	}
 
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(testSuiteJSON)
-
-}
-
-func deleteTestCase(rw http.ResponseWriter, req *http.Request) {
-	testCasePathDir := getTestCaseHeader(req)
-	testCaseName := chi.URLParam(req, "testCaseName")
-	if !ValidateFileNameAndHeader(rw, req, testCasePathDir, testCaseName) {
-		return
-	}
-
-	filepath := fmt.Sprintf("%s%s.xml", testCasePathDir, testCaseName)
-
-	if _, err := os.Stat(filepath); err != nil {
-		if os.IsNotExist(err) {
-			logrus.Println("File Not Found", err)
-			rw.WriteHeader(http.StatusNotFound)
-			return
-		}
-	}
-
-	err := os.Remove(filepath)
-	if err != nil {
-		logrus.Println("File was not deleted", err)
-		rw.WriteHeader(http.StatusInternalServerError)
-		return
-
-	}
-
-	rw.WriteHeader(http.StatusNoContent)
 
 }
