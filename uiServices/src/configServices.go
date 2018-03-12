@@ -27,16 +27,25 @@ func getConfigHeader(req *http.Request) string {
 	return configPathDir
 }
 
-func ValidateFileNameAndHeader(rw http.ResponseWriter, req *http.Request, header, name string) bool {
-
-	if len(name) < 1 {
-		logrus.Error("File Name is Empty")
-		rw.WriteHeader(http.StatusBadRequest)
-		return false
-	}
-
+func IsHeaderValid(header string) error {
 	if len(header) <= 1 {
 		logrus.Error("No Header Path Found")
+		return fmt.Errorf("No Header Path Found")
+	}
+	return nil
+}
+
+func IsNameValid(name string) error {
+	if len(name) < 1 {
+		logrus.Error("File Name is Empty")
+		return fmt.Errorf("File Name is Empty")
+	}
+	return nil
+}
+
+func IsPathDirValid(name string, rw http.ResponseWriter) bool {
+	if len(name) <= 1 {
+		logrus.Error("No file directory entered")
 		rw.WriteHeader(http.StatusBadRequest)
 		return false
 	}
@@ -93,8 +102,8 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 		return
 
 	}
-	//Create file once checks are complete
-	if !configWriterXml(config, configPathDir+config.APIName+".xml") {
+
+	if !configWriterXML(config, configPathDir+config.APIName+".xml") {
 
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
@@ -113,7 +122,13 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 	configPathDir := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 
-	if !ValidateFileNameAndHeader(rw, req, configPathDir, configName) {
+	if err := IsHeaderValid(configPathDir); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(configName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -159,7 +174,13 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 	path := getConfigHeader(req)
 	configName := chi.URLParam(req, "configName")
 
-	if !ValidateFileNameAndHeader(rw, req, path, configName) {
+	if err := IsHeaderValid(path); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(configName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -192,5 +213,37 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	rw.WriteHeader(http.StatusNoContent)
+}
+
+func putConfigFileName(rw http.ResponseWriter, req *http.Request) {
+	path := getConfigHeader(req)
+	configFileName := chi.URLParam(req, "configFileName")
+	newConfigFileName := chi.URLParam(req, "newConfigFileName")
+
+	if err := IsHeaderValid(path); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(configFileName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := IsNameValid(newConfigFileName); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	configFilePath := fmt.Sprintf("%s%s.xml", path, configFileName)
+	newConfigFilePath := fmt.Sprintf("%s%s.xml", path, newConfigFileName)
+
+	err := os.Rename(configFilePath, newConfigFilePath)
+	if err != nil {
+		logrus.Error("File was not updated", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	rw.WriteHeader(http.StatusNoContent)
 }

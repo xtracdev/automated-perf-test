@@ -4,12 +4,16 @@ import (
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
+<<<<<<< HEAD
+    "github.com/go-chi/cors"
+=======
 
 	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 
+>>>>>>> 3739ecf74b1ebdd56489c07d1e556eb8b43fb1fd
 	"os"
 )
 

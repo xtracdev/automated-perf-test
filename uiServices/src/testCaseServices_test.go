@@ -1,11 +1,12 @@
 package services
 
 import (
-	"github.com/go-chi/chi"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
 )
 
