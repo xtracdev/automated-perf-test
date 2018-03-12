@@ -546,7 +546,7 @@ Feature: Test Case Scenarios
 Scenario: Unsuccessful deleting of test-case (No Header)
   Given the automated performance ui server is available
   And the header "testCasePathDir" is ""
-  When I send a "DELETE" request to "/test-cases/"
+  When I send a "DELETE" request to "/test-cases"
   Then the response code should be 400
 
 
