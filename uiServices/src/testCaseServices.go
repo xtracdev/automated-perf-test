@@ -294,28 +294,21 @@ func deleteTestCase(rw http.ResponseWriter, req *http.Request) {
 }
 func deleteAllTestCases(rw http.ResponseWriter, req *http.Request) {
 	testCasePathDir := getTestCaseHeader(req)
-
+	logrus.Println("testCasePathDir", testCasePathDir)
 	if err := IsHeaderValid(testCasePathDir); err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	dir, err := os.Open(testCasePathDir)
+	files, err := ioutil.ReadDir(testCasePathDir)
 	if err != nil {
-		logrus.Error("Cannot open directory", err)
-		return
-
-	}
-
-	files, err := dir.Readdirnames(-1)
-	if err != nil {
-		logrus.Error("Cannot read directory ", err)
-		rw.WriteHeader(http.StatusNotFound)
-		return
+		logrus.Error(err)
 	}
 
 	for _, file := range files {
-		err = os.RemoveAll(filepath.Join(testCasePathDir + file))
+		filepath := fmt.Sprintf("%s%s", testCasePathDir, file.Name())
+
+		err := os.Remove(filepath)
 		if err != nil {
 			logrus.Errorf("Error deleting the files from directory: %s", err)
 			rw.WriteHeader(http.StatusNotFound)

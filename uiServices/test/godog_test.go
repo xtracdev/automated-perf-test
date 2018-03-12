@@ -358,7 +358,7 @@ func makeGetRequest(client *http.Client, method, endpoint string, filename strin
 	if headerPath == "" {
 		req.Header.Set(headerName, "")
 	} else {
-		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/%s", os.Getenv("GOPATH"), headerPath))
 	}
 	if err != nil {
 		return nil, err
