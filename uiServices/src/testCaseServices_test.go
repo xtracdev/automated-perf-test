@@ -449,7 +449,7 @@ func TestDeleteAllCasesSuccess(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/cases"
+	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/cases/"
 	err := ioutil.WriteFile(fmt.Sprintf("%s%s.xml", DirectoryPath, "test"), nil, 0666)
 	if err != nil {
 		logrus.Errorf("Error trying to create a file: %s", err)
@@ -490,10 +490,11 @@ func TestDeleteAllCasesEmptyDirectory(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/cases"
+	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/cases/"
 	request, err := http.NewRequest(http.MethodDelete, "/test-cases/", nil)
 	if err != nil {
 		logrus.Warnf("Error creating the request %s", err)
+		return
 	}
 
 	request.Header.Set("testCasePathDir", DirectoryPath)
@@ -511,7 +512,7 @@ func TestSuccessfulCaseDelete(t *testing.T) {
 	reader := strings.NewReader(TestCaseForDeletion)
 	r.HandleFunc("/test-cases", postTestCase)
 
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPost, "/test-cases", reader)
 	request.Header.Set("testCasePathDir", filePath)
 
