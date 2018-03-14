@@ -389,7 +389,6 @@ func TestSuccessfulGetTestSuite(t *testing.T) {
 	request, err := http.NewRequest(http.MethodGet, "/test-suites/TestSuiteService", nil)
 
 	request.Header.Set("path", filePath)
-	request.Header.Get("path")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)

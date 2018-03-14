@@ -21,7 +21,7 @@ const validTestCase = `
    "overrideHost":"host",
    "overridePort":"9191",
    "httpMethod":"GET",
-   "BaseURI": "path/to/URI",
+   "baseUri": "path/to/URI",
    "multipart":false,
    "payload": "payload",
    "responseStatusCode":200,
@@ -29,18 +29,18 @@ const validTestCase = `
    "preThinkTime": 1000,
    "postThinkTime":2000,
    "execWeight": "Sparse",
-   "Headers":[{
-   	 "Key": "Authorization",
-     "Value" :"Header-Value"
+   "headers":[{
+   	 "key": "Authorization",
+     "value" :"Header-Value"
    }],
-  "ResponseValues":[{
-     "Value":"Res-Value",
-     "ExtractionKey": "Res-Key"
+  "responseValues":[{
+     "value":"Res-Value",
+     "extractionKey": "Res-Key"
   }],
-  "MultipartPayload":[{
+  "multipartPayload":[{
      "fieldName": "F-Name",
-   	 "FieldValue":"PayloadName",
-     "FileName": "file-name"
+   	 "fieldValue":"PayloadName",
+     "fileName": "file-name"
   }]
 }
 `
@@ -51,8 +51,8 @@ const TestCaseNoName = `
    "description":"desc",
    "overrideHost":"host",
    "overridePort":"9191",
-   "HttpMethod":"GET",
-   "BaseURI": "path/to/URI",
+   "httpMethod":"GET",
+   "baseUri": "path/to/URI",
    "multipart":false,
    "payload": "payload",
    "responseStatusCode":200,
@@ -60,18 +60,18 @@ const TestCaseNoName = `
    "preThinkTime": 1000,
    "postThinkTime":2000,
    "execWeight": "Sparse",
-   "Headers":[{
-   	 "Key": "Authorization",
-     "Value" :"Header-Value"
+   "headers":[{
+   	 "key": "Authorization",
+     "value" :"Header-Value"
    }],
-  "ResponseValues":[{
-     "Value":"Res-Value",
-     "ExtractionKey": "Res-Key"
+  "responseValues":[{
+     "value":"Res-Value",
+     "extractionKey": "Res-Key"
   }],
-  "MultipartPayload":[{
+  "multipartPayload":[{
      "fieldName": "F-Name",
-   	 "FieldValue":"PayloadName",
-     "FileName": "file-name"
+   	 "fieldValue":"PayloadName",
+     "fileName": "file-name"
   }]
 }
 `
@@ -82,7 +82,7 @@ const TestCaseMissingRequired = `
    "description":"",
    "overrideHost":"",
    "overridePort":"",
-   "BaseURI": "path/to/URI",
+   "baseUri": "path/to/URI",
    "multipart":false,
    "payload": "payload",
    "responseStatusCode":200,
@@ -100,7 +100,7 @@ const testCaseForDeletion = `
    "overrideHost":"host",
    "overridePort":"9191",
    "httpMethod":"GET",
-   "BaseURI": "path/to/URI",
+   "baseUri": "path/to/URI",
    "multipart":false,
    "payload": "payload",
    "responseStatusCode":200,
@@ -108,18 +108,18 @@ const testCaseForDeletion = `
    "preThinkTime": 1000,
    "postThinkTime":2000,
    "execWeight": "Sparse",
-   "Headers":[{
-   	 "Key": "Authorization",
-     "Value" :"Header-Value"
+   "headers":[{
+   	 "key": "Authorization",
+     "value" :"Header-Value"
    }],
-  "ResponseValues":[{
-     "Value":"Res-Value",
-     "ExtractionKey": "Res-Key"
+  "responseValues":[{
+     "value":"Res-Value",
+     "extractionKey": "Res-Key"
   }],
-  "MultipartPayload":[{
+  "multipartPayload":[{
      "fieldName": "F-Name",
-   	 "FieldValue":"PayloadName",
-     "FileName": "file-name"
+   	 "fieldValue":"PayloadName",
+     "fileName": "file-name"
   }]
 }
 `
@@ -466,10 +466,11 @@ func TestDeleteAllCasesEmptyDirectory(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
 
-	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/cases"
+	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/cases/"
 	request, err := http.NewRequest(http.MethodDelete, "/test-cases/", nil)
 	if err != nil {
 		logrus.Warnf("Error creating the request %s", err)
+		return
 	}
 
 	request.Header.Set("path", DirectoryPath)
@@ -487,7 +488,7 @@ func TestSuccessfulCaseDelete(t *testing.T) {
 	reader := strings.NewReader(testCaseForDeletion)
 	r.HandleFunc("/test-cases", postTestCase)
 
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPost, "/test-cases", reader)
 	assert.NoError(t, err)
 	request.Header.Set("path", filePath)

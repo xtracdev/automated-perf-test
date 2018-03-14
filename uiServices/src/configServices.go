@@ -36,13 +36,12 @@ func IsNameValid(name string) error {
 	return nil
 }
 
-func IsPathDirValid(name string, rw http.ResponseWriter) bool {
+func IsPathDirValid(name string) error {
 	if len(name) <= 1 {
-		logrus.Error("No file directory entered")
-		rw.WriteHeader(http.StatusBadRequest)
-		return false
+		logrus.Error("No directory path entered")
+		return fmt.Errorf("No directory path entered")
 	}
-	return true
+	return nil
 }
 
 func ConfigCtx(next http.Handler) http.Handler {
@@ -141,7 +140,7 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 	err = xml.Unmarshal(byteValue, &config)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot Unmarshall XML", err)
+		logrus.Error("Cannot Unmarshall XML ", err)
 		return
 	}
 

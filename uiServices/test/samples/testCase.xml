@@ -1,0 +1,22 @@
+  <testDefinition>
+      <testName>testCase</testName>
+      <overrideHost>host</overrideHost>
+      <overridePort>x</overridePort>
+      <httpMethod>GET</httpMethod>
+      <description>desciiii</description>
+      <baseUri>path/to/URI</baseUri>
+      <multipart>false</multipart>
+      <payload>payload</payload>
+      <multipartPayload></multipartPayload>
+      <responseStatusCode>200</responseStatusCode>
+      <responseContentType>ccccc</responseContentType>
+      <headers>
+          <header key="Authorization">Header-Value</header>
+      </headers>
+      <responseProperties>
+          <value extractionKey="Res-Key">Res-Valueeee</value>
+      </responseProperties>
+      <PreThinkTime>55</PreThinkTime>
+      <PostThinkTime>0</PostThinkTime>
+      <ExecWeight>Infrequent</ExecWeight>
+  </testDefinition>

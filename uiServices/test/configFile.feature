@@ -1,66 +1,90 @@
 Feature: Create Configuration File
-  As an API user
-  I want to be able to create a configuration file
-  So that I can test my application using custom metrics
+As an API user
+I want to be able to create a configuration file
+So that I can test my application using custom metrics
 
 
-                                ###################################
-                                #######    POST REQUESTS ##########
-                                ###################################
+  ###################################
+  #######    POST REQUESTS ##########
+  ###################################
 
   Scenario: Successful creation of config file
-    Given there is no existing test file "GodogConfig.xml"
+    Given there is no existing test file "ConfigSAMPLE.xml"
     Given the automated performance ui server is available
-    And the header "path" is "/uiServices/test/GodogConfig.xml"
+    And the header "path" is "/uiServices/test"
     When I send "POST" request to "/configs" with a body:
-         """
+      """
       {
-       "apiName": "GodogConfig",
-       "targetHost": "localhost",
-       "targetPort":"9191",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 1000,
-       "allowablePeakMemoryVariance": 30,
-       "allowableServiceResponseTimeVariance": 30,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 5000,
-       "TPSFreq": 30,
-       "rampUsers": 5,
-       "rampDelay": 15
+      "apiName": "ConfigSAMPLE",
+      "targetHost": "localhost",
+      "targetPort":"9191",
+      "memoryEndpoint": "/alt/debug/vars",
+      "numIterations": 1000,
+      "allowablePeakMemoryVariance": 30,
+      "allowableServiceResponseTimeVariance": 30,
+      "testCaseDir": "./definitions/testCases",
+      "testSuiteDir": "./definitions/testSuites",
+      "baseStatsOutputDir": "./envStats",
+      "reportOutputDir": "./report",
+      "concurrentUsers": 50,
+      "testSuite": "Default-3",
+      "requestDelay": 5000,
+      "TPSFreq": 30,
+      "rampUsers": 5,
+      "rampDelay": 15
       }
       """
     Then the response code should be 201
     And the response body should be empty
-    And the config file was created at location defined by path
 
   Scenario: Unsuccessful creation of config file (file already exists)
     Given the automated performance ui server is available
-    And the header "path" is "/uiServices/test/GodogConfig.xml"
+    Given there is no existing test file "ConfigSAMPLE.xml"
+    And the header "path" is "/uiServices/test"
     When I send "POST" request to "/configs" with a body:
-         """
+      """
       {
-       "apiName": "GodogConfig",
-       "targetHost": "localhost",
-       "targetPort":"9191",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 1000,
-       "allowablePeakMemoryVariance": 30,
-       "allowableServiceResponseTimeVariance": 30,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 5000,
-       "TPSFreq": 30,
-       "rampUsers": 5,
-       "rampDelay": 15
+      "apiName": "ConfigSAMPLE",
+      "targetHost": "localhost",
+      "targetPort":"9191",
+      "memoryEndpoint": "/alt/debug/vars",
+      "numIterations": 1000,
+      "allowablePeakMemoryVariance": 30,
+      "allowableServiceResponseTimeVariance": 30,
+      "testCaseDir": "./definitions/testCases",
+      "testSuiteDir": "./definitions/testSuites",
+      "baseStatsOutputDir": "./envStats",
+      "reportOutputDir": "./report",
+      "concurrentUsers": 50,
+      "testSuite": "Default-3",
+      "requestDelay": 5000,
+      "TPSFreq": 30,
+      "rampUsers": 5,
+      "rampDelay": 15
+      }
+      """
+    Then the response code should be 201
+    And the header "path" is "/uiServices/test"
+    When I send "POST" request to "/configs" with a body:
+      """
+      {
+      "apiName": "ConfigSAMPLE",
+      "targetHost": "localhost",
+      "targetPort":"9191",
+      "memoryEndpoint": "/alt/debug/vars",
+      "numIterations": 1000,
+      "allowablePeakMemoryVariance": 30,
+      "allowableServiceResponseTimeVariance": 30,
+      "testCaseDir": "./definitions/testCases",
+      "testSuiteDir": "./definitions/testSuites",
+      "baseStatsOutputDir": "./envStats",
+      "reportOutputDir": "./report",
+      "concurrentUsers": 50,
+      "testSuite": "Default-3",
+      "requestDelay": 5000,
+      "TPSFreq": 30,
+      "rampUsers": 5,
+      "rampDelay": 15
       }
       """
     Then the response code should be 400
@@ -68,28 +92,28 @@ Feature: Create Configuration File
   Scenario: Unsuccessful creation of config file (Missing required field)
     Given the automated performance ui server is available
     When I send "POST" request to "/configs" with a body:
-         """
+      """
       {
-       "apiName": "GodogConfig2",
-       "targetHost": "localhost",
-       "targetPort":"9191",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 1000,
-       "allowablePeakMemoryVariance": 30,
-       "allowableServiceResponseTimeVariance": 30,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "",
-       "requestDelay": 5000,
-       "TPSFreq": 30,
-       "rampUsers": 5,
-       "rampDelay": 15
+      "apiName": "ConfigSAMPLE2",
+      "targetHost": "localhost",
+      "targetPort":"9191",
+      "memoryEndpoint": "/alt/debug/vars",
+      "numIterations": 1000,
+      "allowablePeakMemoryVariance": 30,
+      "allowableServiceResponseTimeVariance": 30,
+      "testCaseDir": "./definitions/testCases",
+      "testSuiteDir": "./definitions/testSuites",
+      "baseStatsOutputDir": "./envStats",
+      "reportOutputDir": "./report",
+      "concurrentUsers": 50,
+      "testSuite": "",
+      "requestDelay": 5000,
+      "TPSFreq": 30,
+      "rampUsers": 5,
+      "rampDelay": 15
       }
       """
-    And the header "path" is "/uiServices/test/GodogConfig.xml"
+    And the header "path" is "/uiServices/test"
     Then the response code should be 400
 
 
@@ -97,68 +121,72 @@ Feature: Create Configuration File
     Given the automated performance ui server is available
     And the header "path" is ""
     When I send "POST" request to "/configs" with a body:
-         """
+      """
       {
-       "apiName": "GodogConfig3",
-       "targetHost": "localhost",
-       "targetPort":"9191",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 1000,
-       "allowablePeakMemoryVariance": 30,
-       "allowableServiceResponseTimeVariance": 30,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-1",
-       "requestDelay": 5000,
-       "TPSFreq": 30,
-       "rampUsers": 5,
-       "rampDelay": 15
+      "apiName": "ConfigSAMPLE3",
+      "targetHost": "localhost",
+      "targetPort":"9191",
+      "memoryEndpoint": "/alt/debug/vars",
+      "numIterations": 1000,
+      "allowablePeakMemoryVariance": 30,
+      "allowableServiceResponseTimeVariance": 30,
+      "testCaseDir": "./definitions/testCases",
+      "testSuiteDir": "./definitions/testSuites",
+      "baseStatsOutputDir": "./envStats",
+      "reportOutputDir": "./report",
+      "concurrentUsers": 50,
+      "testSuite": "Default-1",
+      "requestDelay": 5000,
+      "TPSFreq": 30,
+      "rampUsers": 5,
+      "rampDelay": 15
       }
       """
     Then the response code should be 400
 
 
-                                ###################################
-                                #######    GET REQUESTS ########
-                                ###################################
+  ###################################
+  #######    GET REQUESTS ########
+  ###################################
 
 
   Scenario: Try to retrieve config file with valid "GET" request
-    Given the file "GodogConfig.xml" exists at "/uiServices/test/"
-    Given the automated performance ui server is available
-    And the header "path" is "/uiServices/test/"
-    And the file name is "GodogConfig.xml"
-    When I send a "GET" request to "/configs/GodogConfig"
+    Given the file "testConfig.xml" exists at "/uiServices/test/samples"
+    And the header "path" is "/uiServices/test/samples"
+    And the file name is "testConfig.xml"
+    When I send a "GET" request to "/configs/testConfig"
     Then the response code should be 200
     And the response body should match json:
-    """
+      """
       {
-       "apiName": "GodogConfig",
-       "targetHost": "localhost",
-       "targetPort":"9191",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 1000,
-       "allowablePeakMemoryVariance": 30,
-       "allowableServiceResponseTimeVariance": 30,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 5000,
-       "TPSFreq": 30,
-       "rampUsers": 5,
-       "rampDelay": 15
+        "apiName": "testConfig",
+        "targetHost": "localhost",
+        "targetPort": "8080",
+        "numIterations": 55,
+        "allowablePeakMemoryVariance": 12,
+        "allowableServiceResponseTimeVariance": 15,
+        "testCaseDir": "./definitions/testCases",
+        "testSuiteDir": "./definitions/testSuites",
+        "baseStatsOutputDir": "./envStats",
+        "reportOutputDir": ".efreefef",
+        "concurrentUsers": 50,
+        "testSuite": "Default-1",
+        "memoryEndpoint": "/alt/debug/vars",
+        "requestDelay": 5000,
+        "TPSFreq": 30,
+        "rampUsers": 15,
+        "rampDelay": 15,
+        "GBS": false,
+        "ReBaseMemory": false,
+        "ReBaseAll": false,
+        "ExecutionHost": "",
+        "ReportTemplateFile": ""
       }
       """
 
   Scenario: Unsuccessful retrieval of config file (File Not Found)
     Given the automated performance ui server is available
-    Given the file "GodogConfig.xml" exists at "/uiServices/test/"
+    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
     When I send a "GET" request to "/configs/xxx"
@@ -166,223 +194,258 @@ Feature: Create Configuration File
 
 
 
-                                ##################################
-                                ######    PUT REQUESTS ###########
-                                ##################################
+  ##################################
+  ######    PUT REQUESTS ###########
+  ##################################
 
   Scenario: Unsuccessful update of config file with PUT request (No File Path)
-    Given the file "GodogConfig.xml" exists at "/uiServices/test/"
+    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is ""
-    When I send "PUT" request to "/configs/GodogConfig" with body:
-         """
+    When I send "PUT" request to "/configs/ConfigSAMPLE" with body:
+      """
       {
-       "apiName": "GodogConfig",
-       "targetHost": "localhost2",
-       "targetPort":"1001",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 4000,
-       "allowablePeakMemoryVariance": 50,
-       "allowableServiceResponseTimeVariance": 50,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 1000,
-       "TPSFreq": 10,
-       "rampUsers": 10,
-       "rampDelay": 10
+      "apiName": "ConfigSAMPLE",
+      "targetHost": "localhost2",
+      "targetPort":"1001",
+      "memoryEndpoint": "/alt/debug/vars",
+      "numIterations": 4000,
+      "allowablePeakMemoryVariance": 50,
+      "allowableServiceResponseTimeVariance": 50,
+      "testCaseDir": "./definitions/testCases",
+      "testSuiteDir": "./definitions/testSuites",
+      "baseStatsOutputDir": "./envStats",
+      "reportOutputDir": "./report",
+      "concurrentUsers": 50,
+      "testSuite": "Default-3",
+      "requestDelay": 1000,
+      "TPSFreq": 10,
+      "rampUsers": 10,
+      "rampDelay": 10
       }
       """
     Then the response code should be 400
 
   Scenario: Unsuccessful update of config file with PUT request (Incorrect File Name)
-    Given the file "GodogConfig.xml" exists at "/uiServices/test/"
+    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
     When I send "PUT" request to "/configs/xxx" with body:
-         """
+      """
       {
-       "apiName": "GodogConfig",
-       "targetHost": "localhost",
-       "targetPort":"1001",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 4000,
-       "allowablePeakMemoryVariance": 50,
-       "allowableServiceResponseTimeVariance": 50,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 1000,
-       "TPSFreq": 10,
-       "rampUsers": 10,
-       "rampDelay": 10
+      "apiName": "ConfigSAMPLE",
+      "targetHost": "localhost",
+      "targetPort":"1001",
+      "memoryEndpoint": "/alt/debug/vars",
+      "numIterations": 4000,
+      "allowablePeakMemoryVariance": 50,
+      "allowableServiceResponseTimeVariance": 50,
+      "testCaseDir": "./definitions/testCases",
+      "testSuiteDir": "./definitions/testSuites",
+      "baseStatsOutputDir": "./envStats",
+      "reportOutputDir": "./report",
+      "concurrentUsers": 50,
+      "testSuite": "Default-3",
+      "requestDelay": 1000,
+      "TPSFreq": 10,
+      "rampUsers": 10,
+      "rampDelay": 10
       }
       """
     Then the response code should be 404
 
   Scenario: Unsuccessful update of config file with PUT request (No File Name)
-    Given the file "GodogConfig.xml" exists at "/uiServices/test/"
+    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
     When I send "PUT" request to "/configs/" with body:
-         """
+      """
       {
-       "apiName": "GodogConfig",
-       "targetHost": "localhost",
-       "targetPort":"1001",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 4000,
-       "allowablePeakMemoryVariance": 50,
-       "allowableServiceResponseTimeVariance": 50,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 1000,
-       "TPSFreq": 10,
-       "rampUsers": 10,
-       "rampDelay": 10
+      "apiName": "ConfigSAMPLE",
+      "targetHost": "localhost",
+      "targetPort":"1001",
+      "memoryEndpoint": "/alt/debug/vars",
+      "numIterations": 4000,
+      "allowablePeakMemoryVariance": 50,
+      "allowableServiceResponseTimeVariance": 50,
+      "testCaseDir": "./definitions/testCases",
+      "testSuiteDir": "./definitions/testSuites",
+      "baseStatsOutputDir": "./envStats",
+      "reportOutputDir": "./report",
+      "concurrentUsers": 50,
+      "testSuite": "Default-3",
+      "requestDelay": 1000,
+      "TPSFreq": 10,
+      "rampUsers": 10,
+      "rampDelay": 10
       }
       """
     Then the response code should be 404
 
   Scenario: Unsuccessful update of config file with PUT request (Missing Required Fields)
-    Given the file "GodogConfig.xml" exists at "/uiServices/test/"
+    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
-    When I send "PUT" request to "/configs/GodogConfig" with body:
-         """
+    When I send "PUT" request to "/configs/ConfigSAMPLE" with body:
+      """
       {
-       "apiName": "GodogConfig",
-       "targetHost": "",
-       "targetPort":"",
-       "memoryEndpoint": ,
-       "numIterations": ,
-       "allowablePeakMemoryVariance": ,
-       "allowableServiceResponseTimeVariance": ,
-       "testCaseDir": "",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": ,
-       "testSuite": "",
-       "requestDelay": 1000,
-       "TPSFreq": 10,
-       "rampUsers": 10,
-       "rampDelay": 10
+      "apiName": "ConfigSAMPLE",
+      "targetHost": "",
+      "targetPort":"",
+      "memoryEndpoint": ,
+      "numIterations": ,
+      "allowablePeakMemoryVariance": ,
+      "allowableServiceResponseTimeVariance": ,
+      "testCaseDir": "",
+      "testSuiteDir": "./definitions/testSuites",
+      "baseStatsOutputDir": "./envStats",
+      "reportOutputDir": "./report",
+      "concurrentUsers": ,
+      "testSuite": "",
+      "requestDelay": 1000,
+      "TPSFreq": 10,
+      "rampUsers": 10,
+      "rampDelay": 10
       }
       """
     Then the response code should be 400
 
 
   Scenario: Successful update of config file with PUT request
-    Given the file "GodogConfig.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "path" is "/uiServices/test/"
-    When I send "PUT" request to "/configs/GodogConfig" with body:
-         """
+    Given there is no existing test file "ConfigSAMPLE.xml"
+    And the header "path" is "/uiServices/test"
+    When I send "POST" request to "/configs" with a body:
+      """
       {
-       "apiName": "GodogConfig",
-       "targetHost": "localhost2",
-       "targetPort":"1001",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 4000,
-       "allowablePeakMemoryVariance": 50,
-       "allowableServiceResponseTimeVariance": 50,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 1000,
-       "TPSFreq": 10,
-       "rampUsers": 10,
-       "rampDelay": 10
+      "apiName": "ConfigSAMPLE",
+      "targetHost": "localhost",
+      "targetPort":"9191",
+      "memoryEndpoint": "/alt/debug/vars",
+      "numIterations": 1000,
+      "allowablePeakMemoryVariance": 30,
+      "allowableServiceResponseTimeVariance": 30,
+      "testCaseDir": "./definitions/testCases",
+      "testSuiteDir": "./definitions/testSuites",
+      "baseStatsOutputDir": "./envStats",
+      "reportOutputDir": "./report",
+      "concurrentUsers": 50,
+      "testSuite": "Default-3",
+      "requestDelay": 5000,
+      "TPSFreq": 30,
+      "rampUsers": 5,
+      "rampDelay": 15
+      }
+      """
+    Then the response code should be 201
+    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
+    And the header "path" is "/uiServices/test/"
+    When I send "PUT" request to "/configs/ConfigSAMPLE" with body:
+      """
+      {
+      "apiName": "ConfigSAMPLE",
+      "targetHost": "localhost2",
+      "targetPort":"1001",
+      "memoryEndpoint": "/alt/debug/vars",
+      "numIterations": 4000,
+      "allowablePeakMemoryVariance": 50,
+      "allowableServiceResponseTimeVariance": 50,
+      "testCaseDir": "./definitions/testCases",
+      "testSuiteDir": "./definitions/testSuites",
+      "baseStatsOutputDir": "./envStats",
+      "reportOutputDir": "./report",
+      "concurrentUsers": 50,
+      "testSuite": "Default-3",
+      "requestDelay": 1000,
+      "TPSFreq": 10,
+      "rampUsers": 10,
+      "rampDelay": 10
       }
       """
     Then the response code should be 204
     And the response body should be empty
-    When I send a "GET" request to "/configs/GodogConfig"
+    When I send a "GET" request to "/configs/ConfigSAMPLE"
     And the updated file should match json:
-        """
+      """
       {
-       "apiName": "GodogConfig",
-       "targetHost": "localhost2",
-       "targetPort":"1001",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 4000,
-       "allowablePeakMemoryVariance": 50,
-       "allowableServiceResponseTimeVariance": 50,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 1000,
-       "TPSFreq": 10,
-       "rampUsers": 10,
-       "rampDelay": 10
+        "apiName": "ConfigSAMPLE",
+        "targetHost": "localhost2",
+        "targetPort": "1001",
+        "numIterations": 4000,
+        "allowablePeakMemoryVariance": 50,
+        "allowableServiceResponseTimeVariance": 50,
+        "testCaseDir": "./definitions/testCases",
+        "testSuiteDir": "./definitions/testSuites",
+        "baseStatsOutputDir": "./envStats",
+        "reportOutputDir": "./report",
+        "concurrentUsers": 50,
+        "testSuite": "Default-3",
+        "memoryEndpoint": "/alt/debug/vars",
+        "requestDelay": 1000,
+        "TPSFreq": 10,
+        "rampUsers": 10,
+        "rampDelay": 10,
+        "GBS": false,
+        "ReBaseMemory": false,
+        "ReBaseAll": false,
+        "ExecutionHost": "",
+        "ReportTemplateFile": ""
       }
       """
 
   Scenario: Successful update of config file with PUT request (Update API Name to not match Filename)
-    Given the file "GodogConfig.xml" exists at "/uiServices/test/"
+    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
-    When I send "PUT" request to "/configs/GodogConfig" with body:
-            """
+    When I send "PUT" request to "/configs/ConfigSAMPLE" with body:
+      """
       {
-       "apiName": "GodogAPI",
-       "targetHost": "localhost",
-       "targetPort":"1001",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 4000,
-       "allowablePeakMemoryVariance": 50,
-       "allowableServiceResponseTimeVariance": 50,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 1000,
-       "TPSFreq": 10,
-       "rampUsers": 10,
-       "rampDelay": 10
+      "apiName": "newTest",
+      "targetHost": "localhost",
+      "targetPort":"1001",
+      "memoryEndpoint": "/alt/debug/vars",
+      "numIterations": 4000,
+      "allowablePeakMemoryVariance": 50,
+      "allowableServiceResponseTimeVariance": 50,
+      "testCaseDir": "./definitions/testCases",
+      "testSuiteDir": "./definitions/testSuites",
+      "baseStatsOutputDir": "./envStats",
+      "reportOutputDir": "./report",
+      "concurrentUsers": 50,
+      "testSuite": "Default-3",
+      "requestDelay": 1000,
+      "TPSFreq": 10,
+      "rampUsers": 10,
+      "rampDelay": 10
       }
       """
     Then the response code should be 204
     And the response body should be empty
-    When I send a "GET" request to "/configs/GodogConfig"
+    When I send a "GET" request to "/configs/ConfigSAMPLE"
     And the updated file should match json:
-           """
+      """
       {
-       "apiName": "GodogAPI",
-       "targetHost": "localhost",
-       "targetPort":"1001",
-       "memoryEndpoint": "/alt/debug/vars",
-       "numIterations": 4000,
-       "allowablePeakMemoryVariance": 50,
-       "allowableServiceResponseTimeVariance": 50,
-       "testCaseDir": "./definitions/testCases",
-       "testSuiteDir": "./definitions/testSuites",
-       "baseStatsOutputDir": "./envStats",
-       "reportOutputDir": "./report",
-       "concurrentUsers": 50,
-       "testSuite": "Default-3",
-       "requestDelay": 1000,
-       "TPSFreq": 10,
-       "rampUsers": 10,
-       "rampDelay": 10
+          "apiName": "newTest",
+          "targetHost": "localhost",
+          "targetPort": "1001",
+          "numIterations": 4000,
+          "allowablePeakMemoryVariance": 50,
+          "allowableServiceResponseTimeVariance": 50,
+          "testCaseDir": "./definitions/testCases",
+          "testSuiteDir": "./definitions/testSuites",
+          "baseStatsOutputDir": "./envStats",
+          "reportOutputDir": "./report",
+          "concurrentUsers": 50,
+          "testSuite": "Default-3",
+          "memoryEndpoint": "/alt/debug/vars",
+          "requestDelay": 1000,
+          "TPSFreq": 10,
+          "rampUsers": 10,
+          "rampDelay": 10,
+          "GBS": false,
+          "ReBaseMemory": false,
+          "ReBaseAll": false,
+          "ExecutionHost": "",
+          "ReportTemplateFile": ""
       }
       """

@@ -1,0 +1,7 @@
+  <testSuite>
+      <name>testSuite</name>
+      <description>Services for XYZrrr</description>
+      <testStrategy>SuiteBased</testStrategy>
+      <testCases>
+      </testCases>
+  </testSuite>

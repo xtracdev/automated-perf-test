@@ -8,13 +8,13 @@ Feature: Test Suite Creation
                                 ###################################
 
   Scenario: Successful creation of test Suite
-    Given there is no existing test file "GodogTestSuite.xml"
+    Given there is no existing test file "TestSuiteSAMPLE.xml"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
     When I send "POST" request to "/test-suites" with a body:
     """
       {
-       "name": "GodogTestSuite",
+       "name": "TestSuiteSAMPLE",
        "testStrategy": "SuiteBased",
        "description": "Services for XYZ",
        "testCases":[
@@ -32,11 +32,30 @@ Feature: Test Suite Creation
 
   Scenario: Unsuccessful creation of test Suite (file already exists )
     Given the automated performance ui server is available
+    Given there is no existing test file "TestSuiteSAMPLE.xml"
     And the header "path" is "/uiServices/test/"
     When I send "POST" request to "/test-suites" with a body:
     """
       {
-       "name": "GodogTestSuite",
+       "name": "TestSuiteSAMPLE",
+       "testStrategy": "SuiteBased",
+       "description": "Services for XYZ",
+       "testCases":[
+         {
+         "name":"file1",
+          "preThinkTime": 1000,
+          "postThinkTime": 2000,
+          "execWeight": "Infrequent"
+         }
+        ]
+      }
+    """
+    Then the response code should be 201
+    And the header "path" is "/uiServices/test/"
+    When I send "POST" request to "/test-suites" with a body:
+    """
+      {
+       "name": "TestSuiteSAMPLE",
        "testStrategy": "SuiteBased",
        "description": "Services for XYZ",
        "testCases":[
@@ -83,7 +102,7 @@ Feature: Test Suite Creation
     When I send "POST" request to "/test-suites" with a body:
       """
       {
-       "name": "GodogTestSuite",
+       "name": "TestSuiteSAMPLE",
        "testStrategy": "SuiteBased",
        "description": "Services for XYZ",
        "testCases":[
@@ -101,11 +120,11 @@ Feature: Test Suite Creation
 
   Scenario: Unsuccessful creation of test Suite ( Incorrect URL )
     Given the automated performance ui server is available
-    And the header "path" is "/uiServices/test/GodogTestSuite.xml"
+    And the header "path" is "/uiServices/test/TestSuiteSAMPLE.xml"
     When I send "POST" request to "/xxxx" with a body:
       """
       {
-       "name": "GodogTestSuite",
+       "name": "TestSuiteSAMPLE",
        "testStrategy": "SuiteBased",
        "description": "Services for XYZ",
        "testCases":[
@@ -122,7 +141,7 @@ Feature: Test Suite Creation
 
   Scenario: Unsuccessful creation of test Suite(No Name defined)
     Given the automated performance ui server is available
-    And the header "path" is "/uiServices/test/GodogTestSuite.xml"
+    And the header "path" is "/uiServices/test/TestSuiteSAMPLE.xml"
     When I send "POST" request to "/test-suites" with a body:
        """
       {
@@ -147,13 +166,13 @@ Feature: Test Suite Creation
                                 ###################################
 
   Scenario: Unsuccessful update of test-suite file with PUT request (No File Path)
-    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the file "TestSuiteSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is ""
-    When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
+    When I send "PUT" request to "/test-suites/TestSuiteSAMPLE" with body:
     """
       {
-       "name": "GodogTestSuite",
+       "name": "TestSuiteSAMPLE",
        "testStrategy": "SuiteBased",
        "description": "ServiceDesc",
        "testCases":[
@@ -170,13 +189,13 @@ Feature: Test Suite Creation
 
 
   Scenario: Unsuccessful update of test-suite file with PUT request (Incorrect File Name)
-    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the file "TestSuiteSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
     When I send "PUT" request to "/test-suites/xxx" with body:
    """
       {
-       "name": "GodogTestSuite2",
+       "name": "TestSuiteSAMPLE2",
        "testStrategy": "SuiteBased",
        "description": "ServiceDesc",
        "testCases":[
@@ -193,13 +212,13 @@ Feature: Test Suite Creation
 
 
   Scenario: Unsuccessful update of test-suite file with PUT request (No File Name)
-    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the file "TestSuiteSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
     When I send "PUT" request to "/test-suites/" with body:
     """
       {
-       "name": "GodogTestSuite2",
+       "name": "TestSuiteSAMPLE2",
        "testStrategy": "SuiteBased",
        "description": "ServiceDesc",
        "testCases":[
@@ -215,10 +234,10 @@ Feature: Test Suite Creation
     Then the response code should be 404
 
   Scenario: Unsuccessful update of test-suite file with PUT request (Missing Required Fields)
-    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the file "TestSuiteSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
-    When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
+    When I send "PUT" request to "/test-suites/TestSuiteSAMPLE" with body:
   """
       {
        "testCases":[
@@ -235,13 +254,13 @@ Feature: Test Suite Creation
 
 
   Scenario: Successful update of test-suite file with PUT request
-    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the file "TestSuiteSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
-    When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
+    When I send "PUT" request to "/test-suites/TestSuiteSAMPLE" with body:
     """
       {
-       "name": "GodogTestSuite2",
+       "name": "TestSuiteSAMPLE2",
        "testStrategy": "SuiteBased",
        "description": "ServiceDesc",
        "testCases":[
@@ -256,11 +275,11 @@ Feature: Test Suite Creation
     """
     Then the response code should be 204
     And the response body should be empty
-    When I send a "GET" request to "/test-suites/GodogTestSuite"
+    When I send a "GET" request to "/test-suites/TestSuiteSAMPLE"
     And the updated file should match json:
 """
     {
-       "name": "GodogTestSuite2",
+       "name": "TestSuiteSAMPLE2",
        "testStrategy": "SuiteBased",
        "description": "ServiceDesc",
        "testCases":[
@@ -274,13 +293,13 @@ Feature: Test Suite Creation
       }
     """
   Scenario: Successful update of test-suite file with PUT request (Update API Name to not match Filename)
-    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the file "TestSuiteSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
-    When I send "PUT" request to "/test-suites/GodogTestSuite" with body:
+    When I send "PUT" request to "/test-suites/TestSuiteSAMPLE" with body:
     """
       {
-       "name": "GodogTestSuite2",
+       "name": "TestSuiteSAMPLE2",
        "testStrategy": "SuiteBased",
         "description": "ServiceDesc",
        "testCases":[
@@ -295,11 +314,11 @@ Feature: Test Suite Creation
     """
     Then the response code should be 204
     And the response body should be empty
-    When I send a "GET" request to "/test-suites/GodogTestSuite"
+    When I send a "GET" request to "/test-suites/TestSuiteSAMPLE"
     And the updated file should match json:
     """
       {
-       "name": "GodogTestSuite2",
+       "name": "TestSuiteSAMPLE2",
        "testStrategy": "SuiteBased",
         "description": "ServiceDesc",
        "testCases":[
@@ -320,42 +339,29 @@ Feature: Test Suite Creation
                                 ###################################
 
   Scenario: Try to retrieve test-suite file with valid "GET" request
-    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
-    And the header "path" is "/uiServices/test/"
-    And the file name is "GodogTestSuite.xml"
-    When I send a "GET" request to "/test-suites/GodogTestSuite"
+    Given the file "testSuite.xml" exists at "/uiServices/test/samples"
+    And the header "path" is "/uiServices/test/samples"
+    And the file name is "testSuite.xml"
+    When I send a "GET" request to "/test-suites/testSuite"
     Then the response code should be 200
     And the test suite response body should match json:
     """
       {
-        "XMLName": {
-        "Space": "",
-        "Local": "testSuite"
-        },
-         "Name": "GodogTestSuite2",
-         "Description": "ServiceDesc",
-           "TestStrategy": "SuiteBased",
-          "TestCases": [
-           {
-            "XMLName": {
-            "Space": "",
-            "Local": "testCase"
-           },
-            "Name": "file1",
-            "PreThinkTime": 2000,
-            "PostThinkTime": 5000,
-            "ExecWeight": "Infrequent"
-         }
-        ],
-"TestDefinitions": null
-}
+          "XMLName": {
+          "Space": "",
+          "Local": "testSuite"
+          },
+           "name": "testSuite",
+           "description": "Services for XYZrrr",
+           "testStrategy": "SuiteBased"
+      }
     """
 
 
   Scenario: Unsuccessful retrieval of test-suites file (File Not Found)
     Given the automated performance ui server is available
-    Given the file "GodogTestSuite.xml" exists at "/uiServices/test/"
+    Given the file "TestSuiteSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
     When I send a "GET" request to "/test-suites/xxx"
@@ -365,7 +371,7 @@ Feature: Test Suite Creation
   Scenario: Unsuccessful retrieval of test-suites file (No Header)
     Given the automated performance ui server is available
     And the header "path" is ""
-    When I send a "GET" request to "/test-suites/GodogTestSuite"
+    When I send a "GET" request to "/test-suites/TestSuiteSAMPLE"
     Then the response code should be 400
 
 
@@ -382,8 +388,8 @@ Feature: Test Suite Creation
      """
         [
           {
-          "file": "GodogTestSuite.xml",
-          "name": "GodogTestSuite2,
+          "file": "TestSuiteSAMPLE.xml",
+          "name": "TestSuiteSAMPLE2,
           "description": "ServiceDesc",
           }
         ]

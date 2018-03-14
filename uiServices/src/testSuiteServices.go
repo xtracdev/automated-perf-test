@@ -36,7 +36,6 @@ func TestSuiteCtx(next http.Handler) http.Handler {
 }
 
 func postTestSuites(rw http.ResponseWriter, req *http.Request) {
-	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testSuitePathDir := getPathHeader(req)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
@@ -71,14 +70,15 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if FilePathExist(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuite.Name)) {
+	filePath := fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuite.Name)
+
+	if FilePathExist(filePath) {
 		logrus.Error("File already exists")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
-
 	}
 
-	if !testSuiteWriterXml(testSuite, testSuitePathDir+testSuite.Name+".xml") {
+	if !testSuiteWriterXml(testSuite, filePath) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -87,7 +87,6 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 }
 
 func putTestSuites(rw http.ResponseWriter, req *http.Request) {
-	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	path := getPathHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
@@ -109,7 +108,6 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 		logrus.Error("File path does not exist")
 		rw.WriteHeader(http.StatusNotFound)
 		return
-
 	}
 
 	if !validateJSONWithSchema(buf.Bytes(), schemaFile, structType) {
@@ -158,7 +156,8 @@ func deleteTestSuite(rw http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	err := os.Remove(filepath)
+	filePath := fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName)
+	err := os.Remove(filePath)
 	if err != nil {
 		logrus.Errorf("Error deleting the file from filesystem: %s", err)
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -169,7 +168,6 @@ func deleteTestSuite(rw http.ResponseWriter, req *http.Request) {
 }
 
 func getTestSuite(rw http.ResponseWriter, req *http.Request) {
-	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testSuitePathDir := getPathHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
@@ -220,7 +218,6 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request) {
 }
 
 func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
-	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	testSuitePathDir := getPathHeader(req)
 	if len(testSuitePathDir) <= 1 {
 		logrus.Error("No file directory entered")

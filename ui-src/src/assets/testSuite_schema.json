@@ -12,6 +12,27 @@
     },
     "description": {
       "type": "string"
+    },
+    "testCases": {
+      "type": "array",
+      "testCases": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "preThinkTime",
+          "postThinkTime",
+          "execWeight"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      }
     }
   }}
 

@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 
@@ -57,7 +58,8 @@ func (a *apiFeature) theResponseBodyShouldMatchJSON(body *gherkin.DocString) (er
 	var expectedConfig perfTestUtils.Config
 	var actualConfig perfTestUtils.Config
 
-	file, _ := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + a.filename)
+	file, _ :=
+		os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + "/" + a.filename + ".xml")
 	byteValue, err := ioutil.ReadAll(file)
 	xml.Unmarshal(byteValue, &expectedConfig)
 
@@ -74,7 +76,9 @@ func (a *apiFeature) theTestSuiteResponseBodyShouldMatchJSON(body *gherkin.DocSt
 	var expectedSuite testStrategies.TestSuite
 	var actualSuite testStrategies.TestSuite
 
-	file, _ := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + a.filename)
+	file, _ :=
+		os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + "/" + a.filename + ".xml")
+
 	byteValue, err := ioutil.ReadAll(file)
 	xml.Unmarshal(byteValue, &expectedSuite)
 
@@ -90,7 +94,6 @@ func (a *apiFeature) theTestSuiteResponseBodyShouldMatchJSON(body *gherkin.DocSt
 func (a *apiFeature) theTestSuiteCollectionResponseBodyShouldMatchJSON(body *gherkin.DocString) (err error) {
 	var expectedSuite testStrategies.TestSuite
 	var actualSuite testStrategies.TestSuite
-
 	exp :=
 		`"""
         [
@@ -209,9 +212,7 @@ func (a *apiFeature) theHeaderIs(name string, path string) error {
 
 func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() error {
 	configsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath
-
 	fileExists := services.FilePathExist(configsPathDir)
-
 	if !fileExists {
 		return fmt.Errorf("File Does Not Exist")
 	}
@@ -263,10 +264,36 @@ func makePostRequest(client *http.Client, method, endpoint, body string, headerP
 func FeatureContext(s *godog.Suite) {
 	api := &apiFeature{}
 
+	s.AfterScenario(func(interface{}, error) {
+		dirname := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+
+		d, err := os.Open(dirname)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer d.Close()
+
+		files, err := d.Readdir(-1)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Println("Reading " + dirname)
+
+		for _, file := range files {
+			if file.Mode().IsRegular() {
+				if filepath.Ext(file.Name()) == ".xml" {
+					os.Remove(file.Name())
+					fmt.Println("Deleted ", file.Name())
+				}
+			}
+		}
+	})
+
 	s.BeforeScenario(func(interface{}) {
-
 		api.resetResponse()
-
 	})
 
 	s.Step(`^I send "(GET|POST|PUT|DELETE)" request to "([^"]*)"$`, api.iSendrequestTo)
@@ -344,7 +371,11 @@ func (a *apiFeature) iSendARequestTo(method, endpoint string) error {
 	if err != nil {
 		return err
 	}
-
+	// TODO this can be removed
+	pathSplit := strings.Split(endpoint, "/")
+	if len(pathSplit) >= 3 {
+		a.filename = pathSplit[2]
+	}
 	a.resp = response
 	return nil
 }
@@ -355,7 +386,7 @@ func makeGetRequest(client *http.Client, method, endpoint string, filename strin
 	if headerPath == "" {
 		req.Header.Set(headerName, "")
 	} else {
-		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/%s", os.Getenv("GOPATH"), headerPath))
 	}
 	if err != nil {
 		return nil, err
@@ -403,7 +434,7 @@ func makePutRequest(client *http.Client, method, endpoint, body string, headerPa
 	if headerPath == "" {
 		req.Header.Set(headerName, "")
 	} else {
-		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/%s", os.Getenv("GOPATH"), headerPath))
 	}
 	if err != nil {
 		return nil, err
@@ -421,7 +452,8 @@ func (a *apiFeature) theUpdatedFileShouldMatchJSON(body *gherkin.DocString) (err
 	var expectedConfig perfTestUtils.Config
 	var actualConfig perfTestUtils.Config
 
-	file, _ := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + a.filename)
+	file, _ :=
+		os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + a.filename + ".xml")
 	byteValue, err := ioutil.ReadAll(file)
 	xml.Unmarshal(byteValue, &expectedConfig)
 
