@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 
@@ -268,6 +269,31 @@ func FeatureContext(s *godog.Suite) {
 	s.BeforeScenario(func(interface{}) {
 
 		api.resetResponse()
+		dirname := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+
+		d, err := os.Open(dirname)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer d.Close()
+
+		files, err := d.Readdir(-1)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Println("Reading " + dirname)
+
+		for _, file := range files {
+			if file.Mode().IsRegular() {
+				if filepath.Ext(file.Name()) == ".xml" {
+					os.Remove("file.Name()")
+					fmt.Println("Deleted ", file.Name())
+				}
+			}
+		}
 
 	})
 
