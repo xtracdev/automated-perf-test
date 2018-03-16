@@ -223,6 +223,7 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request) {
 func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	testSuitePathDir := getTestSuiteHeader(req)
+	logrus.Printf("HI GO %s", testSuitePathDir)
 	if len(testSuitePathDir) <= 1 {
 		logrus.Error("No file directory entered")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -243,19 +244,21 @@ func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 			filename := file.Name()
 
+			logrus.Printf("READ %s", filename)
+
 			file, err := os.Open(fmt.Sprintf("%s%s", testSuitePathDir, filename))
 			if err != nil {
-				logrus.Error("Cannot open file: ", filename)
+				logrus.Error("Cannot open file: ", err)
 			}
 
 			byteValue, err := ioutil.ReadAll(file)
 			if err != nil {
-				logrus.Error("Cannot Read File: ", filename)
+				logrus.Error("Cannot Read File: ", err)
 			}
 
 			err = xml.Unmarshal(byteValue, testSuite)
 			if err != nil {
-				logrus.Error("Cannot Unmarshall: ", filename)
+				logrus.Error("Cannot Unmarshall: ", err)
 
 			}
 

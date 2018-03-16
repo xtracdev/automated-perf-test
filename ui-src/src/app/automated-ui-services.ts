@@ -7,13 +7,14 @@ import { Headers } from "@angular/http/src/headers";
 import { Observable } from "rxjs/Observable";
 import { environment } from "../environments/environment.prod";
 import { $ } from "protractor";
+import { TestSuitesComponent } from "./test-suites/test-suites.component";
 
 @Injectable()
 export class AutomatedUIServices {
   private headers: HttpHeaders;
   constructor(private http: HttpClient) {
     this.headers = new HttpHeaders({ "Content-Type": "application/json" });
-  }
+        }
 
   postConfig$(configData, configPath): Observable<any> {
     this.headers = this.headers.set("configPathDir", configPath);
@@ -42,4 +43,14 @@ export class AutomatedUIServices {
       .get(`${environment.apiBaseUrl}${location}`, { headers: this.headers })
       .map((data: any) => data);
   }
-}
+
+  // add get ALL test Suites function
+  getAllTestSuites$(testSuitePath): Observable<any>{
+    console.log("headers", testSuitePath)
+    console.log("XXXXXXX", `${environment.apiBaseUrl}test-suites`)
+    this.headers = this.headers.set("testSuitePathDir", testSuitePath);
+    return this.http.get(`${environment.apiBaseUrl}test-suites`, {
+      headers: this.headers
+    });
+  }
+} 

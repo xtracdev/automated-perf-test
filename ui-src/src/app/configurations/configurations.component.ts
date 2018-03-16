@@ -16,7 +16,7 @@ export class ConfigurationsComponent implements OnInit {
   xmlFileName = undefined;
   fileName = undefined;
   // needed for layout to load
-  configSchema = { layout: true };
+  configSchema = { layout: { testSuite: {}} };
 
   constructor(
     private automatedUIServices: AutomatedUIServices,
@@ -26,11 +26,37 @@ export class ConfigurationsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.automatedUIServices
+        this.automatedUIServices
       .getSchema$("assets/schema.json")
       .subscribe((data: any) => {
         this.configSchema = data;
+
+        console.log("CONFIG SCHEMA", this.configSchema); 
       });
+
+    //load schema from backend server or file   
+    }
+
+  getAllTestsuites(event){
+    console.log('evnet', event)
+    console.log('this.configPath', this.configPath)
+      this.automatedUIServices.getAllTestSuites$(this.configPath)
+      .subscribe(testSuiteFiles => {
+        // assign temp arrray to this.configSchema layout testSuite
+        console.log('data is:',testSuiteFiles);
+  
+        var testSuiteNames :  string[] =[];
+        for (let testSuiteFile of testSuiteFiles){
+          testSuiteNames.push(testSuiteFile.name);
+          console.log("testSuiteFile.name", testSuiteFile.name);
+        }
+
+        console.log('configSchema.layout is:',this.configSchema.layout);
+        this.configSchema.layout.testSuite = testSuiteNames;
+        
+        // testSuiteFiles = testSuiteNames; 
+       
+      });   
   }
 
   onSubmit(configData) {
