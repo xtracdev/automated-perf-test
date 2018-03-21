@@ -15,17 +15,10 @@ import (
 	"github.com/xtracdev/automated-perf-test/perfTestUtils"
 )
 
-var schemaFilename string = "schema.json"
-var structName string = "Config"
-
-func getConfigHeader(req *http.Request) string {
-	configPathDir := req.Header.Get("configPathDir")
-
-	if !strings.HasSuffix(configPathDir, "/") {
-		configPathDir = configPathDir + "/"
-	}
-	return configPathDir
-}
+const (
+	configSchema = "schema.json"
+	configStruct = "Config"
+)
 
 func IsHeaderValid(header string) error {
 	if len(header) <= 1 {
@@ -43,13 +36,12 @@ func IsNameValid(name string) error {
 	return nil
 }
 
-func IsPathDirValid(name string, rw http.ResponseWriter) bool {
+func IsPathDirValid(name string) error {
 	if len(name) <= 1 {
-		logrus.Error("No file directory entered")
-		rw.WriteHeader(http.StatusBadRequest)
-		return false
+		logrus.Error("No directory path entered")
+		return fmt.Errorf("No directory path entered")
 	}
-	return true
+	return nil
 }
 
 func ConfigCtx(next http.Handler) http.Handler {
@@ -59,11 +51,12 @@ func ConfigCtx(next http.Handler) http.Handler {
 }
 
 func postConfigs(rw http.ResponseWriter, req *http.Request) {
-	configPathDir := req.Header.Get("configPathDir")
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
+	configPathDir := getPathHeader(req)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
-	if !ValidateJSONWithSchema(buf.Bytes(), "schema.json", "Configurations") {
+	if !validateJSONWithSchema(buf.Bytes(), "schema.json", "Configurations") {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -102,7 +95,7 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !configWriterXML(config, configPathDir+config.APIName+".xml") {
+	if !writeXML(config, configPathDir+config.APIName+".xml") {
 
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
@@ -111,14 +104,9 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusCreated)
 }
 
-func FilePathExist(path string) bool {
-	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
-}
-
 func getConfigs(rw http.ResponseWriter, req *http.Request) {
-
-	configPathDir := getConfigHeader(req)
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
+	configPathDir := getPathHeader(req)
 	configName := chi.URLParam(req, "configName")
 
 	if err := IsHeaderValid(configPathDir); err != nil {
@@ -152,14 +140,14 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 	err = xml.Unmarshal(byteValue, &config)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot Unmarshall")
+		logrus.Error("Cannot Unmarshall XML ", err)
 		return
 	}
 
 	configJson, err := json.MarshalIndent(config, "", "")
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot Marshall")
+		logrus.Error("Cannot Marshall JSON", err)
 		return
 	}
 
@@ -170,7 +158,7 @@ func getConfigs(rw http.ResponseWriter, req *http.Request) {
 }
 
 func putConfigs(rw http.ResponseWriter, req *http.Request) {
-	path := getConfigHeader(req)
+	path := getPathHeader(req)
 	configName := chi.URLParam(req, "configName")
 
 	if err := IsHeaderValid(path); err != nil {
@@ -187,7 +175,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
-	if !ValidateJSONWithSchema(buf.Bytes(), schemaFilename, structName) {
+	if !validateJSONWithSchema(buf.Bytes(), configSchema, configStruct) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -207,7 +195,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !configWriterXML(config, configPathDir) {
+	if !writeXML(config, configPathDir) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -216,7 +204,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 }
 
 func putConfigFileName(rw http.ResponseWriter, req *http.Request) {
-	path := getConfigHeader(req)
+	path := getPathHeader(req)
 	configFileName := chi.URLParam(req, "configFileName")
 	newConfigFileName := chi.URLParam(req, "newConfigFileName")
 

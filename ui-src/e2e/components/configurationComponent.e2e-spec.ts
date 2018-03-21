@@ -1,3 +1,4 @@
+
 import {
   browser,
   element,
@@ -36,11 +37,6 @@ describe("configuration component", () => {
     );
   });
 
-  it("should show submit button is disabled when requiredFields data is blank", () => {
-    // used to clear default data in this test
-    configPO.checkRequiredFields();
-    expect(configPO.submitBtn.isEnabled()).toBe(false);
-  });
 
   it("should check that all text box names are correct", () => {
     configPO.setConfigData();
@@ -65,7 +61,7 @@ describe("configuration component", () => {
 
   it("should check values of existing file are as expected", () => {
     configPO.configFilePath.sendKeys(configPO.absolutePath);
-    configPO.xmlFileName.sendKeys("config.xml");
+    configPO.xmlFileName.sendKeys("config");
     configPO.cancelBtn.click();
     expect(configPO.applicationName.getAttribute("value")).toEqual("config");
     expect(configPO.targetHost.getAttribute("value")).toEqual("localhost");
@@ -85,8 +81,9 @@ describe("configuration component", () => {
     expect(configPO.requestDelay.getAttribute("value")).toEqual("5000");
     expect(configPO.tpsFreq.getAttribute("value")).toEqual("30");
     expect(configPO.rampDelay.getAttribute("value")).toEqual("15");
-    expect(configPO.rampUsers.getAttribute("value")).toEqual("5");
+    expect(configPO.rampUsers.getAttribute("value")).toEqual("15");
   });
+
 
   it("should throw error when file path does not exist", () => {
     configPO.setConfigData();
@@ -228,18 +225,16 @@ describe("configuration component", () => {
 
   it("should update existing file", () => {
     configPO.configFilePath.sendKeys(configPO.absolutePath);
-    configPO.xmlFileName.sendKeys("config.xml");
+    configPO.xmlFileName.sendKeys("config");
     configPO.cancelBtn.click();
     configPO.numIterations.sendKeys(5);
     configPO.btnUpdate.click();
     configPO.numIterations.sendKeys(Key.BACK_SPACE);
     configPO.cancelBtn.click();
 
-    configPO.getConfigFileBtn.click();
-
     expect(configPO.numIterations.getAttribute("value")).toEqual("10005");
   });
   it("should show update button is disabled when Xml File Name is blank", () => {
-    expect(configPO.btnUpdate.isEnabled()).toBe(false);
+    expect(configPO.btnUpdate.isPresent()).toBe(false);
   });
 });

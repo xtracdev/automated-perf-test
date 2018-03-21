@@ -4,50 +4,69 @@
     "testname",
     "overridePort",
     "overrideHost",
-    "HttpMethod",
-    "BaseURI",
+    "httpMethod",
+    "baseUri",
     "multipart",
+    "multipartPayload",
     "payload",
     "responseStatusCode",
     "responseContentType",
     "preThinkTime",
     "postThinkTime",
     "execWeight",
-    "Headers",
-    "ResponseValues",
-    "MultipartPayload"
+    "headers",
+    "responseValues"
   ],
+  "additionalProperties": false,
   "properties": {
-    "overridePort": {
-      "type": "string"
-    },
     "testname": {
       "type": "string"
     },
     "description": {
       "type": "string"
     },
-    "overrideHost": {
+    "baseUri": {
       "type": "string"
     },
-    "HttpMethod": {
-      "type": "string",
-      "enum": ["POST","GET","PUT","DELETE"]
-    },
-    "BaseURI": {
+    "overrideHost": {
       "type": "string"
     },
     "multipart": {
       "type": "boolean"
     },
+    "overridePort": {
+      "type": "string"
+    },
     "payload": {
       "type": "string"
     },
-    "responseStatusCode": {
-      "type": "number"
+    "httpMethod": {
+      "type": "string",
+      "enum": [
+        "POST",
+        "GET",
+        "PUT",
+        "DELETE"
+      ]
     },
-    "responseContentType": {
-      "type": "string"
+    "headers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      }
     },
     "preThinkTime": {
       "type": "number"
@@ -57,54 +76,50 @@
     },
     "execWeight": {
       "type": "string",
-      "enum": ["Sparse","Infrequent"]
+      "enum": [
+        "Sparse",
+        "Infrequent"
+      ]
     },
-    "Headers": {
+    "responseStatusCode": {
+      "type": "number"
+    },
+    "responseContentType": {
+      "type": "string"
+    },
+    "multipartPayload": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["Key", "Value"],
         "properties": {
-          "Key": {
+          "fieldName": {
             "type": "string"
           },
-          "Value": {
+          "fieldValue":{
+            "type": "string"
+          },
+          "fileName": {
             "type": "string"
           }
         }
       }
     },
-    "ResponseValues": {
+    "responseValues": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["Value", "ExtractionKey"],
+        "required": [
+          "value",
+          "extractionKey"
+        ],
         "properties": {
-          "Value": {
+          "extractionKey": {
             "type": "string"
           },
-          "ExtractionKey": {
+          "value": {
             "type": "string"
-          }
-        }
-      },
-      "MultipartPayload": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "required": ["FieldName", "FieldValue","FileName", "FileContent"],
-          "properties": {
-            "fieldName": {
-              "type": "string"
-            },
-            "FieldValue": {
-              "type": "string"
-            },
-            "FileName": {
-              "type": "string"
-            }
           }
         }
       }

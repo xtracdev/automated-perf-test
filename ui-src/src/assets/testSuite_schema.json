@@ -15,28 +15,30 @@
     },
     "testCases": {
       "type": "array",
-      "items": {
+      "testCases": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name"],
+        "required": [
+          "name",
+          "preThinkTime",
+          "postThinkTime",
+          "execWeight"
+        ],
         "properties": {
-          "preThinkTime": {
-            "type": "integer",
-            "minimum": 0
+          "key": {
+            "type": "string"
           },
-          "postThinkTime": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "execWeight": {
-            "type": "string",
-            "enum": ["Infrequent", "Sparse"]
-          },
-          "name": {
+          "value": {
             "type": "string"
           }
         }
       }
     }
-  }
-}
+  }}
+
+
+
+
+
+
+

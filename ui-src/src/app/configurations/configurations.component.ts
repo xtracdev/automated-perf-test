@@ -1,8 +1,9 @@
-import { Component, OnInit } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { AutomatedUIServices } from "../automated-ui-services";
-import { JsonSchemaFormModule } from "angular2-json-schema-form";
-import { ToastsManager } from "ng2-toastr/ng2-toastr";
+import {Component, OnInit} from "@angular/core";
+import {HttpClient} from "@angular/common/http";
+import {ConfigurationService} from "./configuration.service";
+import {TestSuiteService} from "../test-suites/test-suite.service";
+import {JsonSchemaFormModule} from "angular2-json-schema-form";
+import {ToastsManager} from "ng2-toastr/ng2-toastr";
 import "rxjs/add/operator/map";
 
 @Component({
@@ -12,21 +13,23 @@ import "rxjs/add/operator/map";
 })
 export class ConfigurationsComponent implements OnInit {
   formData = {};
+  test = [];
+  test2 = [];
+  testArary = [];
   configPath = undefined;
   xmlFileName = undefined;
   fileName = undefined;
-  // needed for layout to load
-  configSchema = { layout: true };
+  configSchema = {};
 
   constructor(
-    private automatedUIServices: AutomatedUIServices,
+    private configurationService: ConfigurationService,
+    private testSuiteService: TestSuiteService,
     private toastr: ToastsManager,
-
     private http: HttpClient
   ) {}
 
   ngOnInit() {
-    this.automatedUIServices
+    this.configurationService
       .getSchema$("assets/schema.json")
       .subscribe((data: any) => {
         this.configSchema = data;
@@ -34,7 +37,7 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onSubmit(configData) {
-    this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
+    this.configurationService.postConfig$(configData, this.configPath).subscribe(
       data => {
         this.toastr.success("Your data has been saved!", "Success!");
       },
@@ -65,7 +68,7 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onCancel() {
-    this.automatedUIServices
+    this.configurationService
       .getConfig$(this.configPath, this.xmlFileName)
       .subscribe(
         data => {
@@ -80,13 +83,24 @@ export class ConfigurationsComponent implements OnInit {
       );
   }
 
+
   fileSelector(event) {
     this.fileName = event.srcElement.files[0].name;
     this.xmlFileName = this.fileName;
+    this.xmlFileName = this.xmlFileName.substring(
+      0,
+      this.xmlFileName.length - 4);
+
     this.onGetFile();
+    (<HTMLInputElement>document.getElementById("file")).value = "";
   }
+
+  onClearFile() {
+    this.xmlFileName = undefined;
+  }
+
   onGetFile() {
-    this.automatedUIServices
+    this.configurationService
       .getConfig$(this.configPath, this.xmlFileName)
       .subscribe(
         data => {
@@ -120,8 +134,9 @@ export class ConfigurationsComponent implements OnInit {
         }
       );
   }
+  
   onUpdate(configData) {
-    this.automatedUIServices
+    this.configurationService
       .putConfig$(this.formData, this.configPath, this.xmlFileName)
       .subscribe(
         data => {
@@ -141,7 +156,7 @@ export class ConfigurationsComponent implements OnInit {
               break;
             }
             case 500: {
-              this.toastr.error("Internal server error!");
+              this.toastr.error("An error has occurred!", "Check the logs!");
               break;
             }
             default: {
