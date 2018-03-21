@@ -13,21 +13,21 @@ export class ConfigurationService {
   }
 
   postConfig$(configData, configPath): Observable<any> {
-    this.headers = this.headers.set("configPathDir", configPath);
+    this.headers = this.headers.set("path", configPath);
     return this.http.post(`${environment.API_BASE_URL}configs`, configData, {
       headers: this.headers
     });
   }
 
   getConfig$(configPath, xmlFileName): Observable<any> {
-    this.headers = this.headers.set("configPathDir", configPath);
+    this.headers = this.headers.set("path", configPath);
     return this.http.get(`${environment.API_BASE_URL}configs/${xmlFileName}`, {
       headers: this.headers
     });
   }
 
   putConfig$(configData, configPath, xmlFileName): Observable<any> {
-    this.headers = this.headers.set("configPathDir", configPath);
+    this.headers = this.headers.set("path", configPath);
     return this.http.put(
       `${environment.API_BASE_URL}configs/${xmlFileName}`,
       configData,
