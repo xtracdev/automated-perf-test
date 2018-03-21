@@ -79,7 +79,7 @@ func postTestCase(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !testCaseWriterXml(testCase, testCasePathDir+testCase.TestName+".xml") {
+	if !writeXML(testCase, testCasePathDir+testCase.TestName+".xml") {
 		logrus.Error("Error writing to the file")
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
@@ -137,7 +137,7 @@ func putTestCase(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !testCaseWriterXml(testCase, testCasePathDir) {
+	if !writeXML(testCase, testCasePathDir) {
 		logrus.Error("Error writing to the file")
 		rw.WriteHeader(http.StatusInternalServerError)
 		return

@@ -78,7 +78,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !testSuiteWriterXml(testSuite, filePath) {
+	if !writeXML(testSuite, filePath) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -124,7 +124,7 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !testSuiteWriterXml(testSuite, testSuitePathDir) {
+	if !writeXML(testSuite, testSuitePathDir) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}

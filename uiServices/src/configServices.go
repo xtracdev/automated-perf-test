@@ -95,7 +95,7 @@ func postConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !writeXml(config, configPathDir+config.APIName+".xml") {
+	if !writeXML(config, configPathDir+config.APIName+".xml") {
 
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
@@ -195,7 +195,7 @@ func putConfigs(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if !writeXml(config, configPathDir) {
+	if !writeXML(config, configPathDir) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
