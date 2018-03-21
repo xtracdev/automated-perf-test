@@ -1,8 +1,0 @@
-  <testSuite>
-      <name>sdsd</name>
-      <description>sdsds</description>
-      <testStrategy>SuiteBased</testStrategy>
-      <testCases>
-          <testCase description="desc222" preThinkTime="0" postThinkTime="0" execWeight="Infrequent"></testCase>
-      </testCases>
-  </testSuite>

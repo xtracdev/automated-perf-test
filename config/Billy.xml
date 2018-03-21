@@ -1,6 +1,0 @@
-  <testSuite>
-      <name>Billy</name>
-      <description>Billy</description>
-      <testStrategy>SuiteBased</testStrategy>
-      <testCases></testCases>
-  </testSuite>
