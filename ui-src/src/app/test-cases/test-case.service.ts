@@ -13,28 +13,28 @@ export class TestCaseService {
   }
 
   getTestCases$(testCasePath): Observable<any> {
-    this.headers = this.headers.set("testSuitePathDir", testCasePath);
+    this.headers = this.headers.set("path", testCasePath);
     return this.http.get(`${environment.API_BASE_URL}test-cases`, {
       headers: this.headers
     });
   }
 
   postTestCase$(testCaseData, testCasePath): Observable<any> {
-    this.headers = this.headers.set("testSuitePathDir", testCasePath);
+    this.headers = this.headers.set("path", testCasePath);
     return this.http.post(`${environment.API_BASE_URL}test-cases`, testCaseData, {
       headers: this.headers
     });
   }
 
   getTestCase$(testCasePath, testCaseFileName): Observable<any> {
-    this.headers = this.headers.set("testSuitePathDir", testCasePath);
+    this.headers = this.headers.set("path", testCasePath);
     return this.http.get(`${environment.API_BASE_URL}test-cases/${testCaseFileName}`, {
       headers: this.headers
     });
   }
 
   putTestCase$(testCaseData, testCasePath, testCaseFileName): Observable<any> {
-    this.headers = this.headers.set("testSuitePathDir", testCasePath);
+    this.headers = this.headers.set("path", testCasePath);
     return this.http.put(
       `${environment.API_BASE_URL}test-cases/${testCaseFileName}`,
       testCaseData,
