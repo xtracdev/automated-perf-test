@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 
@@ -268,6 +269,31 @@ func FeatureContext(s *godog.Suite) {
 	s.BeforeScenario(func(interface{}) {
 
 		api.resetResponse()
+		dirname := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+
+		d, err := os.Open(dirname)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer d.Close()
+
+		files, err := d.Readdir(-1)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Println("Reading " + dirname)
+
+		for _, file := range files {
+			if file.Mode().IsRegular() {
+				if filepath.Ext(file.Name()) == ".xml" {
+					os.Remove("file.Name()")
+					fmt.Println("Deleted ", file.Name())
+				}
+			}
+		}
 
 	})
 
@@ -358,7 +384,7 @@ func makeGetRequest(client *http.Client, method, endpoint string, filename strin
 	if headerPath == "" {
 		req.Header.Set(headerName, "")
 	} else {
-		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/%s", os.Getenv("GOPATH"), headerPath))
 	}
 	if err != nil {
 		return nil, err
@@ -436,7 +462,12 @@ func (a *apiFeature) theUpdatedFileShouldMatchJSON(body *gherkin.DocString) (err
 
 func createNewFile(fileName, path string) error {
 
-	err := ioutil.WriteFile(fmt.Sprintf("%s%s/%s", suitDir, path, fileName), nil, 0666)
+	_, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + path)
+	if err != nil {
+		os.Mkdir(os.Getenv("GOPATH")+"/src/github.com/xtracdev/automated-perf-test"+path, 0777)
+	}
+
+	err = ioutil.WriteFile(fmt.Sprintf("%s%s/%s", suitDir, path, fileName), nil, 0666)
 	if err != nil {
 		logrus.Error(" error creating file ", err)
 		return err
