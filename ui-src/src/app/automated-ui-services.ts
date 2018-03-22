@@ -40,7 +40,7 @@ export class AutomatedUIServices {
   }
   getSchema$(location: string): Observable<any> {
     return this.http
-      .get(`${environment.apiBaseUrl}${location}`, { headers: this.headers })
+      .get(`http://localhost:4200/${location}`, { headers: this.headers })
       .map((data: any) => data);
   }
 

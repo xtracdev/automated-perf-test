@@ -12,13 +12,15 @@ import { ToastModule } from "ng2-toastr/ng2-toastr";
 import { AutomatedUIServices } from "./automated-ui-services";
 import { HttpClientModule, HttpClient } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
+import { InputGeneratorComponent } from './input-generator/input-generator.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     TestCasesComponent,
     TestSuitesComponent,
-    ConfigurationsComponent
+    ConfigurationsComponent,
+    InputGeneratorComponent
   ],
   imports: [
     FormsModule,

@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { AutomatedUIServices } from "../automated-ui-services";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
@@ -7,60 +7,74 @@ import "rxjs/add/operator/map";
 
 @Component({
   selector: "app-configurations",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./configurations.component.html",
   styleUrls: ["./configurations.component.css"]
 })
 export class ConfigurationsComponent implements OnInit {
   formData = {};
+  configSchema = {
+    layout: {},
+    properties: { testSuite: {} }
+  };
   configPath = undefined;
   xmlFileName = undefined;
   fileName = undefined;
   // needed for layout to load
-  configSchema = { 
-    layout: { testSuite: {}},
-    properties: {testSuite: { } }
+  conorSchema = {
+    layout: {},
+    properties: { testSuite: {} }
   };
-
 
   constructor(
     private automatedUIServices: AutomatedUIServices,
     private toastr: ToastsManager,
-
     private http: HttpClient
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
-        this.automatedUIServices
+    this.automatedUIServices
       .getSchema$("assets/schema.json")
       .subscribe((data: any) => {
         this.configSchema = data;
-        console.log("CONFIG SCHEMA", this.configSchema);  
+        console.log("CONFIG SCHEMA", this.configSchema);
       });
-    }
+    //this.getAllTestsuites(event);
 
-      //load schema from backend server or file  
-    getAllTestsuites(event){
-      console.log('event', event)
-      console.log('this.configPath', this.configPath)
-        this.automatedUIServices.getAllTestSuites$(this.configPath)
-        .subscribe(testSuiteFiles => {
-          // assign temp arrray to this.configSchema layout testSuite
-          console.log('data is:',testSuiteFiles);
-    
-          var testSuiteNames :  string[] =[];
-          for (let testSuiteFile of testSuiteFiles){
-            testSuiteNames.push(testSuiteFile.name);
-            console.log("testSuiteFile.name", testSuiteFile.name);
-          }
-  
-          console.log('configSchema.layout is:',this.configSchema.layout);
-          console.log('configSchema.properies is:',this.configSchema.properties);
-          this.configSchema.layout.testSuite = testSuiteNames;
-          this.configSchema.properties.testSuite = testSuiteNames;
-          
-        });   
-    }
-  
+  }
+
+  //load schema from backend server or file  
+  getAllTestsuites(event) {
+    console.log('event', event)
+    console.log('this.configPath', this.configPath)
+    this.automatedUIServices.getAllTestSuites$(this.configPath)
+      .subscribe(testSuiteFiles => {
+        // assign temp arrray to this.configSchema layout testSuite
+        console.log('data is:', testSuiteFiles);
+
+        var testSuiteNames: string[] = [];
+        for (let testSuiteFile of testSuiteFiles) {
+          testSuiteNames.push(testSuiteFile.name);
+          console.log("testSuiteFile.name", testSuiteFile.name);
+        }
+
+        // NOTE: lodash js
+
+
+
+        // saftey check for testSuite
+        this.configSchema.properties.testSuite = testSuiteNames;
+
+        this.conorSchema = this.configSchema;
+        this.conorSchema.layout[4] = testSuiteNames;
+
+        console.log('conorSchema.layout is:', this.conorSchema.layout);
+
+        console.log('conorSchema.properies is:', this.conorSchema.properties);
+      });
+  }
+
 
   onSubmit(configData) {
     this.automatedUIServices.postConfig$(configData, this.configPath).subscribe(
@@ -97,15 +111,15 @@ export class ConfigurationsComponent implements OnInit {
     this.automatedUIServices
       .getConfig$(this.configPath, this.xmlFileName)
       .subscribe(
-        data => {
-          this.formData = data;
-          this.toastr.success("Previous data reloaded!");
-        },
-        error => {
-          this.configPath = undefined;
-          this.xmlFileName = undefined;
-          this.formData = undefined;
-        }
+      data => {
+        this.formData = data;
+        this.toastr.success("Previous data reloaded!");
+      },
+      error => {
+        this.configPath = undefined;
+        this.xmlFileName = undefined;
+        this.formData = undefined;
+      }
       );
   }
 
@@ -118,66 +132,66 @@ export class ConfigurationsComponent implements OnInit {
     this.automatedUIServices
       .getConfig$(this.configPath, this.xmlFileName)
       .subscribe(
-        data => {
-          this.formData = data;
-          this.toastr.success("Success!");
-        },
-        error => {
-          switch (error.status) {
-            case 404: {
-              this.toastr.error("File not found!", "An error occured!");
-              break;
-            }
-            case 400: {
-              this.toastr.error(
-                "Check your field inputs",
-                "An error occurred!"
-              );
-              break;
-            }
-            case 500: {
-              this.toastr.error("An error has occurred!", "Check the logs!");
-              break;
-            }
-            default: {
-              this.toastr.error(
-                "Your data was not retrieved!",
-                "An error occurred!"
-              );
-            }
+      data => {
+        this.formData = data;
+        this.toastr.success("Success!");
+      },
+      error => {
+        switch (error.status) {
+          case 404: {
+            this.toastr.error("File not found!", "An error occured!");
+            break;
+          }
+          case 400: {
+            this.toastr.error(
+              "Check your field inputs",
+              "An error occurred!"
+            );
+            break;
+          }
+          case 500: {
+            this.toastr.error("An error has occurred!", "Check the logs!");
+            break;
+          }
+          default: {
+            this.toastr.error(
+              "Your data was not retrieved!",
+              "An error occurred!"
+            );
           }
         }
+      }
       );
   }
   onUpdate(configData) {
     this.automatedUIServices
       .putConfig$(this.formData, this.configPath, this.xmlFileName)
       .subscribe(
-        data => {
-          this.toastr.success("Success!");
-        },
-        error => {
-          switch (error.status) {
-            case 404: {
-              this.toastr.error("File not found", "An error occured!");
-              break;
-            }
-            case 400: {
-              this.toastr.error(
-                "File must be specified!",
-                "An error occurred!"
-              );
-              break;
-            }
-            case 500: {
-              this.toastr.error("Internal server error!");
-              break;
-            }
-            default: {
-              this.toastr.error("File was not updated!", "An error occurred!");
-            }
+      data => {
+        this.toastr.success("Success!");
+      },
+      error => {
+        switch (error.status) {
+          case 404: {
+            this.toastr.error("File not found", "An error occured!");
+            break;
+          }
+          case 400: {
+            this.toastr.error(
+              "File must be specified!",
+              "An error occurred!"
+            );
+            break;
+          }
+          case 500: {
+            this.toastr.error("Internal server error!");
+            break;
+          }
+          default: {
+            this.toastr.error("File was not updated!", "An error occurred!");
           }
         }
+      }
       );
   }
 }

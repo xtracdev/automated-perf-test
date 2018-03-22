@@ -2,7 +2,7 @@
     <div class="row">
         <div class=" column  col-md-8">
             <label>Config File Path *</label>
-            <input class="form-control" type="string" [(ngModel)]="configPath" id="config-file-path" required>
+            <input class="form-control" type="string" [(ngModel)]="configPath" id="config-file-path" required (blur)="getAllTestsuites($event)">
 
         </div>
         <div class=" column col-md-4">
@@ -14,8 +14,8 @@
 
 
     </div>
-    <json-schema-form name="auto-generated-fields" ngDefaultControl [schema]="configSchema" ngModel="formData" [layout]="configSchema.layout" framework="bootstrap-4" (onSubmit)="onSubmit($event)">
-    </json-schema-form>
+    <app-input-generator (schema)="conorSchema"></app-input-generator>
+
     <button class="btn btn-primary" id="update-config-file-btn" [disabled]="!xmlFileName" (click)="onUpdate(formData)">Update</button>
     <button class="btn btn-primary" id="cancel-btn" (click)="onCancel()">Cancel</button>
 
