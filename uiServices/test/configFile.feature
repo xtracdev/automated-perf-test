@@ -9,13 +9,13 @@ So that I can test my application using custom metrics
   ###################################
 
   Scenario: Successful creation of config file
-    Given there is no existing test file "ConfigSAMPLE.xml"
+    Given there is no existing test file "PostConfigSAMPLE.xml"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test"
     When I send "POST" request to "/configs" with a body:
       """
       {
-      "apiName": "ConfigSAMPLE",
+      "apiName": "PostConfigSAMPLE",
       "targetHost": "localhost",
       "targetPort":"9191",
       "memoryEndpoint": "/alt/debug/vars",
@@ -39,12 +39,12 @@ So that I can test my application using custom metrics
 
   Scenario: Unsuccessful creation of config file (file already exists)
     Given the automated performance ui server is available
-    Given there is no existing test file "ConfigSAMPLE.xml"
+    Given there is no existing test file "DUPConfigSAMPLE.xml"
     And the header "path" is "/uiServices/test"
     When I send "POST" request to "/configs" with a body:
       """
       {
-      "apiName": "ConfigSAMPLE",
+      "apiName": "DUPConfigSAMPLE",
       "targetHost": "localhost",
       "targetPort":"9191",
       "memoryEndpoint": "/alt/debug/vars",
@@ -68,7 +68,7 @@ So that I can test my application using custom metrics
     When I send "POST" request to "/configs" with a body:
       """
       {
-      "apiName": "ConfigSAMPLE",
+      "apiName": "DUPConfigSAMPLE",
       "targetHost": "localhost",
       "targetPort":"9191",
       "memoryEndpoint": "/alt/debug/vars",
@@ -199,13 +199,13 @@ So that I can test my application using custom metrics
   ##################################
 
   Scenario: Unsuccessful update of config file with PUT request (No File Path)
-    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
+    Given the file "PUTConfigSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is ""
-    When I send "PUT" request to "/configs/ConfigSAMPLE" with body:
+    When I send "PUT" request to "/configs/PUTConfigSAMPLE" with body:
       """
       {
-      "apiName": "ConfigSAMPLE",
+      "apiName": "PUTConfigSAMPLE",
       "targetHost": "localhost2",
       "targetPort":"1001",
       "memoryEndpoint": "/alt/debug/vars",
@@ -227,13 +227,13 @@ So that I can test my application using custom metrics
     Then the response code should be 400
 
   Scenario: Unsuccessful update of config file with PUT request (Incorrect File Name)
-    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
+    Given the file "PUTConfigSAMPLE-1.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
     When I send "PUT" request to "/configs/xxx" with body:
       """
       {
-      "apiName": "ConfigSAMPLE",
+      "apiName": "PUTConfigSAMPLE-1",
       "targetHost": "localhost",
       "targetPort":"1001",
       "memoryEndpoint": "/alt/debug/vars",
@@ -255,13 +255,13 @@ So that I can test my application using custom metrics
     Then the response code should be 404
 
   Scenario: Unsuccessful update of config file with PUT request (No File Name)
-    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
+    Given the file "ErrorConfigSAMPLE.xml" exists at "/uiServices/test/"
     Given the automated performance ui server is available
     And the header "path" is "/uiServices/test/"
     When I send "PUT" request to "/configs/" with body:
       """
       {
-      "apiName": "ConfigSAMPLE",
+      "apiName": "ErrorConfigSAMPLE",
       "targetHost": "localhost",
       "targetPort":"1001",
       "memoryEndpoint": "/alt/debug/vars",
@@ -282,170 +282,4 @@ So that I can test my application using custom metrics
       """
     Then the response code should be 404
 
-  Scenario: Unsuccessful update of config file with PUT request (Missing Required Fields)
-    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
-    Given the automated performance ui server is available
-    And the header "path" is "/uiServices/test/"
-    When I send "PUT" request to "/configs/ConfigSAMPLE" with body:
-      """
-      {
-      "apiName": "ConfigSAMPLE",
-      "targetHost": "",
-      "targetPort":"",
-      "memoryEndpoint": ,
-      "numIterations": ,
-      "allowablePeakMemoryVariance": ,
-      "allowableServiceResponseTimeVariance": ,
-      "testCaseDir": "",
-      "testSuiteDir": "./definitions/testSuites",
-      "baseStatsOutputDir": "./envStats",
-      "reportOutputDir": "./report",
-      "concurrentUsers": ,
-      "testSuite": "",
-      "requestDelay": 1000,
-      "TPSFreq": 10,
-      "rampUsers": 10,
-      "rampDelay": 10
-      }
-      """
-    Then the response code should be 400
-
-
-  Scenario: Successful update of config file with PUT request
-    Given the automated performance ui server is available
-    Given there is no existing test file "ConfigSAMPLE.xml"
-    And the header "path" is "/uiServices/test"
-    When I send "POST" request to "/configs" with a body:
-      """
-      {
-      "apiName": "ConfigSAMPLE",
-      "targetHost": "localhost",
-      "targetPort":"9191",
-      "memoryEndpoint": "/alt/debug/vars",
-      "numIterations": 1000,
-      "allowablePeakMemoryVariance": 30,
-      "allowableServiceResponseTimeVariance": 30,
-      "testCaseDir": "./definitions/testCases",
-      "testSuiteDir": "./definitions/testSuites",
-      "baseStatsOutputDir": "./envStats",
-      "reportOutputDir": "./report",
-      "concurrentUsers": 50,
-      "testSuite": "Default-3",
-      "requestDelay": 5000,
-      "TPSFreq": 30,
-      "rampUsers": 5,
-      "rampDelay": 15
-      }
-      """
-    Then the response code should be 201
-    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
-    And the header "path" is "/uiServices/test/"
-    When I send "PUT" request to "/configs/ConfigSAMPLE" with body:
-      """
-      {
-      "apiName": "ConfigSAMPLE",
-      "targetHost": "localhost2",
-      "targetPort":"1001",
-      "memoryEndpoint": "/alt/debug/vars",
-      "numIterations": 4000,
-      "allowablePeakMemoryVariance": 50,
-      "allowableServiceResponseTimeVariance": 50,
-      "testCaseDir": "./definitions/testCases",
-      "testSuiteDir": "./definitions/testSuites",
-      "baseStatsOutputDir": "./envStats",
-      "reportOutputDir": "./report",
-      "concurrentUsers": 50,
-      "testSuite": "Default-3",
-      "requestDelay": 1000,
-      "TPSFreq": 10,
-      "rampUsers": 10,
-      "rampDelay": 10
-      }
-      """
-    Then the response code should be 204
-    And the response body should be empty
-    When I send a "GET" request to "/configs/ConfigSAMPLE"
-    And the updated file should match json:
-      """
-      {
-        "apiName": "ConfigSAMPLE",
-        "targetHost": "localhost2",
-        "targetPort": "1001",
-        "numIterations": 4000,
-        "allowablePeakMemoryVariance": 50,
-        "allowableServiceResponseTimeVariance": 50,
-        "testCaseDir": "./definitions/testCases",
-        "testSuiteDir": "./definitions/testSuites",
-        "baseStatsOutputDir": "./envStats",
-        "reportOutputDir": "./report",
-        "concurrentUsers": 50,
-        "testSuite": "Default-3",
-        "memoryEndpoint": "/alt/debug/vars",
-        "requestDelay": 1000,
-        "TPSFreq": 10,
-        "rampUsers": 10,
-        "rampDelay": 10,
-        "GBS": false,
-        "ReBaseMemory": false,
-        "ReBaseAll": false,
-        "ExecutionHost": "",
-        "ReportTemplateFile": ""
-      }
-      """
-
-  Scenario: Successful update of config file with PUT request (Update API Name to not match Filename)
-    Given the file "ConfigSAMPLE.xml" exists at "/uiServices/test/"
-    Given the automated performance ui server is available
-    And the header "path" is "/uiServices/test/"
-    When I send "PUT" request to "/configs/ConfigSAMPLE" with body:
-      """
-      {
-      "apiName": "newTest",
-      "targetHost": "localhost",
-      "targetPort":"1001",
-      "memoryEndpoint": "/alt/debug/vars",
-      "numIterations": 4000,
-      "allowablePeakMemoryVariance": 50,
-      "allowableServiceResponseTimeVariance": 50,
-      "testCaseDir": "./definitions/testCases",
-      "testSuiteDir": "./definitions/testSuites",
-      "baseStatsOutputDir": "./envStats",
-      "reportOutputDir": "./report",
-      "concurrentUsers": 50,
-      "testSuite": "Default-3",
-      "requestDelay": 1000,
-      "TPSFreq": 10,
-      "rampUsers": 10,
-      "rampDelay": 10
-      }
-      """
-    Then the response code should be 204
-    And the response body should be empty
-    When I send a "GET" request to "/configs/ConfigSAMPLE"
-    And the updated file should match json:
-      """
-      {
-          "apiName": "newTest",
-          "targetHost": "localhost",
-          "targetPort": "1001",
-          "numIterations": 4000,
-          "allowablePeakMemoryVariance": 50,
-          "allowableServiceResponseTimeVariance": 50,
-          "testCaseDir": "./definitions/testCases",
-          "testSuiteDir": "./definitions/testSuites",
-          "baseStatsOutputDir": "./envStats",
-          "reportOutputDir": "./report",
-          "concurrentUsers": 50,
-          "testSuite": "Default-3",
-          "memoryEndpoint": "/alt/debug/vars",
-          "requestDelay": 1000,
-          "TPSFreq": 10,
-          "rampUsers": 10,
-          "rampDelay": 10,
-          "GBS": false,
-          "ReBaseMemory": false,
-          "ReBaseAll": false,
-          "ExecutionHost": "",
-          "ReportTemplateFile": ""
-      }
-      """
+    
