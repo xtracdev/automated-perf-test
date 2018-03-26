@@ -20,7 +20,9 @@
                     <th>Description</th>
                     <th>Http Method</th>
                 </tr>
-                <tr *ngFor="let testCase of testCases  let i = index"  [class.highlighted]="testCase"  (click)="onSelectCase(testCase, i)">
+                <tr *ngFor="let testCase of testCases  let i = index"  
+                    [class.highlighted]="testCase"  
+                    (click)="onSelectCase(testCase, i)">
                     <td>{{testCase.testname}}</td>
                     <td>{{testCase.description}}</td>
                     <td>{{testCase.httpMethod}}</td>
@@ -29,7 +31,11 @@
         </div>
         <div class="col-md-8">
 
-            <json-schema-form ngDefaultControl [schema]="testCaseSchema" [(ngModel)]="testCaseData" framework="bootstrap-4">
+            <json-schema-form 
+            ngDefaultControl 
+            [schema]="testCaseSchema" 
+            [(ngModel)]="testCaseData" 
+            framework="bootstrap-4">
             </json-schema-form>
 
             <div class="button-row">

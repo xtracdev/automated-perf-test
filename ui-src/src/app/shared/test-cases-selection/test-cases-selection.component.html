@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-6">
         <h3>Available</h3>
-        <app-test-cases-list (addToSelected)="onAddToSelected($event)" [testCases]="availableTestCases"></app-test-cases-list>
+        <app-test-cases-list (addToSelected)="onAddToSelected($event, $event)" [testCases]="availableTestCases"></app-test-cases-list>
     </div>
     <div class="col-md-6">
         <h3>Selected</h3>

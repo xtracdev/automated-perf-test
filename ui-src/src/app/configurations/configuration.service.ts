@@ -37,7 +37,7 @@ export class ConfigurationService {
 
   getSchema$(location: string): Observable<any> {
     return this.http
-      .get(`${environment.ASSESTS_BASE_URL}${location}`, {headers: this.headers})
+      .get(`/${location}`, {headers: this.headers})
       .map((data: any) => data);
   }
 }

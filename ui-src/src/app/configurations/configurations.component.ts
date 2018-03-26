@@ -19,7 +19,7 @@ export class ConfigurationsComponent implements OnInit {
   configPath = undefined;
   xmlFileName = undefined;
   fileName = undefined;
-  configSchema = {};
+  configSchema = { layout : true};
 
   constructor(
     private configurationService: ConfigurationService,

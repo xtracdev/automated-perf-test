@@ -21,7 +21,7 @@ const configPO: ConfigurationPageObject = new ConfigurationPageObject();
 
 describe("configuration component", () => {
   beforeEach(() => {
-    browser.get("http://localhost:9191");
+    browser.get("/");
     browser.executeScript("window.onbeforeunload = function(e){};");
     browser.driver
       .manage()
@@ -29,10 +29,17 @@ describe("configuration component", () => {
       .maximize();
   });
 
-  it("should create xml file", () => {
+  fit("should create xml file", () => {
+    // ACT
+  
     configPO.setConfigData();
+    // Action
+    browser.pause(1000000000000);
     configPO.submitBtn.click();
-    expect(configPO.toastrMessage.getText()).toContain(
+    // Assert
+    //browser.sleep(5200000)
+    browser.pause();
+    expect(configPO.toastrMessage.getText()).toEqual(
       "Your data has been saved!"
     );
   });
