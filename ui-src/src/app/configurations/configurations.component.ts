@@ -37,7 +37,7 @@ export class ConfigurationsComponent implements OnInit {
   }
 
   onSubmit(configData) {
-    this.configurationService.postConfig$(configData, this.configPath).subscribe(
+    this.configurationService.postConfig$(this.formData, this.configPath).subscribe(
       data => {
         this.toastr.success("Your data has been saved!", "Success!");
       },

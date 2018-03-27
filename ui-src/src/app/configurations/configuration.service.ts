@@ -9,7 +9,11 @@ import { environment } from '../../environments/environment';
 export class ConfigurationService {
   private headers: HttpHeaders;
   constructor(private http: HttpClient) {
-    this.headers = new HttpHeaders({"Content-Type": "application/json"});
+    this.headers = new HttpHeaders(
+      {"Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*"}
+    );
+
   }
 
   postConfig$(configData, configPath): Observable<any> {

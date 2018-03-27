@@ -29,18 +29,18 @@ describe("configuration component", () => {
       .maximize();
   });
 
-  fit("should create xml file", () => {
+  it("should create xml file", () => {
     // ACT
-  
     configPO.setConfigData();
+    
     // Action
-    browser.pause(1000000000000);
     configPO.submitBtn.click();
+    
     // Assert
-    //browser.sleep(5200000)
-    browser.pause();
+    
+    // browser.sleep(52000000)
     expect(configPO.toastrMessage.getText()).toEqual(
-      "Your data has been saved!"
+      "Success!\nYour data has been saved!"
     );
   });
 
