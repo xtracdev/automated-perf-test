@@ -19,25 +19,30 @@ import {
   const testCasePO: TestCasePageObject = new TestCasePageObject();
 
 
-  describe('Test Cases ', () => {
+  describe("test cases component", () => {
       beforeEach(()  => {
         browser.get("/");
         browser.executeScript("window.onbeforeunload = function(e){};");
-        browser.driver.manage().window().maximize();
+        browser.driver
+        .manage()
+        .window()
+        .maximize();
       });
 
-      fit('should create a test case file', () => {
+
+      it('should add a test case file', () => {
       //click tab button
       testCasePO.setTestCaseData();
-        
+    
       //set test data
-        testCasePO.btnAdd.click();
+      
+      testCasePO.btnAdd.click();
       //click submit
-
-     // browser.sleep(520000000000000000)
+     
+     browser.sleep(520000000000000000)
       //confirm message toaster
       expect(testCasePO.toastrMessage.getText()).toEqual(
-        "Success!\nYour data has been saved!"
+        "Your data has been added!, Success!"
       );
     });
 

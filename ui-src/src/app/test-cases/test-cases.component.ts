@@ -5,6 +5,7 @@ import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { HttpClient } from "@angular/common/http";
 import "rxjs/add/operator/map";
+import { error } from "selenium-webdriver";
 
 @Component({
   selector: "app-test-cases",
@@ -69,6 +70,31 @@ export class TestCasesComponent implements OnInit {
   onAdd() {
     this.testCaseData = undefined;
     this.testCaseFileName = undefined;
+    this.testCaseService.getTestCases$(this.testCasePath).subscribe(
+      data => {
+        this.testCases = data;
+        this.toastr.success("Your data has been added!, Success!");
+      },
+
+      error => {
+        switch (error.status) {
+          case 500: {
+            this.toastr.error("An error has occurred!", "Check the logs!");
+            break;
+          }
+          case 400: {
+            this.toastr.error(
+              "No Test Case Directory added",
+              "An error occurred!"
+            );
+            break;
+          }
+          default: {
+            this.toastr.error("An error occurred!");
+          }
+        }
+      }
+    )
   }
 
   onDelete() { }

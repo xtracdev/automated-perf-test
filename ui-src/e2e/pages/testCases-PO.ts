@@ -15,21 +15,24 @@ import {
   
   
    class TestCasePageObject {
-    testCaseDir = element(by.id("testCase-directory"));
+
+    testCaseTabBtn = element(by.id("test-cases"));
+    
+    testCaseDir = element(by.id("testCase-dir"));
     btnAdd = element(by.id("btn-add"));
     btnSave = element(by.id("btn-save"));
 
-    testName = element(by.name("testName"));
-    describe = element(by.name("description"));
-    baseUri = element(by.name("baseUri"));
+    testname = element(by.name("testname"));
+    baseUri = element(by.name("baseURI"));
     overrideHost = element(by.name("overrideHost"));
-    overridePort = element(by.name("overRidePort"));
+    overridePort = element(by.name("overridePort"));
+    multipart = element(by.name("multipart"))
     payload = element(by.name("payload"));
-    httpMethod = element(by.name("httpMethod"));
+    httpMethod = element(by.name("httpMethod")).$$("option");
     header = element(by.name("header"));
     preThinkTime = element(by.name("preThinkTime"));
     postThinkTime = element(by.name("postThinkTime"));
-    execWeight = element(by.name("execWeight"));
+    execWeight = element(by.name("execWeight")).$$("option");
     responseStatusCode = element(by.name("responseStatusCode"));
     responseContentType = element(by.name("responseContentType"));
     multipartPayload = element(by.name("multipartPayload"));
@@ -42,17 +45,27 @@ import {
 
     absolutePath = path.resolve(__dirname, testCaseFileLocation);
 
+
+    setToastrMessage(){
+      return this.toastrMessage;
+    }
+
+    setTestCaseTabBtn(){
+      return this.testCaseTabBtn.click();
+    }
+
     setTestCaseDir(){
     return this.testCaseDir.sendKeys(this.absolutePath);
     }
     
     setTestName(){
-      return this.testName.sendKeys("Xtrac Test Case");
+      return this.testname.sendKeys("Xtrac Test Case");
     }
 
-    setDescribe(){
-      return this.describe.sendKeys("test case is cool");
+    setMultipart(){
+      return this.multipart.get(0).click();
     }
+    
      setBaseUri(){
        return this.baseUri.sendKeys("./baseURI/testCases ");
      }
@@ -72,11 +85,7 @@ import {
     setHttpMethod(){
       return this.httpMethod.get(0).click();
     }
-
-    // setHeader(){
-    //   return this.header.get(0);
-    // }
-   
+    
     setPreThinkTime(){
       return this.preThinkTime.sendKeys(1);
     }
@@ -92,65 +101,52 @@ import {
     setResponseContentType(){
       return this.responseContentType.sendKeys("pass/fail");
     }
-    // setMultipartPayload(){
-    //   return this.multipartPayload.get(0);
-    // }
-
-    // setResponseValue(){
-    //   return this.responseValue.get(0);
-    // }
      
     setTestCaseData(){
+      this.testCaseTabBtn.click();
       this.setTestCaseDir();
       this.setTestName();
-      this.setDescribe();
+      this.multipart.click();
       this.setBaseUri();
       this.setOverrideHost();
       this.setOverridePort();
       this.setPayload();
       this.httpMethod.click();
-      //this.setHeader();
       this.setPreThinkTime();
       this.setPostThinkTime();
       this.execWeight.click();
       this.setResponseStatusCode();
       this.setResponseContentType();
-     // this.setMultipartPayload();
-     // this.setResponseValue();
-
+    
     }
 
     checkRequiredFields(){
-      this.testCaseDir.sendKeys("x");
-      this.testName.sendKeys("x");
-      this.describe.sendKeys("x");
+
+      this.testname.sendKeys("x");
       this.baseUri.sendKeys("x");
       this.overrideHost.sendKeys("x");
       this.overridePort.sendKeys("x");
       this.payload.sendKeys("X");
-      //this.header.get(0);
       this.preThinkTime.sendKeys(1);
       this.postThinkTime.sendKeys(1);
       this.responseStatusCode.sendKeys(1);
       this.responseContentType.sendKeys("x");
-     // this.multipartPayload.get(1);
-      //this.responseValue.get(1);
-
-      this.testCaseDir.sendKeys(Key.BACK_SPACE);
-      this.testName.sendKeys(Key.BACK_SPACE);
-      this.describe.sendKeys(Key.BACK_SPACE);
+      
+      this.testCaseTabBtn.click();
+      this.multipart.click();
+      this.httpMethod.click();
+      this.execWeight.click();
+     
+      this.testname.sendKeys(Key.BACK_SPACE);
       this.baseUri.sendKeys(Key.BACK_SPACE);
       this.overrideHost.sendKeys(Key.BACK_SPACE);
       this.overridePort.sendKeys(Key.BACK_SPACE);
       this.payload.sendKeys(Key.BACK_SPACE);
-     // this.header.get(1);
       this.preThinkTime.sendKeys(Key.BACK_SPACE);
       this.postThinkTime.sendKeys(Key.BACK_SPACE);
       this.responseStatusCode.sendKeys(Key.BACK_SPACE);
       this.responseContentType.sendKeys(Key.BACK_SPACE);
-     // this.multipartPayload.get(1);
-      //this.responseValue.get(1);
-
+     
     }
   }
 export = TestCasePageObject;

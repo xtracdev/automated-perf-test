@@ -48,7 +48,9 @@ class ConfigurationPageObject {
 
   absolutePath = path.resolve(__dirname, configFileLocation);
  
-  
+  setToastrMessage(){
+    return this.toastrMessage;
+  }
   
   setConfigPath() {
     return this.configFilePath.sendKeys(this.absolutePath);
@@ -149,6 +151,8 @@ class ConfigurationPageObject {
     this.reportsDir.sendKeys("x");
     this.serviceVariance.sendKeys(1);
     this.memoryVariance.sendKeys(1);
+
+    this.testSuite.click();
 
     this.applicationName.sendKeys(Key.BACK_SPACE);
     this.numIterations.sendKeys(Key.BACK_SPACE);
