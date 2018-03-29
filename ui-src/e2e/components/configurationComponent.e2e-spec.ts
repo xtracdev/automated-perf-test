@@ -40,7 +40,7 @@ describe("configuration component", () => {
     
     // browser.sleep(52000000)
     expect(configPO.toastrMessage.getText()).toEqual(
-      "Your data has been saved!", "Success!"
+      "Success!\nYour data has been saved!"
     );
   });
 

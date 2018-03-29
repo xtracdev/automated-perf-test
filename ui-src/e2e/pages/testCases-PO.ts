@@ -21,8 +21,9 @@ import {
     testCaseDir = element(by.id("testCase-dir"));
     btnAdd = element(by.id("btn-add"));
     btnSave = element(by.id("btn-save"));
+    btnCancel = element(by.id("btn-cancel"));
 
-    testname = element(by.name("testname"));
+    testName = element(by.className("test-name"));
     baseUri = element(by.name("baseURI"));
     overrideHost = element(by.name("overrideHost"));
     overridePort = element(by.name("overridePort"));
@@ -59,7 +60,7 @@ import {
     }
     
     setTestName(){
-      return this.testname.sendKeys("Xtrac Test Case");
+      return this.testName.sendKeys("Xtrac Test Case");
     }
 
     setMultipart(){
@@ -67,7 +68,7 @@ import {
     }
     
      setBaseUri(){
-       return this.baseUri.sendKeys("./baseURI/testCases ");
+       return this.baseUri.sendKeys("./baseURI/testCases");
      }
 
      setOverrideHost(){
@@ -122,7 +123,7 @@ import {
 
     checkRequiredFields(){
 
-      this.testname.sendKeys("x");
+      this.testName.sendKeys("x");
       this.baseUri.sendKeys("x");
       this.overrideHost.sendKeys("x");
       this.overridePort.sendKeys("x");
@@ -137,7 +138,7 @@ import {
       this.httpMethod.click();
       this.execWeight.click();
      
-      this.testname.sendKeys(Key.BACK_SPACE);
+      this.testName.sendKeys(Key.BACK_SPACE);
       this.baseUri.sendKeys(Key.BACK_SPACE);
       this.overrideHost.sendKeys(Key.BACK_SPACE);
       this.overridePort.sendKeys(Key.BACK_SPACE);

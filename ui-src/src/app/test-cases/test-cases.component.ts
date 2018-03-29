@@ -5,6 +5,7 @@ import { ToastsManager } from "ng2-toastr/ng2-toastr";
 import { JsonSchemaFormModule } from "angular2-json-schema-form";
 import { HttpClient } from "@angular/common/http";
 import "rxjs/add/operator/map";
+
 import { error } from "selenium-webdriver";
 
 @Component({

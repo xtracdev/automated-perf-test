@@ -2,17 +2,22 @@
     <div class="row">
         <div class=" column  col-md-11">
             <label>Test Case Directory</label>
-            <input class="form-control" [(ngModel)]="testCasePath" required>
+            <input class="form-control" 
+            type="string" 
+            id="testCase-dir"
+            [(ngModel)]="testCasePath"
+            required>
         </div>
+
         <div class="load-button column col-md-1">
             <button class="btn btn-primary " (click)="onLoad()">Load</button>
         </div>
     </div>
+    
     <div class="row">
-
         <div class="column col-md-4">
             <h1>Existing Test Cases</h1>
-            <button class="btn btn-primary " (click)="onAdd()">Add</button>
+            <button class="btn btn-primary " id="btn-add"  (click)="onAdd()">Add</button>
             <button class="btn btn-primary " (click)="onDelete()">Delete</button>
             <table>
                 <tr>
@@ -23,14 +28,13 @@
                 <tr *ngFor="let testCase of testCases  let i = index"  
                     [class.highlighted]="testCase"  
                     (click)="onSelectCase(testCase, i)">
-                    <td>{{testCase.testname}}</td>
+                    <td class="test-name">{{testCase.testname}}</td>
                     <td>{{testCase.description}}</td>
                     <td>{{testCase.httpMethod}}</td>
                 </tr>
             </table>
         </div>
         <div class="col-md-8">
-
             <json-schema-form 
             ngDefaultControl 
             [schema]="testCaseSchema" 
@@ -39,8 +43,8 @@
             </json-schema-form>
 
             <div class="button-row">
-                <button class="btn btn-primary push-right" (click)="onCancel()">Cancel</button>
-                <button class="btn btn-primary push-right" *ngIf="!testCaseFileName" (click)="onSave(testCaseData)">Save</button>
+                <button class="btn btn-primary push-right" id = "btn-cancel"  (click)="onCancel()">Cancel</button>
+                <button class="btn btn-primary push-right" *ngIf="!testCaseFileName" id="btn-save" (click)="onSave(testCaseData)">Save</button>
                 <button class="btn btn-primary push-right" *ngIf="testCaseFileName" (click)="onUpdate(testCaseData)">Update</button>
             </div>
         </div>
