@@ -37,8 +37,6 @@ describe("configuration component", () => {
     configPO.submitBtn.click();
     
     // Assert
-    
-    // browser.sleep(52000000)
     expect(configPO.toastrMessage.getText()).toEqual(
       "Success!\nYour data has been saved!"
     );

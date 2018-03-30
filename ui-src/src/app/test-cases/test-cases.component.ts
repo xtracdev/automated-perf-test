@@ -65,7 +65,9 @@ export class TestCasesComponent implements OnInit {
 
   onSelectCase(testCase, i) {
     this.testCaseData = testCase;
+    console.log("testCASE: ", this.testCaseData);
     this.testCaseFileName = testCase.testname;
+    console.log("testNAME: ", this.testCaseFileName);
   }
 
   onAdd() {

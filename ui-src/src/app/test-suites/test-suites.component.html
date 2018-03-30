@@ -12,7 +12,7 @@
                     <th>Name </th>
                     <th>Description</th>
                 </tr>
-                <tr *ngFor="let testSuite of testSuites let i = index" [class.highlighted]="testSuite" (click)="onSelectSuite(testSuite, i)">
+                <tr *ngFor="let testSuite of testSuites; let i = index" [class.highlighted]="testSuite" (click)="onSelectSuite(testSuite, i)">
                     <td>{{testSuite.name}}</td>
                     <td>{{testSuite.description}}</td>
                 </tr>

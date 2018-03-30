@@ -30,26 +30,18 @@ import {
       });
 
 
-      it('should add a test case file', () => {
-      //click tab button
-
-      //set test data
+      fit('should create a new test case file', () => {
+      testCasePO.setTestNavigateToTestCasesPage();
       testCasePO.setTestCaseData();
-    
-      //click submit
-      testCasePO.btnAdd.click();
-   
-     browser.sleep(520000000000000000)
-      //confirm message toaster
+      testCasePO.btnSave.click();
       expect(testCasePO.toastrMessage.getText()).toEqual(
-        "Your data has been added!, Success!"
+        "Success!\nYour data has been saved!"
       );
     });
 
-    fit("should check that all text box names are correct", () => {
+    it("should check that all text box names are correct", () => {
+      testCasePO.setTestNavigateToTestCasesPage();
       testCasePO.setTestCaseData();
-     
-      
       expect(testCasePO.labels.get(0).getText()).toContain("Testname");
       expect(testCasePO.labels.get(1).getText()).toContain("Description");
       expect(testCasePO.labels.get(2).getText()).toContain("Base URI");
@@ -59,8 +51,6 @@ import {
       expect(testCasePO.labels.get(6).getText()).toContain("Payload");
       expect(testCasePO.labels.get(7).getText()).toContain("Http Method");
       expect(testCasePO.labels.get(8).getText()).toContain("Headers");
-     // expect(testCasePO.labels.get(9).getText()).toContain("Key");
-     // expect(testCasePO.labels.get(10).getText()).toContain("Value");
       expect(testCasePO.labels.get(11).getText()).toContain("Pre Think Time");
       expect(testCasePO.labels.get(12).getText()).toContain("Post Think Time");
       expect(testCasePO.labels.get(13).getText()).toContain("Exec Weight");
@@ -72,6 +62,7 @@ import {
     });
     
     it("should check values of existing test case file are as expected", () => {
+      testCasePO.setTestNavigateToTestCasesPage();
       testCasePO.setTestCaseData();
       testCasePO.testCaseDir.sendKeys(testCasePO.absolutePath);
       testCasePO.testName.sendKeys("suites");
@@ -89,7 +80,7 @@ import {
     });
 
     it("should throw error when a test case file path does not exist", () => {
-      //testCasePO.setTestNavigateToTestCasesPage();
+      testCasePO.setTestNavigateToTestCasesPage();
       testCasePO.setTestCaseData();
       testCasePO.testCaseDir.sendKeys("/path/to/bad/location");
       testCasePO.btnSave.click();
@@ -98,43 +89,19 @@ import {
       );
     });
 
-    it("should check requiredFields warning appears when requiredFields input is blank", () => {
-      testCasePO.setTestCaseData();
+    fit("should check requiredFields warning appears when requiredFields input is blank", () => {
+      testCasePO.setTestNavigateToTestCasesPage();
       testCasePO.checkRequiredFields();
-      browser.sleep(52000000000000);
-      expect(testCasePO.requiredFields.get(1).getText())
-        .toContain("This field is required.");
- 
-      expect(testCasePO.requiredFields.get(1).getText())
-        .toContain("This field is required.");
-  
-      expect(testCasePO.requiredFields.get(3).getText())
-        .toContain("This field is required.");
+      expect(testCasePO.requiredFields.get(0).getText()).toContain("This field is required.")
+      expect(testCasePO.requiredFields.get(1).getText()).toContain("This field is required.");
+      expect(testCasePO.requiredFields.get(2).getText()).toContain("This field is required.");
+      expect(testCasePO.requiredFields.get(3).getText()).toContain("This field is required.");
+      expect(testCasePO.requiredFields.get(4).getText()).toContain("This field is required.");
+      expect(testCasePO.requiredFields.get(5).getText()).toContain("This field is required.");
+      expect(testCasePO.requiredFields.get(6).getText()).toContain("This field is required.");
+      expect(testCasePO.requiredFields.get(7).getText()).toContain("This field is required.");
+      expect(testCasePO.requiredFields.get(8).getText()).toContain("This field is required.");
       
-      //   expect(testCasePO.requiredFields.get(4).getText())
-      //   .toContain("This field is required.");
-      
-      expect(testCasePO.requiredFields.get(5).getText())
-        .toContain("This field is required.");
-     
-      expect(testCasePO.requiredFields.get(6).getText())
-        .toContain("This field is required.");
-      
-      expect(testCasePO.requiredFields.get(7).getText())
-        .toContain("This field is required.");
-      
-      expect(testCasePO.requiredFields.get(8).getText())
-        .toContain("This field is required.");
-      
-      expect(testCasePO.requiredFields.get(3).getText())
-        .toContain("This field is required.");
-     
-      expect(testCasePO.requiredFields.get(3).getText())
-        .toContain("This field is required.");
-     
-      expect(testCasePO.requiredFields.get(3).getText())
-        .toContain("This field is required.");
-     
     });
   
   });

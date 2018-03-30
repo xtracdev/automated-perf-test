@@ -23,7 +23,7 @@ import {
     btnSave = element(by.id("btn-save"));
     btnCancel = element(by.id("btn-cancel"));
 
-    testName = element(by.className("test-name"));
+    testName = element(by.name("testname"));
     baseUri = element(by.name("baseURI"));
     overrideHost = element(by.name("overrideHost"));
     overridePort = element(by.name("overridePort"));
@@ -42,7 +42,7 @@ import {
 
     toastrMessage = element(by.id("toast-container"));
     labels = $("json-schema-form").$$("label");
-    requiredFields = $$("p");
+    requiredFields =  $$("p");
 
     absolutePath = path.resolve(__dirname, testCaseFileLocation);
 
@@ -51,7 +51,7 @@ import {
       return this.toastrMessage;
     }
 
-    setTestCaseTabBtn(){
+    setTestNavigateToTestCasesPage(){
       return this.testCaseTabBtn.click();
     }
 
@@ -104,7 +104,6 @@ import {
     }
      
     setTestCaseData(){
-      this.testCaseTabBtn.click();
       this.setTestCaseDir();
       this.setTestName();
       this.multipart.click();
@@ -113,16 +112,17 @@ import {
       this.setOverridePort();
       this.setPayload();
       this.httpMethod.click();
+      this.setHttpMethod();
       this.setPreThinkTime();
       this.setPostThinkTime();
       this.execWeight.click();
+      this.setExecWeight();
       this.setResponseStatusCode();
       this.setResponseContentType();
     
     }
 
     checkRequiredFields(){
-
       this.testName.sendKeys("x");
       this.baseUri.sendKeys("x");
       this.overrideHost.sendKeys("x");
@@ -133,10 +133,10 @@ import {
       this.responseStatusCode.sendKeys(1);
       this.responseContentType.sendKeys("x");
       
-      this.testCaseTabBtn.click();
-      this.multipart.click();
       this.httpMethod.click();
+      this.setHttpMethod();
       this.execWeight.click();
+      this.setExecWeight();
      
       this.testName.sendKeys(Key.BACK_SPACE);
       this.baseUri.sendKeys(Key.BACK_SPACE);
