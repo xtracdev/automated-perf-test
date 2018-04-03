@@ -6,12 +6,13 @@ exports.config = {
   allScriptsTimeout: 11000,
   specs: ["./e2e/**/*.e2e-spec.ts"],
   capabilities: {
-    browserName: "chrome",
-    
-    
+    'browserName': 'chrome',
+    'chromeOptions': {
+      'args': ['--disable-web-security']
+    }
   },
   directConnect: true,
-  baseUrl: "http://localhost:9191/",
+  baseUrl: "http://localhost:4200/",
   framework: "jasmine",
   jasmineNodeOpts: {
     showColors: true,

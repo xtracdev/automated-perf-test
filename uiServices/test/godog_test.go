@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 
@@ -31,15 +32,13 @@ type apiFeature struct {
 	headerName  string
 }
 
-var suitDir = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test"
-
 func (a *apiFeature) resetResponse() {
 	a.client = &http.Client{}
 	a.resp = nil
 }
 
 func (a *apiFeature) iSendrequestTo(method, endpoint string) (err error) {
-	response, err := makePostRequest(a.client, method, endpoint, "", "", "")
+	response, err := makeRequest(a.client, method, endpoint, "", "", "")
 	if err != nil {
 		return err
 	}
@@ -59,7 +58,8 @@ func (a *apiFeature) theResponseBodyShouldMatchJSON(body *gherkin.DocString) (er
 	var expectedConfig perfTestUtils.Config
 	var actualConfig perfTestUtils.Config
 
-	file, _ := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + a.filename)
+	file, _ :=
+		os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + "/" + a.filename + ".xml")
 	byteValue, err := ioutil.ReadAll(file)
 	xml.Unmarshal(byteValue, &expectedConfig)
 
@@ -76,7 +76,9 @@ func (a *apiFeature) theTestSuiteResponseBodyShouldMatchJSON(body *gherkin.DocSt
 	var expectedSuite testStrategies.TestSuite
 	var actualSuite testStrategies.TestSuite
 
-	file, _ := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + a.filename)
+	file, _ :=
+		os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + "/" + a.filename + ".xml")
+
 	byteValue, err := ioutil.ReadAll(file)
 	xml.Unmarshal(byteValue, &expectedSuite)
 
@@ -92,7 +94,6 @@ func (a *apiFeature) theTestSuiteResponseBodyShouldMatchJSON(body *gherkin.DocSt
 func (a *apiFeature) theTestSuiteCollectionResponseBodyShouldMatchJSON(body *gherkin.DocString) (err error) {
 	var expectedSuite testStrategies.TestSuite
 	var actualSuite testStrategies.TestSuite
-
 	exp :=
 		`"""
         [
@@ -211,15 +212,13 @@ func (a *apiFeature) theHeaderIs(name string, path string) error {
 
 func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() error {
 	configsPathDir := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath
-
 	fileExists := services.FilePathExist(configsPathDir)
-
 	if !fileExists {
 		return fmt.Errorf("File Does Not Exist")
 	}
 
 	logrus.Println("File Exists")
-	if !IsValidXml(a.requestbody, a.headerPath) {
+	if !IsValidXML(a.requestbody, a.headerPath) {
 		return fmt.Errorf("File is not a valid XML file")
 	}
 	logrus.Println("File is a valid XML file")
@@ -227,7 +226,7 @@ func (a *apiFeature) theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir() 
 }
 
 func (a *apiFeature) iSendRequestToWithABody(method, endpoint string, body *gherkin.DocString) error {
-	response, err := makePostRequest(a.client, method, endpoint, body.Content, a.headerPath, a.headerName)
+	response, err := makeRequest(a.client, method, endpoint, body.Content, a.headerPath, a.headerName)
 	a.requestbody = body.Content
 	if err != nil {
 		return err
@@ -236,73 +235,17 @@ func (a *apiFeature) iSendRequestToWithABody(method, endpoint string, body *gher
 	return nil
 }
 
-func makePostRequest(client *http.Client, method, endpoint, body string, headerPath string, headerName string) (*http.Response, error) {
-
-	var reqBody io.Reader
-	if body != "" {
-		reqBody = strings.NewReader(body)
-	}
-
-	req, err := http.NewRequest(method, "http://localhost:9191"+endpoint, reqBody)
-
-	if headerPath == "" {
-		req.Header.Set(headerName, "")
-	} else {
-		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
-func FeatureContext(s *godog.Suite) {
-	api := &apiFeature{}
-
-	s.BeforeScenario(func(interface{}) {
-
-		api.resetResponse()
-
-	})
-
-	s.Step(`^I send "(GET|POST|PUT|DELETE)" request to "([^"]*)"$`, api.iSendrequestTo)
-	s.Step(`^the response code should be (\d+)$`, api.theResponseCodeShouldBe)
-	s.Step(`^the header "([^"]*)" is "([^"]*)"$`, api.theHeaderIs)
-	s.Step(`^the response body should match json:$`, api.theResponseBodyShouldMatchJSON)
-	s.Step(`^the response body should be empty$`, api.theResponseBodyShouldBeEmpty)
-	s.Step(`^the config file was created at location defined by configsPathDir$`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir)
-	s.Step(`^the automated performance ui server is available$`, theAutomatedPerformanceUiServerIsAvailable)
-	s.Step(`^I send "([^"]*)" request to "([^"]*)" with a body:$`, api.iSendRequestToWithABody)
-	s.Step(`^the file name is "([^"]*)"$`, api.theFileNameis)
-	s.Step(`^I send a "([^"]*)" request to "([^"]*)"$`, api.iSendARequestTo)
-	s.Step(`^the file "([^"]*)" exists at "([^"]*)"$`, theFileExistsAt)
-	s.Step(`^I send "([^"]*)" request to "([^"]*)" with body:$`, api.iSendRequestToWithBody)
-	s.Step(`^the updated file should match json:$`, api.theUpdatedFileShouldMatchJSON)
-	s.Step(`^there is no existing test file "([^"]*)"$`, api.thereIsNoExistingTestFile)
-	s.Step(`^the test suite response body should match json:$`, api.theTestSuiteResponseBodyShouldMatchJSON)
-	s.Step(`^the test suite collection response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
-	s.Step(`^the "([^"]*)" has been created at "([^"]*)"$`, createNewFile)
-	s.Step(`^the test case collection response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
-	s.Step(`^the test case response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
-}
-
 func (a *apiFeature) thereIsNoExistingTestFile(file string) error {
 	os.Remove(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/" + file)
 	return nil
 }
 
-func theAutomatedPerformanceUiServerIsAvailable() error {
+func theAutomatedPerformanceUIServerIsAvailable() error {
 	go http.ListenAndServe(":9191", services.GetRouter())
 	return nil
 }
 
-func IsValidXml(config string, header string) bool {
+func IsValidXML(config string, header string) bool {
 	file, err := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + header)
 	if err != nil {
 		fmt.Println(err)
@@ -343,36 +286,23 @@ func (a *apiFeature) theFileNameis(filename string) error {
 }
 
 func (a *apiFeature) iSendARequestTo(method, endpoint string) error {
-	response, err := makeGetRequest(a.client, method, endpoint, a.filename, a.headerPath, a.headerName)
+	response, err := makeRequest(a.client, method, endpoint, a.filename, a.headerPath, a.headerName)
 	if err != nil {
 		return err
 	}
-
+	// TODO this can be removed
+	pathSplit := strings.Split(endpoint, "/")
+	if len(pathSplit) >= 3 {
+		a.filename = pathSplit[2]
+	}
 	a.resp = response
 	return nil
 }
 
-func makeGetRequest(client *http.Client, method, endpoint string, filename string, headerPath, headerName string) (*http.Response, error) {
-	req, err := http.NewRequest(method, "http://localhost:9191"+endpoint, nil)
-
-	if headerPath == "" {
-		req.Header.Set(headerName, "")
-	} else {
-		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
 func theFileExistsAt(filename, path string) error {
+
+	os.Create(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + path + filename)
+
 	_, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + path + filename)
 	if err != nil {
 		fmt.Println("Error. File Not Found at location : " + path + filename)
@@ -382,7 +312,7 @@ func theFileExistsAt(filename, path string) error {
 }
 
 func (a *apiFeature) iSendRequestToWithBody(method, endpoint string, body *gherkin.DocString) error {
-	response, err := makePutRequest(a.client, method, endpoint, body.Content, a.headerPath, a.headerName)
+	response, err := makeRequest(a.client, method, endpoint, body.Content, a.headerPath, a.headerName)
 	a.requestbody = body.Content
 	if err != nil {
 		return err
@@ -391,7 +321,7 @@ func (a *apiFeature) iSendRequestToWithBody(method, endpoint string, body *gherk
 	return nil
 }
 
-func makePutRequest(client *http.Client, method, endpoint, body string, headerPath, headerName string) (*http.Response, error) {
+func makeRequest(client *http.Client, method string, endpoint string, body string, headerPath string, headerName string) (*http.Response, error) {
 
 	var reqBody io.Reader
 	if body != "" {
@@ -403,7 +333,7 @@ func makePutRequest(client *http.Client, method, endpoint, body string, headerPa
 	if headerPath == "" {
 		req.Header.Set(headerName, "")
 	} else {
-		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/uiServices/test/", os.Getenv("GOPATH")))
+		req.Header.Set(headerName, fmt.Sprintf("%s/src/github.com/xtracdev/automated-perf-test/%s", os.Getenv("GOPATH"), headerPath))
 	}
 	if err != nil {
 		return nil, err
@@ -421,7 +351,8 @@ func (a *apiFeature) theUpdatedFileShouldMatchJSON(body *gherkin.DocString) (err
 	var expectedConfig perfTestUtils.Config
 	var actualConfig perfTestUtils.Config
 
-	file, _ := os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + a.filename)
+	file, _ :=
+		os.Open(os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test" + a.headerPath + a.filename + ".xml")
 	byteValue, err := ioutil.ReadAll(file)
 	xml.Unmarshal(byteValue, &expectedConfig)
 
@@ -434,12 +365,57 @@ func (a *apiFeature) theUpdatedFileShouldMatchJSON(body *gherkin.DocString) (err
 	return nil
 }
 
-func createNewFile(fileName, path string) error {
+func FeatureContext(s *godog.Suite) {
+	api := &apiFeature{}
 
-	err := ioutil.WriteFile(fmt.Sprintf("%s%s/%s", suitDir, path, fileName), nil, 0666)
-	if err != nil {
-		logrus.Error(" error creating file ", err)
-		return err
-	}
-	return err
+	s.AfterScenario(func(interface{}, error) {
+		dirname := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
+
+		d, err := os.Open(dirname)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer d.Close()
+
+		files, err := d.Readdir(-1)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Println("Reading " + dirname)
+
+		for _, file := range files {
+			if file.Mode().IsRegular() {
+				if filepath.Ext(file.Name()) == ".xml" {
+					os.Remove(file.Name())
+					fmt.Println("Deleted ", file.Name())
+				}
+			}
+		}
+	})
+
+	s.BeforeScenario(func(interface{}) {
+		api.resetResponse()
+	})
+
+	s.Step(`^I send "(GET|POST|PUT|DELETE)" request to "([^"]*)"$`, api.iSendrequestTo)
+	s.Step(`^the response code should be (\d+)$`, api.theResponseCodeShouldBe)
+	s.Step(`^the header "([^"]*)" is "([^"]*)"$`, api.theHeaderIs)
+	s.Step(`^the response body should match json:$`, api.theResponseBodyShouldMatchJSON)
+	s.Step(`^the response body should be empty$`, api.theResponseBodyShouldBeEmpty)
+	s.Step(`^the config file was created at location defined by path`, api.theConfigFileWasCreatedAtLocationDefinedByConfigsPathDir)
+	s.Step(`^the automated performance ui server is available$`, theAutomatedPerformanceUIServerIsAvailable)
+	s.Step(`^I send "([^"]*)" request to "([^"]*)" with a body:$`, api.iSendRequestToWithABody)
+	s.Step(`^the file name is "([^"]*)"$`, api.theFileNameis)
+	s.Step(`^I send a "([^"]*)" request to "([^"]*)"$`, api.iSendARequestTo)
+	s.Step(`^the file "([^"]*)" exists at "([^"]*)"$`, theFileExistsAt)
+	s.Step(`^I send "([^"]*)" request to "([^"]*)" with body:$`, api.iSendRequestToWithBody)
+	s.Step(`^the updated file should match json:$`, api.theUpdatedFileShouldMatchJSON)
+	s.Step(`^there is no existing test file "([^"]*)"$`, api.thereIsNoExistingTestFile)
+	s.Step(`^the test suite response body should match json:$`, api.theTestSuiteResponseBodyShouldMatchJSON)
+	s.Step(`^the test suite collection response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
+	s.Step(`^the test case collection response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
+	s.Step(`^the test case response body should match json:$`, api.theTestSuiteCollectionResponseBodyShouldMatchJSON)
 }

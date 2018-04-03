@@ -1,3 +1,4 @@
+
 import {
   browser,
   element,
@@ -20,7 +21,7 @@ const configPO: ConfigurationPageObject = new ConfigurationPageObject();
 
 describe("configuration component", () => {
   beforeEach(() => {
-    browser.get("http://localhost:9191");
+    browser.get("/");
     browser.executeScript("window.onbeforeunload = function(e){};");
     browser.driver
       .manage()
@@ -29,18 +30,13 @@ describe("configuration component", () => {
   });
 
   it("should create xml file", () => {
-    configPO.setConfigData();
-    configPO.submitBtn.click();
-    expect(configPO.toastrMessage.getText()).toContain(
-      "Your data has been saved!"
-    );
+    configPO.setConfigData(); //Act
+    configPO.submitBtn.click(); //Action
+    expect(configPO.toastrMessage.getText()).toEqual(
+      "Success!\nYour data has been saved!"
+    ); //Assert
   });
 
-  it("should show submit button is disabled when requiredFields data is blank", () => {
-    // used to clear default data in this test
-    configPO.checkRequiredFields();
-    expect(configPO.submitBtn.isEnabled()).toBe(false);
-  });
 
   it("should check that all text box names are correct", () => {
     configPO.setConfigData();
@@ -63,30 +59,31 @@ describe("configuration component", () => {
     );
   });
 
-  it("should check values of existing file are as expected", () => {
-    configPO.configFilePath.sendKeys(configPO.absolutePath);
-    configPO.xmlFileName.sendKeys("config.xml");
-    configPO.cancelBtn.click();
-    expect(configPO.applicationName.getAttribute("value")).toEqual("config");
-    expect(configPO.targetHost.getAttribute("value")).toEqual("localhost");
-    expect(configPO.targetPort.getAttribute("value")).toEqual("8080");
-    expect(configPO.testCaseDir.getAttribute("value")).toEqual(
-      "./definitions/testCases"
-    );
-    expect(configPO.baseStatsDir.getAttribute("value")).toEqual("./envStats");
-    expect(configPO.memoryEndpoint.getAttribute("value")).toEqual(
-      "/alt/debug/vars"
-    );
-    expect(configPO.reportsDir.getAttribute("value")).toEqual("./report");
-    expect(configPO.numIterations.getAttribute("value")).toEqual("1000");
-    expect(configPO.memoryVariance.getAttribute("value")).toEqual("15");
-    expect(configPO.serviceVariance.getAttribute("value")).toEqual("15");
-    expect(configPO.concurrentUsers.getAttribute("value")).toEqual("50");
-    expect(configPO.requestDelay.getAttribute("value")).toEqual("5000");
-    expect(configPO.tpsFreq.getAttribute("value")).toEqual("30");
-    expect(configPO.rampDelay.getAttribute("value")).toEqual("15");
-    expect(configPO.rampUsers.getAttribute("value")).toEqual("5");
-  });
+  // it("should check values of existing file are as expected", () => {
+  //   configPO.configFilePath.sendKeys(configPO.absolutePath);
+  //   configPO.xmlFileName.sendKeys("config");
+  //   configPO.cancelBtn.click();
+  //   expect(configPO.applicationName.getAttribute("value")).toEqual("config");
+  //   expect(configPO.targetHost.getAttribute("value")).toEqual("localhost");
+  //   expect(configPO.targetPort.getAttribute("value")).toEqual("8080");
+  //   expect(configPO.testCaseDir.getAttribute("value")).toEqual(
+  //     "./definitions/testCases"
+  //   );
+  //   expect(configPO.baseStatsDir.getAttribute("value")).toEqual("./envStats");
+  //   expect(configPO.memoryEndpoint.getAttribute("value")).toEqual(
+  //     "/alt/debug/vars"
+  //   );
+  //   expect(configPO.reportsDir.getAttribute("value")).toEqual("./report");
+  //   expect(configPO.numIterations.getAttribute("value")).toEqual("1000");
+  //   expect(configPO.memoryVariance.getAttribute("value")).toEqual("15");
+  //   expect(configPO.serviceVariance.getAttribute("value")).toEqual("15");
+  //   expect(configPO.concurrentUsers.getAttribute("value")).toEqual("50");
+  //   expect(configPO.requestDelay.getAttribute("value")).toEqual("5000");
+  //   expect(configPO.tpsFreq.getAttribute("value")).toEqual("30");
+  //   expect(configPO.rampDelay.getAttribute("value")).toEqual("15");
+  //   expect(configPO.rampUsers.getAttribute("value")).toEqual("15");
+  // });
+
 
   it("should throw error when file path does not exist", () => {
     configPO.setConfigData();
@@ -228,18 +225,17 @@ describe("configuration component", () => {
 
   it("should update existing file", () => {
     configPO.configFilePath.sendKeys(configPO.absolutePath);
-    configPO.xmlFileName.sendKeys("config.xml");
+    configPO.xmlFileName.sendKeys("config");
     configPO.cancelBtn.click();
     configPO.numIterations.sendKeys(5);
     configPO.btnUpdate.click();
     configPO.numIterations.sendKeys(Key.BACK_SPACE);
     configPO.cancelBtn.click();
 
-    configPO.getConfigFileBtn.click();
-
     expect(configPO.numIterations.getAttribute("value")).toEqual("10005");
   });
+
   it("should show update button is disabled when Xml File Name is blank", () => {
-    expect(configPO.btnUpdate.isEnabled()).toBe(false);
+    expect(configPO.btnUpdate.isPresent()).toBe(false);
   });
 });

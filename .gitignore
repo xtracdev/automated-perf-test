@@ -1,7 +1,20 @@
-
+config/*.xml
+ !config/config.xml
+ *.iml
+ .idea
+ ui/
+ automated-perf-test
+ uiServices/test/*.xml
 *.bak
 main
 .idea
 ui/
 **/node_modules
 /.editorconfig
+config/*.xml
+!config/config.xml
+*.iml
+.idea
+ui/
+automated-perf-test
+uiServices/test/*.xml

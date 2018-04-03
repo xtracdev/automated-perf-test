@@ -12,21 +12,20 @@ import { read } from "fs";
 const path = require("path");
 const configFileLocation = "../../../config/";
 
+
 class ConfigurationPageObject {
+  
   configFilePath = element(by.id("config-file-path"));
-  btnUpdate = element(by.id("update-config-file-btn"));
+  btnUpdate = element(by.id("btn-update"));
   xmlFileName = element(by.id("xml-file-name"));
+  submitBtn = element(by.id("btn-create"));
+  cancelBtn = element(by.id("btn-cancel"));
+  
   applicationName = element(by.name("apiName"));
   targetHost = element(by.name("targetHost"));
   targetPort = element(by.name("targetPort"));
-  memoryEndpoint = element(by.name("memoryEndpoint"));
-  submitBtn = element(by.className("btn"));
-  cancelBtn = element(by.id("cancel-btn"));
-
   numIterations = element(by.name("numIterations"));
   concurrentUsers = element(by.name("concurrentUsers"));
-  memoryVariance = element(by.name("allowablePeakMemoryVariance"));
-  serviceVariance = element(by.name("allowableServiceResponseTimeVariance"));
   testSuite = element(by.name("testSuite")).$$("option");
   requestDelay = element(by.name("requestDelay"));
   tpsFreq = element(by.name("TPSFreq"));
@@ -36,19 +35,31 @@ class ConfigurationPageObject {
   testSuiteDir = element(by.name("testSuiteDir"));
   baseStatsDir = element(by.name("baseStatsOutputDir"));
   reportsDir = element(by.name("reportOutputDir"));
+  
+  memoryEndpoint = element(by.name("memoryEndpoint"));
+  memoryVariance = element(by.name("allowablePeakMemoryVariance"));
+  serviceVariance = element(by.name("allowableServiceResponseTimeVariance"));
+  
+  
 
   toastrMessage = element(by.id("toast-container"));
   labels = $("json-schema-form").$$("label");
   requiredFields = $$("p");
 
   absolutePath = path.resolve(__dirname, configFileLocation);
-
+ 
+  setToastrMessage(){
+    return this.toastrMessage;
+  }
+  
   setConfigPath() {
     return this.configFilePath.sendKeys(this.absolutePath);
+
   }
 
   setApplicationName() {
     return this.applicationName.sendKeys("Xtrac API");
+    
   }
   setTargetHost() {
     return this.targetHost.sendKeys("localhost");
@@ -141,6 +152,8 @@ class ConfigurationPageObject {
     this.reportsDir.sendKeys("x");
     this.serviceVariance.sendKeys(1);
     this.memoryVariance.sendKeys(1);
+
+    this.testSuite.click();
 
     this.applicationName.sendKeys(Key.BACK_SPACE);
     this.numIterations.sendKeys(Key.BACK_SPACE);

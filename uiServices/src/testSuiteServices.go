@@ -10,16 +10,16 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/go-chi/chi"
-	"github.com/xeipuuv/gojsonschema"
 	"github.com/xtracdev/automated-perf-test/testStrategies"
 )
 
-var schemaFile string = "testSuite_schema.json"
-var structType string = "TestSuite"
+const (
+	schemaFile = "testSuite_schema.json"
+	structType = "testSuite"
+)
 
 type Suite struct {
 	File         string                    `json:"file"`
@@ -33,19 +33,10 @@ func TestSuiteCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
 	})
-
-}
-func getTestSuiteHeader(req *http.Request) string {
-	testSuitePathDir := req.Header.Get("testSuitePathDir")
-
-	if !strings.HasSuffix(testSuitePathDir, "/") {
-		testSuitePathDir = testSuitePathDir + "/"
-	}
-	return testSuitePathDir
 }
 
 func postTestSuites(rw http.ResponseWriter, req *http.Request) {
-	testSuitePathDir := getTestSuiteHeader(req)
+	testSuitePathDir := getPathHeader(req)
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 
@@ -67,7 +58,7 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !ValidateJSONWithSchema(buf.Bytes(), schemaFile, structType) {
+	if !validateJSONWithSchema(buf.Bytes(), schemaFile, structType) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -79,14 +70,15 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if FilePathExist(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuite.Name)) {
+	filePath := fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuite.Name)
+
+	if FilePathExist(filePath) {
 		logrus.Error("File already exists")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
-
 	}
 
-	if !testSuiteWriterXML(testSuite, testSuitePathDir+testSuite.Name+".xml") {
+	if !writeXML(testSuite, filePath) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -94,30 +86,8 @@ func postTestSuites(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusCreated)
 }
 
-func ValidateJSONWithSchema(testSuite []byte, schemaName, structType string) bool {
-	goPath := os.Getenv("GOPATH")
-	schemaLoader := gojsonschema.NewReferenceLoader("file:///" + goPath + "/src/github.com/xtracdev/automated-perf-test/ui-src/src/assets/" + schemaName)
-	documentLoader := gojsonschema.NewBytesLoader(testSuite)
-	logrus.Info(schemaLoader)
-	result, error := gojsonschema.Validate(schemaLoader, documentLoader)
-
-	if error != nil {
-		return false
-	}
-	if !result.Valid() {
-		logrus.Errorf("%sdocument is not valid. see errors :", structType)
-		for _, desc := range result.Errors() {
-			logrus.Error("- ", desc)
-			return false
-		}
-	}
-
-	logrus.Infof("%s document is valid", structType)
-	return true
-}
-
 func putTestSuites(rw http.ResponseWriter, req *http.Request) {
-	path := getTestSuiteHeader(req)
+	path := getPathHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
 	if err := IsHeaderValid(path); err != nil {
@@ -138,10 +108,9 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 		logrus.Error("File path does not exist")
 		rw.WriteHeader(http.StatusNotFound)
 		return
-
 	}
 
-	if !ValidateJSONWithSchema(buf.Bytes(), schemaFile, structType) {
+	if !validateJSONWithSchema(buf.Bytes(), schemaFile, structType) {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -155,7 +124,7 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !testSuiteWriterXML(testSuite, testSuitePathDir) {
+	if !writeXML(testSuite, testSuitePathDir) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -164,7 +133,7 @@ func putTestSuites(rw http.ResponseWriter, req *http.Request) {
 }
 
 func deleteTestSuite(rw http.ResponseWriter, req *http.Request) {
-	testSuitePathDir := getTestSuiteHeader(req)
+	testSuitePathDir := getPathHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
 	if err := IsHeaderValid(testSuitePathDir); err != nil {
@@ -177,15 +146,18 @@ func deleteTestSuite(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if _, err := os.Stat(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName)); err != nil {
+	filepath := fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName)
+
+	if _, err := os.Stat(filepath); err != nil {
 		if os.IsNotExist(err) {
-			logrus.Error("Test Suite File Not Found: " + testSuitePathDir + testSuiteName)
+			logrus.Error("Test Suite File Not Found: ", err)
 			rw.WriteHeader(http.StatusNotFound)
 			return
 		}
 	}
 
-	err := os.Remove(fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName))
+	filePath := fmt.Sprintf("%s%s.xml", testSuitePathDir, testSuiteName)
+	err := os.Remove(filePath)
 	if err != nil {
 		logrus.Errorf("Error deleting the file from filesystem: %s", err)
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -196,8 +168,7 @@ func deleteTestSuite(rw http.ResponseWriter, req *http.Request) {
 }
 
 func getTestSuite(rw http.ResponseWriter, req *http.Request) {
-
-	testSuitePathDir := getTestSuiteHeader(req)
+	testSuitePathDir := getPathHeader(req)
 	testSuiteName := chi.URLParam(req, "testSuiteName")
 
 	if err := IsHeaderValid(testSuitePathDir); err != nil {
@@ -230,14 +201,14 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request) {
 	err = xml.Unmarshal(byteValue, &testSuite)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot Unmarshall from XML")
+		logrus.Error("Cannot Unmarshall from XML", err)
 		return
 	}
 
 	testSuiteJSON, err := json.MarshalIndent(testSuite, "", "")
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
-		logrus.Error("Cannot marshall to JSON")
+		logrus.Error("Cannot marshall to JSON", err)
 		return
 	}
 
@@ -247,8 +218,7 @@ func getTestSuite(rw http.ResponseWriter, req *http.Request) {
 }
 
 func getAllTestSuites(rw http.ResponseWriter, req *http.Request) {
-
-	testSuitePathDir := getTestSuiteHeader(req)
+	testSuitePathDir := getPathHeader(req)
 	if len(testSuitePathDir) <= 1 {
 		logrus.Error("No file directory entered")
 		rw.WriteHeader(http.StatusBadRequest)

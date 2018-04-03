@@ -2,12 +2,15 @@ package services
 
 import (
 	"github.com/go-chi/chi"
-	"github.com/stretchr/testify/assert"
+
 	"net/http"
 	"net/http/httptest"
 	"os"
+
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const validTestSuite = `
@@ -78,25 +81,6 @@ const TestSuiteNoName = `
 }
 `
 
-const validTestSuiteForDelete = `
-{
-  "name": "TestSuiteA",
-  "testStrategy": "SuiteBased",
-  "description": "Services for XYZ",
-  "testCases": [
-    {
-      "name":"file1",
-      "preThinkTime": 1000,
-      "postThinkTime": 2000,
-      "execWeight": "Infrequent"
-    },
-    {
-      "name":"file2"
-    }
-  ]
-}
-`
-
 func TestValidTestSuitePost(t *testing.T) {
 	r := chi.NewRouter()
 	r.Mount("/", GetIndexPage())
@@ -108,7 +92,7 @@ func TestValidTestSuitePost(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -129,7 +113,7 @@ func TestFileExistsPost(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -150,7 +134,7 @@ func TestMissingRequiredTestSuitePost(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -172,7 +156,7 @@ func TestIncorrectDataTypePost(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -194,7 +178,7 @@ func TestValidTestSuitePostNoConfigPathDir(t *testing.T) {
 
 	filePath := ""
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -216,7 +200,7 @@ func TestValidTestSuitePostConfigPathDirNotExist(t *testing.T) {
 
 	filePath := "C:/a/b/c/d/////"
 	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -238,7 +222,7 @@ func TestValidTestSuitePut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "/test-suites/TestSuiteService", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -259,7 +243,7 @@ func TestTestSuiteMissingFieldPut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "/test-suites/TestSuiteService", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -280,7 +264,7 @@ func TestInvalidTestSuitePut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "/test-suites/TestSuiteService", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -301,7 +285,7 @@ func TestInvalidUrlTestSuitePut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "/test-suites/xxx", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -322,7 +306,7 @@ func TestNoUrlTestSuitePut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodPut, "", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -343,7 +327,7 @@ func TestPutWithNoPathSlash(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPut, "/test-suites/TestSuiteService", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -364,7 +348,7 @@ func TestNoPathTestSuitePut(t *testing.T) {
 
 	filePath := ""
 	request, err := http.NewRequest(http.MethodPut, "/test-suites/TestSuiteService", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -385,7 +369,7 @@ func TestNoFileNameTestSuitePut(t *testing.T) {
 
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
 	request, err := http.NewRequest(http.MethodPut, "/test-suites", reader)
-	request.Header.Set("testSuitePathDir", filePath)
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -404,8 +388,7 @@ func TestSuccessfulGetTestSuite(t *testing.T) {
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodGet, "/test-suites/TestSuiteService", nil)
 
-	request.Header.Set("testSuitePathDir", filePath)
-	request.Header.Get("testSuitePathDir")
+	request.Header.Set("path", filePath)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -424,8 +407,8 @@ func TestGetTestSuiteNoPath(t *testing.T) {
 	filePath := ""
 	request, err := http.NewRequest(http.MethodGet, "/test-suites/TestSuiteService.xml", nil)
 
-	request.Header.Set("testSuitePathDir", filePath)
-	request.Header.Get("testSuitePathDir")
+	request.Header.Set("path", filePath)
+	request.Header.Get("path")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -444,8 +427,8 @@ func TestGetTestSuiteFileNotFound(t *testing.T) {
 	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodGet, "/test-suites/xxx", nil)
 
-	request.Header.Set("testSuitePathDir", filePath)
-	request.Header.Get("testSuitePathDir")
+	request.Header.Set("path", filePath)
+	request.Header.Get("path")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -464,8 +447,8 @@ func TestSuccessfulGetAllSuites(t *testing.T) {
 	DirectoryPath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
 	request, err := http.NewRequest(http.MethodGet, "/test-suites", nil)
 
-	request.Header.Set("testSuitePathDir", DirectoryPath)
-	request.Header.Get("testSuitePathDir")
+	request.Header.Set("path", DirectoryPath)
+	request.Header.Get("path")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -484,8 +467,8 @@ func TestGetAllSuitesNoHeader(t *testing.T) {
 	DircetoryPath := ""
 	request, err := http.NewRequest(http.MethodGet, "/test-suites", nil)
 
-	request.Header.Set("testSuitePathDir", DircetoryPath)
-	request.Header.Get("testSuitePathDir")
+	request.Header.Set("path", DircetoryPath)
+	request.Header.Get("path")
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, request)
@@ -495,81 +478,4 @@ func TestGetAllSuitesNoHeader(t *testing.T) {
 	}
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Did not get all test suites")
-}
-
-func TestSuccessfulDeleteTestSuite(t *testing.T) {
-	r := chi.NewRouter()
-	r.Mount("/", GetIndexPage())
-
-	//create file to be deleted
-	reader := strings.NewReader(validTestSuiteForDelete)
-	r.HandleFunc("/test-suites", postTestSuites)
-
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test"
-	request, err := http.NewRequest(http.MethodPost, "/test-suites", reader)
-	request.Header.Set("testSuitePathDir", filePath)
-
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	assert.Equal(t, http.StatusCreated, w.Code, "Error: Did Not Successfully Post")
-
-	filePath = os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
-	request, err = http.NewRequest(http.MethodDelete, "/test-suites/TestSuiteA", nil)
-
-	request.Header.Set("testSuitePathDir", filePath)
-	request.Header.Get("testSuitePathDir")
-
-	w = httptest.NewRecorder()
-	r.ServeHTTP(w, request)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	assert.Equal(t, http.StatusNoContent, w.Code, "Error. Did not successfully Delete")
-}
-
-func TestDeleteTestSuiteNoHeader(t *testing.T) {
-	r := chi.NewRouter()
-	r.Mount("/", GetIndexPage())
-
-	filePath := ""
-	request, err := http.NewRequest(http.MethodDelete, "/test-suites/TestSuiteService", nil)
-
-	request.Header.Set("testSuitePathDir", filePath)
-	request.Header.Get("testSuitePathDir")
-
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	assert.Equal(t, http.StatusBadRequest, w.Code, "Deleted. But SHould Not Have")
-}
-
-func TestDeleteTestSuiteNotFound(t *testing.T) {
-	r := chi.NewRouter()
-	r.Mount("/", GetIndexPage())
-
-	filePath := os.Getenv("GOPATH") + "/src/github.com/xtracdev/automated-perf-test/uiServices/test/"
-	request, err := http.NewRequest(http.MethodDelete, "/test-suites/xxx", nil)
-
-	request.Header.Set("testSuitePathDir", filePath)
-	request.Header.Get("testSuitePathDir")
-
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	assert.Equal(t, http.StatusNotFound, w.Code, "Deleted. But should not have")
 }

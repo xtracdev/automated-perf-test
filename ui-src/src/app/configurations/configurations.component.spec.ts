@@ -3,8 +3,8 @@ import {ConfigurationsComponent} from "./configurations.component";
 
 import {CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA} from "@angular/core";
 import {ToastModule} from "ng2-toastr/ng2-toastr";
-import {AutomatedUIServices} from "../automated-ui-services";
-
+import {ConfigurationService} from "./configuration.service";
+import {TestSuiteService} from "../test-suites/test-suite.service";
 import {HttpClientModule} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
 import {ToastsManager, ToastOptions} from "ng2-toastr/ng2-toastr";
@@ -20,7 +20,7 @@ describe("ConfigurationsComponent", () => {
   beforeEach(
     async(() => {
       TestBed.configureTestingModule({
-        providers: [AutomatedUIServices, ToastsManager, ToastOptions],
+        providers: [ConfigurationService, ToastsManager, ToastOptions, TestSuiteService],
         declarations: [ConfigurationsComponent],
         imports: [FormsModule, HttpClientModule, ToastModule.forRoot()],
         schemas: [NO_ERRORS_SCHEMA,
@@ -31,7 +31,7 @@ describe("ConfigurationsComponent", () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      configurationService = TestBed.get(AutomatedUIServices);
+      configurationService = TestBed.get(ConfigurationService);
       toastr = TestBed.get(ToastsManager);
     }));
 
