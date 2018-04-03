@@ -30,8 +30,8 @@ import {
       });
 
 
-      fit('should create a new test case file', () => {
-      testCasePO.setTestNavigateToTestCasesPage();
+    fit('should create a new test case file', () => {
+      testCasePO.setTestCasesPage();
       testCasePO.setTestCaseData();
       testCasePO.btnSave.click();
       expect(testCasePO.toastrMessage.getText()).toEqual(
@@ -39,8 +39,8 @@ import {
       );
     });
 
-    it("should check that all text box names are correct", () => {
-      testCasePO.setTestNavigateToTestCasesPage();
+    fit("should check that all text box names are correct", () => {
+      testCasePO.setTestCasesPage();
       testCasePO.setTestCaseData();
       expect(testCasePO.labels.get(0).getText()).toContain("Testname");
       expect(testCasePO.labels.get(1).getText()).toContain("Description");
@@ -61,26 +61,9 @@ import {
      
     });
     
-    it("should check values of existing test case file are as expected", () => {
-      testCasePO.setTestNavigateToTestCasesPage();
-      testCasePO.setTestCaseData();
-      testCasePO.testCaseDir.sendKeys(testCasePO.absolutePath);
-      testCasePO.testName.sendKeys("suites");
-      testCasePO.btnCancel.click();
-      expect(testCasePO.testName.getAttribute("value")).toEqual("Xtrac Test Case");
-      expect(testCasePO.baseUri.getAttribute("value")).toEqual("./baseURI/testCases");
-      expect(testCasePO.overrideHost.getAttribute("value")).toEqual("overrideHost is:");
-      expect(testCasePO.overridePort.getAttribute("value")).toEqual("overridePort is:");
-      expect(testCasePO.payload.getAttribute("value")).toEqual("payload is:");
-      expect(testCasePO.preThinkTime.getAttribute("value")).toEqual("1");
-      expect(testCasePO.postThinkTime.getAttribute("value")).toEqual("5");
-      expect(testCasePO.responseStatusCode.getAttribute("value")).toEqual("500");
-      expect(testCasePO.responseContentType.getAttribute("value")).toEqual("pass/fail");
-      
-    });
 
-    it("should throw error when a test case file path does not exist", () => {
-      testCasePO.setTestNavigateToTestCasesPage();
+    fit("should throw error when a test case file path does not exist", () => {
+      testCasePO.setTestCasesPage();
       testCasePO.setTestCaseData();
       testCasePO.testCaseDir.sendKeys("/path/to/bad/location");
       testCasePO.btnSave.click();
@@ -89,8 +72,8 @@ import {
       );
     });
 
-    fit("should check requiredFields warning appears when requiredFields input is blank", () => {
-      testCasePO.setTestNavigateToTestCasesPage();
+   fit("should check requiredFields warning appears when requiredFields input is blank", () => {
+      testCasePO.setTestCasesPage();
       testCasePO.checkRequiredFields();
       expect(testCasePO.requiredFields.get(0).getText()).toContain("This field is required.")
       expect(testCasePO.requiredFields.get(1).getText()).toContain("This field is required.");
@@ -103,5 +86,6 @@ import {
       expect(testCasePO.requiredFields.get(8).getText()).toContain("This field is required.");
       
     });
+
   
   });

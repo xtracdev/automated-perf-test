@@ -51,7 +51,7 @@ import {
       return this.toastrMessage;
     }
 
-    setTestNavigateToTestCasesPage(){
+    setTestCasesPage(){
       return this.testCaseTabBtn.click();
     }
 
@@ -72,15 +72,15 @@ import {
      }
 
      setOverrideHost(){
-       return this.overrideHost.sendKeys("overrideHost is:");
+       return this.overrideHost.sendKeys("/etc/host");
      }
 
      setOverridePort(){
-      return this.overridePort.sendKeys("overridePort is:");
+      return this.overridePort.sendKeys("80");
     }
 
     setPayload(){
-      return this.payload.sendKeys("payload is:");
+      return this.payload.sendKeys("Xtrac Data");
     }
 
     setHttpMethod(){
@@ -148,6 +148,15 @@ import {
       this.responseStatusCode.sendKeys(Key.BACK_SPACE);
       this.responseContentType.sendKeys(Key.BACK_SPACE);
      
+    }
+
+    checkForStrings() {
+      this.testName.sendKeys("x");
+      this.baseUri.sendKeys("x");
+      this.overrideHost.sendKeys("x");
+      this.overridePort.sendKeys("x");
+      this.payload.sendKeys("x");
+      this.responseContentType.sendKeys("x");
     }
   }
 export = TestCasePageObject;
