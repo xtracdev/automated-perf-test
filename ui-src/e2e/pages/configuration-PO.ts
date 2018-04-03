@@ -10,7 +10,7 @@ import {
 } from "protractor";
 import { read } from "fs";
 const path = require("path");
-const configFileLocation = "../../../";
+const configFileLocation = "../../../config/";
 
 
 class ConfigurationPageObject {
@@ -54,6 +54,7 @@ class ConfigurationPageObject {
   
   setConfigPath() {
     return this.configFilePath.sendKeys(this.absolutePath);
+
   }
 
   setApplicationName() {

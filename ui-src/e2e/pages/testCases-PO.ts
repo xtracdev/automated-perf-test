@@ -151,12 +151,21 @@ import {
     }
 
     checkForStrings() {
-      this.testName.sendKeys("x");
-      this.baseUri.sendKeys("x");
-      this.overrideHost.sendKeys("x");
-      this.overridePort.sendKeys("x");
-      this.payload.sendKeys("x");
-      this.responseContentType.sendKeys("x");
+      this.responseStatusCode.sendKeys("x");
+      this.postThinkTime.sendKeys("x");
+      this.preThinkTime.sendKeys("x");
+    }
+
+    checkEisNotAccepted() {
+      this.preThinkTime.sendKeys("e");
+      this.postThinkTime.sendKeys("e");
+      this.responseStatusCode.sendKeys("e");
+    }
+
+    checkNegativeValues(){
+      this.preThinkTime.sendKeys(-1);
+      this.postThinkTime.sendKeys(-1);
+      this.responseStatusCode.sendKeys(-1);
     }
   }
 export = TestCasePageObject;

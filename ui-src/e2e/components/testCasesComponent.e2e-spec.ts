@@ -62,7 +62,7 @@ import {
     });
     
 
-    fit("should throw error when a test case file path does not exist", () => {
+   fit("should throw error when a test case file path does not exist", () => {
       testCasePO.setTestCasesPage();
       testCasePO.setTestCaseData();
       testCasePO.testCaseDir.sendKeys("/path/to/bad/location");
@@ -75,7 +75,7 @@ import {
    fit("should check requiredFields warning appears when requiredFields input is blank", () => {
       testCasePO.setTestCasesPage();
       testCasePO.checkRequiredFields();
-      expect(testCasePO.requiredFields.get(0).getText()).toContain("This field is required.")
+      expect(testCasePO.requiredFields.get(0).getText()).toContain("This field is required.");
       expect(testCasePO.requiredFields.get(1).getText()).toContain("This field is required.");
       expect(testCasePO.requiredFields.get(2).getText()).toContain("This field is required.");
       expect(testCasePO.requiredFields.get(3).getText()).toContain("This field is required.");
@@ -87,5 +87,32 @@ import {
       
     });
 
-  
-  });
+    fit("should show that string cannot be entered into a integer field", () => {
+      testCasePO.setTestCasesPage();
+      testCasePO.checkForStrings();
+      expect(testCasePO.postThinkTime.getAttribute("value")).toEqual("");
+      expect(testCasePO.preThinkTime.getAttribute("value")).toEqual("");
+      expect(testCasePO.responseStatusCode.getAttribute("value")).toEqual("");
+    });
+
+
+    fit("should check that e is not accepted in integer field", () =>{
+      testCasePO.setTestCasesPage();
+      testCasePO.checkEisNotAccepted();
+      expect(testCasePO.requiredFields.get(0).getText()).toContain("This field is required.");
+      expect(testCasePO.requiredFields.get(1).getText()).toContain("This field is required."); 
+      expect(testCasePO.requiredFields.get(2).getText()).toContain("This field is required.");
+      });
+
+    fit("should check that warning appears if negative number is enter to integer field", () => {
+        testCasePO.setTestCasesPage();
+        testCasePO.checkNegativeValues();
+        //browser.sleep(10000);
+        expect(testCasePO.requiredFields.get(0).getText()).toContain("Must be 1 or more");
+        expect(testCasePO.requiredFields.get(1).getText()).toContain("Must be 1 or more");
+        expect(testCasePO.requiredFields.get(2).getText()).toContain("Must be 1 or more");
+      });
+
+
+      
+    });  

@@ -5,7 +5,7 @@
     "overridePort",
     "overrideHost",
     "httpMethod",
-    "baseUri",
+    "baseURI",
     "multipart",
     "multipartPayload",
     "payload",
@@ -25,7 +25,7 @@
     "description": {
       "type": "string"
     },
-    "baseUri": {
+    "baseURI": {
       "type": "string"
     },
     "overrideHost": {
@@ -69,10 +69,12 @@
       }
     },
     "preThinkTime": {
-      "type": "number"
+      "type": "integer",
+      "minimum": 1
     },
     "postThinkTime": {
-      "type": "number"
+      "type": "integer",
+      "minimum": 1
     },
     "execWeight": {
       "type": "string",
@@ -82,7 +84,8 @@
       ]
     },
     "responseStatusCode": {
-      "type": "number"
+      "type": "integer",
+      "minimum": 1
     },
     "responseContentType": {
       "type": "string"
